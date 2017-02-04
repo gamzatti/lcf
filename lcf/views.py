@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ScenarioForm
 from .models import Scenario
 
@@ -11,5 +11,10 @@ def scenario_new(request):
 def scenario_save(request):
     form = ScenarioForm(request.POST)
     if form.is_valid():
-        form.save()
-    return redirect('scenario_new')
+        scenario = form.save()
+    return redirect('scenario_detail', pk=scenario.pk)
+
+def scenario_detail(request, pk):
+    scenario = get_object_or_404(Scenario,pk=pk)
+    scenarios = Scenario.objects.all()
+    return render(request, 'lcf/scenario_detail.html', {'scenario': scenario, 'scenarios': scenarios})

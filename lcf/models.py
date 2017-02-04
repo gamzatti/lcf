@@ -8,3 +8,6 @@ class Scenario(models.Model):
 
     def __str__(self):
         return self.name
+
+    def results(self):
+        return len(self.name)

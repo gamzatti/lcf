@@ -4,4 +4,5 @@ from . import views
 urlpatterns = [
     url(r'^$', views.scenario_new, name='scenario_new'),
     url(r'^scenario_save/$', views.scenario_save, name='scenario_save'),
+    url(r'^scenario/(?P<pk>\d+)/$', views.scenario_detail, name='scenario_detail')
 ]

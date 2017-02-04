@@ -4,20 +4,37 @@
         <title>LCF scenario generator</title>
         <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
-        <link href="https://fonts.googleapis.com/css?family=Sansita" rel="stylesheet"> 
+        <link href="https://fonts.googleapis.com/css?family=Sansita" rel="stylesheet">
         <link rel="stylesheet" href="{% static 'css/lcf.css' %}">
     </head>
     <body>
         <div class="page-header">
             <h1><a href="/">LCF scenario generator</a></h1>
-        </div>
+        </div><!--page-header-->
+
+        <div class="sidebar">
+        <div class="col-md-2">
+            <h1>Old scenarios</h1>
+            <ul>
+            {% for scenario in scenarios %}
+                <li><a href="{% url 'scenario_detail' pk=scenario.pk %}">{{ scenario.name }}</a></li>
+            {% endfor %}
+            <li><a href="{% url 'scenario_new' %}"><span class="glyphicon glyphicon-plus"></span></a></li>
+
+            </ul>
+        </div><!--col-md-8-->
+      </div><!--sidebar-->
+
+
         <div class="content container">
+
             <div class="row">
-                <div class="col-md-8">
-                    {% block content %}
-                    {% endblock %}
-                </div>
-            </div>
+
+            <div class="col-md-6">
+                {% block content %}
+                {% endblock %}
+            </div><!--col-md-8-->
+          </div>
         </div>
     </body>
 </html>
