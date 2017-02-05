@@ -5,4 +5,4 @@ class ScenarioForm(forms.ModelForm):
 
     class Meta:
         model = Scenario
-        fields = ('name','budget', 'percent_emerging', 'auctionyearset',)
+        fields = ('name','budget', 'percent_emerging',)

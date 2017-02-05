@@ -14,7 +14,7 @@
 
         <div class="sidebar">
         <div class="col-md-2">
-            <h1>Old scenarios</h1>
+            <h1>Scenarios</h1>
             <ul>
             {% for scenario in scenarios %}
                 <li><a href="{% url 'scenario_detail' pk=scenario.pk %}">{{ scenario.name }}</a></li>
