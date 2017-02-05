@@ -15,7 +15,7 @@ class Scenario(models.Model):
 
     def results(self):
         number = self.budget * 4
-        return number
+        return number / 7
 
 
 class AuctionYear(models.Model):

@@ -4,5 +4,19 @@
     <h1>{{ scenario.name }}</h1>
     <p>created {{ scenario.date }}</p>
     <p>budget: {{ scenario.budget }}</p>
-    <p>results: {{ scenario.results }}</p>
+    {% for y in scenario.auctionyear_set.all %}
+        <h3>Year: {{ y }}</h3>
+        <ul>
+        {% for t in y.auctionyeartechnology_set.all %}
+            <li>Technology: {{ t.technology_name }}</li>
+            <li>Strike price: {{ t.strike_price }}</li>
+        {% endfor %}
+        </ul>
+    {% endfor %}
+
+    <h2>results: {{ scenario.results }}</h2>
+
+
+
+
 {% endblock %}
