@@ -19,7 +19,7 @@ class Scenario(models.Model):
 
 
 class AuctionYear(models.Model):
-    inputset = models.ForeignKey('lcf.scenario', blank=True, null=True)
+    scenario = models.ForeignKey('lcf.scenario', blank=True, null=True)
     year = models.IntegerField(default=2020)
 
     def __str__(self):
