@@ -10,6 +10,9 @@
         {% for t in y.auctionyeartechnology_set.all %}
             <li>Technology: {{ t.technology_name }}</li>
             <li>Strike price: {{ t.strike_price }}</li>
+            <li>Min LCOE: {{ t.min_levelised_cost }}</li>
+            <li>Max LCOE: {{ t.max_levelised_cost }}</li>
+            
         {% endfor %}
         </ul>
     {% endfor %}

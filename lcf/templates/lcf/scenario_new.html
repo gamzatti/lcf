@@ -3,10 +3,9 @@
 {% block content %}
     <h1>New scenario</h1>
     <form method="POST" class="post-form">{% csrf_token %}
-        <table>
             {{ scenario_name_form }}
-            {{ formset }}
-        </table>
+            {{ formset.as_p }}
+
         <button type="submit" class="save btn btn-default">Save</button>
     </form>
 
