@@ -1,0 +1,11 @@
+[
+  {
+    "model": "lcf.scenario",
+    "pk": 1,
+    "fields": {
+      "name": "default",
+      "budget": 3.3,
+      "percent_emerging": 0.6
+    }
+  }
+]

@@ -19,21 +19,37 @@ class Scenario(models.Model):
 
 
 class AuctionYear(models.Model):
-    scenario = models.ForeignKey('lcf.scenario', blank=True, null=True)
+    scenario = models.ForeignKey('lcf.scenario', default=48)#http://stackoverflow.com/questions/937954/how-do-you-specify-a-default-for-a-django-foreignkey-model-or-adminmodel-field
     year = models.IntegerField(default=2020)
+    wholesale_price = models.IntegerField(default=50)
 
     def __str__(self):
         return str(self.year)
 
 
 class AuctionYearTechnology(models.Model):
-    year = models.ForeignKey('lcf.auctionyear', blank=True, null=True)
-    technology_name = models.CharField(max_length=200)
-    strike_price = models.DecimalField(default=100, max_digits=5, decimal_places=2)
-    min_levelised_cost = models.DecimalField(default=100, max_digits=5, decimal_places=2)
-    max_levelised_cost = models.DecimalField(default=100, max_digits=5, decimal_places=2)
-    project_size = models.DecimalField(default=100, max_digits=5, decimal_places=2)
-    max_deployment = models.DecimalField(default=100, max_digits=5, decimal_places=2)
+    POT_CHOICES = (
+            ('E', 'Emerging'),
+            ('M', 'Mature'),
+    )
+    TECHNOLOGY_CHOICES = (
+            ('OFW', 'Offshore wind'),
+            ('ONW', 'Onshore wind'),
+            ('NU', 'Nuclear'),
+            ('TL', 'Tidal lagoon'),
+            ('TS', 'Tidal stream'),
+            ('WA', 'Wave'),
+            ('PVLS', 'Solar PV'),
+    )
+    year = models.ForeignKey('lcf.auctionyear', default=232)
+    technology_name = models.CharField(max_length=4, choices=TECHNOLOGY_CHOICES, default='OFW')
+    pot = models.CharField(max_length=1, choices=POT_CHOICES, default='E')
+    min_levelised_cost = models.FloatField(default=100)
+    max_levelised_cost = models.FloatField(default=100)
+    strike_price = models.FloatField(default=100)
+    load_factor = models.FloatField(default=0.5)
+    project_size = models.FloatField(default=100)
+    max_deployment = models.FloatField(default=100)
 
     def __str__(self):
         return str((self.year,self.technology_name))
@@ -41,7 +57,7 @@ class AuctionYearTechnology(models.Model):
 
 class Project(models.Model):
     auction_year_technology = models.ForeignKey('lcf.AuctionYearTechnology', blank=True, null=True)
-    levelised_cost = models.DecimalField(default=100, max_digits=5, decimal_places=2)
+    levelised_cost = models.FloatField(default=100)
     affordable = models.BooleanField(default=False)
     successful = models.BooleanField(default=False)
 

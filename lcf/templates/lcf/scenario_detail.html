@@ -6,13 +6,16 @@
     <p>budget: {{ scenario.budget }}</p>
     {% for y in scenario.auctionyear_set.all %}
         <h3>Year: {{ y }}</h3>
+        <p>Wholesale price: {{ y.wholesale_price }}</p>
         <ul>
         {% for t in y.auctionyeartechnology_set.all %}
-            <li>Technology: {{ t.technology_name }}</li>
-            <li>Strike price: {{ t.strike_price }}</li>
+            <h4>Technology: {{ t.technology_name }}</h4>
             <li>Min LCOE: {{ t.min_levelised_cost }}</li>
             <li>Max LCOE: {{ t.max_levelised_cost }}</li>
-            
+            <li>Strike price: {{ t.strike_price }}</li>
+            <li>Load factor: {{ t.load_factor }}</li>
+            <li>Project size: {{ t.project_size }}</li>
+            <li>Max deployment: {{ t.max_deployment }}</li>
         {% endfor %}
         </ul>
     {% endfor %}

@@ -4,8 +4,7 @@
     <h1>New scenario</h1>
     <form method="POST" class="post-form">{% csrf_token %}
             {{ scenario_name_form }}
-            {{ formset.as_p }}
-
+            {{ formset }}
         <button type="submit" class="save btn btn-default">Save</button>
     </form>
 

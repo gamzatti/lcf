@@ -1,0 +1,101 @@
+[
+  {
+    "model": "lcf.auctionyear",
+    "pk": 1,
+    "fields": {
+      "scenario": 1,
+      "year": 2020,
+      "wholesale_price": 53
+    }
+	},
+  {
+    "model": "lcf.auctionyear",
+    "pk": 2,
+    "fields": {
+      "scenario": 1,
+      "year": 2021,
+      "wholesale_price": 53
+    }
+	},
+  {
+    "model": "lcf.auctionyear",
+    "pk": 3,
+    "fields": {
+      "scenario": 1,
+      "year": 2022,
+      "wholesale_price": 53
+    }
+	},
+  {
+    "model": "lcf.auctionyear",
+    "pk": 4,
+    "fields": {
+      "scenario": 1,
+      "year": 2023,
+      "wholesale_price": 53
+    }
+	},
+  {
+    "model": "lcf.auctionyear",
+    "pk": 5,
+    "fields": {
+      "scenario": 1,
+      "year": 2024,
+      "wholesale_price": 53
+    }
+	},
+  {
+    "model": "lcf.auctionyear",
+    "pk": 6,
+    "fields": {
+      "scenario": 1,
+      "year": 2025,
+      "wholesale_price": 53
+    }
+	},
+  {
+    "model": "lcf.auctionyear",
+    "pk": 7,
+    "fields": {
+      "scenario": 1,
+      "year": 2026,
+      "wholesale_price": 53
+    }
+	},
+  {
+    "model": "lcf.auctionyear",
+    "pk": 8,
+    "fields": {
+      "scenario": 1,
+      "year": 2027,
+      "wholesale_price": 53
+    }
+	},
+  {
+    "model": "lcf.auctionyear",
+    "pk": 9,
+    "fields": {
+      "scenario": 1,
+      "year": 2028,
+      "wholesale_price": 53
+    }
+	},
+  {
+    "model": "lcf.auctionyear",
+    "pk": 10,
+    "fields": {
+      "scenario": 1,
+      "year": 2029,
+      "wholesale_price": 53
+    }
+	},
+  {
+    "model": "lcf.auctionyear",
+    "pk": 11,
+    "fields": {
+      "scenario": 1,
+      "year": 2030,
+      "wholesale_price": 53
+    }
+	}
+]
