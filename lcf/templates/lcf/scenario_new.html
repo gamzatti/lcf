@@ -3,9 +3,10 @@
 {% block content %}
     <h1>New scenario</h1>
     <form method="POST" class="post-form">{% csrf_token %}
-            {{ scenario_name_form }}
+            {{ scenario_form }}
+            <button type="submit" class="save btn btn-default">Save</button>
+            <h3>Edit technologies?</h3>
             {{ formset }}
-        <button type="submit" class="save btn btn-default">Save</button>
     </form>
 
 {% endblock %}

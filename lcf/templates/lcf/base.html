@@ -17,9 +17,9 @@
             <h1>Scenarios</h1>
             <ul>
             {% for scenario in scenarios %}
-                <li><a href="{% url 'scenario_detail' pk=scenario.pk %}">{{ scenario.name }}</a></li>
+                <li><a href="{% url 'scenario_detail' pk=scenario.pk %}">{{ scenario.name }}</a> <a href="{% url 'scenario_delete' pk=scenario.pk %}"><span title="delete scenario" class="glyphicon glyphicon-remove"></span></a></li>
             {% endfor %}
-            <li><a href="{% url 'scenario_new' %}"><span class="glyphicon glyphicon-plus"></span></a></li>
+            <li><a href="{% url 'scenario_new' %}"><span title="new scenario" class="glyphicon glyphicon-plus"></span></a></li>
 
             </ul>
         </div><!--col-md-8-->

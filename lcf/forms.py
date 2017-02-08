@@ -7,9 +7,11 @@ class ScenarioForm(forms.ModelForm):
         model = Scenario
         fields = ('name','budget', 'percent_emerging',)
 
-class ScenarioNameForm(forms.Form):
+'''class ScenarioNameForm(forms.Form):
     name = forms.CharField(max_length=200)
-
+    budget = forms.DecimalField(max_digits=5, decimal_places=3)
+    percent_emerging = forms.DecimalField(max_digits=4, decimal_places=3)
+'''
 '''class AuctionYearTechnologyForm(forms.Form):
     year = forms.ModelChoiceField(queryset = AuctionYear.objects.all())
     technology_name = forms.ModelChoiceField(queryset = AuctionYearTechnology.objects.all())

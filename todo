@@ -1,0 +1,5 @@
+recreate python logic in django to produce basic results
+extend python logic to do full calculations - this will include splitting into pots and maybe changing models
+improve output page, add graphs/visualisations, hide inputs with jquery
+improve input interface, make it so you can alter an existing scenario, hide inputs with jquery
+add javascript to delete buttons

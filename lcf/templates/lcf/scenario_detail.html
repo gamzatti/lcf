@@ -4,10 +4,17 @@
     <h1>{{ scenario.name }}</h1>
     <p>created {{ scenario.date }}</p>
     <p>budget: {{ scenario.budget }}</p>
+
+    <h2>results: {{ scenario.results }}</h2>
+
+
     {% for y in scenario.auctionyear_set.all %}
         <h3>Year: {{ y }}</h3>
         <p>Wholesale price: {{ y.wholesale_price }}</p>
-        <ul>
+        <p>Emerging pot budget: {{ y.pot_budget }}</p>
+        <p>Cost: £{{ y.auction_cost }}m</p>
+        <p>Generation: {{ y.auction_gen }}TWh</p>
+<!--        <ul>
         {% for t in y.auctionyeartechnology_set.all %}
             <h4>Technology: {{ t.technology_name }}</h4>
             <li>Min LCOE: {{ t.min_levelised_cost }}</li>
@@ -17,10 +24,8 @@
             <li>Project size: {{ t.project_size }}</li>
             <li>Max deployment: {{ t.max_deployment }}</li>
         {% endfor %}
-        </ul>
+        </ul>-->
     {% endfor %}
-
-    <h2>results: {{ scenario.results }}</h2>
 
 
 
