@@ -1,5 +1,5 @@
-recreate python logic in django to produce basic results
-extend python logic to do full calculations - this will include splitting into pots and maybe changing models
+extend python logic to do full calculations - this will include splitting into pots/separate negotiations (maybe changing models), dealing with unaffordable projects. also include comparison to gas.
 improve output page, add graphs/visualisations, hide inputs with jquery
-improve input interface, make it so you can alter an existing scenario, hide inputs with jquery
+improve input interface, make it so you can alter an existing scenario, hide inputs with jquery, adjust wholesale price (maybe choice options?)
 add javascript to delete buttons
+simplify model code eg by making template tags? http://stackoverflow.com/questions/28513528/passing-arguments-to-model-methods-in-django-templates

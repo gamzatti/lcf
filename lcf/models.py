@@ -9,24 +9,31 @@ from pandas import DataFrame, Series
 class Scenario(models.Model):
     name = models.CharField(max_length=200)
     date = models.DateTimeField(default=timezone.now)
-    budget = models.DecimalField(default=3, max_digits=5, decimal_places=3)
-    percent_emerging = models.DecimalField(default=0.6, max_digits=4, decimal_places=3)
+    budget = models.DecimalField(default=3.3, max_digits=5, decimal_places=2)
+    percent_emerging = models.DecimalField(default=0.6, max_digits=4, decimal_places=2)
 
     def __str__(self):
         return self.name
 
 
     def results(self):
-        number = self.budget * 4
-        return number / 7
+        auction_tally = {'cost': 0, 'gen': 0}
+        for auctionyear in self.auctionyear_set.all():
+            auction_results = auctionyear.run_auction()
+            auction_tally['cost'] += auction_results['cost']
+            auction_tally['gen'] += auction_results['gen']
+        return auction_tally
 
+    def cost(self):
+        return round(self.results()['cost'],3)
+
+    def gen(self):
+        return round(self.results()['gen'],3)
 
 class AuctionYear(models.Model):
     scenario = models.ForeignKey('lcf.scenario', default=48)#http://stackoverflow.com/questions/937954/how-do-you-specify-a-default-for-a-django-foreignkey-model-or-adminmodel-field
     year = models.IntegerField(default=2020)
-    wholesale_price = models.IntegerField(default=50)
-
-
+    wholesale_price = models.IntegerField(default=53)
 
     def __str__(self):
         return str(self.year)
@@ -74,13 +81,16 @@ class AuctionYear(models.Model):
                     gen += project_list.project_gen
                 else:
                     break
-        return {'cost': cost, 'gen': gen}
+        return {'cost': cost, 'gen': gen, 'combined_tech_affordable_projects': combined_tech_affordable_projects}
 
-    def auction_cost(self):
-        return round(self.run_auction()['cost'],2)
+    def cost(self):
+        return round(self.run_auction()['cost'],3)
 
-    def auction_gen(self):
-        return round(self.run_auction()['gen'],2)
+    def gen(self):
+        return round(self.run_auction()['gen'],3)
+
+    def combined_tech_affordable_projects(self):
+        return self.run_auction()['combined_tech_affordable_projects']
 
 
 class AuctionYearTechnology(models.Model):
@@ -149,8 +159,8 @@ class ProjectList:
         self.strike_price = kwargs['strike_price']
         self.load_factor = kwargs['load_factor']
         self.project_gen = kwargs['project_gen'] / 1000
-        self.project_cap = cap(self.project_gen,self.load_factor)
         self.max_deployment_cap = kwargs['max_deployment_cap']
+        self.project_cap = cap(self.project_gen,self.load_factor)
         self.max_deployment_gen = gen(self.max_deployment_cap,self.load_factor)
         self.num_projects = self.max_deployment_gen / self.project_gen
         self.years_supported = 2031 - self.year
