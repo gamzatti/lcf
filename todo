@@ -1,5 +1,5 @@
 extend python logic to do full calculations - this will include splitting into pots/separate negotiations (maybe changing models), dealing with unaffordable projects. also include comparison to gas.
-improve output page, add graphs/visualisations, hide inputs with jquery
-improve input interface, make it so you can alter an existing scenario, hide inputs with jquery, adjust wholesale price (maybe choice options?)
+improve output page, add graphs/visualisations, hide inputs with jquery, create csv output option
+improve input interface, make it so you can alter an existing scenario, hide inputs with jquery, adjust wholesale price (maybe choice options?) use nested forms? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
 add javascript to delete buttons
 simplify model code eg by making template tags? http://stackoverflow.com/questions/28513528/passing-arguments-to-model-methods-in-django-templates

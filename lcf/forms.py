@@ -1,11 +1,15 @@
 from django import forms
 from .models import Scenario, AuctionYear, AuctionYearTechnology
+from django.forms import Textarea
 
 class ScenarioForm(forms.ModelForm):
 
     class Meta:
         model = Scenario
-        fields = ('name','budget', 'percent_emerging',)
+        fields = ('name', 'description', 'budget', 'percent_emerging',)
+        widgets = {
+          'description': Textarea(attrs={'rows':2, 'cols':20}),
+        }
 
 '''class ScenarioNameForm(forms.Form):
     name = forms.CharField(max_length=200)
