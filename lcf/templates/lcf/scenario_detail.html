@@ -2,7 +2,7 @@
 
 {% block content %}
     <h1>{{ scenario.name }}</h1>
-    <p>{{ scenario.description }}</p>
+        {{ scenario.description }}
     <p>created {{ scenario.date }}</p>
     <p>budget: {{ scenario.budget }}</p>
     <p>percent in emerging pot: {{ scenario.percent_emerging }}</p>
@@ -15,10 +15,10 @@
     {% for y in scenario.auctionyear_set.all %}
         <h3>Year: {{ y }}</h3>
         <p>Wholesale price: {{ y.wholesale_price }}</p>
-        <p>Emerging pot budget: {{ y.pot_budget }}</p>
-        <p>Cost: £{{ y.auction_cost }}m</p>
-        <p>Generation: {{ y.auction_gen }}TWh</p>
-        <p>Affordable projects: {{ y.combined_tech_affordable_projects }}</p>
+        <p>Emerging pot budget: {{ y.pot_budget_e }}</p>
+        <p>Cost: £{{ y.cost_e }}m</p>
+        <p>Generation: {{ y.gen_e }}TWh</p>
+        <p>Affordable projects: {{ y.combined_tech_affordable_projects_e }}</p>
 <!--        <ul>
         {% for t in y.auctionyeartechnology_set.all %}
             <h4>Technology: {{ t.technology_name }}</h4>

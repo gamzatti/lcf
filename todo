@@ -1,5 +1,29 @@
-extend python logic to do full calculations - this will include splitting into pots/separate negotiations (maybe changing models), dealing with unaffordable projects. also include comparison to gas.
-improve output page, add graphs/visualisations, hide inputs with jquery, create csv output option
-improve input interface, make it so you can alter an existing scenario, hide inputs with jquery, adjust wholesale price (maybe choice options?) use nested forms? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
+extend python logic to do full calculations:
+  create architecture which takes lump sum and distributes money between years and into pots and carries over previous underspend. is money ever reallocated between pots? or just over years?
+  split into pots/separate negotiations/figure out where negawatts fit into all of this
+  deal with unaffordable projects (diverge from Angela?)
+  include comparison to gas prices
+  adjust rank order (diverge from Angela? discuss with Dustin?)
+  write tests
+
+
+  ?create normal distribution of projects?
+
+inputs:
+  improve interface, eg with longer fields accepting series of values, hide technology inputs initially with jquery, disallow editing of year and technology. use nested forms? maybe add choice options for prices?
+  make wholesale price adjustable
+  make it so you can alter an existing scenario rather than the default
+  make assumptions adjustable?
+    normal/even distribution
+    rank order problem above
+
+output page:
+  improve summary data (maybe display in table)
+  hide inputs with jquery
+  add graphs/visualisations
+  create csv output option
+ http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
+
+
 add javascript to delete buttons
 simplify model code eg by making template tags? http://stackoverflow.com/questions/28513528/passing-arguments-to-model-methods-in-django-templates

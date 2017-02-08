@@ -5,8 +5,10 @@
     <form method="POST" class="post-form">{% csrf_token %}
             {{ scenario_form }}
             <button type="submit" class="save btn btn-default">Save</button>
-            <h3>Edit technologies?</h3>
-            {{ formset }}
+            <div class="to-hide">
+                <h3>Edit technologies?</h3>
+                {{ formset }}
+            </div>
     </form>
 
 {% endblock %}
