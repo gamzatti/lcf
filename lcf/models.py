@@ -36,16 +36,20 @@ class AuctionYear(models.Model):
     year = models.IntegerField(default=2020)
     wholesale_price = models.IntegerField(default=53)
 
+
     def __str__(self):
         return str(self.year)
 
 
     def budget_calc(self, pot):
-        yearly_budget = self.scenario.budget / 5 * 1000
         if self.year == 2020:
             yearly_budget = 481.29
-        previous_year_unspent = {2020: 0, 2021: 0, 2022: 349.07, 2023: 524.76 , 2024: 1048.10, 2025: 1616.12, 2026: 2200.54, 2027: 2145.85, 2028: 2093.53, 2029: 2028.08, 2030: 1958.61}
-        yearly_budget += previous_year_unspent[self.year]
+            previous_year_leftover = 0
+        else:
+            yearly_budget = self.scenario.budget / 5 * 1000
+            previous_year = AuctionYear.objects.filter(scenario=self.scenario).get(year=self.year-1)
+            previous_year_leftover = previous_year.leftover()[previous_year.year]
+        yearly_budget += previous_year_leftover
         budget_e = yearly_budget * self.scenario.percent_emerging
         budget_m = yearly_budget - budget_e
         if pot == "E":
@@ -53,7 +57,8 @@ class AuctionYear(models.Model):
         if pot == "M":
             return budget_m
 
-
+    def leftover(self):
+        return {2019: 0, 2020: 0, 2021: 349.07, 2022: 524.76 , 2023: 1048.10, 2024: 1616.12, 2025: 2200.54, 2026: 2145.85, 2027: 2093.53, 2028: 2028.08, 2029: 1958.61, 2030: 1889.38}
 
     def pot_budget_e(self):
         return self.budget_calc("E")
@@ -61,6 +66,8 @@ class AuctionYear(models.Model):
     def pot_budget_m(self):
         return self.budget_calc("M")
 
+    def manual_leftover(self):
+        return self.pot_budget_e() - self.cost_e()
 
     def run_auction(self,pot):
         cost = 0
@@ -92,6 +99,7 @@ class AuctionYearTechnology(models.Model):
     POT_CHOICES = (
             ('E', 'Emerging'),
             ('M', 'Mature'),
+            ('S', 'Separate negotiations'),
     )
     TECHNOLOGY_CHOICES = (
             ('OFW', 'Offshore wind'),
