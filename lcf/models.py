@@ -12,7 +12,7 @@ class Scenario(models.Model):
     date = models.DateTimeField(default=timezone.now)
     budget = models.FloatField(default=3.3, verbose_name="Budget (£bn)")
     percent_emerging = models.FloatField(default=0.6)
-    
+    rank_by_strike_price = models.BooleanField(default=True)
 
     def get_foo(self):
         try:
@@ -134,6 +134,7 @@ class Pot(models.Model):
         else:
             return 0
 
+    """
     @lru_cache(maxsize=None)
     def run_auction(self):
         cost = 0
@@ -149,6 +150,34 @@ class Pot(models.Model):
                 else:
                     break
         return {'cost': cost, 'gen': gen, 'combined_tech_affordable_projects': combined_tech_affordable_projects.drop(['Affordable'], axis=1)}
+        """
+
+    @lru_cache(maxsize=None)
+    def run_auction(self):
+        spent = 0
+        gen = 0
+        affordable_projects = DataFrame(columns=['levelised_cost', 'gen', 'Affordable', 'cfd_unit_cost'])
+        for t in self.technology_set.all():
+            new = t.affordable_projects()
+            new['cfd_unit_cost'] = t.strike_price - self.auctionyear.wholesale_price # not accurate - all projects get paid out the highest LCOE, not the strike price
+            affordable_projects = pd.concat([affordable_projects, new])
+            affordable_projects = affordable_projects.drop(['Affordable'], axis=1)
+            #rank if necessary
+            affordable_projects['cfd_payout'] = affordable_projects.cfd_unit_cost * affordable_projects.gen
+        affordable_projects['funded'] = False
+        for i in affordable_projects.index:
+            if spent + affordable_projects.cfd_payout[i] < self.budget():
+                affordable_projects['funded'][i] = True
+                spent += affordable_projects.cfd_payout[i]
+                gen += affordable_projects.gen[i]
+            else:
+                break
+
+        funded_projects = affordable_projects[affordable_projects.funded == True]
+
+        return {'cost': spent, 'gen': gen, 'combined_tech_affordable_projects': funded_projects }
+
+
 
     @lru_cache(maxsize=None)
     def cost(self):
