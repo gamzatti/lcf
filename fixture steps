@@ -1,0 +1,49 @@
+change:
+  },"(\d+)":{
+to
+  \n\t\t}\n\t},\n{\n\t\t"model": "lcf.pot",\n\t\t"pk": $1,\n\t\t"fields":	{\n\t\t\t
+
+change:
+:(\d+),
+to
+: $1,\n\t\t\t
+
+change:
+{"(\d+)":{
+to:
+[\n{\n\t\t"model": "lcf.pot",\n\t\t"pk": $1,\n\t\t"fields":	{\n\t\t\t
+
+
+  change:
+  $
+  to
+  \n]
+  (doesn't always work)
+
+  change:
+  }}
+  to
+  }\n}
+
+  tab everything inside the [] forward once
+
+
+
+to swap name and pot:
+change:
+\s\s\s\s\s("name":"[a-z]+",)\s\s\s\s\s("pot":"[a-z]+",)\n\s\s\s\s
+to:
+\n\t\t\t$2\n\t\t\t$1\n\t\t\t
+
+
+to change to naturalkey
+change:
+\s\s\s\s"year":(\d+),\s\s\s\s"pot":("[a-z]+"),\n\s\s\s
+to
+\t\t\t"pot": [$1, $2],\n\t\t\t
+
+
+change
+"year":(\d+),\s\s\s\s"pot":"E",
+to
+"pot":$1,

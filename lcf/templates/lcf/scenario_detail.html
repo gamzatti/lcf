@@ -15,11 +15,14 @@
     {% for y in scenario.auctionyear_set.all %}
         <h3>Year: {{ y }}</h3>
         <p>Wholesale price: {{ y.wholesale_price }}</p>
-        <p>Emerging pot budget: {{ y.pot_budget_e }}</p>
-        <p>Cost: £{{ y.cost_e }}m</p>
-        <p>Generation: {{ y.gen_e }}TWh</p>
-        <p>Manual leftover: {{ y.manual_leftover }}</p>
-        <p>Affordable projects: {{ y.combined_tech_affordable_projects_e }}</p>
+        {% for p in y.pot_set.all %}
+            <h4>Pot: {{ p.name }}</h4>
+            <strong>Pot budget: {{ p.budget }}</strong>
+            <p>Cost: £{{ p.cost }}m</p>
+            <p>Generation: {{ p.gen }}TWh</p>
+            <p>Manual leftover: {{ p.manual_leftover }}</p>
+            <p>Affordable projects: {{ p.combined_tech_affordable_projects }}</p>
+        {% endfor %}
 <!--        <ul>
         {% for t in y.auctionyeartechnology_set.all %}
             <h4>Technology: {{ t.technology_name }}</h4>

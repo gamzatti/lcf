@@ -5,6 +5,7 @@ extend python logic to do full calculations:
   include comparison to gas prices
   adjust rank order (diverge from Angela? discuss with Dustin?)
   write tests
+  improve performance!!
 
 
   ?create normal distribution of projects?

@@ -1,0 +1,354 @@
+[
+  {
+  		"model": "lcf.pot",
+  		"pk": 1,
+  		"fields":	{
+  			"auctionyear": 1,
+  			"name":"E"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 2,
+  		"fields":	{
+  			"auctionyear": 2,
+  			"name":"E"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 3,
+  		"fields":	{
+  			"auctionyear": 3,
+  			"name":"E"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 4,
+  		"fields":	{
+  			"auctionyear": 4,
+  			"name":"E"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 5,
+  		"fields":	{
+  			"auctionyear": 5,
+  			"name":"E"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 6,
+  		"fields":	{
+  			"auctionyear": 6,
+  			"name":"E"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 7,
+  		"fields":	{
+  			"auctionyear": 7,
+  			"name":"E"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 8,
+  		"fields":	{
+  			"auctionyear": 8,
+  			"name":"E"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 9,
+  		"fields":	{
+  			"auctionyear": 9,
+  			"name":"E"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 10,
+  		"fields":	{
+  			"auctionyear": 10,
+  			"name":"E"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 11,
+  		"fields":	{
+  			"auctionyear": 11,
+  			"name":"E"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 12,
+  		"fields":	{
+  			"auctionyear": 1,
+  			"name":"M"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 13,
+  		"fields":	{
+  			"auctionyear": 2,
+  			"name":"M"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 14,
+  		"fields":	{
+  			"auctionyear": 3,
+  			"name":"M"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 15,
+  		"fields":	{
+  			"auctionyear": 4,
+  			"name":"M"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 16,
+  		"fields":	{
+  			"auctionyear": 5,
+  			"name":"M"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 17,
+  		"fields":	{
+  			"auctionyear": 6,
+  			"name":"M"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 18,
+  		"fields":	{
+  			"auctionyear": 7,
+  			"name":"M"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 19,
+  		"fields":	{
+  			"auctionyear": 8,
+  			"name":"M"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 20,
+  		"fields":	{
+  			"auctionyear": 9,
+  			"name":"M"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 21,
+  		"fields":	{
+  			"auctionyear": 10,
+  			"name":"M"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 22,
+  		"fields":	{
+  			"auctionyear": 11,
+  			"name":"M"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 23,
+  		"fields":	{
+  			"auctionyear": 1,
+  			"name":"SN"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 24,
+  		"fields":	{
+  			"auctionyear": 2,
+  			"name":"SN"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 25,
+  		"fields":	{
+  			"auctionyear": 3,
+  			"name":"SN"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 26,
+  		"fields":	{
+  			"auctionyear": 4,
+  			"name":"SN"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 27,
+  		"fields":	{
+  			"auctionyear": 5,
+  			"name":"SN"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 28,
+  		"fields":	{
+  			"auctionyear": 6,
+  			"name":"SN"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 29,
+  		"fields":	{
+  			"auctionyear": 7,
+  			"name":"SN"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 30,
+  		"fields":	{
+  			"auctionyear": 8,
+  			"name":"SN"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 31,
+  		"fields":	{
+  			"auctionyear": 9,
+  			"name":"SN"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 32,
+  		"fields":	{
+  			"auctionyear": 10,
+  			"name":"SN"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 33,
+  		"fields":	{
+  			"auctionyear": 11,
+  			"name":"SN"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 34,
+  		"fields":	{
+  			"auctionyear": 1,
+  			"name":"NW"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 35,
+  		"fields":	{
+  			"auctionyear": 2,
+  			"name":"NW"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 36,
+  		"fields":	{
+  			"auctionyear": 3,
+  			"name":"NW"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 37,
+  		"fields":	{
+  			"auctionyear": 4,
+  			"name":"NW"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 38,
+  		"fields":	{
+  			"auctionyear": 5,
+  			"name":"NW"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 39,
+  		"fields":	{
+  			"auctionyear": 6,
+  			"name":"NW"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 40,
+  		"fields":	{
+  			"auctionyear": 7,
+  			"name":"NW"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 41,
+  		"fields":	{
+  			"auctionyear": 8,
+  			"name":"NW"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 42,
+  		"fields":	{
+  			"auctionyear": 9,
+  			"name":"NW"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 43,
+  		"fields":	{
+  			"auctionyear": 10,
+  			"name":"NW"
+  		}
+  	},
+  {
+  		"model": "lcf.pot",
+  		"pk": 44,
+  		"fields":	{
+  			"auctionyear": 11,
+  			"name":"NW"
+      }
+    }
+]

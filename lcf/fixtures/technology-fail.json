@@ -1,12 +1,11 @@
 [
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 1,
   	"fields":	{
-  		"year":1,
-  		"technology_name":"OFW",
-  		"pot":"E",
-  		"min_levelised_cost":141.0,
+			"pot": [1, "E"],
+			"name":"OFW",
+			"min_levelised_cost":141.0,
   		"max_levelised_cost":145.0,
   		"strike_price":143.0,
   		"load_factor":0.42,
@@ -15,13 +14,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 2,
   	"fields":	{
-  		"year":1,
-  		"technology_name":"NU",
-  		"pot":"E",
-  		"min_levelised_cost":79.0,
+			"pot": [1, "E"],
+			"name":"NU",
+			"min_levelised_cost":79.0,
   		"max_levelised_cost":102.0,
   		"strike_price":100.6098,
   		"load_factor":0.8,
@@ -30,13 +28,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 3,
   	"fields":	{
-  		"year":1,
-  		"technology_name":"ONW",
-  		"pot":"M",
-  		"min_levelised_cost":80,
+			"pot": [1, "M"],
+			"name":"ONW",
+			"min_levelised_cost":80,
   		"max_levelised_cost":100,
   		"strike_price":92.0,
   		"load_factor":0.2781,
@@ -45,13 +42,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 4,
   	"fields":	{
-  		"year":1,
-  		"technology_name":"TL",
-  		"pot":"E",
-  		"min_levelised_cost":0,
+			"pot": [1, "E"],
+			"name":"TL",
+			"min_levelised_cost":0,
   		"max_levelised_cost":0,
   		"strike_price":0,
   		"load_factor":0.25,
@@ -60,13 +56,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 5,
   	"fields":	{
-  		"year":1,
-  		"technology_name":"TS",
-  		"pot":"E",
-  		"min_levelised_cost":151.25,
+			"pot": [1, "E"],
+			"name":"TS",
+			"min_levelised_cost":151.25,
   		"max_levelised_cost":225.0,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -75,13 +70,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 6,
   	"fields":	{
-  		"year":1,
-  		"technology_name":"WA",
-  		"pot":"E",
-  		"min_levelised_cost":260.75,
+			"pot": [1, "E"],
+			"name":"WA",
+			"min_levelised_cost":260.75,
   		"max_levelised_cost":298.0,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -90,13 +84,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 7,
   	"fields":	{
-  		"year":1,
-  		"technology_name":"PVLS",
-  		"pot":"M",
-  		"min_levelised_cost":84.0,
+			"pot": [1, "M"],
+			"name":"PVLS",
+			"min_levelised_cost":84.0,
   		"max_levelised_cost":96.0,
   		"strike_price":80,
   		"load_factor":0.1113,
@@ -105,13 +98,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 8,
   	"fields":	{
-  		"year":2,
-  		"technology_name":"OFW",
-  		"pot":"E",
-  		"min_levelised_cost":141.0,
+			"pot": [2, "E"],
+			"name":"OFW",
+			"min_levelised_cost":141.0,
   		"max_levelised_cost":145.0,
   		"strike_price":143.0,
   		"load_factor":0.434,
@@ -120,13 +112,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 9,
   	"fields":	{
-  		"year":2,
-  		"technology_name":"NU",
-  		"pot":"E",
-  		"min_levelised_cost":78.2,
+			"pot": [2, "E"],
+			"name":"NU",
+			"min_levelised_cost":78.2,
   		"max_levelised_cost":101.8,
   		"strike_price":98.9878,
   		"load_factor":0.8,
@@ -135,13 +126,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 10,
   	"fields":	{
-  		"year":2,
-  		"technology_name":"ONW",
-  		"pot":"M",
-  		"min_levelised_cost":80,
+			"pot": [2, "M"],
+			"name":"ONW",
+			"min_levelised_cost":80,
   		"max_levelised_cost":100,
   		"strike_price":92.0,
   		"load_factor":0.2803,
@@ -150,13 +140,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 11,
   	"fields":	{
-  		"year":2,
-  		"technology_name":"TL",
-  		"pot":"E",
-  		"min_levelised_cost":150,
+			"pot": [2, "E"],
+			"name":"TL",
+			"min_levelised_cost":150,
   		"max_levelised_cost":150,
   		"strike_price":168.0,
   		"load_factor":0.25,
@@ -165,13 +154,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 12,
   	"fields":	{
-  		"year":2,
-  		"technology_name":"TS",
-  		"pot":"E",
-  		"min_levelised_cost":143.125,
+			"pot": [2, "E"],
+			"name":"TS",
+			"min_levelised_cost":143.125,
   		"max_levelised_cost":212.5,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -180,13 +168,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 13,
   	"fields":	{
-  		"year":2,
-  		"technology_name":"WA",
-  		"pot":"E",
-  		"min_levelised_cost":245.875,
+			"pot": [2, "E"],
+			"name":"WA",
+			"min_levelised_cost":245.875,
   		"max_levelised_cost":281.0,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -195,13 +182,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 14,
   	"fields":	{
-  		"year":2,
-  		"technology_name":"PVLS",
-  		"pot":"M",
-  		"min_levelised_cost":81.8,
+			"pot": [2, "M"],
+			"name":"PVLS",
+			"min_levelised_cost":81.8,
   		"max_levelised_cost":93.2,
   		"strike_price":80,
   		"load_factor":0.1113,
@@ -210,13 +196,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 15,
   	"fields":	{
-  		"year":3,
-  		"technology_name":"OFW",
-  		"pot":"E",
-  		"min_levelised_cost":141.0,
+			"pot": [3, "E"],
+			"name":"OFW",
+			"min_levelised_cost":141.0,
   		"max_levelised_cost":145.0,
   		"strike_price":143.0,
   		"load_factor":0.448,
@@ -225,13 +210,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 16,
   	"fields":	{
-  		"year":3,
-  		"technology_name":"NU",
-  		"pot":"E",
-  		"min_levelised_cost":77.4,
+			"pot": [3, "E"],
+			"name":"NU",
+			"min_levelised_cost":77.4,
   		"max_levelised_cost":101.6,
   		"strike_price":97.3659,
   		"load_factor":0.8,
@@ -240,13 +224,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 17,
   	"fields":	{
-  		"year":3,
-  		"technology_name":"ONW",
-  		"pot":"M",
-  		"min_levelised_cost":80,
+			"pot": [3, "M"],
+			"name":"ONW",
+			"min_levelised_cost":80,
   		"max_levelised_cost":100,
   		"strike_price":92.0,
   		"load_factor":0.2825,
@@ -255,13 +238,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 18,
   	"fields":	{
-  		"year":3,
-  		"technology_name":"TL",
-  		"pot":"E",
-  		"min_levelised_cost":0,
+			"pot": [3, "E"],
+			"name":"TL",
+			"min_levelised_cost":0,
   		"max_levelised_cost":0,
   		"strike_price":168.0,
   		"load_factor":0.25,
@@ -270,13 +252,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 19,
   	"fields":	{
-  		"year":3,
-  		"technology_name":"TS",
-  		"pot":"E",
-  		"min_levelised_cost":135.0,
+			"pot": [3, "E"],
+			"name":"TS",
+			"min_levelised_cost":135.0,
   		"max_levelised_cost":200,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -285,13 +266,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 20,
   	"fields":	{
-  		"year":3,
-  		"technology_name":"WA",
-  		"pot":"E",
-  		"min_levelised_cost":231.0,
+			"pot": [3, "E"],
+			"name":"WA",
+			"min_levelised_cost":231.0,
   		"max_levelised_cost":264.0,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -300,13 +280,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 21,
   	"fields":	{
-  		"year":3,
-  		"technology_name":"PVLS",
-  		"pot":"M",
-  		"min_levelised_cost":79.6,
+			"pot": [3, "M"],
+			"name":"PVLS",
+			"min_levelised_cost":79.6,
   		"max_levelised_cost":90.4,
   		"strike_price":80,
   		"load_factor":0.1113,
@@ -315,13 +294,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 22,
   	"fields":	{
-  		"year":4,
-  		"technology_name":"OFW",
-  		"pot":"E",
-  		"min_levelised_cost":141.0,
+			"pot": [4, "E"],
+			"name":"OFW",
+			"min_levelised_cost":141.0,
   		"max_levelised_cost":145.0,
   		"strike_price":143.0,
   		"load_factor":0.462,
@@ -330,13 +308,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 23,
   	"fields":	{
-  		"year":4,
-  		"technology_name":"NU",
-  		"pot":"E",
-  		"min_levelised_cost":76.6,
+			"pot": [4, "E"],
+			"name":"NU",
+			"min_levelised_cost":76.6,
   		"max_levelised_cost":101.4,
   		"strike_price":90,
   		"load_factor":0.8,
@@ -345,13 +322,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 24,
   	"fields":	{
-  		"year":4,
-  		"technology_name":"ONW",
-  		"pot":"M",
-  		"min_levelised_cost":80,
+			"pot": [4, "M"],
+			"name":"ONW",
+			"min_levelised_cost":80,
   		"max_levelised_cost":100,
   		"strike_price":92.0,
   		"load_factor":0.2847,
@@ -360,13 +336,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 25,
   	"fields":	{
-  		"year":4,
-  		"technology_name":"TL",
-  		"pot":"E",
-  		"min_levelised_cost":0,
+			"pot": [4, "E"],
+			"name":"TL",
+			"min_levelised_cost":0,
   		"max_levelised_cost":0,
   		"strike_price":168.0,
   		"load_factor":0.25,
@@ -375,13 +350,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 26,
   	"fields":	{
-  		"year":4,
-  		"technology_name":"TS",
-  		"pot":"E",
-  		"min_levelised_cost":126.875,
+			"pot": [4, "E"],
+			"name":"TS",
+			"min_levelised_cost":126.875,
   		"max_levelised_cost":187.5,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -390,13 +364,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 27,
   	"fields":	{
-  		"year":4,
-  		"technology_name":"WA",
-  		"pot":"E",
-  		"min_levelised_cost":216.125,
+			"pot": [4, "E"],
+			"name":"WA",
+			"min_levelised_cost":216.125,
   		"max_levelised_cost":247.0,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -405,13 +378,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 28,
   	"fields":	{
-  		"year":4,
-  		"technology_name":"PVLS",
-  		"pot":"M",
-  		"min_levelised_cost":77.4,
+			"pot": [4, "M"],
+			"name":"PVLS",
+			"min_levelised_cost":77.4,
   		"max_levelised_cost":87.6,
   		"strike_price":80,
   		"load_factor":0.1113,
@@ -420,13 +392,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 29,
   	"fields":	{
-  		"year":5,
-  		"technology_name":"OFW",
-  		"pot":"E",
-  		"min_levelised_cost":141.0,
+			"pot": [5, "E"],
+			"name":"OFW",
+			"min_levelised_cost":141.0,
   		"max_levelised_cost":145.0,
   		"strike_price":143.0,
   		"load_factor":0.476,
@@ -435,13 +406,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 30,
   	"fields":	{
-  		"year":5,
-  		"technology_name":"NU",
-  		"pot":"E",
-  		"min_levelised_cost":75.8,
+			"pot": [5, "E"],
+			"name":"NU",
+			"min_levelised_cost":75.8,
   		"max_levelised_cost":101.2,
   		"strike_price":90,
   		"load_factor":0.8,
@@ -450,13 +420,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 31,
   	"fields":	{
-  		"year":5,
-  		"technology_name":"ONW",
-  		"pot":"M",
-  		"min_levelised_cost":80,
+			"pot": [5, "M"],
+			"name":"ONW",
+			"min_levelised_cost":80,
   		"max_levelised_cost":100,
   		"strike_price":92.0,
   		"load_factor":0.2869,
@@ -465,13 +434,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 32,
   	"fields":	{
-  		"year":5,
-  		"technology_name":"TL",
-  		"pot":"E",
-  		"min_levelised_cost":0,
+			"pot": [5, "E"],
+			"name":"TL",
+			"min_levelised_cost":0,
   		"max_levelised_cost":0,
   		"strike_price":168.0,
   		"load_factor":0.25,
@@ -480,13 +448,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 33,
   	"fields":	{
-  		"year":5,
-  		"technology_name":"TS",
-  		"pot":"E",
-  		"min_levelised_cost":118.75,
+			"pot": [5, "E"],
+			"name":"TS",
+			"min_levelised_cost":118.75,
   		"max_levelised_cost":175.0,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -495,13 +462,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 34,
   	"fields":	{
-  		"year":5,
-  		"technology_name":"WA",
-  		"pot":"E",
-  		"min_levelised_cost":201.25,
+			"pot": [5, "E"],
+			"name":"WA",
+			"min_levelised_cost":201.25,
   		"max_levelised_cost":230,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -510,13 +476,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 35,
   	"fields":	{
-  		"year":5,
-  		"technology_name":"PVLS",
-  		"pot":"M",
-  		"min_levelised_cost":75.2,
+			"pot": [5, "M"],
+			"name":"PVLS",
+			"min_levelised_cost":75.2,
   		"max_levelised_cost":84.8,
   		"strike_price":80,
   		"load_factor":0.1113,
@@ -525,13 +490,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 36,
   	"fields":	{
-  		"year":6,
-  		"technology_name":"OFW",
-  		"pot":"E",
-  		"min_levelised_cost":141.0,
+			"pot": [6, "E"],
+			"name":"OFW",
+			"min_levelised_cost":141.0,
   		"max_levelised_cost":145.0,
   		"strike_price":143.0,
   		"load_factor":0.49,
@@ -540,13 +504,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 37,
   	"fields":	{
-  		"year":6,
-  		"technology_name":"NU",
-  		"pot":"E",
-  		"min_levelised_cost":75.0,
+			"pot": [6, "E"],
+			"name":"NU",
+			"min_levelised_cost":75.0,
   		"max_levelised_cost":101.0,
   		"strike_price":92.5,
   		"load_factor":0.9,
@@ -555,13 +518,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 38,
   	"fields":	{
-  		"year":6,
-  		"technology_name":"ONW",
-  		"pot":"M",
-  		"min_levelised_cost":80,
+			"pot": [6, "M"],
+			"name":"ONW",
+			"min_levelised_cost":80,
   		"max_levelised_cost":100,
   		"strike_price":92.0,
   		"load_factor":0.2891,
@@ -570,13 +532,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 39,
   	"fields":	{
-  		"year":6,
-  		"technology_name":"TL",
-  		"pot":"E",
-  		"min_levelised_cost":90,
+			"pot": [6, "E"],
+			"name":"TL",
+			"min_levelised_cost":90,
   		"max_levelised_cost":90,
   		"strike_price":92.0,
   		"load_factor":0.25,
@@ -585,13 +546,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 40,
   	"fields":	{
-  		"year":6,
-  		"technology_name":"TS",
-  		"pot":"E",
-  		"min_levelised_cost":110.625,
+			"pot": [6, "E"],
+			"name":"TS",
+			"min_levelised_cost":110.625,
   		"max_levelised_cost":162.5,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -600,13 +560,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 41,
   	"fields":	{
-  		"year":6,
-  		"technology_name":"WA",
-  		"pot":"E",
-  		"min_levelised_cost":186.375,
+			"pot": [6, "E"],
+			"name":"WA",
+			"min_levelised_cost":186.375,
   		"max_levelised_cost":213.0,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -615,13 +574,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 42,
   	"fields":	{
-  		"year":6,
-  		"technology_name":"PVLS",
-  		"pot":"M",
-  		"min_levelised_cost":73.0,
+			"pot": [6, "M"],
+			"name":"PVLS",
+			"min_levelised_cost":73.0,
   		"max_levelised_cost":82.0,
   		"strike_price":80,
   		"load_factor":0.1113,
@@ -630,13 +588,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 43,
   	"fields":	{
-  		"year":7,
-  		"technology_name":"OFW",
-  		"pot":"E",
-  		"min_levelised_cost":141.0,
+			"pot": [7, "E"],
+			"name":"OFW",
+			"min_levelised_cost":141.0,
   		"max_levelised_cost":145.0,
   		"strike_price":143.0,
   		"load_factor":0.49,
@@ -645,13 +602,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 44,
   	"fields":	{
-  		"year":7,
-  		"technology_name":"NU",
-  		"pot":"E",
-  		"min_levelised_cost":73.4,
+			"pot": [7, "E"],
+			"name":"NU",
+			"min_levelised_cost":73.4,
   		"max_levelised_cost":98.6,
   		"strike_price":89.8,
   		"load_factor":0.9,
@@ -660,13 +616,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 45,
   	"fields":	{
-  		"year":7,
-  		"technology_name":"ONW",
-  		"pot":"M",
-  		"min_levelised_cost":80,
+			"pot": [7, "M"],
+			"name":"ONW",
+			"min_levelised_cost":80,
   		"max_levelised_cost":100,
   		"strike_price":92.0,
   		"load_factor":0.2913,
@@ -675,13 +630,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 46,
   	"fields":	{
-  		"year":7,
-  		"technology_name":"TL",
-  		"pot":"E",
-  		"min_levelised_cost":120,
+			"pot": [7, "E"],
+			"name":"TL",
+			"min_levelised_cost":120,
   		"max_levelised_cost":120,
   		"strike_price":129.0,
   		"load_factor":0.25,
@@ -690,13 +644,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 47,
   	"fields":	{
-  		"year":7,
-  		"technology_name":"TS",
-  		"pot":"E",
-  		"min_levelised_cost":102.5,
+			"pot": [7, "E"],
+			"name":"TS",
+			"min_levelised_cost":102.5,
   		"max_levelised_cost":150,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -705,13 +658,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 48,
   	"fields":	{
-  		"year":7,
-  		"technology_name":"WA",
-  		"pot":"E",
-  		"min_levelised_cost":171.5,
+			"pot": [7, "E"],
+			"name":"WA",
+			"min_levelised_cost":171.5,
   		"max_levelised_cost":196.0,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -720,13 +672,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 49,
   	"fields":	{
-  		"year":7,
-  		"technology_name":"PVLS",
-  		"pot":"M",
-  		"min_levelised_cost":71.2,
+			"pot": [7, "M"],
+			"name":"PVLS",
+			"min_levelised_cost":71.2,
   		"max_levelised_cost":80,
   		"strike_price":80,
   		"load_factor":0.1113,
@@ -735,13 +686,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 50,
   	"fields":	{
-  		"year":8,
-  		"technology_name":"OFW",
-  		"pot":"E",
-  		"min_levelised_cost":141.0,
+			"pot": [8, "E"],
+			"name":"OFW",
+			"min_levelised_cost":141.0,
   		"max_levelised_cost":145.0,
   		"strike_price":143.0,
   		"load_factor":0.49,
@@ -750,13 +700,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 51,
   	"fields":	{
-  		"year":8,
-  		"technology_name":"NU",
-  		"pot":"E",
-  		"min_levelised_cost":71.8,
+			"pot": [8, "E"],
+			"name":"NU",
+			"min_levelised_cost":71.8,
   		"max_levelised_cost":96.2,
   		"strike_price":87.1,
   		"load_factor":0.9,
@@ -765,13 +714,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 52,
   	"fields":	{
-  		"year":8,
-  		"technology_name":"ONW",
-  		"pot":"M",
-  		"min_levelised_cost":80,
+			"pot": [8, "M"],
+			"name":"ONW",
+			"min_levelised_cost":80,
   		"max_levelised_cost":100,
   		"strike_price":92.0,
   		"load_factor":0.2934,
@@ -780,13 +728,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 53,
   	"fields":	{
-  		"year":8,
-  		"technology_name":"TL",
-  		"pot":"E",
-  		"min_levelised_cost":120,
+			"pot": [8, "E"],
+			"name":"TL",
+			"min_levelised_cost":120,
   		"max_levelised_cost":120,
   		"strike_price":129.0,
   		"load_factor":0.25,
@@ -795,13 +742,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 54,
   	"fields":	{
-  		"year":8,
-  		"technology_name":"TS",
-  		"pot":"E",
-  		"min_levelised_cost":94.375,
+			"pot": [8, "E"],
+			"name":"TS",
+			"min_levelised_cost":94.375,
   		"max_levelised_cost":137.5,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -810,13 +756,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 55,
   	"fields":	{
-  		"year":8,
-  		"technology_name":"WA",
-  		"pot":"E",
-  		"min_levelised_cost":156.625,
+			"pot": [8, "E"],
+			"name":"WA",
+			"min_levelised_cost":156.625,
   		"max_levelised_cost":179.0,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -825,13 +770,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 56,
   	"fields":	{
-  		"year":8,
-  		"technology_name":"PVLS",
-  		"pot":"M",
-  		"min_levelised_cost":69.4,
+			"pot": [8, "M"],
+			"name":"PVLS",
+			"min_levelised_cost":69.4,
   		"max_levelised_cost":78.0,
   		"strike_price":80,
   		"load_factor":0.1113,
@@ -840,13 +784,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 57,
   	"fields":	{
-  		"year":9,
-  		"technology_name":"OFW",
-  		"pot":"E",
-  		"min_levelised_cost":141.0,
+			"pot": [9, "E"],
+			"name":"OFW",
+			"min_levelised_cost":141.0,
   		"max_levelised_cost":145.0,
   		"strike_price":143.0,
   		"load_factor":0.49,
@@ -855,13 +798,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 58,
   	"fields":	{
-  		"year":9,
-  		"technology_name":"NU",
-  		"pot":"E",
-  		"min_levelised_cost":70.2,
+			"pot": [9, "E"],
+			"name":"NU",
+			"min_levelised_cost":70.2,
   		"max_levelised_cost":93.8,
   		"strike_price":84.4,
   		"load_factor":0.9,
@@ -870,13 +812,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 59,
   	"fields":	{
-  		"year":9,
-  		"technology_name":"ONW",
-  		"pot":"M",
-  		"min_levelised_cost":80,
+			"pot": [9, "M"],
+			"name":"ONW",
+			"min_levelised_cost":80,
   		"max_levelised_cost":100,
   		"strike_price":92.0,
   		"load_factor":0.2956,
@@ -885,13 +826,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 60,
   	"fields":	{
-  		"year":9,
-  		"technology_name":"TL",
-  		"pot":"E",
-  		"min_levelised_cost":120,
+			"pot": [9, "E"],
+			"name":"TL",
+			"min_levelised_cost":120,
   		"max_levelised_cost":120,
   		"strike_price":129.0,
   		"load_factor":0.25,
@@ -900,13 +840,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 61,
   	"fields":	{
-  		"year":9,
-  		"technology_name":"TS",
-  		"pot":"E",
-  		"min_levelised_cost":86.25,
+			"pot": [9, "E"],
+			"name":"TS",
+			"min_levelised_cost":86.25,
   		"max_levelised_cost":125.0,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -915,13 +854,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 62,
   	"fields":	{
-  		"year":9,
-  		"technology_name":"WA",
-  		"pot":"E",
-  		"min_levelised_cost":141.75,
+			"pot": [9, "E"],
+			"name":"WA",
+			"min_levelised_cost":141.75,
   		"max_levelised_cost":162.0,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -930,13 +868,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 63,
   	"fields":	{
-  		"year":9,
-  		"technology_name":"PVLS",
-  		"pot":"M",
-  		"min_levelised_cost":67.6,
+			"pot": [9, "M"],
+			"name":"PVLS",
+			"min_levelised_cost":67.6,
   		"max_levelised_cost":76.0,
   		"strike_price":80,
   		"load_factor":0.1113,
@@ -945,13 +882,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 64,
   	"fields":	{
-  		"year":10,
-  		"technology_name":"OFW",
-  		"pot":"E",
-  		"min_levelised_cost":141.0,
+			"pot": [10, "E"],
+			"name":"OFW",
+			"min_levelised_cost":141.0,
   		"max_levelised_cost":145.0,
   		"strike_price":143.0,
   		"load_factor":0.49,
@@ -960,13 +896,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 65,
   	"fields":	{
-  		"year":10,
-  		"technology_name":"NU",
-  		"pot":"E",
-  		"min_levelised_cost":68.6,
+			"pot": [10, "E"],
+			"name":"NU",
+			"min_levelised_cost":68.6,
   		"max_levelised_cost":91.4,
   		"strike_price":81.7,
   		"load_factor":0.9,
@@ -975,13 +910,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 66,
   	"fields":	{
-  		"year":10,
-  		"technology_name":"ONW",
-  		"pot":"M",
-  		"min_levelised_cost":80,
+			"pot": [10, "M"],
+			"name":"ONW",
+			"min_levelised_cost":80,
   		"max_levelised_cost":100,
   		"strike_price":92.0,
   		"load_factor":0.2978,
@@ -990,13 +924,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 67,
   	"fields":	{
-  		"year":10,
-  		"technology_name":"TL",
-  		"pot":"E",
-  		"min_levelised_cost":120,
+			"pot": [10, "E"],
+			"name":"TL",
+			"min_levelised_cost":120,
   		"max_levelised_cost":120,
   		"strike_price":129.0,
   		"load_factor":0.25,
@@ -1005,13 +938,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 68,
   	"fields":	{
-  		"year":10,
-  		"technology_name":"TS",
-  		"pot":"E",
-  		"min_levelised_cost":78.125,
+			"pot": [10, "E"],
+			"name":"TS",
+			"min_levelised_cost":78.125,
   		"max_levelised_cost":112.5,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -1020,13 +952,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 69,
   	"fields":	{
-  		"year":10,
-  		"technology_name":"WA",
-  		"pot":"E",
-  		"min_levelised_cost":126.875,
+			"pot": [10, "E"],
+			"name":"WA",
+			"min_levelised_cost":126.875,
   		"max_levelised_cost":145.0,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -1035,13 +966,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 70,
   	"fields":	{
-  		"year":10,
-  		"technology_name":"PVLS",
-  		"pot":"M",
-  		"min_levelised_cost":65.8,
+			"pot": [10, "M"],
+			"name":"PVLS",
+			"min_levelised_cost":65.8,
   		"max_levelised_cost":74.0,
   		"strike_price":80,
   		"load_factor":0.1113,
@@ -1050,13 +980,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 71,
   	"fields":	{
-  		"year":11,
-  		"technology_name":"OFW",
-  		"pot":"E",
-  		"min_levelised_cost":141.0,
+			"pot": [11, "E"],
+			"name":"OFW",
+			"min_levelised_cost":141.0,
   		"max_levelised_cost":145.0,
   		"strike_price":143.0,
   		"load_factor":0.49,
@@ -1065,13 +994,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 72,
   	"fields":	{
-  		"year":11,
-  		"technology_name":"NU",
-  		"pot":"E",
-  		"min_levelised_cost":67.0,
+			"pot": [11, "E"],
+			"name":"NU",
+			"min_levelised_cost":67.0,
   		"max_levelised_cost":89.0,
   		"strike_price":79.0,
   		"load_factor":0.92,
@@ -1080,13 +1008,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 73,
   	"fields":	{
-  		"year":11,
-  		"technology_name":"ONW",
-  		"pot":"M",
-  		"min_levelised_cost":80,
+			"pot": [11, "M"],
+			"name":"ONW",
+			"min_levelised_cost":80,
   		"max_levelised_cost":100,
   		"strike_price":92.0,
   		"load_factor":0.3,
@@ -1095,13 +1022,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 74,
   	"fields":	{
-  		"year":11,
-  		"technology_name":"TL",
-  		"pot":"E",
-  		"min_levelised_cost":120,
+			"pot": [11, "E"],
+			"name":"TL",
+			"min_levelised_cost":120,
   		"max_levelised_cost":120,
   		"strike_price":129.0,
   		"load_factor":0.25,
@@ -1110,13 +1036,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 75,
   	"fields":	{
-  		"year":11,
-  		"technology_name":"TS",
-  		"pot":"E",
-  		"min_levelised_cost":70,
+			"pot": [11, "E"],
+			"name":"TS",
+			"min_levelised_cost":70,
   		"max_levelised_cost":100,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -1125,13 +1050,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 76,
   	"fields":	{
-  		"year":11,
-  		"technology_name":"WA",
-  		"pot":"E",
-  		"min_levelised_cost":112.0,
+			"pot": [11, "E"],
+			"name":"WA",
+			"min_levelised_cost":112.0,
   		"max_levelised_cost":128.0,
   		"strike_price":305.0,
   		"load_factor":0.31,
@@ -1140,13 +1064,12 @@
   	}
   },
   {
-  	"model": "lcf.auctionyeartechnology",
+  	"model": "lcf.technology",
   	"pk": 77,
   	"fields":	{
-  		"year":11,
-  		"technology_name":"PVLS",
-  		"pot":"M",
-  		"min_levelised_cost":64.0,
+			"pot": [11, "M"],
+			"name":"PVLS",
+			"min_levelised_cost":64.0,
   		"max_levelised_cost":72.0,
   		"strike_price":80,
   		"load_factor":0.1113,

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory
 from .forms import ScenarioForm
-from .models import Scenario, AuctionYear, Pot, Technology
+from .models import Scenario, AuctionYear, Technology
 from django.http import HttpResponse
 
 # Create your views here.
@@ -9,7 +9,7 @@ def scenario_new(request):
     TechnologyFormSet = modelformset_factory(Technology, extra=0, fields='__all__')
     scenarios = Scenario.objects.all()
     #queryset = Technology.objects.filter(year__scenario__name="2")
-    queryset = Technology.objects.filter(pot__auctionyear__scenario__name="default")
+    queryset = Technology.objects.filter(auctionyear__scenario__name="default")
     if request.method == "POST":
         formset = TechnologyFormSet(request.POST, queryset=queryset)
         #scenario_name_form = ScenarioNameForm(request.POST)
@@ -22,20 +22,20 @@ def scenario_new(request):
             #scenario = Scenario.objects.create(name=scenario_name, budget=scenario_budget, percent_emerging=scenario_percent_emerging)
             scenario = scenario_form.save()
             for y in range(2020,2031):
-                a = AuctionYear.objects.create(year=y, scenario=scenario)
-                for p in ['E','M','SN','NW']:
-                    Pot.objects.create(auctionyear=a,name=p)
-            q = Pot.objects.filter(auctionyear__scenario=scenario)
+                AuctionYear.objects.create(year=y, scenario=scenario)
+            q = AuctionYear.objects.filter(scenario=scenario)
             for form in formset:
-                pot = q.filter(auctionyear__year=form.cleaned_data['pot'].auctionyear.year).get(name=form.cleaned_data['pot'].name)
-                Technology.objects.create(pot = pot,
-                                        name = form.cleaned_data['name'],
-                                        min_levelised_cost = form.cleaned_data['min_levelised_cost'],
-                                        max_levelised_cost = form.cleaned_data['max_levelised_cost'],
-                                        strike_price = form.cleaned_data['strike_price'],
-                                        load_factor = form.cleaned_data['load_factor'],
-                                        project_gen = form.cleaned_data['project_gen'],
-                                        max_deployment_cap = form.cleaned_data['max_deployment_cap'])
+                auctionyear = q.get(year=form.cleaned_data['year'].year)
+                #auctionyear = q.get(year=form.instance.year) # don't know why this doesn't work
+                Technology.objects.create(year = auctionyear,
+                                                    name = form.cleaned_data['name'],
+                                                    pot = form.cleaned_data['pot'],
+                                                    min_levelised_cost = form.cleaned_data['min_levelised_cost'],
+                                                    max_levelised_cost = form.cleaned_data['max_levelised_cost'],
+                                                    strike_price = form.cleaned_data['strike_price'],
+                                                    load_factor = form.cleaned_data['load_factor'],
+                                                    project_gen = form.cleaned_data['project_gen'],
+                                                    max_deployment_cap = form.cleaned_data['max_deployment_cap'])
             return redirect('scenario_detail', pk=scenario.pk)
     else:
         #scenario_name_form = ScenarioNameForm()
