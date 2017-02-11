@@ -16,24 +16,19 @@ class Scenario(models.Model):
     def __str__(self):
         return self.name
 
-
-    def results(self):
-        auction_tally = {'cost': 0, 'gen': 0}
-        for auctionyear in self.auctionyear_set.all():
-            for pot in auctionyear.pot_set.all():
-                if pot.name == 'NW' or pot.name =='SN':
-                    return 0
-                else:
-                    auction_results = pot.run_auction()
-                    auction_tally['cost'] += auction_results['cost']
-                    auction_tally['gen'] += auction_results['gen']
-        return auction_tally
-
     def cost(self):
-        return round(self.results()['cost'],3)
+        cost = 0
+        for a in self.auctionyear_set.all():
+            for p in a.pot_set.all():
+                cost += p.cost()
+        return round(cost,3)
 
     def gen(self):
-        return round(self.results()['gen'],3)
+        gen = 0
+        for a in self.auctionyear_set.all():
+            for p in a.pot_set.all():
+                gen += p.gen()
+        return round(gen,3)
 
 class AuctionYear(models.Model):
     scenario = models.ForeignKey('lcf.scenario', default=1)#http://stackoverflow.com/questions/937954/how-do-you-specify-a-default-for-a-django-foreignkey-model-or-adminmodel-field
@@ -43,6 +38,19 @@ class AuctionYear(models.Model):
     def __str__(self):
         return str(self.year)
 
+
+    def budget(self):
+        if self.year == 2020:
+            yearly_budget = 481.29
+            previous_year_leftover = 0
+        else:
+            yearly_budget = self.scenario.budget / 5 * 1000
+            previous_year = self.scenario.auctionyear_set.all().get(year=self.year-1)
+            previous_year_leftover = previous_year.leftover()
+        yearly_budget += previous_year_leftover
+        return yearly_budget
+
+
     def leftover(self):
         #nb this is combined pots
         l = {2019: 0, 2020: 0, 2021: 349.07, 2022: 524.76 , 2023: 1048.10, 2024: 1616.12, 2025: 2200.54, 2026: 2145.85, 2027: 2093.53, 2028: 2028.08, 2029: 1958.61, 2030: 1889.38}
@@ -51,7 +59,7 @@ class AuctionYear(models.Model):
     def combined_manual_leftover(self):
         combined = 0
         for pot in self.pot_set.all():
-            combined += pot.manual_leftover
+            combined += pot.manual_leftover()
         return combined
 
 
@@ -69,16 +77,9 @@ class Pot(models.Model):
     def __str__(self):
         return str((self.auctionyear, self.name))
 
+
     def budget(self):
-        if self.auctionyear == 2020:
-            yearly_budget = 481.29
-            previous_year_leftover = 0
-        else:
-            yearly_budget = self.auctionyear.scenario.budget / 5 * 1000
-            previous_year = AuctionYear.objects.filter(scenario=self.auctionyear.scenario).get(year=self.auctionyear.year-1)
-            previous_year_leftover = previous_year.leftover()
-        yearly_budget += previous_year_leftover
-        return yearly_budget * self.percent()
+        return self.auctionyear.budget() * self.percent()
 
     def percent(self):
         if self.name == "E":
