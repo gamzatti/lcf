@@ -1,11 +1,10 @@
 extend python logic to do full calculations:
-  create architecture which takes lump sum and distributes money between years and into pots and carries over previous underspend. is money ever reallocated between pots? or just over years?
-  split into pots/separate negotiations/figure out where negawatts fit into all of this
+  improve performance!!
+  write tests
+  adjust rank order (diverge from Angela? discuss with Dustin?)
+  figure out separate negotiations and negawatts
   deal with unaffordable projects (diverge from Angela?)
   include comparison to gas prices
-  adjust rank order (diverge from Angela? discuss with Dustin?)
-  write tests
-  improve performance!!
 
 
   ?create normal distribution of projects?

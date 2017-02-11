@@ -13,6 +13,16 @@ class Scenario(models.Model):
     budget = models.FloatField(default=3.3)
     percent_emerging = models.FloatField(default=0.6)
 
+    def get_foo(self):
+        try:
+            self.foo
+        except AttributeError:
+            self.foo = 5+17
+        return self.foo
+
+    def bar(self):
+        pass
+
     def __str__(self):
         return self.name
 

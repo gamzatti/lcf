@@ -15,7 +15,7 @@
     {% for y in scenario.auctionyear_set.all %}
         <h3>Year: {{ y }}</h3>
         <p>Wholesale price: {{ y.wholesale_price }}</p>
-        <p>Manual leftover: {{ y.combined_manual_leftover }}</p>
+        <p>Leftover from previous year: {{ y.combined_manual_leftover }}</p>
         {% for p in y.pot_set.all %}
             <h4>Pot: {{ p.name }}</h4>
             <strong>Pot budget: {{ p.budget }}</strong>
