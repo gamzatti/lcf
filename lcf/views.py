@@ -3,6 +3,8 @@ from django.forms import modelformset_factory
 from .forms import ScenarioForm
 from .models import Scenario, AuctionYear, Pot, Technology
 from django.http import HttpResponse
+import pandas as pd
+import numpy as np
 
 # Create your views here.
 def scenario_new(request):
@@ -52,4 +54,5 @@ def scenario_delete(request, pk):
 def scenario_detail(request, pk):
     scenario = get_object_or_404(Scenario,pk=pk)
     scenarios = Scenario.objects.all()
-    return render(request, 'lcf/scenario_detail.html', {'scenario': scenario, 'scenarios': scenarios })
+    data = scenario.auctionyear_set.get(year=2021).pot_set.get(name='E').combined_tech_affordable_projects()
+    return render(request, 'lcf/scenario_detail.html', {'scenario': scenario, 'scenarios': scenarios, 'data': data })

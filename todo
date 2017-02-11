@@ -1,28 +1,33 @@
 extend python logic to do full calculations:
-  improve performance!!
+  *adjust rank order (diverge from Angela? discuss with Dustin?)
+  *deal with unaffordable projects (diverge from Angela?)
+  *include comparison to gas prices
+  *figure out separate negotiations and negawatts
+  *think about accumulation and whether the pot is restarted at 2026
+  *check results are identical
+
   write tests
-  adjust rank order (diverge from Angela? discuss with Dustin?)
-  figure out separate negotiations and negawatts
-  deal with unaffordable projects (diverge from Angela?)
-  include comparison to gas prices
-
-
+  speed up form generation
+  refactor: review lru_cache and consider initialising instance variables and then doing lazy calculation. (or at least do this http://stackoverflow.com/questions/2237624/applying-python-decorators-to-methods-in-a-class)
   ?create normal distribution of projects?
 
 inputs:
-  improve interface, eg with longer fields accepting series of values, hide technology inputs initially with jquery, disallow editing of year and technology. use nested forms? maybe add choice options for prices?
-  make wholesale price adjustable
+  improve interface, eg with longer fields accepting series of values, field labels, hide technology inputs initially with jquery, disallow editing of year and technology. use nested forms? maybe add choice options for prices? (nb the technology form order reflects the order in the database, so could change this with fixtures)
+  *make wholesale price adjustable
   make it so you can alter an existing scenario rather than the default
   make assumptions adjustable?
     normal/even distribution
-    rank order problem above
+    rank order problem divergence
+    unaffordable project divergence
 
 output page:
-  improve summary data (maybe display in table)
-  hide inputs with jquery
+  *improve summary data, eg generation and cost of each technology (maybe display in table)
   add graphs/visualisations
+  give option to display inputs with jquery
   create csv output option
- http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
+
+
+http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
 
 
 add javascript to delete buttons

@@ -4,26 +4,37 @@
     <h1>{{ scenario.name }}</h1>
         {{ scenario.description }}
     <p>created {{ scenario.date }}</p>
-    <p>budget: {{ scenario.budget }}</p>
+    <p>budget: £{{ scenario.budget }}bn</p>
     <p>percent in emerging pot: {{ scenario.percent_emerging }}</p>
 
 
     <p>Cumulative cost: £{{ scenario.cost }}m</p>
+    <p>Cumulative cost (2020): £{{ scenario.cost_2020 }}m</p>
+    <p>Cumulative cost (2021-2025): £{{ scenario.cost_lcf2 }}m</p>
+    <p>Cumulative cost (2026-2030): £{{ scenario.cost_lcf3 }}m</p>
     <p>Cumulative new generation: {{ scenario.gen }}TWh</p>
 
-
     {% for y in scenario.auctionyear_set.all %}
-        <h3>Year: {{ y }}</h3>
-        <p>Wholesale price: {{ y.wholesale_price }}</p>
-        <p>Leftover from previous year: {{ y.combined_manual_leftover }}</p>
+        <hr>
+        <h2>Year: {{ y }}</h2>
+        <p>Wholesale price: £{{ y.wholesale_price }}/kWh</p>
+        <p>Budget: £{{ y.budget }}m</p>
+        <p>Cost: £{{ y.cost }}bn</p>
+<!--        <p>Unspent: {{ y.unspent }}</p>
+        <p>Previous year unspent: {{ y.previous_year_unspent }}</p>
+        <p>Starting budget: {{ y.starting_budget}}</p> -->
+
         {% for p in y.pot_set.all %}
-            <h4>Pot: {{ p.name }}</h4>
-            <strong>Pot budget: {{ p.budget }}</strong>
-            <p>Cost: £{{ p.cost }}m</p>
-            <p>Generation: {{ p.gen }}TWh</p>
-            <p>Manual leftover: {{ p.manual_leftover }}</p>
-            <p>Affordable projects: {{ p.combined_tech_affordable_projects }}</p>
+            {% if p.name == "E" or p.name == "M" %}
+                <h3>Pot: {{ p.name }}</h3>
+                <p>Budget: £{{ p.budget }}m</p>
+                <p>Cost: £{{ p.cost }}m</p>
+    <!--            <p>Generation: {{ p.gen }}TWh</p>
+                <p>unspent: £{{ p.unspent }}m</p>-->
+            <p>Affordable projects: {{ p.combined_tech_affordable_projects.to_html | safe }}</p>
+            {% endif %}
         {% endfor %}
+
 <!--        <ul>
         {% for t in y.auctionyeartechnology_set.all %}
             <h4>Technology: {{ t.technology_name }}</h4>
