@@ -1,8 +1,8 @@
 extend python logic to do full calculations:
-  *adjust rank order (diverge from Angela? discuss with Dustin?)
+  *fix problem that pays everyone strike price not highest levelised cost
   *deal with unaffordable projects (diverge from Angela?)
-  *include comparison to gas prices
   *figure out separate negotiations and negawatts
+  *include comparison to gas prices
   *think about accumulation and whether the pot is restarted at 2026
   *check results are identical
 

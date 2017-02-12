@@ -31,7 +31,7 @@
                 <p>Cost: £{{ p.cost }}m</p>
     <!--            <p>Generation: {{ p.gen }}TWh</p>
                 <p>unspent: £{{ p.unspent }}m</p>-->
-            <p>Affordable projects: {{ p.combined_tech_affordable_projects.to_html | safe }}</p>
+            <p>Affordable projects: {{ p.funded_projects.to_html | safe }}</p>
             {% endif %}
         {% endfor %}
 

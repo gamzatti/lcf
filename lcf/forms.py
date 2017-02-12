@@ -6,7 +6,7 @@ class ScenarioForm(forms.ModelForm):
 
     class Meta:
         model = Scenario
-        fields = ('name', 'description', 'budget', 'percent_emerging','rank_by_strike_price',)
+        fields = ('name', 'description', 'budget', 'percent_emerging','rank_by_levelised_cost',)
         widgets = {
           'description': Textarea(attrs={'rows':2, 'cols':20}),
         }

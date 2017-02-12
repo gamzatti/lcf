@@ -12,17 +12,11 @@ class Scenario(models.Model):
     date = models.DateTimeField(default=timezone.now)
     budget = models.FloatField(default=3.3, verbose_name="Budget (£bn)")
     percent_emerging = models.FloatField(default=0.6)
-    rank_by_strike_price = models.BooleanField(default=True)
-
-    def get_foo(self):
-        try:
-            self.foo
-        except AttributeError:
-            self.foo = 5+17
-        return self.foo
+    rank_by_levelised_cost = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
+
 
     @lru_cache(maxsize=None)
     def cost(self):
@@ -48,6 +42,7 @@ class Scenario(models.Model):
             for p in a.pot_set.all():
                 cost += p.cost()
         return round(cost,3)
+
 
     @lru_cache(maxsize=None)
     def cost_lcf3(self):
@@ -134,48 +129,30 @@ class Pot(models.Model):
         else:
             return 0
 
-    """
-    @lru_cache(maxsize=None)
-    def run_auction(self):
-        cost = 0
-        gen = 0
-        combined_tech_affordable_projects = DataFrame(columns=['levelised_cost', 'gen', 'Affordable'])
-        for t in self.technology_set.all():
-            cfd_unit_cost = t.strike_price - self.auctionyear.wholesale_price
-            for i in t.affordable_projects().index:
-                if cost + cfd_unit_cost * t.project_gen_correct() < self.budget():
-                    combined_tech_affordable_projects.loc[i] = t.affordable_projects().loc[i]
-                    cost += cfd_unit_cost * t.project_gen_correct()
-                    gen += t.project_gen_correct()
-                else:
-                    break
-        return {'cost': cost, 'gen': gen, 'combined_tech_affordable_projects': combined_tech_affordable_projects.drop(['Affordable'], axis=1)}
-        """
-
     @lru_cache(maxsize=None)
     def run_auction(self):
         spent = 0
         gen = 0
-        affordable_projects = DataFrame(columns=['levelised_cost', 'gen', 'Affordable', 'cfd_unit_cost'])
-        for t in self.technology_set.all():
-            new = t.affordable_projects()
-            new['cfd_unit_cost'] = t.strike_price - self.auctionyear.wholesale_price # not accurate - all projects get paid out the highest LCOE, not the strike price
-            affordable_projects = pd.concat([affordable_projects, new])
-            affordable_projects = affordable_projects.drop(['Affordable'], axis=1)
-            #rank if necessary
-            affordable_projects['cfd_payout'] = affordable_projects.cfd_unit_cost * affordable_projects.gen
-        affordable_projects['funded'] = False
-        for i in affordable_projects.index:
-            if spent + affordable_projects.cfd_payout[i] < self.budget():
-                affordable_projects['funded'][i] = True
-                spent += affordable_projects.cfd_payout[i]
-                gen += affordable_projects.gen[i]
+        if self.technology_set.count() == 0:
+            projects = DataFrame(columns=['levelised_cost', 'gen', 'technology', 'strike_price', 'affordable', 'funded', 'cfd_unit_cost', 'cfd_payout', 'cum_cost', 'cum_gen'])
+        else:
+            projects = pd.concat([t.projects() for t in self.technology_set.all()])
+            projects['affordable'] = projects.levelised_cost <= projects.strike_price
+            projects['cfd_unit_cost'] = projects.strike_price - self.auctionyear.wholesale_price # not accurate - all projects get paid out the highest LCOE, not the strike price
+            projects['cfd_payout'] = projects.cfd_unit_cost * projects.gen
+            projects['funded'] = False
+            if self.auctionyear.scenario.rank_by_levelised_cost == True:
+                projects = projects.sort_values('levelised_cost')
             else:
-                break
-
-        funded_projects = affordable_projects[affordable_projects.funded == True]
-
-        return {'cost': spent, 'gen': gen, 'combined_tech_affordable_projects': funded_projects }
+                projects = projects.sort_values('cfd_payout')
+            for i in projects[projects.affordable == True].index:
+                if spent + projects.cfd_payout[i] < self.budget():
+                    projects['funded'][i] = True
+                    spent += projects[projects.funded == True]['cfd_payout'][i]
+                    gen += projects[projects.funded == True]['gen'][i]
+                else:
+                    break
+        return {'cost': spent, 'gen': gen, 'projects': projects}
 
 
 
@@ -192,8 +169,9 @@ class Pot(models.Model):
         return round(self.run_auction()['gen'],3)
 
     @lru_cache(maxsize=None)
-    def combined_tech_affordable_projects(self):
-        return self.run_auction()['combined_tech_affordable_projects']
+    def funded_projects(self):
+        df = self.run_auction()['projects']
+        return df[df.funded == True]
 
 
 
@@ -243,42 +221,19 @@ class Technology(models.Model):
     def years_supported(self):
         return 2031 - self.pot.auctionyear
 
-    """
     @lru_cache(maxsize=None)
-    def deployable_projects(self):
-        dep = Series(np.linspace(self.min_levelised_cost,self.max_levelised_cost,self.num_projects()+2)[1:-1],name="Deployable Projects") # could change to a normal distribution
-        dep.index = [ self.name + str(i + 1) for i in range(len(dep)) ]
-        return dep
-
-    @lru_cache(maxsize=None)
-    def affordable_projects(self):
-        aff = Series(self.deployable_projects()[self.deployable_projects() <= self.strike_price],name="Affordable Projects")
-        return aff
-
-
-    @lru_cache(maxsize=None)
-    def unaffordable_projects(self):
-        un = Series(self.deployable_projects()[self.deployable_projects() > self.strike_price],name="Unaffordable Projects")
-        return un
-    """
-
-
-
-
-    @lru_cache(maxsize=None)
-    def deployable_projects(self):
+    def projects(self):
         dep = Series(np.linspace(self.min_levelised_cost,self.max_levelised_cost,self.num_projects()+2)[1:-1],name="levelised_cost")
-        gen = Series(np.repeat(self.project_gen,len(dep)),name='gen')
-        df = pd.concat([dep,gen], axis=1)
-        df.index = [ self.name + str(i + 1) for i in range(len(dep)) ]
-        df['Affordable'] = False
-        return df
+        gen = Series(np.repeat(self.project_gen_correct(),len(dep)),name='gen')
+        projects = pd.concat([dep,gen], axis=1)
+        projects.index = [ self.name + str(i + 1) for i in range(len(dep)) ]
+        projects['technology'] = self.name
+        projects['strike_price'] = self.strike_price
+        projects['affordable'] = False
+        #projects['affordable'] = projects.levelised_cost <= projects.strike_price
+        projects['funded'] = False
+        return projects
 
-    @lru_cache(maxsize=None)
-    def affordable_projects(self):
-        df = self.deployable_projects()
-        df['Affordable'] = df.levelised_cost <= self.strike_price #don't think I've actually changed this in memory
-        return df[df.Affordable == True]
 
 
 class StoredProject(models.Model):

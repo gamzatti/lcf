@@ -54,5 +54,4 @@ def scenario_delete(request, pk):
 def scenario_detail(request, pk):
     scenario = get_object_or_404(Scenario,pk=pk)
     scenarios = Scenario.objects.all()
-    data = scenario.auctionyear_set.get(year=2021).pot_set.get(name='E').combined_tech_affordable_projects()
-    return render(request, 'lcf/scenario_detail.html', {'scenario': scenario, 'scenarios': scenarios, 'data': data })
+    return render(request, 'lcf/scenario_detail.html', {'scenario': scenario, 'scenarios': scenarios})

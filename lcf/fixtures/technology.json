@@ -23,7 +23,7 @@
   		"max_levelised_cost":102.0,
   		"strike_price":100.6098,
   		"load_factor":0.8,
-  		"project_gen":100,
+  		"project_gen":10000,
   		"max_deployment_cap":0
   	}
   },
@@ -121,7 +121,7 @@
   		"max_levelised_cost":101.8,
   		"strike_price":98.9878,
   		"load_factor":0.8,
-  		"project_gen":100,
+  		"project_gen":10000,
   		"max_deployment_cap":0
   	}
   },
@@ -219,7 +219,7 @@
   		"max_levelised_cost":101.6,
   		"strike_price":97.3659,
   		"load_factor":0.8,
-  		"project_gen":100,
+  		"project_gen":10000,
   		"max_deployment_cap":0
   	}
   },
@@ -317,7 +317,7 @@
   		"max_levelised_cost":101.4,
   		"strike_price":90,
   		"load_factor":0.8,
-  		"project_gen":100,
+  		"project_gen":10000,
   		"max_deployment_cap":0
   	}
   },
@@ -415,7 +415,7 @@
   		"max_levelised_cost":101.2,
   		"strike_price":90,
   		"load_factor":0.8,
-  		"project_gen":100,
+  		"project_gen":10000,
   		"max_deployment_cap":2.9
   	}
   },
@@ -513,7 +513,7 @@
   		"max_levelised_cost":101.0,
   		"strike_price":92.5,
   		"load_factor":0.9,
-  		"project_gen":100,
+  		"project_gen":10000,
   		"max_deployment_cap":0
   	}
   },
@@ -611,7 +611,7 @@
   		"max_levelised_cost":98.6,
   		"strike_price":89.8,
   		"load_factor":0.9,
-  		"project_gen":100,
+  		"project_gen":10000,
   		"max_deployment_cap":3.2
   	}
   },
@@ -709,7 +709,7 @@
   		"max_levelised_cost":96.2,
   		"strike_price":87.1,
   		"load_factor":0.9,
-  		"project_gen":100,
+  		"project_gen":10000,
   		"max_deployment_cap":2.9
   	}
   },
@@ -807,7 +807,7 @@
   		"max_levelised_cost":93.8,
   		"strike_price":84.4,
   		"load_factor":0.9,
-  		"project_gen":100,
+  		"project_gen":10000,
   		"max_deployment_cap":1.6
   	}
   },
@@ -905,7 +905,7 @@
   		"max_levelised_cost":91.4,
   		"strike_price":81.7,
   		"load_factor":0.9,
-  		"project_gen":100,
+  		"project_gen":10000,
   		"max_deployment_cap":0
   	}
   },
@@ -1003,7 +1003,7 @@
   		"max_levelised_cost":89.0,
   		"strike_price":79.0,
   		"load_factor":0.92,
-  		"project_gen":100,
+  		"project_gen":10000,
   		"max_deployment_cap":0
   	}
   },
