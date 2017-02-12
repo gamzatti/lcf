@@ -12,12 +12,11 @@ extend python logic to do full calculations:
   ?create normal distribution of projects?
 
 inputs:
-  improve interface, eg with longer fields accepting series of values, field labels, hide technology inputs initially with jquery, disallow editing of year and technology. use nested forms? maybe add choice options for prices? (nb the technology form order reflects the order in the database, so could change this with fixtures)
+  improve interface, eg with longer fields accepting series of values, field labels, hide technology inputs initially with jquery, disallow editing of year and technology. ability to turn off technologies, use nested forms? maybe add choice options for prices? (nb the technology form order reflects the order in the database, so could change this with fixtures)
   *make wholesale price adjustable
   make it so you can alter an existing scenario rather than the default
   make assumptions adjustable?
     normal/even distribution
-    rank order problem divergence
     unaffordable project divergence
 
 output page:
@@ -32,3 +31,4 @@ http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.y
 
 add javascript to delete buttons
 simplify model code eg by making template tags? http://stackoverflow.com/questions/28513528/passing-arguments-to-model-methods-in-django-templates
+maybe write some code that converts csv to json fixture format
