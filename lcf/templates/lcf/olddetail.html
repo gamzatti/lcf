@@ -3,7 +3,8 @@
 {% block content %}
     <h1>{{ scenario.name }}</h1>
         {{ scenario.description }}
-        {{ scenario.foo }}
+        {{ scenario.set_var }}
+        {{ scenario.tempvar }}
     <p>created {{ scenario.date }}</p>
     <p>budget: £{{ scenario.budget }}bn</p>
     <p>percent in emerging pot: {{ scenario.percent_emerging }}</p>
@@ -16,7 +17,6 @@
     <p>Cumulative new generation: {{ scenario.gen }}TWh</p>
 
     {% for y in scenario.auctionyear_set.all %}
-    {% if y.year == 2020 %}
         <hr>
         <h2>Year: {{ y }}</h2>
         <p>Wholesale price: £{{ y.wholesale_price }}/kWh</p>
@@ -36,7 +36,7 @@
             <p>Affordable projects: {{ p.funded_projects.to_html | safe }}</p>
             {% endif %}
         {% endfor %}
-        {% endif %}
+
 <!--        <ul>
         {% for t in y.auctionyeartechnology_set.all %}
             <h4>Technology: {{ t.technology_name }}</h4>

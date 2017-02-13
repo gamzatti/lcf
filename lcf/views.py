@@ -36,7 +36,7 @@ def scenario_new(request):
                                         max_levelised_cost = form.cleaned_data['max_levelised_cost'],
                                         strike_price = form.cleaned_data['strike_price'],
                                         load_factor = form.cleaned_data['load_factor'],
-                                        project_gen = form.cleaned_data['project_gen'],
+                                        project_gen_incorrect = form.cleaned_data['project_gen_incorrect'],
                                         max_deployment_cap = form.cleaned_data['max_deployment_cap'])
             return redirect('scenario_detail', pk=scenario.pk)
     else:

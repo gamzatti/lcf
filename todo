@@ -1,19 +1,18 @@
 extend python logic to do full calculations:
-  *fix problem that pays everyone strike price not highest levelised cost
   *deal with unaffordable projects (diverge from Angela?)
   *figure out separate negotiations and negawatts
-  *include comparison to gas prices
   *think about accumulation and whether the pot is restarted at 2026
+  *include comparison to gas prices
   *check results are identical
 
   write tests
-  speed up form generation
-  refactor: review lru_cache and consider initialising instance variables and then doing lazy calculation. (or at least do this http://stackoverflow.com/questions/2237624/applying-python-decorators-to-methods-in-a-class)
+  speed up!/refactor: review lru_cache and consider initialising instance variables and then doing lazy calculation. and find out how to clear cache? (or at least do this http://stackoverflow.com/questions/2237624/applying-python-decorators-to-methods-in-a-class)
   ?create normal distribution of projects?
 
+
 inputs:
-  improve interface, eg with longer fields accepting series of values, field labels, hide technology inputs initially with jquery, disallow editing of year and technology. ability to turn off technologies, use nested forms? maybe add choice options for prices? (nb the technology form order reflects the order in the database, so could change this with fixtures)
-  *make wholesale price adjustable
+  improve interface, eg with longer fields accepting series of values, field labels, hide technology inputs initially with jquery, disallow editing of year and technology. ability to turn off technologies (put deployment to 0 for all years), use nested forms? maybe add choice options for prices? (nb the technology form order reflects the order in the database, so could change this with fixtures)
+  *make wholesale/gas price adjustable
   make it so you can alter an existing scenario rather than the default
   make assumptions adjustable?
     normal/even distribution
