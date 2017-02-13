@@ -5,7 +5,8 @@
     "fields": {
       "scenario": 1,
       "year": 2020,
-      "wholesale_price": 53
+      "wholesale_price": 48.54,
+			"gas_price": 85
     }
 	},
   {
@@ -14,7 +15,8 @@
     "fields": {
       "scenario": 1,
       "year": 2021,
-      "wholesale_price": 53
+      "wholesale_price": 54.286,
+			"gas_price": 87
     }
 	},
   {
@@ -23,7 +25,8 @@
     "fields": {
       "scenario": 1,
       "year": 2022,
-      "wholesale_price": 53
+      "wholesale_price": 58.475,
+			"gas_price": 89
     }
 	},
   {
@@ -32,7 +35,8 @@
     "fields": {
       "scenario": 1,
       "year": 2023,
-      "wholesale_price": 53
+      "wholesale_price": 60.149,
+			"gas_price": 91
     }
 	},
   {
@@ -41,7 +45,8 @@
     "fields": {
       "scenario": 1,
       "year": 2024,
-      "wholesale_price": 53
+      "wholesale_price": 64.969,
+			"gas_price": 93
     }
 	},
   {
@@ -50,7 +55,8 @@
     "fields": {
       "scenario": 1,
       "year": 2025,
-      "wholesale_price": 53
+      "wholesale_price": 67.266,
+			"gas_price": 95
     }
 	},
   {
@@ -59,7 +65,8 @@
     "fields": {
       "scenario": 1,
       "year": 2026,
-      "wholesale_price": 53
+      "wholesale_price": 68.695,
+			"gas_price": 95
     }
 	},
   {
@@ -68,7 +75,8 @@
     "fields": {
       "scenario": 1,
       "year": 2027,
-      "wholesale_price": 53
+      "wholesale_price": 69.205,
+			"gas_price": 95
     }
 	},
   {
@@ -77,7 +85,8 @@
     "fields": {
       "scenario": 1,
       "year": 2028,
-      "wholesale_price": 53
+      "wholesale_price": 66.386,
+			"gas_price": 95
     }
 	},
   {
@@ -86,7 +95,8 @@
     "fields": {
       "scenario": 1,
       "year": 2029,
-      "wholesale_price": 53
+      "wholesale_price": 65.526,
+			"gas_price": 95
     }
 	},
   {
@@ -95,7 +105,8 @@
     "fields": {
       "scenario": 1,
       "year": 2030,
-      "wholesale_price": 53
+      "wholesale_price": 65.578,
+			"gas_price": 95
     }
 	}
 ]

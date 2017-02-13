@@ -14,6 +14,7 @@ class Scenario(models.Model):
     percent_emerging = models.FloatField(default=0.6)
     rank_by_levelised_cost = models.BooleanField(default=True)
 
+
     def __str__(self):
         return self.name
 
@@ -66,6 +67,7 @@ class AuctionYear(models.Model):
     scenario = models.ForeignKey('lcf.scenario', default=1)#http://stackoverflow.com/questions/937954/how-do-you-specify-a-default-for-a-django-foreignkey-model-or-adminmodel-field
     year = models.IntegerField(default=2020)
     wholesale_price = models.IntegerField(default=53)
+    gas_price = models.IntegerField(default=85)
 
     def __str__(self):
         return str(self.year)
@@ -129,69 +131,33 @@ class Pot(models.Model):
         else:
             return 0
 
-    """Attempt at new calculations that use clearing price.
     @lru_cache(maxsize=None)
     def run_auction(self):
-        projects = self.concat_projects()
-        spent = 0
         gen = 0
-        for i in projects[projects.affordable == True].index:
-            if spent + projects.cfd_payout[i] < self.budget():
-                projects['funded'][i] = True
-                #change the clearing price to the next lowest levelised_cost for the technology
-                tech_subset = projects[technology==projects.technology[i]]
-                tech_subset['clearing_price'] = tech_subset['clearing_price'][i+1]
-                projects['cfd_unit_cost'] = projects.clearing_price - self.auctionyear.wholesale_price # not accurate - all projects get paid out the highest LCOE, not the strike price
-                projects['cfd_payout'] = projects.cfd_unit_cost * projects.gen
-                spent += projects[projects.funded == True]['cfd_payout'][i]
-                gen += projects[projects.funded == True]['gen'][i]
-            else:
-                break
-        return {'cost': spent, 'gen': gen, 'projects': projects}
+        cost = 0
+        projects = DataFrame(columns=['levelised_cost', 'gen', 'technology', 'strike_price', 'clearing_price', 'affordable', 'funded'])
+        for t in self.technology_set.all():
+            aff = t.projects()[t.projects().affordable == True]
+            unaff = t.projects()[t.projects().affordable == False]
+            actual_cost = 0
+            for i in aff.index:
+                funded_gen = sum(aff.gen[aff.funded==True])
+                attempted_gen = funded_gen + aff.gen[i]
+                attempted_clearing_price = aff.levelised_cost[i]
+                attempted_cost = attempted_gen * (attempted_clearing_price - self.auctionyear.wholesale_price)
+                if attempted_cost < self.budget() - cost:
+                    aff.funded[i] = True
+                    actual_gen = attempted_gen
+                    aff.clearing_price = attempted_clearing_price
+                    actual_cost = attempted_cost
+                else:
+                    break
+            projects = pd.concat([projects,aff,unaff])
+            cost += actual_cost
+            gen += actual_gen
 
+        return {'cost': cost, 'gen': gen, 'projects': projects}
 
-    def concat_projects(self):
-        if self.technology_set.count() == 0:
-            projects = DataFrame(columns=['levelised_cost', 'gen', 'technology', 'strike_price', 'clearing_price', 'affordable', 'funded', 'cfd_unit_cost', 'cfd_payout', 'cum_cost', 'cum_gen'])
-        else:
-            projects = pd.concat([t.projects() for t in self.technology_set.all()])
-            projects['affordable'] = projects.levelised_cost <= projects.strike_price
-            projects['funded'] = False
-            if self.auctionyear.scenario.rank_by_levelised_cost == True:
-                projects = projects.sort_values('levelised_cost')
-            else:
-                projects = projects.sort_values('cfd_payout')
-        return projects"""
-
-    @lru_cache(maxsize=None)
-    def run_auction(self):
-        projects = self.concat_projects()
-        spent = 0
-        gen = 0
-        for i in projects[projects.affordable == True].index:
-            if spent + projects.cfd_payout[i] < self.budget():
-                projects['funded'][i] = True
-                spent += projects[projects.funded == True]['cfd_payout'][i]
-                gen += projects[projects.funded == True]['gen'][i]
-            else:
-                break
-        return {'cost': spent, 'gen': gen, 'projects': projects}
-
-
-    def concat_projects(self):
-        if self.technology_set.count() == 0:
-            projects = DataFrame(columns=['levelised_cost', 'gen', 'technology', 'strike_price', 'clearing_price', 'affordable', 'funded', 'cfd_unit_cost', 'cfd_payout', 'cum_cost', 'cum_gen'])
-        else:
-            projects = pd.concat([t.projects() for t in self.technology_set.all()])
-            projects['affordable'] = projects.levelised_cost <= projects.strike_price
-            projects['cfd_unit_cost'] = projects.strike_price - self.auctionyear.wholesale_price # not accurate - all projects get paid out the highest LCOE, not the strike price
-            projects['cfd_payout'] = projects.cfd_unit_cost * projects.gen
-            projects['funded'] = False
-            if self.auctionyear.scenario.rank_by_levelised_cost == True:
-                projects = projects.sort_values('levelised_cost')
-            else:
-                projects = projects.sort_values('cfd_payout')
-        return projects
 
 
     @lru_cache(maxsize=None)
@@ -236,6 +202,10 @@ class Technology(models.Model):
     project_gen = models.FloatField(default=100)
     max_deployment_cap = models.FloatField(default=100)
 
+
+
+
+
     def __str__(self):
         return str((self.pot.auctionyear,self.pot.name,self.name))
 
@@ -267,12 +237,10 @@ class Technology(models.Model):
         projects.index = [ self.name + str(i + 1) for i in range(len(dep)) ]
         projects['technology'] = self.name
         projects['strike_price'] = self.strike_price
-        projects['clearing_price'] = projects.levelised_cost.min()
-        projects['affordable'] = False
-        #projects['affordable'] = projects.levelised_cost <= projects.strike_price
-        projects['funded'] = False
+        projects['clearing_price'] = np.nan
+        projects['affordable'] = projects.levelised_cost <= projects.strike_price
+        projects['funded'] = np.nan
         return projects
-
 
 
 class StoredProject(models.Model):

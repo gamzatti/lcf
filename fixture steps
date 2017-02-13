@@ -47,3 +47,10 @@ change
 "year":(\d+),\s\s\s\s"pot":"E",
 to
 "pot":$1,
+
+
+to add in gas price to auctionyear:
+change
+"wholesale_price": (\d+.?\d+)\n
+to
+"wholesale_price": $1,\n\t\t\t"gas_price": 0\n
