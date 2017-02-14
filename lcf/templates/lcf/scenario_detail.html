@@ -16,7 +16,6 @@
     <p>Cumulative new generation: {{ scenario.gen }}TWh</p>
 
     {% for y in scenario.auctionyear_set.all %}
-    {% if y.year == 2020 %}
         <hr>
         <h2>Year: {{ y }}</h2>
         <p>Wholesale price: £{{ y.wholesale_price }}/kWh</p>
@@ -33,10 +32,14 @@
                 <p>Cost: £{{ p.cost }}m</p>
     <!--            <p>Generation: {{ p.gen }}TWh</p>
                 <p>unspent: £{{ p.unspent }}m</p>-->
-            <p>Affordable projects: {{ p.funded_projects.to_html | safe }}</p>
+                <p>Affordable projects: {{ p.funded_projects.to_html | safe }}</p>
+                {% for t in p.technology_set.all %}
+                    <h4>{{ t.name }}</h4>
+                    <li>Deployment: {{ t.project_gen_incorrect }}</li>
+                    <li>Cumulative deployment: {{ t.cum_project_gen_incorrect }}</li>
+                {% endfor %}
             {% endif %}
         {% endfor %}
-        {% endif %}
 <!--        <ul>
         {% for t in y.auctionyeartechnology_set.all %}
             <h4>Technology: {{ t.technology_name }}</h4>

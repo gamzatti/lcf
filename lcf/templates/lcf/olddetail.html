@@ -38,15 +38,16 @@
         {% endfor %}
 
 <!--        <ul>
-        {% for t in y.auctionyeartechnology_set.all %}
+        {% for t in p.technology_set.all %}
             <h4>Technology: {{ t.technology_name }}</h4>
-
+            <li>Cumulative deployment: {{ t.cum_project_gen_incorrect }}</li>
             <li>Min LCOE: {{ t.min_levelised_cost }}</li>
             <li>Max LCOE: {{ t.max_levelised_cost }}</li>
             <li>Strike price: {{ t.strike_price }}</li>
             <li>Load factor: {{ t.load_factor }}</li>
             <li>Project size: {{ t.project_gen }}</li>
             <li>Max deployment: {{ t.max_deployment }}</li>
+
         {% endfor %}
         </ul>-->
     {% endfor %}

@@ -1,5 +1,5 @@
 extend python logic to do full calculations:
-  *deal with unaffordable projects (diverge from Angela?)
+  *deal with unaffordable projects
   *figure out separate negotiations and negawatts
   *think about accumulation and whether the pot is restarted at 2026
   *include comparison to gas prices
@@ -16,7 +16,8 @@ inputs:
   make it so you can alter an existing scenario rather than the default
   make assumptions adjustable?
     normal/even distribution
-    unaffordable project divergence
+    smaller projects can't receive funding if next big one is rejected?
+    unaffordable project divergence?
 
 output page:
   *improve summary data, eg generation and cost of each technology (maybe display in table)

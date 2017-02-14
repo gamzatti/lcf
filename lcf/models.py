@@ -220,7 +220,7 @@ class Technology(models.Model):
     load_factor = models.FloatField(default=0.5)
     project_gen_incorrect = models.FloatField(default=100, verbose_name="Average project generation")
     max_deployment_cap = models.FloatField(default=100)
-
+    cum_project_gen_incorrect = models.FloatField(default=1000, verbose_name="Cumulative project generation")
 
 
 
