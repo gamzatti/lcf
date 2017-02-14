@@ -24,7 +24,7 @@
 <!--        <p>Unspent: {{ y.unspent }}</p>
         <p>Previous year unspent: {{ y.previous_year_unspent }}</p>
         <p>Starting budget: {{ y.starting_budget}}</p> -->
-
+        clear cahce!
         {% for p in y.pot_set.all %}
             {% if p.name == "E" or p.name == "M" %}
                 <h3>Pot: {{ p.name }}</h3>

@@ -10,8 +10,6 @@ t = p.technology_set.get(name="OFW")
 
 
 
-new:
-    @lru_cache(maxsize=None)
     def run_auction(self):
         gen = 0
         cost = 0
@@ -20,12 +18,13 @@ new:
             previous_year_projects = DataFrame()
         else:
             previous_year = self.auctionyear.scenario.auctionyear_set.get(year = self.auctionyear.year - 1).pot_set.get(name=self.name)
-            previous_year_projects = previous_year.projects()[(previous_year.projects().funded == "this year") or (previous_year.projects().funded == "previously")]
+            previous_year_projects = previous_year.projects()[(previous_year.projects().funded == "this year") | (previous_year.projects().funded == "previously")]
         for t in self.technology_set.all():
             t.create_projects()
             aff = t.projects[t.projects.affordable == True]
             unaff = t.projects[t.projects.affordable == False]
             actual_cost = 0
+            actual_gen = 0
             for i in aff.index:
                 if i in previous_year_projects.index:
                     aff.funded = "previously funded"
