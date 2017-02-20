@@ -6,8 +6,6 @@ extend python logic to do full calculations:
   *check results are identical
 
   write tests
-  speed up!/refactor: review lru_cache and consider initialising instance variables and then doing lazy calculation. and find out how to clear cache? (or at least do this http://stackoverflow.com/questions/2237624/applying-python-decorators-to-methods-in-a-class)
-  ?create normal distribution of projects?
 
 
 inputs:
@@ -28,7 +26,13 @@ output page:
 
 http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
 
+diverge from Excel model:
+  ?create normal distribution of projects?
+  maxima/minima?
 
-add javascript to delete buttons
-simplify model code eg by making template tags? http://stackoverflow.com/questions/28513528/passing-arguments-to-model-methods-in-django-templates
-maybe write some code that converts csv to json fixture format
+speed up!/refactor:
+  review lru_cache and consider initialising instance variables and then doing lazy calculation. and find out how to clear cache? (or at least do this http://stackoverflow.com/questions/2237624/applying-python-decorators-to-methods-in-a-class)
+  simplify model code eg by making template tags? http://stackoverflow.com/questions/28513528/passing-arguments-to-model-methods-in-django-templates
+  maybe write some code that converts csv to json fixture format
+  add javascript to delete buttons
+  deal with error message: a value is trying to be set on a copy of a slice from a DataFrame

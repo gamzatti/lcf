@@ -28,7 +28,7 @@ def scenario_new(request):
                 for p in ['E','M','SN','NW']:
                     Pot.objects.create(auctionyear=a,name=p)
             q = Pot.objects.filter(auctionyear__scenario=scenario)
-            cum_project_gen_incorrect = {'OFW': 0, 'NU': 0, 'TL':0, 'TS':0, 'WA': 0, 'ONW': 0, 'PVLS': 0} 
+            cum_project_gen_incorrect = {'OFW': 0, 'NU': 0, 'TL':0, 'TS':0, 'WA': 0, 'ONW': 0, 'PVLS': 0}
             for form in formset:
                 pot = q.filter(auctionyear__year=form.cleaned_data['pot'].auctionyear.year).get(name=form.cleaned_data['pot'].name)
                 cum_project_gen_incorrect[form.cleaned_data['name']] += form.cleaned_data['project_gen_incorrect']
