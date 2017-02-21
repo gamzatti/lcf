@@ -40,7 +40,7 @@
 <!--        <ul>
         {% for t in p.technology_set.all %}
             <h4>Technology: {{ t.technology_name }}</h4>
-            <li>Cumulative deployment: {{ t.cum_project_gen_incorrect }}</li>
+            <li>Cumulative deployment: {{ t.cum_project_gen }}</li>
             <li>Min LCOE: {{ t.min_levelised_cost }}</li>
             <li>Max LCOE: {{ t.max_levelised_cost }}</li>
             <li>Strike price: {{ t.strike_price }}</li>

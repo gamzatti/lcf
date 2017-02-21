@@ -1,5 +1,5 @@
 extend python logic to do full calculations:
-  *deal with unaffordable projects
+  *get the right answers given cumulative generation figures and previous year awarded crossed off
   *figure out separate negotiations and negawatts
   *think about accumulation and whether the pot is restarted at 2026
   *include comparison to gas prices

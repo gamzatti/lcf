@@ -30,11 +30,10 @@
                 <p>Cost: £{{ p.cost }}m</p>
     <!--            <p>Generation: {{ p.gen }}TWh</p>
                 <p>unspent: £{{ p.unspent }}m</p>-->
-                <p>Affordable projects: {{ p.funded_projects.to_html | safe }}</p>
+                <p>Affordable projects: {{ p.projects.to_html | safe }}</p>
                 {% for t in p.technology_set.all %}
                     <h4>{{ t.name }}</h4>
-                    <li>Deployment: {{ t.project_gen_incorrect }}</li>
-                    <li>Cumulative deployment: {{ t.cum_project_gen_incorrect }}</li>
+                    <li>Deployment: {{ t.project_gen }}</li>
                 {% endfor %}
             {% endif %}
         {% endfor %}

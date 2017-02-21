@@ -24,7 +24,7 @@ class Scenario(models.Model):
     def __str__(self):
         return self.name
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def cost(self):
         cost = 0
         for a in self.auctionyear_set.all():
@@ -32,7 +32,7 @@ class Scenario(models.Model):
                 cost += p.cost()
         return round(cost,3)
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def cost_2020(self):
         cost = 0
         for a in self.auctionyear_set.filter(year__lte=2020):
@@ -40,7 +40,7 @@ class Scenario(models.Model):
                 cost += p.cost()
         return round(cost,3)
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def cost_lcf2(self):
         cost = 0
         for a in self.auctionyear_set.filter(year__range=(2021,2025)):
@@ -48,7 +48,7 @@ class Scenario(models.Model):
                 cost += p.cost()
         return round(cost,3)
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def cost_lcf3(self):
         cost = 0
         for a in self.auctionyear_set.filter(year__range=(2026,2030)):
@@ -56,7 +56,7 @@ class Scenario(models.Model):
                 cost += p.cost()
         return round(cost,3)
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def gen(self):
         gen = 0
         for a in self.auctionyear_set.all():
@@ -80,7 +80,7 @@ class AuctionYear(models.Model):
         self._unspent = None
         self._previous_year_unspent = None
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def budget(self):
         if self._budget:
             return self._budget
@@ -88,14 +88,14 @@ class AuctionYear(models.Model):
             self._budget = round(self.starting_budget + self.previous_year_unspent(),3)
             return self._budget
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def cost(self):
         combined = 0
         for pot in self.pot_set.all():
             combined += pot.cost()
         return combined
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def unspent(self):
         if self._unspent:
             return self._unspent
@@ -103,7 +103,7 @@ class AuctionYear(models.Model):
             self._unspent = self.budget() - self.cost()
             return self._unspent
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def previous_year_unspent(self):
         if self._previous_year_unspent:
             return self._previous_year_unspent
@@ -134,11 +134,11 @@ class Pot(models.Model):
         self._percent = None
 
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def budget(self):
         return round((self.auctionyear.budget() * self.percent()),3)
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def percent(self):
         if self._percent:
             return self._percent
@@ -151,6 +151,7 @@ class Pot(models.Model):
         else:
             return 0
 
+    @lru_cache(maxsize=None)
     def run_auction(self):
         gen = 0
         cost = 0
@@ -159,7 +160,7 @@ class Pot(models.Model):
             previous_year_projects = DataFrame()
         else:
             previous_year = self.auctionyear.scenario.auctionyear_set.get(year = self.auctionyear.year - 1).pot_set.get(name=self.name)
-            previous_year_projects = previous_year.projects()[(previous_year.projects().funded == "this year") | (previous_year.projects().funded == "previously")]
+            previous_year_projects = previous_year.projects()[(previous_year.projects().funded == "this year") | (previous_year.projects().funded == "previously funded")]
         for t in self.technology_set.all():
             aff = t.projects()[t.projects().affordable == True]
             unaff = t.projects()[t.projects().affordable == False]
@@ -187,23 +188,23 @@ class Pot(models.Model):
         return {'cost': cost, 'gen': gen, 'projects': projects}
 
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def cost(self):
         return round(self.run_auction()['cost'],3)
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def unspent(self):
         return round(self.budget() - self.cost(),3)
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def gen(self):
         return round(self.run_auction()['gen'],3)
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def funded_projects(self):
         return self.projects()[self.projects().funded == "this year"]
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def projects(self):
         return self.run_auction()['projects']
 
@@ -227,29 +228,57 @@ class Technology(models.Model):
     max_levelised_cost = models.FloatField(default=100)
     strike_price = models.FloatField(default=100)
     load_factor = models.FloatField(default=0.5)
-    project_gen_incorrect = models.FloatField(default=100, verbose_name="Average project generation")
+    project_gen = models.FloatField(default=100, verbose_name="Average project generation") #"Average project pa (GWh)"
     max_deployment_cap = models.FloatField(default=100)
-    cum_project_gen_incorrect = models.FloatField(default=1000, verbose_name="Cumulative project generation")
 
 
 
     def __init__(self, *args, **kwargs):
         super(Technology, self).__init__(*args, **kwargs)
-        #self.projects = None
-        self.project_gen = self.project_gen_incorrect / 1000
-        self.cum_project_gen = self.cum_project_gen_incorrect / 1000
-        self.project_cap = cap(self.project_gen,self.load_factor)
-        self.years_supported = 2031 - self.pot.auctionyear.year
-        self.max_deployment_gen = gen(self.max_deployment_cap,self.load_factor)
-        self.num_projects = self.max_deployment_gen / self.project_gen
-
 
     def __str__(self):
         return str((self.pot.auctionyear,self.pot.name,self.name))
 
+
+    @lru_cache(maxsize=None)
+    def previous_year(self):
+        if self.pot.auctionyear.year == 2020:
+            return None
+        else:
+            previous_year = self.pot.auctionyear.year-1
+            previous_auctionyear = self.pot.auctionyear.scenario.auctionyear_set.get(year=previous_year)
+            previous_pot = previous_auctionyear.pot_set.get(name=self.pot.name)
+            previous_tech = previous_pot.technology_set.get(name=self.name)
+            return previous_tech
+
+    @lru_cache(maxsize=None)
+    def this_year_gen(self):
+        return self.max_deployment_cap * self.load_factor * 8.760 * 1000
+
+    def previous_gen(self):
+        if self.pot.auctionyear.year == 2020:
+            return 0
+        else:
+            return self.previous_year().new_generation_available()
+
+
+    @lru_cache(maxsize=None)
+    def new_generation_available(self):
+        return self.previous_gen() + self.this_year_gen()
+
+
+    @lru_cache(maxsize=None)
+    def num_projects(self):
+        return round(self.new_generation_available() / self.project_gen)
+
+
+    @lru_cache(maxsize=None)
+    def levelised_cost_distribution(self):
+        return Series(np.linspace(self.min_levelised_cost,self.max_levelised_cost,self.num_projects()+2)[1:-1],name="levelised_cost")
+
     def projects(self):
-        dep = Series(np.linspace(self.min_levelised_cost,self.max_levelised_cost,self.num_projects+2)[1:-1],name="levelised_cost")
-        gen = Series(np.repeat(self.cum_project_gen,len(dep)),name='gen')
+        dep = self.distribute_levelised_costs()
+        gen = Series(np.repeat(self.new_generation_available(),len(dep)),name='gen')
         projects = pd.concat([dep,gen], axis=1)
         projects.index = [ self.name + str(i + 1) for i in range(len(dep)) ]
         projects['technology'] = self.name
@@ -261,6 +290,7 @@ class Technology(models.Model):
         return projects
 
 
+
 class StoredProject(models.Model):
     technology = models.ForeignKey('lcf.Technology', blank=True, null=True)
     levelised_cost = models.FloatField(default=100)
@@ -269,16 +299,3 @@ class StoredProject(models.Model):
 
     def __str__(self):
         return str((self.technology.pot.auctionyear, self.technology.name, str(self.levelised_cost), self.affordable, self.successful))
-
-
-#@lru_cache(maxsize=None)
-def load_factor(cap_gw,gen_twh):
-    return gen_twh / (cap_gw * 8.760)
-
-#@lru_cache(maxsize=None)
-def cap(gen_twh,load_factor):
-    return gen_twh / (load_factor * 8.760)
-
-#@lru_cache(maxsize=None)
-def gen(cap_gw,load_factor):
-    return cap_gw * load_factor * 8.760

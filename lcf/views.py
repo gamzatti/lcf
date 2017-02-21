@@ -8,7 +8,7 @@ import numpy as np
 
 # Create your views here.
 def scenario_new(request):
-    TechnologyFormSet = modelformset_factory(Technology, extra=0, exclude=['cum_project_gen_incorrect'])
+    TechnologyFormSet = modelformset_factory(Technology, extra=0, fields="__all__")
     scenarios = Scenario.objects.all()
     #queryset = Technology.objects.filter(year__scenario__name="2")
     queryset = Technology.objects.filter(pot__auctionyear__scenario__name="default")
@@ -28,19 +28,16 @@ def scenario_new(request):
                 for p in ['E','M','SN','NW']:
                     Pot.objects.create(auctionyear=a,name=p)
             q = Pot.objects.filter(auctionyear__scenario=scenario)
-            cum_project_gen_incorrect = {'OFW': 0, 'NU': 0, 'TL':0, 'TS':0, 'WA': 0, 'ONW': 0, 'PVLS': 0}
             for form in formset:
                 pot = q.filter(auctionyear__year=form.cleaned_data['pot'].auctionyear.year).get(name=form.cleaned_data['pot'].name)
-                cum_project_gen_incorrect[form.cleaned_data['name']] += form.cleaned_data['project_gen_incorrect']
                 Technology.objects.create(pot = pot,
                                         name = form.cleaned_data['name'],
                                         min_levelised_cost = form.cleaned_data['min_levelised_cost'],
                                         max_levelised_cost = form.cleaned_data['max_levelised_cost'],
                                         strike_price = form.cleaned_data['strike_price'],
                                         load_factor = form.cleaned_data['load_factor'],
-                                        project_gen_incorrect = form.cleaned_data['project_gen_incorrect'],
-                                        max_deployment_cap = form.cleaned_data['max_deployment_cap'],
-                                        cum_project_gen_incorrect = cum_project_gen_incorrect[form.cleaned_data['name']])
+                                        project_gen = form.cleaned_data['project_gen'],
+                                        max_deployment_cap = form.cleaned_data['max_deployment_cap'])
             return redirect('scenario_detail', pk=scenario.pk)
     else:
         #scenario_name_form = ScenarioNameForm()
