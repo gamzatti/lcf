@@ -72,12 +72,3 @@ t2.previous_year = None if t2.pot.auctionyear.year == 2020 else t2.pot.auctionye
 
 
 Tests:
-    def test_new_generation_available(self):
-        self.assertEqual(self.t0.new_generation_available(), 6990)
-        self.assertEqual(self.t1.new_generation_available(), 14214)
-        self.assertEqual(self.t2.new_generation_available(), 21670)
-
-    def test_num_projects(self):
-        self.assertEqual(self.t0.num_projects(), 8)
-        self.assertEqual(self.t1.num_projects(), 17)
-        self.assertEqual(self.t2.num_projects(), 26)
