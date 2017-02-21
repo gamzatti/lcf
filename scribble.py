@@ -71,4 +71,20 @@ t2.previous_year = None if t2.pot.auctionyear.year == 2020 else t2.pot.auctionye
 
 
 
-Tests:
+        """for i in combined_tech_projects.index:
+            if i in previous_year_projects.index:
+                combined_tech_projects.funded[i] = "previously funded"
+            else:
+                funded_gen = sum(combined_tech_projects.gen[combined_tech_projects.funded=="this year"])
+                attempted_gen = funded_gen + combined_tech_projects.gen[i]
+                attempted_clearing_price = combined_tech_projects.levelised_cost[i] if self.auctionyear.scenario.set_strike_price == True else combined_tech_projects.strike_price[i]
+                attempted_cost = attempted_gen/1000 * (attempted_clearing_price - self.auctionyear.wholesale_price)
+                if attempted_cost < self.budget() - all_tech_cost:
+                    combined_tech_projects.funded[i] = "this year"
+                    tech_gen[combined_tech_projects.technology[i]] = attempted_gen
+                    combined_tech_projects.clearing_price = attempted_clearing_price
+                    tech_cost[combined_tech_projects.technology[i]] = attempted_cost
+                else:
+                    break
+            all_tech_cost += tech_cost[combined_tech_projects.technology[i]]
+            all_tech_gen += tech_gen[combined_tech_projects.technology[i]]"""
