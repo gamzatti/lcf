@@ -163,15 +163,17 @@ class Pot(models.Model):
 
     @lru_cache(maxsize=None)
     def run_auction(self):
-        gen = 0
-        cost = 0
+        all_tech_gen = 0
+        all_tech_cost = 0
+        tech_cost = {}
+        tech_gen = {}
         projects = DataFrame(columns=['levelised_cost', 'gen', 'technology', 'strike_price', 'clearing_price', 'affordable', 'funded'])
         previous_year_projects = self.previous_year_projects()
         for t in self.technology_set.all():
+            tech_cost[t.name] = 0
+            tech_gen[t.name] = 0
             aff = t.projects()[t.projects().affordable == True]
             unaff = t.projects()[t.projects().affordable == False]
-            actual_cost = 0
-            actual_gen = 0
             for i in aff.index:
                 if i in previous_year_projects.index:
                     aff.funded = "previously funded"
@@ -179,19 +181,19 @@ class Pot(models.Model):
                     funded_gen = sum(aff.gen[aff.funded=="this year"])
                     attempted_gen = funded_gen + aff.gen[i]
                     attempted_clearing_price = aff.levelised_cost[i] if self.auctionyear.scenario.set_strike_price == True else aff.strike_price[i]
-                    attempted_cost = attempted_gen * (attempted_clearing_price - self.auctionyear.wholesale_price)
-                    if attempted_cost < self.budget() - cost:
+                    attempted_cost = attempted_gen/1000 * (attempted_clearing_price - self.auctionyear.wholesale_price)
+                    if attempted_cost < self.budget() - all_tech_cost:
                         aff.funded[i] = "this year"
-                        actual_gen = attempted_gen
+                        tech_gen[t.name] = attempted_gen
                         aff.clearing_price = attempted_clearing_price
-                        actual_cost = attempted_cost
+                        tech_cost[t.name] = attempted_cost
                     else:
                         break
             projects = pd.concat([projects,aff,unaff])
-            cost += actual_cost
-            gen += actual_gen
+            all_tech_cost += tech_cost[t.name]
+            all_tech_gen += tech_gen[t.name]
 
-        return {'cost': cost, 'gen': gen, 'projects': projects}
+        return {'cost': all_tech_cost, 'gen': all_tech_gen, 'projects': projects, 'ofw_gen': tech_gen['OFW'], 'ofw_cost': tech_cost['OFW']}
 
 
     @lru_cache(maxsize=None)
@@ -284,7 +286,8 @@ class Technology(models.Model):
     @lru_cache(maxsize=None)
     def projects(self):
         projects = DataFrame(data=self.levelised_cost_distribution(), index=self.projects_index())
-        projects['gen'] = self.new_generation_available()
+        #projects['gen'] = self.new_generation_available()
+        projects['gen'] = self.project_gen
         projects['technology'] = self.name
         projects['strike_price'] = self.strike_price
         projects['clearing_price'] = np.nan

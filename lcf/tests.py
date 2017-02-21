@@ -116,9 +116,10 @@ class TechnologyMethodTests(TestCase):
         self.assertEqual(self.t2.projects_index()[2],"OFW3")
 
     def test_projects(self):
-        self.assertEqual(round(self.t0.projects().gen[1]),6990)
-        self.assertEqual(round(self.t1.projects().gen[5]),14214)
-        self.assertEqual(round(self.t2.projects().gen[13]),21670)
+        self.assertEqual(round(self.t0.projects().gen[1]),832)
+        self.assertEqual(round(self.t0.projects().gen.sum()), 832*8)
+        self.assertEqual(round(self.t1.projects().gen[5]),832)
+        self.assertEqual(round(self.t2.projects().gen[13]),832)
         self.assertEqual(self.t0.projects().technology[4],"OFW")
         self.assertEqual(round(self.t1.projects().strike_price[8],2),112.14)
         self.assertEqual(self.t0.projects().funded[4],"no")
@@ -225,4 +226,14 @@ class PotMethodTests(TestCase):
 
     def test_previous_year_projects_index(self):
         self.assertTrue(self.p0E.previous_year_projects().empty)
-        #self.assertEqual(len(self.p1E.previous_year_projects().index), len(self.t0E.projects().index))
+        #self.assertEqual(len(self.p1E.previous_year_projects().index), len(self.p0E.run_auction()['projects'][self.p0E.run_auction()['projects'].funded=="this year"].index))
+
+    def test_run_auction_first_year(self):
+        self.assertEqual(self.p0E.run_auction()['ofw_gen'], 832 * 5)
+        self.assertEqual(self.p0E.run_auction()['ofw_cost'], (114.074615384615 - 48.5400340402009) * 832/1000 * 5)
+        self.assertEqual(self.p0E.run_auction()['projects']['funded']['OFW1'], "this year")
+        self.assertEqual(self.p0E.run_auction()['projects']['funded']['OFW5'], "this year")
+        self.assertEqual(self.p0E.run_auction()['projects']['funded']['OFW6'], "no")
+        self.assertEqual(self.p0E.run_auction()['projects']['funded']['OFW7'], "no")
+        self.assertEqual(self.p0E.run_auction()['projects']['funded']['OFW8'], "no")
+        self.assertEqual(len(self.p0E.run_auction()['projects'].index),8)
