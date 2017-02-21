@@ -158,7 +158,7 @@ class Pot(models.Model):
         if self.auctionyear.year == 2020:
             previous_year_projects = DataFrame()
         else:
-            previous_year_projects = self.previous_year().projects()[(previous_year.projects().funded == "this year") | (previous_year.projects().funded == "previously funded")]
+            previous_year_projects = self.previous_year().projects()[(self.previous_year().projects().funded == "this year") | (self.previous_year().projects().funded == "previously funded")]
         return previous_year_projects
 
     @lru_cache(maxsize=None)
