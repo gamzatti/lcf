@@ -489,7 +489,6 @@ class AuctionYearMethodTests(TestCase):
         self.assertEqual(self.a2.previous_year().cost(), self.a1.cost())
         self.assertEqual(self.a1.unspent(),self.a2.previous_year().unspent())
 
-
     def test_starting_budget0(self):
         self.assertEqual(round(self.a0.starting_budget,2), 481.29)
 
@@ -534,3 +533,97 @@ class AuctionYearMethodTests(TestCase):
 
     def test_unspent2(self):
         self.assertEqual(round(self.a2.unspent()),round(893.29-548.04)) #345.25
+
+class ScenarioMethodTests(TestCase):
+    def setUp(self):
+        self.s = Scenario.objects.create(name="test1",
+                                    budget = 3.3,
+                                    percent_emerging = 0.6)
+
+        self.a0 = AuctionYear.objects.create(scenario=self.s,
+                                        year=2020,
+                                        wholesale_price = 48.5400340402009,
+                                        gas_price = 85)
+        self.a1 = AuctionYear.objects.create(scenario=self.s,
+                                        year=2021,
+                                        wholesale_price = 54.285722954952,
+                                        gas_price = 87)
+        self.a2 = AuctionYear.objects.create(scenario=self.s,
+                                        year=2022,
+                                        wholesale_price = 58.4749297906221,
+                                        gas_price = 89)
+
+        self.p0 = Pot.objects.create(name="E", auctionyear=self.a0)
+        self.p0M = Pot.objects.create(name="M", auctionyear=self.a0)
+        self.p1 = Pot.objects.create(name="E", auctionyear=self.a1)
+        self.p1M = Pot.objects.create(name="M", auctionyear=self.a1)
+        self.p2 = Pot.objects.create(name="E", auctionyear=self.a2)
+
+
+
+        self.t0 = Technology.objects.create(name="OFW",
+                                        pot=self.p0,
+                                        min_levelised_cost = 71.3353908668731,
+                                        max_levelised_cost = 103.034791021672,
+                                        strike_price = 114.074615384615,
+                                        load_factor = .42,
+                                        project_gen = 832,
+                                        max_deployment_cap = 1.9)
+        self.t0wave = Technology.objects.create(name="WA",
+                                        pot=self.p0,
+                                        min_levelised_cost = 260.75,
+                                        max_levelised_cost = 298,
+                                        strike_price = 305,
+                                        load_factor = .31,
+                                        project_gen = 27,
+                                        max_deployment_cap = 0.034)
+        self.t1 = Technology.objects.create(name="OFW",
+                                        pot=self.p1,
+                                        min_levelised_cost = 71.1099729102167,
+                                        max_levelised_cost = 101.917093653251,
+                                        strike_price = 112.136153846154,
+                                        load_factor = .434,
+                                        project_gen = 832,
+                                        max_deployment_cap = 1.9)
+        self.t1wave = Technology.objects.create(name="WA",
+                                        pot=self.p1,
+                                        min_levelised_cost = 245.875,
+                                        max_levelised_cost = 281,
+                                        strike_price = 305,
+                                        load_factor = .31,
+                                        project_gen = 27,
+                                        max_deployment_cap = 0.0032)
+        self.t2 = Technology.objects.create(name="OFW",
+                                        pot=self.p2,
+                                        min_levelised_cost = 70.8845549535604,
+                                        max_levelised_cost = 100.79939628483,
+                                        strike_price = 110.197692307692,
+                                        load_factor = .448,
+                                        project_gen = 832,
+                                        max_deployment_cap = 1.9)
+        self.t2a = Technology.objects.create(name="OFW",
+                                        pot=self.p2,
+                                        min_levelised_cost = 70.8845549535604,
+                                        max_levelised_cost = 100.79939628483,
+                                        strike_price = 90,
+                                        load_factor = .448,
+                                        project_gen = 832,
+                                        max_deployment_cap = 1.9)
+        self.t0M = Technology.objects.create(name="ONW",
+                                        pot=self.p0M,
+                                        min_levelised_cost = 61,
+                                        max_levelised_cost = 80,
+                                        strike_price = 80,
+                                        load_factor = 0.278125,
+                                        project_gen = 30,
+                                        max_deployment_cap = 0.73)
+        self.t1M = Technology.objects.create(name="ONW",
+                                        pot=self.p1M,
+                                        min_levelised_cost = 61.4,
+                                        max_levelised_cost = 81,
+                                        strike_price = 80,
+                                        load_factor = 0.2803125,
+                                        project_gen = 30,
+                                        max_deployment_cap = 0.73)
+
+    #def cost(self):
