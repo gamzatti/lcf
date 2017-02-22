@@ -255,7 +255,7 @@ class PotMethodTests(TestCase):
                                         max_levelised_cost = 100.79939628483,
                                         strike_price = 110.197692307692,
                                         load_factor = .448,
-                                        project_gen = 30,
+                                        project_gen = 832,
                                         max_deployment_cap = 1.9)
 
         self.t0M = Technology.objects.create(name="ONW",
@@ -293,14 +293,20 @@ class PotMethodTests(TestCase):
         self.assertEqual(round(self.p0E.auctionyear.budget()), 481)
         self.assertEqual(round(self.p0E.budget()), 289)
         self.assertEqual(round(self.p0M.budget()), 193)
-        #can't test latter years until auction process is working correctly
+        self.assertEqual(round(self.p1E.auctionyear.budget()), 660)
+        self.assertEqual(round(self.p1E.budget()), 396)
+        self.assertEqual(round(self.p1M.budget()), 264)
+        #self.assertEqual(round(self.p2E.auctionyear.budget()), 893) #should work when I sort out 233 problem
+        #self.assertEqual(round(self.p2E.budget()), 536)
+        #self.assertEqual(round(self.p2M.budget()), 357)
 
     def test_previous_year(self):
         self.assertEqual(self.p1E.previous_year(),self.p0E)
         self.assertEqual(self.p2M.previous_year(),self.p1M)
         self.assertNotEqual(self.p1M.previous_year(),self.p1M)
 
-    def test_combined_tech_projects(self):
+
+    def test_combining_tech_projects(self):
         self.assertEqual(len(self.p0E.run_auction()['projects'].index), len(self.t0E.projects())+len(self.t0Ewave.projects()))
         self.assertEqual(len(self.p0M.run_auction()['projects'].index), len(self.t0M.projects()))
         self.assertEqual(len(self.p0E.run_auction()['projects'].index), 8+3)
@@ -309,37 +315,222 @@ class PotMethodTests(TestCase):
         self.assertEqual(len(self.p1M.run_auction()['projects'].index), 119)
         self.assertEqual(self.p0E.run_auction()['projects'].index[0], 'OFW1')
         self.assertEqual(self.p0E.run_auction()['projects'].index[8], 'WA1')
+        self.assertEqual(len(self.p2E.run_auction()['projects'].index),26)
+        self.assertEqual(len(self.p2M.run_auction()['projects'].index), 179)
 
     def test_run_auction_first_year(self):
         self.assertEqual(len(self.p0E.run_auction()['projects'].index),8+3)
-        self.assertEqual(self.p0E.run_auction()['projects']['funded']['OFW1'], "this year")
-        self.assertEqual(self.p0E.run_auction()['projects']['funded']['OFW5'], "this year")
-        self.assertEqual(self.p0E.run_auction()['projects']['funded']['OFW6'], "no")
-        self.assertEqual(self.p0E.run_auction()['tech_gen']['OFW'], 832 * 5)
-        self.assertEqual(self.p0E.run_auction()['projects']['funded'].value_counts()['this year'],5)
-        self.assertEqual(self.p0M.run_auction()['projects']['funded'].value_counts()['this year'],59)
+        self.assertEqual(self.p0E.run_auction()['projects']['funded_this_year']['OFW1'], True)
+        self.assertEqual(self.p0E.run_auction()['projects']['funded_this_year']['OFW5'], True)
+        self.assertEqual(self.p0E.run_auction()['projects']['funded_this_year']['OFW6'], False)
+        #self.assertEqual(self.p0E.run_auction()['tech_gen']['OFW'], 832 * 5)
+        self.assertEqual(self.p0E.run_auction()['projects']['funded_this_year'].value_counts()[True],5)
+        self.assertEqual(self.p0M.run_auction()['projects']['funded_this_year'].value_counts()[True],59)
 
     def test_previously_funded_projects_index(self):
         self.assertTrue(self.p0E.previously_funded_projects().empty)
         self.assertTrue(self.p0M.previously_funded_projects().empty)
-        self.assertEqual(len(self.p1E.previously_funded_projects().index), len(self.p0E.run_auction()['projects'][self.p0E.run_auction()['projects'].funded=="this year"].index))
+        self.assertEqual(len(self.p1E.previously_funded_projects().index), len(self.p0E.run_auction()['projects'][self.p0E.run_auction()['projects'].funded_this_year==True].index))
         self.assertEqual(len(self.p1E.previously_funded_projects().index), 5)
-        self.assertEqual(self.p1E.previously_funded_projects()['funded']['OFW5'], "this year")
+        self.assertEqual(self.p1E.previously_funded_projects()['funded_this_year']['OFW5'], True)
         self.assertNotIn(['OFW6'], list(self.p1E.previously_funded_projects().index))
         self.assertNotIn(['WA1'], list(self.p1E.previously_funded_projects().index))
 
     def test_run_auction_second_year(self):
-        self.assertEqual(self.p1E.run_auction()['projects']['funded'].value_counts()["previously funded"],5)
-        self.assertEqual(self.p1M.run_auction()['projects']['funded'].value_counts()["previously funded"],59)
-        self.assertEqual(self.p1E.run_auction()['projects']['funded'].value_counts()["this year"],8)
-        self.assertEqual(self.p1E.run_auction()['projects']['funded'].value_counts()["no"],7)
-        self.assertEqual(self.p1E.run_auction()['projects']['funded']['OFW5'], "previously funded")
-        self.assertEqual(self.p1E.run_auction()['projects']['funded']['OFW6'], "this year")
-        self.assertEqual(self.p1E.run_auction()['projects']['funded']['OFW14'], "no")
-        self.assertEqual(self.p1E.run_auction()['projects']['funded']['WA1'], "no")
-        self.assertEqual(self.p1M.run_auction()['projects']['funded'].value_counts()["this year"],54)
-        self.assertEqual(self.p1M.run_auction()['projects']['funded'].value_counts()["no"],6)
+        self.assertEqual(self.p1E.run_auction()['projects']['previously_funded'].value_counts()[True],5)
+        self.assertEqual(self.p1M.run_auction()['projects']['previously_funded'].value_counts()[True],59)
+        self.assertEqual(self.p1E.run_auction()['projects']['funded_this_year'].value_counts()[True],8)
+        self.assertEqual(self.p1M.run_auction()['projects']['funded_this_year'].value_counts()[True],54)
+        self.assertEqual(self.p1E.run_auction()['projects']['previously_funded']['OFW5'], True)
+        self.assertEqual(self.p1E.run_auction()['projects']['funded_this_year']['OFW5'], False)
+        self.assertEqual(self.p1E.run_auction()['projects']['funded_this_year']['OFW6'], True)
+        self.assertEqual(self.p1E.run_auction()['projects']['previously_funded']['OFW6'], False)
+        self.assertEqual(self.p1E.run_auction()['projects']['funded_this_year']['OFW14'], False)
+        self.assertEqual(self.p1E.run_auction()['projects']['previously_funded']['OFW14'], False)
+        self.assertEqual(self.p1E.run_auction()['projects']['funded_this_year']['WA1'], False)
+        self.assertEqual(self.p1E.run_auction()['projects']['previously_funded']['WA1'], False)
+
+    def test_run_auction_third_year(self):
+        self.assertEqual(self.p2E.run_auction()['projects']['previously_funded'].value_counts()[True],5+8)
+        self.assertEqual(self.p2M.run_auction()['projects']['previously_funded'].value_counts()[True],59+54)
+        self.assertEqual(self.p2E.run_auction()['projects']['funded_this_year'].value_counts()[True],12)
+        self.assertEqual(self.p2M.run_auction()['projects']['funded_this_year'].value_counts()[True],49)
+        self.assertEqual(self.p2E.run_auction()['projects']['previously_funded']['OFW13'], True)
+        self.assertEqual(self.p2E.run_auction()['projects']['funded_this_year']['OFW13'], False)
+        self.assertEqual(self.p2E.run_auction()['projects']['funded_this_year']['OFW14'], True)
+        self.assertEqual(self.p2E.run_auction()['projects']['previously_funded']['OFW14'], False)
+        self.assertEqual(self.p2E.run_auction()['projects']['funded_this_year']['OFW26'], False)
+        self.assertEqual(self.p2E.run_auction()['projects']['previously_funded']['OFW26'], False)
+
 
     def test_cost(self):
-        self.assertEqual(round(self.p0E.run_auction()['cost'],2), 272.62)
-        #self.assertEqual(round(self.p0M.run_auction()['cost'],2), ?)
+        self.assertEqual(round(self.p0E.cost(),2), 272.62)
+        self.assertEqual(round(self.p0M.cost(),2), 55.68)
+        self.assertEqual(round(self.p1E.cost(),2), 385.05)
+        self.assertEqual(round(self.p1M.cost(),2), 41.66)
+        self.assertEqual(round(self.p2E.cost(),2), 516.4)
+        self.assertEqual(round(self.p2M.cost(),2), 31.64)
+
+    def test_gen(self):
+        self.assertEqual(round(self.p0E.gen()), 4160)
+        self.assertEqual(round(self.p1E.gen()), 6656)
+        self.assertEqual(round(self.p2E.gen()), 9984)
+        self.assertEqual(round(self.p0M.gen()), 1770)
+        self.assertEqual(round(self.p1M.gen()), 1620)
+        self.assertEqual(round(self.p2M.gen()), 1470)
+
+    def test_unspent(self):
+        self.assertEqual(round(self.p0E.unspent()+self.p0M.unspent()),0)
+        self.assertEqual(round(self.p1E.unspent()+self.p1M.unspent()),233) #passes here but fails below!
+        #self.assertEqual(round(self.p2E.unspent()+self.p2M.unspent()),345) #should work when I sort out 893 problem
+
+class AuctionYearMethodTests(TestCase):
+    def setUp(self):
+        self.s = Scenario.objects.create(name="test1",
+                                    budget = 3.3,
+                                    percent_emerging = 0.6)
+
+        self.a0 = AuctionYear.objects.create(scenario=self.s,
+                                        year=2020,
+                                        wholesale_price = 48.5400340402009,
+                                        gas_price = 85)
+        self.a1 = AuctionYear.objects.create(scenario=self.s,
+                                        year=2021,
+                                        wholesale_price = 54.285722954952,
+                                        gas_price = 87)
+        self.a2 = AuctionYear.objects.create(scenario=self.s,
+                                        year=2022,
+                                        wholesale_price = 58.4749297906221,
+                                        gas_price = 89)
+
+        self.p0E = Pot.objects.create(name="E", auctionyear=self.a0)
+        self.p1E = Pot.objects.create(name="E", auctionyear=self.a1)
+        self.p2E = Pot.objects.create(name="E", auctionyear=self.a2)
+
+        self.p0M = Pot.objects.create(name="M", auctionyear=self.a0)
+        self.p1M = Pot.objects.create(name="M", auctionyear=self.a1)
+        self.p2M = Pot.objects.create(name="M", auctionyear=self.a2)
+
+        self.t0Ewave = Technology.objects.create(name="WA",
+                                        pot=self.p0E,
+                                        min_levelised_cost = 260.75,
+                                        max_levelised_cost = 298,
+                                        strike_price = 305,
+                                        load_factor = .31,
+                                        project_gen = 27,
+                                        max_deployment_cap = 0.034)
+
+
+        self.t0E = Technology.objects.create(name="OFW",
+                                        pot=self.p0E,
+                                        min_levelised_cost = 71.3353908668731,
+                                        max_levelised_cost = 103.034791021672,
+                                        strike_price = 114.074615384615,
+                                        load_factor = .42,
+                                        project_gen = 832,
+                                        max_deployment_cap = 1.9)
+
+        self.t1E = Technology.objects.create(name="OFW",
+                                        pot=self.p1E,
+                                        min_levelised_cost = 71.1099729102167,
+                                        max_levelised_cost = 101.917093653251,
+                                        strike_price = 112.136153846154,
+                                        load_factor = .434,
+                                        project_gen = 832,
+                                        max_deployment_cap = 1.9)
+
+        self.t1Ewave = Technology.objects.create(name="WA",
+                                        pot=self.p1E,
+                                        min_levelised_cost = 245.875,
+                                        max_levelised_cost = 281,
+                                        strike_price = 305,
+                                        load_factor = .31,
+                                        project_gen = 27,
+                                        max_deployment_cap = 0.0032)
+
+        self.t2E = Technology.objects.create(name="OFW",
+                                        pot=self.p2E,
+                                        min_levelised_cost = 70.8845549535604,
+                                        max_levelised_cost = 100.79939628483,
+                                        strike_price = 110.197692307692,
+                                        load_factor = .448,
+                                        project_gen = 832,
+                                        max_deployment_cap = 1.9)
+
+        self.t0M = Technology.objects.create(name="ONW",
+                                        pot=self.p0M,
+                                        min_levelised_cost = 61,
+                                        max_levelised_cost = 80,
+                                        strike_price = 80,
+                                        load_factor = 0.278125,
+                                        project_gen = 30,
+                                        max_deployment_cap = 0.73)
+        self.t1M = Technology.objects.create(name="ONW",
+                                        pot=self.p1M,
+                                        min_levelised_cost = 61.4,
+                                        max_levelised_cost = 81,
+                                        strike_price = 80,
+                                        load_factor = 0.2803125,
+                                        project_gen = 30,
+                                        max_deployment_cap = 0.73)
+        self.t2M = Technology.objects.create(name="ONW",
+                                        pot=self.p2M,
+                                        min_levelised_cost = 61.8,
+                                        max_levelised_cost = 82,
+                                        strike_price = 80,
+                                        load_factor = 0.2825,
+                                        project_gen = 30,
+                                        max_deployment_cap = 0.73)
+
+    def test_previous_year(self):
+        self.assertEqual(self.a0.previous_year(),None)
+        self.assertEqual(self.a1.previous_year(),self.a0)
+        self.assertEqual(self.a2.previous_year(),self.a1)
+        self.assertEqual(self.a2.previous_year().cost(), self.a1.cost())
+        self.assertEqual(self.a1.unspent(),self.a2.previous_year().unspent())
+
+
+    def test_starting_budget0(self):
+        self.assertEqual(round(self.a0.starting_budget,2), 481.29)
+
+    def test_previous_year_unspent0(self):
+        self.assertEqual(round(self.a0.previous_year_unspent(),2),0)
+
+    def budget0(self):
+        self.assertEqual(round(self.a0.budget()),round(481.29+0)) #481.29
+
+    def test_cost0(self):
+        self.assertEqual(round(self.a0.cost()),round(272.62+55.68))#328.3
+
+    def test_unspent0(self):
+        self.assertEqual(round(self.a0.unspent()),round(481.3-328.3)) #153
+
+    def test_starting_budget1(self):
+        self.assertEqual(round(self.a1.starting_budget), 660)
+
+    def test_previous_year_unspent1(self):
+        self.assertEqual(round(self.a1.previous_year_unspent(),2),0)
+
+    def budget1(self):
+        self.assertEqual(round(self.a1.budget()),round(660+0)) #660
+
+    def test_cost1(self):
+        self.assertEqual(round(self.a1.cost()),round(385.05+41.66))#426.71
+
+    def test_unspent1(self):
+        self.assertEqual(round(self.a1.unspent()),round(660-426.71)) #233.29
+
+    def test_starting_budget2(self):
+        self.assertEqual(round(self.a2.starting_budget), 660)
+
+    def test_previous_year_unspent2(self):
+        self.assertEqual(round(self.a2.previous_year_unspent(),2),233.29)
+
+    def budget2(self):
+        self.assertEqual(round(self.a2.budget()),round(660+233.29)) #893.29
+
+    def test_cost2(self):
+        self.assertEqual(round(self.a2.cost()),round(516.4+31.64))#548.04
+
+    def test_unspent2(self):
+        self.assertEqual(round(self.a2.unspent()),round(893.29-548.04)) #345.25
