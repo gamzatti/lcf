@@ -379,6 +379,14 @@ class PotMethodTests(TestCase):
         self.assertEqual(round(self.p1M.gen()), 1620)
         self.assertEqual(round(self.p2M.gen()), 1470)
 
+    def test_future_payouts(self):
+#        self.assertEqual(self.p0E.future_payouts(),
+#        self.assertEqual(self.p0M.future_payouts(),
+        self.assertEqual(round(self.p1E.future_payouts(),2),385.05)
+#        self.assertEqual(self.p1M.future_payouts(),
+
+
+
     def test_unspent(self):
         self.assertEqual(round(self.p0E.unspent()+self.p0M.unspent()),0)
         self.assertEqual(round(self.p1E.unspent()+self.p1M.unspent()),233) #passes here but fails below!
@@ -626,4 +634,7 @@ class ScenarioMethodTests(TestCase):
                                         project_gen = 30,
                                         max_deployment_cap = 0.73)
 
-    #def cost(self):
+#    def test_auction_accumulation(self):
+#        self.AssertEqual(self.s.)
+        #I can produce the numbers in line 8 of the merit order sheets (MO and MOII). Now I need to produce line 6.
+        #I need to take into account differnt wholesale prices

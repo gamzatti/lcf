@@ -144,6 +144,10 @@ class Pot(models.Model):
         super(Pot, self).__init__(*args, **kwargs)
         self._percent = None
 
+    def future_prices(self):
+        years = list(range(self.auctionyear.year, 2026))
+        values = [self.auctionyear.scenario.auctionyear_set.get(year=year).wholesale_price for year in years]
+        return dict(zip(years,values))
 
     #@lru_cache(maxsize=None)
     def budget(self):
@@ -173,7 +177,7 @@ class Pot(models.Model):
         return previously_funded_projects
 
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def run_auction(self):
         gen = 0
         cost = 0
@@ -181,21 +185,41 @@ class Pot(models.Model):
         tech_gen = {}
         previously_funded_projects = self.previously_funded_projects()
         projects = pd.concat([t.projects() for t in self.technology_set.all()])
-        projects['attempted_cost'] = np.nan
         projects.sort_values('levelised_cost',inplace=True)
         projects['previously_funded'] = np.where(projects.index.isin(previously_funded_projects.index),True,False)
         projects['eligible'] = (projects.previously_funded == False) & projects.affordable
+
+        difference_this_year = "_".join(["difference",str(self.auctionyear.year)])
+        cost_this_year = "_".join(["cost",str(self.auctionyear.year)])
+
+        projects[difference_this_year] = projects.strike_price - self.auctionyear.wholesale_price
+        projects[cost_this_year] = np.where(projects.eligible == True, projects.gen/1000 * projects[difference_this_year], 0)
+
+        projects['attempted_cum_cost'] = np.cumsum(projects[cost_this_year])
+        projects['funded_this_year'] = (projects.eligible) & (projects.attempted_cum_cost < self.budget())
         projects['attempted_project_gen'] = np.where(projects.eligible == True, projects.gen, 0)
         projects['attempted_cum_gen'] = np.cumsum(projects.attempted_project_gen)
-        projects['attempted_cum_cost'] = projects.attempted_cum_gen/1000 * (projects.strike_price - self.auctionyear.wholesale_price)
-        projects['funded_this_year'] = (projects.eligible) & (projects.attempted_cum_cost < self.budget())
         cost = projects[projects.funded_this_year==True].attempted_cum_cost.max()
         gen = projects[projects.funded_this_year==True].attempted_cum_gen.max()
-        #if self.auctionyear.year == 2022:
-        #    print("\n\n\n\n\n", self.name,self.auctionyear.year, self.budget())
-        #    print(projects)
+
+
+
+        #if (self.auctionyear.year == 2021) & (self.name == "E"):
+    #        print("\n\n\n\n\n", self.name,self.auctionyear.year, self.budget())
+#            print(projects)
         return {'cost': cost, 'gen': gen, 'projects': projects, 'tech_cost': tech_cost, 'tech_gen': tech_gen}
 
+    def future_payouts(self):
+        cost_this_year = "_".join(["cost",str(self.auctionyear.year)])
+        difference_this_year = "_".join(["difference",str(self.auctionyear.year)])
+        payouts = []
+        for tech in self.technology_set.all():
+            tech_projects = self.projects()[(self.projects().funded_this_year == True) & (self.projects().technology == tech.name)]
+            t = {'name': tech.name, 'gen': tech_projects.attempted_project_gen.sum(), 'diff_this_year': tech_projects[difference_this_year].max()}
+            payouts.append(t)
+        df = DataFrame(payouts).set_index('name')
+        print(df)
+        return df
 
 
 
