@@ -14,7 +14,8 @@ class Scenario(models.Model):
     percent_emerging = models.FloatField(default=0.6)
     rank_by_levelised_cost = models.BooleanField(default=True)
     set_strike_price =  models.BooleanField(default=False, verbose_name="Generate strike price ourselves?")
-
+    start_year = models.IntegerField(default=2021)
+    end_year = models.IntegerField(default=2025)
 
 
     def __init__(self, *args, **kwargs):
@@ -89,7 +90,7 @@ class AuctionYear(models.Model):
             return self._budget
 
     #@lru_cache(maxsize=None)
-    def cost(self):
+    def awarded(self):
         combined = 0
         for pot in self.pot_set.all():
             combined += pot.cost()
@@ -101,7 +102,7 @@ class AuctionYear(models.Model):
         if self._unspent:
             return self._unspent
         else:
-            self._unspent = self.budget() - self.cost()
+            self._unspent = self.budget() - self.awarded()
             #print("Auction year 'unspent' method run on previous year", self._unspent)
 
             return self._unspent
@@ -126,6 +127,44 @@ class AuctionYear(models.Model):
             #return self._previous_year_unspent
             return previous_year.unspent()
 
+    def previous_years(self):
+        if self.year == 2020:
+            return None
+        else:
+            #print(type(self.scenario.auctionyear_set.filter(year__lt=self.year)))
+            return self.scenario.auctionyear_set.filter(year__range=(self.scenario.start_year,self.year-1)).order_by('year')
+
+
+    def paid(self):
+        if self.year == 2020:
+            return self.awarded()
+        else:
+            return self.awarded() + sum([self.owed(previous_year) for previous_year in self.previous_years()])
+
+    def owed(self, previous_year):
+        owed = {}
+#        print('\n\n..............\n\npaying out year:', self.year)
+#        print('year awarded:', previous_year)
+        for pot in previous_year.pot_set.all():
+            owed[pot.name] = 0
+            data = pot.future_payouts()
+            for t in pot.technology_set.all():
+                gen = data['gen'][t.name]
+                strike_price = data['strike_price'][t.name]
+                #next 5 lines account for Angela's error
+                if (pot.name == "E"):
+                    try:
+                        strike_price = self.pot_set.get(name=pot.name).technology_set.get(name=t.name).strike_price
+                    except:
+                        break
+                difference = strike_price - self.wholesale_price
+                tech_owed = gen * difference
+#                print('\n\n', t.name,'generation', gen, '\nstrike_price', strike_price, '\nwholesale_price', self.wholesale_price, '\ntotal owed',tech_owed)
+                owed[pot.name] += tech_owed
+                #print(owed)
+        owed = sum(owed.values())
+        return owed
+
 
 class Pot(models.Model):
     POT_CHOICES = (
@@ -143,11 +182,6 @@ class Pot(models.Model):
     def __init__(self, *args, **kwargs):
         super(Pot, self).__init__(*args, **kwargs)
         self._percent = None
-
-    def future_prices(self):
-        years = list(range(self.auctionyear.year, 2026))
-        values = [self.auctionyear.scenario.auctionyear_set.get(year=year).wholesale_price for year in years]
-        return dict(zip(years,values))
 
     #@lru_cache(maxsize=None)
     def budget(self):
@@ -189,37 +223,38 @@ class Pot(models.Model):
         projects['previously_funded'] = np.where(projects.index.isin(previously_funded_projects.index),True,False)
         projects['eligible'] = (projects.previously_funded == False) & projects.affordable
 
-        difference_this_year = "_".join(["difference",str(self.auctionyear.year)])
-        cost_this_year = "_".join(["cost",str(self.auctionyear.year)])
+        projects['difference'] = projects.strike_price - self.auctionyear.wholesale_price
+        projects['cost'] = np.where(projects.eligible == True, projects.gen/1000 * projects.difference, 0)
 
-        projects[difference_this_year] = projects.strike_price - self.auctionyear.wholesale_price
-        projects[cost_this_year] = np.where(projects.eligible == True, projects.gen/1000 * projects[difference_this_year], 0)
-
-        projects['attempted_cum_cost'] = np.cumsum(projects[cost_this_year])
+        projects['attempted_cum_cost'] = np.cumsum(projects.cost)
         projects['funded_this_year'] = (projects.eligible) & (projects.attempted_cum_cost < self.budget())
         projects['attempted_project_gen'] = np.where(projects.eligible == True, projects.gen, 0)
         projects['attempted_cum_gen'] = np.cumsum(projects.attempted_project_gen)
         cost = projects[projects.funded_this_year==True].attempted_cum_cost.max()
         gen = projects[projects.funded_this_year==True].attempted_cum_gen.max()
 
-
-
         #if (self.auctionyear.year == 2021) & (self.name == "E"):
     #        print("\n\n\n\n\n", self.name,self.auctionyear.year, self.budget())
 #            print(projects)
         return {'cost': cost, 'gen': gen, 'projects': projects, 'tech_cost': tech_cost, 'tech_gen': tech_gen}
 
+    #def future_prices(self):
+    #    years = list(range(self.auctionyear.year, self.auctionyear.scenario.end_year))
+    #    values = [self.auctionyear.scenario.auctionyear_set.get(year=year).wholesale_price for year in years]
+    #    return dict(zip(years,values))
+
+
     def future_payouts(self):
-        cost_this_year = "_".join(["cost",str(self.auctionyear.year)])
-        difference_this_year = "_".join(["difference",str(self.auctionyear.year)])
-        payouts = []
+        gen = {}
+        strike_price = {}
         for tech in self.technology_set.all():
             tech_projects = self.projects()[(self.projects().funded_this_year == True) & (self.projects().technology == tech.name)]
-            t = {'name': tech.name, 'gen': tech_projects.attempted_project_gen.sum(), 'diff_this_year': tech_projects[difference_this_year].max()}
-            payouts.append(t)
-        df = DataFrame(payouts).set_index('name')
-        print(df)
-        return df
+            gen[tech.name] = tech_projects.attempted_project_gen.sum()/1000 if pd.notnull(tech_projects.attempted_project_gen.sum()) else 0
+            strike_price[tech.name] = tech_projects.strike_price.max() if pd.notnull(tech_projects.strike_price.max()) else 0
+#        print('year', self.auctionyear.year)
+#        print('generation',gen)
+#        print('strike prices',strike_price)
+        return {'gen': gen, 'strike_price': strike_price}
 
 
 

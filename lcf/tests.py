@@ -11,7 +11,8 @@ class TechnologyMethodTests(TestCase):
     def setUp(self):
         self.s = Scenario.objects.create(name="test1",
                                     budget = 3.3,
-                                    percent_emerging = 0.6)
+                                    percent_emerging = 0.6,
+                                    end_year = 2023)
 
         self.a0 = AuctionYear.objects.create(scenario=self.s,
                                         year=2020,
@@ -189,7 +190,8 @@ class PotMethodTests(TestCase):
     def setUp(self):
         self.s = Scenario.objects.create(name="test1",
                                     budget = 3.3,
-                                    percent_emerging = 0.6)
+                                    percent_emerging = 0.6,
+                                    end_year = 2023)
 
         self.a0 = AuctionYear.objects.create(scenario=self.s,
                                         year=2020,
@@ -379,10 +381,20 @@ class PotMethodTests(TestCase):
         self.assertEqual(round(self.p1M.gen()), 1620)
         self.assertEqual(round(self.p2M.gen()), 1470)
 
-    def test_future_payouts(self):
+
+    #def test_future_prices(self):
+    #    self.assertEqual(self.p0E.future_prices(),{2020: 48.5400340402009, 2021: 54.285722954952, 2022: 58.4749297906221})
+
+
+
+
+
+
+
+#    def test_future_payouts(self):
 #        self.assertEqual(self.p0E.future_payouts(),
 #        self.assertEqual(self.p0M.future_payouts(),
-        self.assertEqual(round(self.p1E.future_payouts(),2),385.05)
+#        self.assertEqual(round(self.p1E.future_payouts(),2),385.05)
 #        self.assertEqual(self.p1M.future_payouts(),
 
 
@@ -396,7 +408,8 @@ class AuctionYearMethodTests(TestCase):
     def setUp(self):
         self.s = Scenario.objects.create(name="test1",
                                     budget = 3.3,
-                                    percent_emerging = 0.6)
+                                    percent_emerging = 0.6,
+                                    end_year = 2023)
 
         self.a0 = AuctionYear.objects.create(scenario=self.s,
                                         year=2020,
@@ -494,9 +507,15 @@ class AuctionYearMethodTests(TestCase):
         self.assertEqual(self.a0.previous_year(),None)
         self.assertEqual(self.a1.previous_year(),self.a0)
         self.assertEqual(self.a2.previous_year(),self.a1)
-        self.assertEqual(self.a2.previous_year().cost(), self.a1.cost())
+        self.assertEqual(self.a2.previous_year().awarded(), self.a1.awarded())
         self.assertEqual(self.a1.unspent(),self.a2.previous_year().unspent())
 
+    def test_previous_years(self):
+        self.assertEqual(self.a0.previous_years(), None)
+        self.assertQuerysetEqual(self.a1.previous_years(), [])
+        self.assertQuerysetEqual(self.a2.previous_years(), ['<AuctionYear: 2021>'])
+
+    #first year tests
     def test_starting_budget0(self):
         self.assertEqual(round(self.a0.starting_budget,2), 481.29)
 
@@ -506,12 +525,20 @@ class AuctionYearMethodTests(TestCase):
     def budget0(self):
         self.assertEqual(round(self.a0.budget()),round(481.29+0)) #481.29
 
-    def test_cost0(self):
-        self.assertEqual(round(self.a0.cost()),round(272.62+55.68))#328.3
+    def test_awarded0(self):
+        self.assertEqual(round(self.a0.awarded()),round(272.62+55.68))#328.3
 
     def test_unspent0(self):
         self.assertEqual(round(self.a0.unspent()),round(481.3-328.3)) #153
 
+    def test_owed0(self):
+        pass
+
+    def test_paid0(self):
+        self.assertEqual(self.a0.paid(),self.a0.awarded())
+
+
+    #second year tests
     def test_starting_budget1(self):
         self.assertEqual(round(self.a1.starting_budget), 660)
 
@@ -521,12 +548,19 @@ class AuctionYearMethodTests(TestCase):
     def budget1(self):
         self.assertEqual(round(self.a1.budget()),round(660+0)) #660
 
-    def test_cost1(self):
-        self.assertEqual(round(self.a1.cost()),round(385.05+41.66))#426.71
+    def test_awarded1(self):
+        self.assertEqual(round(self.a1.awarded()),round(385.05+41.66))#426.71
 
     def test_unspent1(self):
         self.assertEqual(round(self.a1.unspent()),round(660-426.71)) #233.29
 
+    def test_paid1(self):
+        self.assertEqual(self.a1.paid(),self.a1.awarded())
+
+    def test_owed1(self):
+        self.assertEqual(round(self.a1.owed(self.a0),2),286.17)
+
+    #third year tests
     def test_starting_budget2(self):
         self.assertEqual(round(self.a2.starting_budget), 660)
 
@@ -536,17 +570,29 @@ class AuctionYearMethodTests(TestCase):
     def budget2(self):
         self.assertEqual(round(self.a2.budget()),round(660+233.29)) #893.29
 
-    def test_cost2(self):
-        self.assertEqual(round(self.a2.cost()),round(516.4+31.64))#548.04
+    def test_awarded2(self):
+        self.assertEqual(round(self.a2.awarded()),round(516.4+31.64))#548.04
 
     def test_unspent2(self):
         self.assertEqual(round(self.a2.unspent()),round(893.29-548.04)) #345.25
+
+    def test_paid2(self):
+        self.assertEqual(round(self.a2.paid(),2),round(self.a2.awarded() + self.a2.owed(self.a1),2))
+
+    def test_owed2(self):
+        self.assertEqual(round(self.a2.owed(self.a1)),379)
+
+#    def test_owed(self):
+#        self.assertEqual(self.a1.owed(a0), ?)
+
+
 
 class ScenarioMethodTests(TestCase):
     def setUp(self):
         self.s = Scenario.objects.create(name="test1",
                                     budget = 3.3,
-                                    percent_emerging = 0.6)
+                                    percent_emerging = 0.6,
+                                    end_year = 2023)
 
         self.a0 = AuctionYear.objects.create(scenario=self.s,
                                         year=2020,

@@ -1,7 +1,7 @@
 extend python logic to do full calculations:
   *figure out separate negotiations and negawatts
   *think about accumulation and whether the pot is restarted at 2026
-  *include comparison to gas prices
+  *include comparison to gas prices: where does this enter in? presumably not in the actual auction process, just in the cost tally?
 
 
 
