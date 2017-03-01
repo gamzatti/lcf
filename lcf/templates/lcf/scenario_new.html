@@ -9,11 +9,7 @@
         <div class="to-hide">
             <h3>Edit technologies?</h3>
             {{ prices_form }}
-            {% for form in string_formset.forms %}
-                {{ form }}
-
-            {% endfor %}
-            {{ formset }}
+            {{ string_formset }}
         </div>
     </form>
 {% endblock %}

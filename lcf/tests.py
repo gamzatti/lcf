@@ -7,7 +7,7 @@ from django.forms import modelformset_factory
 from django.core.urlresolvers import reverse
 
 from .models import Scenario, AuctionYear, Pot, Technology
-from .forms import ScenarioForm
+from .forms import ScenarioForm, PricesForm
 
 class TechnologyMethodTests(TestCase):
 
@@ -763,8 +763,8 @@ class LcfViewsTestCase(TestCase):
         #self.assertEqual(resp.context['error_message'], "You didn't select a choice.")
 
     def test_valid_scenarioform(self):
-        s = Scenario.objects.create(name="test_form", budget=4, percent_emerging=0.9)
-        data = {'name': s.name, 'budget': s.budget, 'percent_emerging': s.percent_emerging}
+        s = Scenario.objects.create(name="test_form", budget=4, percent_emerging=0.9, end_year=2022)
+        data = {'name': s.name, 'budget': s.budget, 'percent_emerging': s.percent_emerging, 'end_year': s.end_year}
         form = ScenarioForm(data)
         self.assertTrue(form.is_valid())
         #s.delete()
@@ -774,13 +774,14 @@ class LcfViewsTestCase(TestCase):
         form = ScenarioForm(data)
         self.assertFalse(form.is_valid())
 
-    def test_valid_auctionyear_forms(self):
-        data = {'wholesale_prices': "50 51 52 53 54", 'gas_prices': "60 61 62 63 64"}
-        
+    def test_valid_pricesform(self):
+        data = {'wholesale_prices': "50 51 52", 'gas_prices': "60 61 62"}
+        form = PricesForm(data)
+        self.assertTrue(form.is_valid())
 
-    """def test_technologyformset(self):
-        TechnologyFormSet = modelformset_factory(Technology, extra=0, fields="__all__")
-        techs = Technology.objects.all()
-        formset = TechnologyFormSet(request.POST, queryset=techs)
-        #http://schinckel.net/2016/04/30/(directly)-testing-django-formsets/
-        self.assertTrue(formset.is_valid())"""
+    def test_invalid_pricesform(self):
+        data = {'foo': "50 51 52", 'bar': "60 61 62"}
+        form = PricesForm(data)
+        self.assertFalse(form.is_valid())
+
+    
