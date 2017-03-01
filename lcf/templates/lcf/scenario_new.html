@@ -1,14 +1,14 @@
 {% extends 'lcf/base.html' %}
 
 {% block content %}
-    <h1>New scenario</h1>
+    <h1>New scenario based on {{ scenario.name }}</h1>
+    <p>pk {{ scenario.pk }}</p>
     <form method="POST" class="post-form">{% csrf_token %}
-            {{ scenario_form }}
-            <button type="submit" class="save btn btn-default">Save</button>
-            <div class="to-hide">
-                <h3>Edit technologies?</h3>
-                {{ formset }}
-            </div>
+        {{ scenario_form }}
+        <button type="submit" class="save btn btn-default">Save</button>
+        <div class="to-hide">
+            <h3>Edit technologies?</h3>
+            {{ formset }}
+        </div>
     </form>
-
 {% endblock %}

@@ -25,45 +25,18 @@ class Scenario(models.Model):
     def __str__(self):
         return self.name
 
-    #@lru_cache(maxsize=None)
-    def cost(self):
-        cost = 0
-        for a in self.auctionyear_set.all():
-            for p in a.pot_set.all():
-                cost += p.cost()
-        return cost
+    def paid(self, year):
+        a = self.auctionyear_set.get(year=year)
+        return a.paid()
 
-    #@lru_cache(maxsize=None)
-    def cost_2020(self):
-        cost = 0
-        for a in self.auctionyear_set.filter(year__lte=2020):
-            for p in a.pot_set.all():
-                cost += p.cost()
-        return cost
+    def paid_end_year(self):
+        return self.paid(self.end_year)
 
-    #@lru_cache(maxsize=None)
-    def cost_lcf2(self):
-        cost = 0
-        for a in self.auctionyear_set.filter(year__range=(2021,2025)):
-            for p in a.pot_set.all():
-                cost += p.cost()
-        return cost
+    def cum_gen(self, start_year, end_year):
+        return sum([a.awarded_gen() for a in self.auctionyear_set.filter(year__range=(start_year,end_year))])
 
-    #@lru_cache(maxsize=None)
-    def cost_lcf3(self):
-        cost = 0
-        for a in self.auctionyear_set.filter(year__range=(2026,2030)):
-            for p in a.pot_set.all():
-                cost += p.cost()
-        return cost
-
-    #@lru_cache(maxsize=None)
-    def gen(self):
-        gen = 0
-        for a in self.auctionyear_set.all():
-            for p in a.pot_set.all():
-                gen += p.gen()
-        return gen
+    def cum_gen_end_year(self):
+        return self.cum_gen(2020,self.end_year)
 
 class AuctionYear(models.Model):
     scenario = models.ForeignKey('lcf.scenario', default=1)#http://stackoverflow.com/questions/937954/how-do-you-specify-a-default-for-a-django-foreignkey-model-or-adminmodel-field
@@ -91,11 +64,18 @@ class AuctionYear(models.Model):
 
     #@lru_cache(maxsize=None)
     def awarded(self):
-        combined = 0
+        awarded = 0
         for pot in self.pot_set.all():
-            combined += pot.cost()
-            #print("Auction year 'cost' method", combined)
-        return combined
+            if pot.name == "E" or pot.name == "M":
+                awarded += pot.cost()
+        return awarded
+
+    def awarded_gen(self):
+        awarded_gen = 0
+        for pot in self.pot_set.all():
+            if pot.name == "E" or pot.name == "M":
+                awarded_gen += pot.gen()
+        return awarded_gen
 
     #@lru_cache(maxsize=None)
     def unspent(self):
@@ -141,6 +121,7 @@ class AuctionYear(models.Model):
         else:
             return self.awarded() + sum([self.owed(previous_year) for previous_year in self.previous_years()])
 
+
     def owed(self, previous_year):
         owed = {}
 #        print('\n\n..............\n\npaying out year:', self.year)
@@ -164,6 +145,7 @@ class AuctionYear(models.Model):
                 #print(owed)
         owed = sum(owed.values())
         return owed
+
 
 
 class Pot(models.Model):

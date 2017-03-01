@@ -7,23 +7,21 @@
     <p>budget: £{{ scenario.budget }}bn</p>
     <p>percent in emerging pot: {{ scenario.percent_emerging }}</p>
 
+    <p>Paid out in last year: £{{ scenario.paid_last_year }}m</p>
 
-    <p>Cumulative cost: £{{ scenario.cost }}m</p>
-    <p>Cumulative cost (2020): £{{ scenario.cost_2020 }}m</p>
-    <p>Cumulative cost (2021-2025): £{{ scenario.cost_lcf2 }}m</p>
-    <p>Cumulative cost (2026-2030): £{{ scenario.cost_lcf3 }}m</p>
-    <p>Cumulative new generation: {{ scenario.gen }}TWh</p>
+    <p>Cumulative new generation: {{ scenario.cum_gen_last_year }}TWh</p>
 
-    {% for y in scenario.auctionyear_set.all %}
+    {% for a in scenario.auctionyear_set.all %}
         <hr>
-        <h2>Year: {{ y }}</h2>
-        <p>Wholesale price: £{{ y.wholesale_price }}/kWh</p>
-        <p>Budget: £{{ y.budget }}m</p>
-        <p>Cost: £{{ y.cost }}bn</p>
-        <p>Unspent: {{ y.unspent }}</p>
-        <p>Previous year unspent: {{ y.previous_year_unspent }}</p>
-        <p>Starting budget: {{ y.starting_budget}}</p> -->
-        {% for p in y.pot_set.all %}
+        <h2>Year: {{ a.year }}</h2>
+        <p>Wholesale price: £{{ a.wholesale_price }}/kWh</p>
+        <p>Budget: £{{ a.budget }}m</p>
+        <p>Awarded: £{{ a.awarded }}bn</p>
+        <p>Unspent: {{ a.unspent }}</p>
+        <p>Paid: {{ a.paid }}</p>
+        <p>Previous year unspent: {{ a.previous_year_unspent }}</p>
+        <p>Starting budget: {{ a.starting_budget}}</p> -->
+        {% for p in a.pot_set.all %}
             {% if p.name == "E" or p.name == "M" %}
                 <h3>Pot: {{ p.name }}</h3>
                 <p>Budget: £{{ p.budget }}m</p>

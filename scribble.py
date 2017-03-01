@@ -2,6 +2,13 @@ import pandas as pd
 import numpy as np
 from pandas import DataFrame, Series
 from lcf.models import Scenario, AuctionYear, Pot, Technology
+
+from django.test.utils import setup_test_environment
+setup_test_environment()
+from django.test import Client
+client = Client()
+
+
 import timeit
 
 s = Scenario.objects.get(name="default")

@@ -578,13 +578,17 @@ class AuctionYearMethodTests(TestCase):
 
     def test_paid2(self):
         self.assertEqual(round(self.a2.paid(),2),round(self.a2.awarded() + self.a2.owed(self.a1),2))
+        self.assertEqual(round(self.a2.paid(),2),927.18)
+
 
     def test_owed2(self):
         self.assertEqual(round(self.a2.owed(self.a1)),379)
 
-#    def test_owed(self):
-#        self.assertEqual(self.a1.owed(a0), ?)
 
+    def test_awarded_gen(self):
+        self.assertEqual(round(self.a0.awarded_gen()),5930)
+        self.assertEqual(round(self.a1.awarded_gen()),8276)
+        self.assertEqual(round(self.a2.awarded_gen()),11454)
 
 
 class ScenarioMethodTests(TestCase):
@@ -592,7 +596,7 @@ class ScenarioMethodTests(TestCase):
         self.s = Scenario.objects.create(name="test1",
                                     budget = 3.3,
                                     percent_emerging = 0.6,
-                                    end_year = 2023)
+                                    end_year = 2022)
 
         self.a0 = AuctionYear.objects.create(scenario=self.s,
                                         year=2020,
@@ -607,62 +611,60 @@ class ScenarioMethodTests(TestCase):
                                         wholesale_price = 58.4749297906221,
                                         gas_price = 89)
 
-        self.p0 = Pot.objects.create(name="E", auctionyear=self.a0)
+        self.p0E = Pot.objects.create(name="E", auctionyear=self.a0)
+        self.p1E = Pot.objects.create(name="E", auctionyear=self.a1)
+        self.p2E = Pot.objects.create(name="E", auctionyear=self.a2)
+
         self.p0M = Pot.objects.create(name="M", auctionyear=self.a0)
-        self.p1 = Pot.objects.create(name="E", auctionyear=self.a1)
         self.p1M = Pot.objects.create(name="M", auctionyear=self.a1)
-        self.p2 = Pot.objects.create(name="E", auctionyear=self.a2)
+        self.p2M = Pot.objects.create(name="M", auctionyear=self.a2)
 
-
-
-        self.t0 = Technology.objects.create(name="OFW",
-                                        pot=self.p0,
-                                        min_levelised_cost = 71.3353908668731,
-                                        max_levelised_cost = 103.034791021672,
-                                        strike_price = 114.074615384615,
-                                        load_factor = .42,
-                                        project_gen = 832,
-                                        max_deployment_cap = 1.9)
-        self.t0wave = Technology.objects.create(name="WA",
-                                        pot=self.p0,
+        self.t0Ewave = Technology.objects.create(name="WA",
+                                        pot=self.p0E,
                                         min_levelised_cost = 260.75,
                                         max_levelised_cost = 298,
                                         strike_price = 305,
                                         load_factor = .31,
                                         project_gen = 27,
                                         max_deployment_cap = 0.034)
-        self.t1 = Technology.objects.create(name="OFW",
-                                        pot=self.p1,
+
+
+        self.t0E = Technology.objects.create(name="OFW",
+                                        pot=self.p0E,
+                                        min_levelised_cost = 71.3353908668731,
+                                        max_levelised_cost = 103.034791021672,
+                                        strike_price = 114.074615384615,
+                                        load_factor = .42,
+                                        project_gen = 832,
+                                        max_deployment_cap = 1.9)
+
+        self.t1E = Technology.objects.create(name="OFW",
+                                        pot=self.p1E,
                                         min_levelised_cost = 71.1099729102167,
                                         max_levelised_cost = 101.917093653251,
                                         strike_price = 112.136153846154,
                                         load_factor = .434,
                                         project_gen = 832,
                                         max_deployment_cap = 1.9)
-        self.t1wave = Technology.objects.create(name="WA",
-                                        pot=self.p1,
+
+        self.t1Ewave = Technology.objects.create(name="WA",
+                                        pot=self.p1E,
                                         min_levelised_cost = 245.875,
                                         max_levelised_cost = 281,
                                         strike_price = 305,
                                         load_factor = .31,
                                         project_gen = 27,
                                         max_deployment_cap = 0.0032)
-        self.t2 = Technology.objects.create(name="OFW",
-                                        pot=self.p2,
+
+        self.t2E = Technology.objects.create(name="OFW",
+                                        pot=self.p2E,
                                         min_levelised_cost = 70.8845549535604,
                                         max_levelised_cost = 100.79939628483,
                                         strike_price = 110.197692307692,
                                         load_factor = .448,
                                         project_gen = 832,
                                         max_deployment_cap = 1.9)
-        self.t2a = Technology.objects.create(name="OFW",
-                                        pot=self.p2,
-                                        min_levelised_cost = 70.8845549535604,
-                                        max_levelised_cost = 100.79939628483,
-                                        strike_price = 90,
-                                        load_factor = .448,
-                                        project_gen = 832,
-                                        max_deployment_cap = 1.9)
+
         self.t0M = Technology.objects.create(name="ONW",
                                         pot=self.p0M,
                                         min_levelised_cost = 61,
@@ -679,8 +681,80 @@ class ScenarioMethodTests(TestCase):
                                         load_factor = 0.2803125,
                                         project_gen = 30,
                                         max_deployment_cap = 0.73)
+        self.t2M = Technology.objects.create(name="ONW",
+                                        pot=self.p2M,
+                                        min_levelised_cost = 61.8,
+                                        max_levelised_cost = 82,
+                                        strike_price = 80,
+                                        load_factor = 0.2825,
+                                        project_gen = 30,
+                                        max_deployment_cap = 0.73)
 
-#    def test_auction_accumulation(self):
-#        self.AssertEqual(self.s.)
-        #I can produce the numbers in line 8 of the merit order sheets (MO and MOII). Now I need to produce line 6.
-        #I need to take into account differnt wholesale prices
+    def test_paid(self):
+        self.assertEqual(round(self.s.paid(2021),2),426.71)
+        self.assertEqual(round(self.s.paid(2022),2),927.18)
+
+    def test_cum_gen(self):
+        self.assertEqual(round(self.s.cum_gen(2021,2021)),8276)
+        self.assertEqual(round(self.s.cum_gen(2021,2022)),19730)
+        self.assertEqual(round(self.s.cum_gen(2020,2021)+428),14634)
+        self.assertEqual(round(self.s.cum_gen(2020,2022)+428),26088)
+
+    def test_paid_end_year(self):
+        self.assertEqual(round(self.s.paid_end_year(),2),927.18)
+
+    def test_cum_gen_end_year(self):
+        self.assertEqual(round(self.s.cum_gen_end_year()+428),26088)
+
+class LcfViewsTestCase(TestCase):
+    fixtures = ['test_data.json']
+
+    def test_new(self):
+        resp = self.client.get('/scenario/119/new/')
+        self.assertEqual(resp.status_code,200)
+        self.assertTrue('scenarios' in resp.context)
+        test_scenario = resp.context['scenarios'][0]
+        self.assertEqual(test_scenario.auctionyear_set.count(), 3)
+        self.assertTrue('formset' in resp.context)
+        self.assertTrue('scenario_form' in resp.context)
+        self.assertEqual([scenario.pk for scenario in resp.context['scenarios']], [119])
+
+    def test_detail(self):
+        resp = self.client.get('/scenario/119/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context['scenario'].pk, 119)
+        self.assertEqual(resp.context['scenario'].name, 'test1')
+        #ensure non-existent scenario throws 404
+        resp = self.client.get('scenario/999')
+        self.assertEqual(resp.status_code, 404)
+
+    def test_good_scenario(self):
+        #sanity check
+        test_scenario = Scenario.objects.get(pk=119)
+        a2020 = test_scenario.auctionyear_set.get(year=2020)
+        self.assertEqual(a2020.gas_price, 85)
+
+        resp = self.client.post('/scenario/119/new/', {'name': 'test2', 'percent_emerging': 0.5, 'budget': 2})
+        self.assertEqual(resp.status_code, 302)
+        #self.assertEqual(resp['Location'],'scenario/2/')
+        #don't know how to check location
+        self.assertEqual(Scenario.objects.count(), 2)
+
+    def test_bad_scenario(self):
+        #Ensure a non-existent pk throws a not found
+        resp = self.client.post('/scenario/1000000/new/')
+        self.assertEqual(resp.status_code, 404)
+
+        #sanity check
+        test_scenario = Scenario.objects.get(pk=119)
+        a2020 = test_scenario.auctionyear_set.get(year=2020)
+        self.assertEqual(a2020.gas_price, 85)
+
+        #send no post data
+        resp = self.client.post('/scenario/119/new/')
+        self.assertEqual(resp.status_code, 200)
+
+        #send junk post data
+        resp = self.client.post('/scenario/119/new/',  {'foo': 'bar'})
+        self.assertEqual(resp.status_code, 200)
+        #self.assertEqual(resp.context['error_message'], "You didn't select a choice.")
