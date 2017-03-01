@@ -2,9 +2,12 @@ from django.test import TestCase
 import pandas as pd
 import numpy as np
 from pandas import DataFrame, Series
+from django.forms import modelformset_factory
+
+from django.core.urlresolvers import reverse
 
 from .models import Scenario, AuctionYear, Pot, Technology
-
+from .forms import ScenarioForm
 
 class TechnologyMethodTests(TestCase):
 
@@ -710,7 +713,7 @@ class LcfViewsTestCase(TestCase):
     fixtures = ['test_data.json']
 
     def test_new(self):
-        resp = self.client.get('/scenario/119/new/')
+        resp = self.client.get(reverse('scenario_new', kwargs={'pk': 119}))
         self.assertEqual(resp.status_code,200)
         self.assertTrue('scenarios' in resp.context)
         test_scenario = resp.context['scenarios'][0]
@@ -720,29 +723,29 @@ class LcfViewsTestCase(TestCase):
         self.assertEqual([scenario.pk for scenario in resp.context['scenarios']], [119])
 
     def test_detail(self):
-        resp = self.client.get('/scenario/119/')
+        resp = self.client.get(reverse('scenario_detail',kwargs={'pk': 119}))
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context['scenario'].pk, 119)
         self.assertEqual(resp.context['scenario'].name, 'test1')
         #ensure non-existent scenario throws 404
-        resp = self.client.get('scenario/999')
+        resp = self.client.get(reverse('scenario_detail',kwargs={'pk': 999}))
         self.assertEqual(resp.status_code, 404)
 
-    def test_good_scenario(self):
+    """def test_good_scenario(self):
         #sanity check
         test_scenario = Scenario.objects.get(pk=119)
         a2020 = test_scenario.auctionyear_set.get(year=2020)
         self.assertEqual(a2020.gas_price, 85)
-
-        resp = self.client.post('/scenario/119/new/', {'name': 'test2', 'percent_emerging': 0.5, 'budget': 2})
+        self.assertEqual(Scenario.objects.count(), 1)
+        resp = self.client.post(reverse('scenario_new',kwargs={'pk': 119}), {'name': 'test2', 'percent_emerging': 0.5, 'budget': 2})
         self.assertEqual(resp.status_code, 302)
-        #self.assertEqual(resp['Location'],'scenario/2/')
         #don't know how to check location
+        #self.assertEqual(resp['Location'],'scenario/2/')
         self.assertEqual(Scenario.objects.count(), 2)
 
     def test_bad_scenario(self):
         #Ensure a non-existent pk throws a not found
-        resp = self.client.post('/scenario/1000000/new/')
+        resp = self.client.post(reverse('scenario_new',kwargs={'pk': 999}))
         self.assertEqual(resp.status_code, 404)
 
         #sanity check
@@ -751,10 +754,33 @@ class LcfViewsTestCase(TestCase):
         self.assertEqual(a2020.gas_price, 85)
 
         #send no post data
-        resp = self.client.post('/scenario/119/new/')
+        resp = self.client.post(reverse('scenario_new',kwargs={'pk': 119}))
         self.assertEqual(resp.status_code, 200)
 
         #send junk post data
-        resp = self.client.post('/scenario/119/new/',  {'foo': 'bar'})
-        self.assertEqual(resp.status_code, 200)
+        resp = self.client.post(reverse('scenario_new',kwargs={'pk': 119}),  {'foo': 'bar'})
+        self.assertEqual(resp.status_code, 200)"""
         #self.assertEqual(resp.context['error_message'], "You didn't select a choice.")
+
+    def test_valid_scenarioform(self):
+        s = Scenario.objects.create(name="test_form", budget=4, percent_emerging=0.9)
+        data = {'name': s.name, 'budget': s.budget, 'percent_emerging': s.percent_emerging}
+        form = ScenarioForm(data)
+        self.assertTrue(form.is_valid())
+        #s.delete()
+
+    def test_invalid_scenarioform(self):
+        data = {'name': "test_form", 'budget': "foo", 'percent_emerging': "bar"}
+        form = ScenarioForm(data)
+        self.assertFalse(form.is_valid())
+
+    def test_valid_auctionyear_forms(self):
+        data = {'wholesale_prices': "50 51 52 53 54", 'gas_prices': "60 61 62 63 64"}
+        
+
+    """def test_technologyformset(self):
+        TechnologyFormSet = modelformset_factory(Technology, extra=0, fields="__all__")
+        techs = Technology.objects.all()
+        formset = TechnologyFormSet(request.POST, queryset=techs)
+        #http://schinckel.net/2016/04/30/(directly)-testing-django-formsets/
+        self.assertTrue(formset.is_valid())"""

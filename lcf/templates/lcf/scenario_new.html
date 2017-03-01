@@ -8,6 +8,11 @@
         <button type="submit" class="save btn btn-default">Save</button>
         <div class="to-hide">
             <h3>Edit technologies?</h3>
+            {{ prices_form }}
+            {% for form in string_formset.forms %}
+                {{ form }}
+
+            {% endfor %}
             {{ formset }}
         </div>
     </form>

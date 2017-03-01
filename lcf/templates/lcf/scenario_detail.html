@@ -7,14 +7,14 @@
     <p>budget: £{{ scenario.budget }}bn</p>
     <p>percent in emerging pot: {{ scenario.percent_emerging }}</p>
 
-    <p>Paid out in last year: £{{ scenario.paid_last_year }}m</p>
+    <p>Paid out in last year: £{{ scenario.paid_end_year }}m</p>
 
-    <p>Cumulative new generation: {{ scenario.cum_gen_last_year }}TWh</p>
+    <p>Cumulative new generation: {{ scenario.cum_gen_end_year }}TWh</p>
 
     {% for a in scenario.auctionyear_set.all %}
         <hr>
         <h2>Year: {{ a.year }}</h2>
-        <p>Wholesale price: £{{ a.wholesale_price }}/kWh</p>
+        <p>Wholesale price: £{{ a.wholesale_price }}/MWh</p>
         <p>Budget: £{{ a.budget }}m</p>
         <p>Awarded: £{{ a.awarded }}bn</p>
         <p>Unspent: {{ a.unspent }}</p>

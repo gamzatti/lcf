@@ -1,29 +1,34 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.forms import modelformset_factory
-from .forms import ScenarioForm
+from django.forms import modelformset_factory, formset_factory
+from .forms import ScenarioForm, PricesForm, TechnologyStringForm
 from .models import Scenario, AuctionYear, Pot, Technology
 from django.http import HttpResponse
 import pandas as pd
 import numpy as np
-
+import re
 # Create your views here.
-def scenario_new2(request,pk):
-    TechnologyFormSet = modelformset_factory(Technology, extra=0, fields="__all__")
+
+def scenario_new(request,pk):
     scenarios = Scenario.objects.all()
     scenario_original = get_object_or_404(Scenario, pk=pk)
-    #queryset = Technology.objects.filter(pot__auctionyear__scenario__name="default")
-    #queryset = Technology.objects.filter(pot__auctionyear__scenario=scenario_original)
+    queryset = Technology.objects.filter(pot__auctionyear__scenario=scenario_original)
+    TechnologyFormSet = modelformset_factory(Technology, extra=0, fields="__all__")
+    TechnologyStringFormSet = formset_factory(TechnologyStringForm, extra=0, max_num=4)
     if request.method == "POST":
-
-        formset = TechnologyFormSet(request.POST, queryset=queryset)
         scenario_form = ScenarioForm(request.POST)
-        if formset.is_valid() and scenario_form.is_valid():
+        prices_form = PricesForm(request.POST)
+        formset = TechnologyFormSet(request.POST, queryset=queryset)
+        #string_formset = TechnologyStringFormSet(request.POST)
+        if formset.is_valid() and scenario_form.is_valid() and prices_form.is_valid():
             scenario_new = scenario_form.save()
-            for y in range(2020,2031):
-                a = AuctionYear.objects.create(year=y, scenario=scenario_new2)
+            gas_prices = [float(g) for g in list(filter(None, re.split("[, \-!?:\t]+",prices_form.cleaned_data['gas_prices'])))]
+            wholesale_prices = [float(g) for g in list(filter(None, re.split("[, \-!?:\t]+",prices_form.cleaned_data['wholesale_prices'])))]
+
+            for i, y in enumerate(range(2020,2023)):
+                a = AuctionYear.objects.create(year=y, scenario=scenario_new, gas_price=gas_prices[i], wholesale_price=wholesale_prices[i])
                 for p in ['E','M','SN','NW']:
                     Pot.objects.create(auctionyear=a,name=p)
-            q = Pot.objects.filter(auctionyear__scenario=scenario_new2)
+            q = Pot.objects.filter(auctionyear__scenario=scenario_new)
             for form in formset:
                 pot = q.filter(auctionyear__year=form.cleaned_data['pot'].auctionyear.year).get(name=form.cleaned_data['pot'].name)
                 Technology.objects.create(pot = pot,
@@ -35,41 +40,27 @@ def scenario_new2(request,pk):
                                         project_gen = form.cleaned_data['project_gen'],
                                         max_deployment_cap = form.cleaned_data['max_deployment_cap'])
 
+
             return redirect('scenario_detail', pk=scenario_new.pk)
-    else:
-        scenario_form = ScenarioForm()
-        #formset = TechnologyFormSet(queryset=queryset)
-        formset = "foo"
+    scenario_form = ScenarioForm(instance=scenario_original)
+    initial_prices = {'gas_prices': str([a.gas_price for a in scenario_original.auctionyear_set.all()]).strip('[]'), 'wholesale_prices': str([a.wholesale_price for a in scenario_original.auctionyear_set.all() ]).strip('[]')}
+    prices_form = PricesForm(initial=initial_prices)
+    formset = TechnologyFormSet(queryset=queryset)
 
-    return render(request, 'lcf/scenario_new2.html', {'scenario_original': scenario_original, 'formset': formset, 'scenarios': scenarios, 'scenario_form': scenario_form })
-
-def scenario_new(request,pk):
-    scenarios = Scenario.objects.all()
-    scenario_original = get_object_or_404(Scenario, pk=pk)
-    queryset = Technology.objects.filter(pot__auctionyear__scenario=scenario_original)
-    #print(queryset)
-    TechnologyFormSet = modelformset_factory(Technology, extra=0, fields="__all__")
-
-    if request.method == "POST":
-        scenario_form = ScenarioForm(request.POST)
-        formset = TechnologyFormSet(request.POST, queryset=queryset)
-        if scenario_form.is_valid():
-            scenario_new = scenario_form.save()
-            return redirect('scenario_detail', pk=scenario_new.pk)
-        else:
-            scenario_form = ScenarioForm(instance=scenario_original)
-            formset = TechnologyFormSet(queryset=queryset)
-            return render(request, 'lcf/scenario_new.html', {'scenario': scenario_original, 'scenarios': scenarios, 'scenario_form': scenario_form, 'formset': formset })
-    else:
-        scenario_form = ScenarioForm(instance=scenario_original)
-        formset = TechnologyFormSet(queryset=queryset)
-        return render(request, 'lcf/scenario_new.html', {'scenario': scenario_original, 'scenarios': scenarios, 'scenario_form': scenario_form, 'formset': formset })
+    """initial_names = [technology.name for technology in queryset]
+    initial_min_levelised_costs = [ str([t.min_levelised_cost for t in a for a in scenario_original.auctionyear_set.all()]).strip('[]') ]
+    initial_max_levelised_costs = [ technology.max_levelised_cost for technology in queryset ]
+    initial_technologies = []
+    for i in range(len(initial_names)):
+        initial_technologies.append({'name': initial_names[i], 'min_levelised_cost': initial_min_levelised_costs[i], 'max_levelised_cost': initial_max_levelised_costs[i]})
+    string_formset = TechnologyStringFormSet(initial=initial_technologies)"""
+    return render(request, 'lcf/scenario_new.html', {'scenario': scenario_original, 'scenarios': scenarios, 'scenario_form': scenario_form, 'formset': formset, 'prices_form': prices_form })
 
 
 def scenario_delete(request, pk):
     scenario = get_object_or_404(Scenario, pk=pk)
     scenario.delete()
-    return redirect('scenario_new', pk=1)
+    return redirect('scenario_new', pk=119)
 
 
 def scenario_detail(request, pk):

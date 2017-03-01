@@ -6,9 +6,8 @@ extend python logic to do full calculations:
 
 
 inputs:
-  *write views tests
+  *improve views tests
   improve interface, eg with longer fields accepting series of values, field labels, hide technology inputs initially with jquery, disallow editing of year and technology. ability to turn off technologies (put deployment to 0 for all years), use nested forms? maybe add choice options for prices? (nb the technology form order reflects the order in the database, so could change this with fixtures)
-  *make wholesale/gas price adjustable
   make it so you can alter an existing scenario rather than the default
   make assumptions adjustable?
     normal/even distribution
