@@ -38,6 +38,32 @@ class Scenario(models.Model):
     def cum_gen_end_year(self):
         return self.cum_gen(2020,self.end_year)
 
+    def projects_df(self):
+        projects = pd.concat([t.projects() for a in self.auctionyear_set.all() for p in a.pot_set.all() for t in p.technology_set.all() ])
+        #print(projects)
+        return projects
+
+    def techs_df(self):
+        techs = pd.concat([t.fields_df() for a in self.auctionyear_set.all() for p in a.pot_set.all() for t in p.technology_set.all() ])
+        techs = techs.set_index('id')
+        #print('\n',techs)
+        return techs
+
+    def initial_technologies(self):
+        techs = [t for p in self.auctionyear_set.all()[0].pot_set.all() for t in p.technology_set.all() ]
+        t_names = [t.name for t in techs]
+        t_form_data = { t_name : {} for t_name in t_names}
+        for t_name in t_names:
+            subset = self.techs_df()[self.techs_df().name == t_name]
+            for field in techs[0].get_field_values():
+                if field == "pot" or field == "id" or field == "name":
+                    pass
+                else:
+                    t_form_data[t_name][field] = str(list(subset[field])).strip('[]')
+        initial_technologies = list(t_form_data.values())
+        return initial_technologies
+
+
 class AuctionYear(models.Model):
     scenario = models.ForeignKey('lcf.scenario', default=1)#http://stackoverflow.com/questions/937954/how-do-you-specify-a-default-for-a-django-foreignkey-model-or-adminmodel-field
     year = models.IntegerField(default=2020)
@@ -292,6 +318,16 @@ class Technology(models.Model):
     def __str__(self):
         return str((self.pot.auctionyear,self.pot.name,self.name))
 
+    def get_field_values(self):
+        fields = [f.name for f in Technology._meta.get_fields()]
+        values = [getattr(self, f, None) for f in fields]
+        return dict(zip(fields,values))
+
+
+    def fields_df(self):
+        df = DataFrame([self.get_field_values()])
+        df['listed_year'] = self.pot.auctionyear.year
+        return df
 
     #@lru_cache(maxsize=None)
     def previous_year(self):
@@ -340,4 +376,5 @@ class Technology(models.Model):
         projects['clearing_price'] = np.nan
         projects['affordable'] = projects.levelised_cost <= projects.strike_price
         projects['funded'] = 'no'
+        projects['listed_year'] = self.pot.auctionyear.year
         return projects

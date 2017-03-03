@@ -16,10 +16,10 @@ class PricesForm(forms.Form):
     gas_prices = forms.CharField(max_length=200)
 
 class TechnologyStringForm(forms.Form):
-    name = forms.CharField(max_length=200)
-    min_levelised_costs = forms.CharField(max_length=200)
-    max_levelised_costs = forms.CharField(max_length=200)
-    #strike_prices = forms.CharField(max_length=200)
-    #load_factors = forms.CharField(max_length=200)
-    #project_gens = forms.CharField(max_length=200)
-    #max_deployment_caps = forms.CharField(max_length=200)
+    load_factor = forms.CharField(max_length=200)
+    min_levelised_cost = forms.CharField(max_length=200)
+    max_levelised_cost = forms.CharField(max_length=200)
+    strike_price = forms.CharField(max_length=200)
+    #name = forms.CharField(max_length=200)
+    project_gen = forms.CharField(max_length=200)
+    max_deployment_cap = forms.CharField(max_length=200)

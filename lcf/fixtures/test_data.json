@@ -203,5 +203,19 @@
         "project_gen": 30.0,
         "max_deployment_cap": 0.73
     }
+},
+{
+    "model": "lcf.technology",
+    "pk": 976,
+    "fields": {
+        "name": "WA",
+        "pot": 1125,
+        "min_levelised_cost": 231.0,
+        "max_levelised_cost": 264.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
 }
 ]

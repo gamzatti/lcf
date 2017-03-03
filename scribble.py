@@ -11,7 +11,7 @@ client = Client()
 
 import timeit
 
-s = Scenario.objects.get(name="default")
+s = Scenario.objects.get(pk=119)
 a = s.auctionyear_set.get(year=2021)
 p = a.pot_set.get(name="E")
 t = p.technology_set.get(name="OFW")
