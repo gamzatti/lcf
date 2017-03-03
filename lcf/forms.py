@@ -20,6 +20,10 @@ class TechnologyStringForm(forms.Form):
     min_levelised_cost = forms.CharField(max_length=200)
     max_levelised_cost = forms.CharField(max_length=200)
     strike_price = forms.CharField(max_length=200)
-    #name = forms.CharField(max_length=200)
+    name = forms.CharField(max_length=200)
     project_gen = forms.CharField(max_length=200)
     max_deployment_cap = forms.CharField(max_length=200)
+
+    def __init__(self, *args, **kwargs):
+        super(TechnologyStringForm, self).__init__(*args, **kwargs)
+        self.fields['name'].disabled = True

@@ -9,22 +9,15 @@ from django.core.urlresolvers import reverse
 from .models import Scenario, AuctionYear, Pot, Technology
 from .forms import ScenarioForm, PricesForm
 
-fixtures = ['test_data.json']
-
-s = Scenario.objects.get(pk=119)
-
 class TechnologyMethodTests(TestCase):
     fixtures = ['test_data.json']
 
     def setUp(self):
-        #self.s = Scenario.objects.get(pk=119)
+        self.s = Scenario.objects.get(pk=119)
 
-        #self.a0 = self.s.auctionyear_set.get(year=2020)
-        #self.a1 = self.s.auctionyear_set.get(year=2021)
-        #self.a2 = self.s.auctionyear_set.get(year=2022)
-        self.a0 = s.auctionyear_set.get(year=2020)
-        self.a1 = s.auctionyear_set.get(year=2021)
-        self.a2 = s.auctionyear_set.get(year=2022)
+        self.a0 = self.s.auctionyear_set.get(year=2020)
+        self.a1 = self.s.auctionyear_set.get(year=2021)
+        self.a2 = self.s.auctionyear_set.get(year=2022)
 
         self.p0E = self.a0.pot_set.get(name="E")
         self.p0M = self.a0.pot_set.get(name="M")
@@ -146,10 +139,11 @@ class PotMethodTests(TestCase):
     fixtures = ['test_data.json']
 
     def setUp(self):
+        self.s = Scenario.objects.get(pk=119)
 
-        self.a0 = s.auctionyear_set.get(year=2020)
-        self.a1 = s.auctionyear_set.get(year=2021)
-        self.a2 = s.auctionyear_set.get(year=2022)
+        self.a0 = self.s.auctionyear_set.get(year=2020)
+        self.a1 = self.s.auctionyear_set.get(year=2021)
+        self.a2 = self.s.auctionyear_set.get(year=2022)
 
         self.p0E = self.a0.pot_set.get(name="E")
         self.p0M = self.a0.pot_set.get(name="M")
@@ -184,9 +178,9 @@ class PotMethodTests(TestCase):
         self.assertEqual(round(self.p1E.auctionyear.budget()), 660)
         self.assertEqual(round(self.p1E.budget()), 396)
         self.assertEqual(round(self.p1M.budget()), 264)
-        #self.assertEqual(round(self.p2E.auctionyear.budget()), 893) #should work when I sort out 233 problem
-        #self.assertEqual(round(self.p2E.budget()), 536)
-        #self.assertEqual(round(self.p2M.budget()), 357)
+        self.assertEqual(round(self.p2E.auctionyear.budget()), 893) #should work when I sort out 233 problem
+        self.assertEqual(round(self.p2E.budget()), 536)
+        self.assertEqual(round(self.p2M.budget()), 357)
 
     def test_previous_year(self):
         self.assertEqual(self.p1E.previous_year(),self.p0E)
@@ -266,24 +260,6 @@ class PotMethodTests(TestCase):
         self.assertEqual(round(self.p0M.gen()), 1770)
         self.assertEqual(round(self.p1M.gen()), 1620)
         self.assertEqual(round(self.p2M.gen()), 1470)
-
-
-    #def test_future_prices(self):
-    #    self.assertEqual(self.p0E.future_prices(),{2020: 48.5400340402009, 2021: 54.285722954952, 2022: 58.4749297906221})
-
-
-
-
-
-
-
-#    def test_future_payouts(self):
-#        self.assertEqual(self.p0E.future_payouts(),
-#        self.assertEqual(self.p0M.future_payouts(),
-#        self.assertEqual(round(self.p1E.future_payouts(),2),385.05)
-#        self.assertEqual(self.p1M.future_payouts(),
-
-
 
     def test_unspent(self):
         self.assertEqual(round(self.p0E.unspent()+self.p0M.unspent()),0)
@@ -464,10 +440,11 @@ class ScenarioMethodTests(TestCase):
         self.assertEqual(self.s.techs_df().listed_year[771],2020)
 
     def test_initial_technologies(self):
-        value1 = self.s.initial_technologies()[0]['project_gen']
-        value2 = self.s.initial_technologies()[1]['project_gen']
-        value3 = self.s.initial_technologies()[2]['project_gen']
+        value1 = self.s.initial_technologies()[1][0]['project_gen']
+        value2 = self.s.initial_technologies()[1][1]['project_gen']
+        value3 = self.s.initial_technologies()[1][2]['project_gen']
         self.assertTrue(set([value1, value2, value3]),set(['27.0, 27.0', '30.0', '30.0, 30.0', '832.0, 832.0, 832.0']))
+
 
 class LcfViewsTestCase(TestCase):
     fixtures = ['test_data.json']

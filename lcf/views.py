@@ -126,8 +126,8 @@ def scenario_new(request,pk):
     scenarios = Scenario.objects.all()
     scenario_original = get_object_or_404(Scenario, pk=pk)
     queryset = Technology.objects.filter(pot__auctionyear__scenario=scenario_original)
-    first_auctionyear = scenario_original.auctionyear_set.all()[0]
-    techs = Technology.objects.filter(pot__auctionyear=first_auctionyear)
+
+    techs = Technology.objects.filter(pot__auctionyear=scenario_original.auctionyear_set.all()[0])
     num_techs = techs.count()
     TechnologyStringFormSet = formset_factory(TechnologyStringForm, extra=0, max_num=num_techs)
     if request.method == "POST":
@@ -163,10 +163,11 @@ def scenario_new(request,pk):
     initial_prices = {'gas_prices': str([a.gas_price for a in scenario_original.auctionyear_set.all()]).strip('[]'), 'wholesale_prices': str([a.wholesale_price for a in scenario_original.auctionyear_set.all() ]).strip('[]')}
     prices_form = PricesForm(initial=initial_prices)
 
-    initial_technologies = scenario_original.initial_technologies()
+    names = scenario_original.initial_technologies()[0]
+    initial_technologies = scenario_original.initial_technologies()[1]
     string_formset = TechnologyStringFormSet(initial=initial_technologies)
 
-    return render(request, 'lcf/scenario_new.html', {'scenario': scenario_original, 'scenarios': scenarios, 'scenario_form': scenario_form, 'prices_form': prices_form, 'string_formset': string_formset})
+    return render(request, 'lcf/scenario_new.html', {'scenario': scenario_original, 'scenarios': scenarios, 'scenario_form': scenario_form, 'prices_form': prices_form, 'string_formset': string_formset, 'names': names})
 
 
 

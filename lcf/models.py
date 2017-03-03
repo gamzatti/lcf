@@ -56,12 +56,14 @@ class Scenario(models.Model):
         for t_name in t_names:
             subset = self.techs_df()[self.techs_df().name == t_name]
             for field in techs[0].get_field_values():
-                if field == "pot" or field == "id" or field == "name":
+                if field == "pot" or field == "id":
                     pass
+                elif field == "name":
+                    t_form_data[t_name][field] = t_name
                 else:
                     t_form_data[t_name][field] = str(list(subset[field])).strip('[]')
         initial_technologies = list(t_form_data.values())
-        return initial_technologies
+        return t_names, initial_technologies
 
 
 class AuctionYear(models.Model):
