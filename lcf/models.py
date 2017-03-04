@@ -51,18 +51,20 @@ class Scenario(models.Model):
 
     def initial_technologies(self):
         techs = [t for p in self.auctionyear_set.all()[0].pot_set.all() for t in p.technology_set.all() ]
-        t_names = [t.name for t in techs]
-        t_form_data = { t_name : {} for t_name in t_names}
-        for t_name in t_names:
-            subset = self.techs_df()[self.techs_df().name == t_name]
+        t_form_data = { t.name : {} for t in techs}
+        for t in techs:
+            subset = self.techs_df()[self.techs_df().name == t.name]
             for field in techs[0].get_field_values():
-                if field == "pot" or field == "id":
+                if field == "id":
                     pass
                 elif field == "name":
-                    t_form_data[t_name][field] = t_name
+                    t_form_data[t.name][field] = t.name
+                elif field == "pot":
+                    t_form_data[t.name][field] = t.pot.name
                 else:
-                    t_form_data[t_name][field] = str(list(subset[field])).strip('[]')
+                    t_form_data[t.name][field] = str(list(subset[field])).strip('[]')
         initial_technologies = list(t_form_data.values())
+        t_names = [t.name for t in techs]
         return t_names, initial_technologies
 
 

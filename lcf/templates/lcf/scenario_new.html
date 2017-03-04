@@ -7,12 +7,12 @@
         {{ scenario_form }}
         <button type="submit" class="save btn btn-default">Save</button>
         <div class="to-hide">
-            <h3>Edit prices?</h3>
+            <h3>Edit prices? 2020 to {{scenario.end_year}}</h3>
             {{ prices_form }}
             <h3>Edit technologies?</h3>
             {% for form in string_formset %}
                   {{ form }}
-                  <hr>              
+                  <hr>
             {% endfor %}
         </div>
     </form>

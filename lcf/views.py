@@ -134,16 +134,40 @@ def scenario_new(request,pk):
         scenario_form = ScenarioForm(request.POST)
         prices_form = PricesForm(request.POST)
         string_formset = TechnologyStringFormSet(request.POST)
+
         if string_formset.is_valid() and scenario_form.is_valid() and prices_form.is_valid():
             scenario_new = scenario_form.save()
+            wholesale_prices = [float(w) for w in list(filter(None, re.split("[, \-!?:\t]+",prices_form.cleaned_data['wholesale_prices'])))]
             gas_prices = [float(g) for g in list(filter(None, re.split("[, \-!?:\t]+",prices_form.cleaned_data['gas_prices'])))]
-            wholesale_prices = [float(g) for g in list(filter(None, re.split("[, \-!?:\t]+",prices_form.cleaned_data['wholesale_prices'])))]
 
             for i, y in enumerate(range(2020,2023)):
                 a = AuctionYear.objects.create(year=y, scenario=scenario_new, gas_price=gas_prices[i], wholesale_price=wholesale_prices[i])
-                for p in ['E','M','SN','NW']:
+                for p in [p.name for p in a.pot_set.all()]:
                     Pot.objects.create(auctionyear=a,name=p)
             q = Pot.objects.filter(auctionyear__scenario=scenario_new)
+
+            for form in formset:
+                print(form.errors)
+                #form = offshore wind:
+                name = form.cleaned_data['name']
+                form_pot_name = form.cleaned_data['pot']
+                strike_price = [float(s) for s in list(filter(None, re.split("[, \-!?:\t]+",form.cleaned_data['strike_price'])))]
+                min_levelised_cost = [float(s) for s in list(filter(None, re.split("[, \-!?:\t]+",form.cleaned_data['min_levelised_cost'])))]
+                max_levelised_cost = [float(s) for s in list(filter(None, re.split("[, \-!?:\t]+",form.cleaned_data['max_levelised_cost'])))]
+                load_factor = [float(s) for s in list(filter(None, re.split("[, \-!?:\t]+",form.cleaned_data['load_factor'])))]
+                project_gen = [float(s) for s in list(filter(None, re.split("[, \-!?:\t]+",form.cleaned_data['project_gen'])))]
+                max_deployment_cap = [float(s) for s in list(filter(None, re.split("[, \-!?:\t]+",form.cleaned_data['max_deployment_cap'])))]
+
+                for i, a in enumerate(AuctionYear.objects.filter(scenario=scenario_new)):
+                    right_pot = q.filter(auctionyear=a).get(name=form_pot_name)
+                    Technology.objects.create(name=name,
+                                            pot=right_pot,
+                                            min_levelised_cost = min_levelised_cost[i],
+                                            max_levelised_cost = max_levelised_cost[i],
+                                            strike_price = strike_price[i],
+                                            load_factor = load_factor[i],
+                                            project_gen = project_gen[i],
+                                            max_deployment_cap = max_deployment_cap[i])
             #for form in formset:
             #    pot = q.filter(auctionyear__year=form.cleaned_data['pot'].auctionyear.year).get(name=form.cleaned_data['pot'].name)
             #    Technology.objects.create(pot = pot,
