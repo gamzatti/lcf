@@ -2,19 +2,19 @@ python logic:
   *figure out separate negotiations and negawatts
   *think about post 2026
   *include comparison to gas prices: where does this enter in? presumably not in the actual auction process, just in the cost tally?
+  ability to turn off technologies
   deal with tidal that has initial generation rather than capacity
 
 
 inputs:
-  *improve interface, eg with longer fields accepting series of values, field labels, hide technology inputs initially with jquery, disallow editing of year and technology. ability to turn off technologies (put deployment to 0 for all years), use nested forms? maybe add choice options for prices? (nb the technology form order reflects the order in the database, so could change this with fixtures) http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
+  improve interface, eg  hide technology inputs initially with jquery, disallow editing of year and technology. ability to turn off technologies, maybe add choice options for prices? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
 
 tests:
   improve views tests
-  improve models fixtures data
 
 
 initial data:
-  load in data for existing scenarios
+  load in data for existing scenarios (1, 2 and 3)
   write code that converts csv to either json or probably more easily to Django model
 
 

@@ -113,8 +113,6 @@ class AuctionYear(models.Model):
             return self._unspent
         else:
             self._unspent = self.budget() - self.awarded()
-            #print("Auction year 'unspent' method run on previous year", self._unspent)
-
             return self._unspent
 
 
@@ -131,17 +129,13 @@ class AuctionYear(models.Model):
             return 0
         else:
             previous_year = self.previous_year()
-            #print("Previous_year.unspent()",)
             self._previous_year_unspent = previous_year.unspent()
-            #print("Auction year 'previous_year_unspent' method,",previous_year.unspent())
-            #return self._previous_year_unspent
             return previous_year.unspent()
 
     def previous_years(self):
         if self.year == 2020:
             return None
         else:
-            #print(type(self.scenario.auctionyear_set.filter(year__lt=self.year)))
             return self.scenario.auctionyear_set.filter(year__range=(self.scenario.start_year,self.year-1)).order_by('year')
 
 
@@ -154,11 +148,9 @@ class AuctionYear(models.Model):
 
     def owed(self, previous_year):
         owed = {}
-#        print('\n\n..............\n\npaying out year:', self.year)
-#        print('year awarded:', previous_year)
         for pot in previous_year.pot_set.all():
             owed[pot.name] = 0
-            data = pot.future_payouts()
+            data = pot.summary_for_future()
             for t in pot.technology_set.all():
                 gen = data['gen'][t.name]
                 strike_price = data['strike_price'][t.name]
@@ -170,9 +162,7 @@ class AuctionYear(models.Model):
                         break
                 difference = strike_price - self.wholesale_price
                 tech_owed = gen * difference
-#                print('\n\n', t.name,'generation', gen, '\nstrike_price', strike_price, '\nwholesale_price', self.wholesale_price, '\ntotal owed',tech_owed)
                 owed[pot.name] += tech_owed
-                #print(owed)
         owed = sum(owed.values())
         return owed
 
@@ -245,27 +235,17 @@ class Pot(models.Model):
         cost = projects[projects.funded_this_year==True].attempted_cum_cost.max()
         gen = projects[projects.funded_this_year==True].attempted_cum_gen.max()
 
-        #if (self.auctionyear.year == 2021) & (self.name == "E"):
-    #        print("\n\n\n\n\n", self.name,self.auctionyear.year, self.budget())
-#            print(projects)
         return {'cost': cost, 'gen': gen, 'projects': projects, 'tech_cost': tech_cost, 'tech_gen': tech_gen}
 
-    #def future_prices(self):
-    #    years = list(range(self.auctionyear.year, self.auctionyear.scenario.end_year))
-    #    values = [self.auctionyear.scenario.auctionyear_set.get(year=year).wholesale_price for year in years]
-    #    return dict(zip(years,values))
 
 
-    def future_payouts(self):
+    def summary_for_future(self):
         gen = {}
         strike_price = {}
         for tech in self.technology_set.all():
             tech_projects = self.projects()[(self.projects().funded_this_year == True) & (self.projects().technology == tech.name)]
             gen[tech.name] = tech_projects.attempted_project_gen.sum()/1000 if pd.notnull(tech_projects.attempted_project_gen.sum()) else 0
             strike_price[tech.name] = tech_projects.strike_price.max() if pd.notnull(tech_projects.strike_price.max()) else 0
-#        print('year', self.auctionyear.year)
-#        print('generation',gen)
-#        print('strike prices',strike_price)
         return {'gen': gen, 'strike_price': strike_price}
 
 

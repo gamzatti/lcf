@@ -263,8 +263,13 @@ class PotMethodTests(TestCase):
 
     def test_unspent(self):
         self.assertEqual(round(self.p0E.unspent()+self.p0M.unspent()),0)
-        self.assertEqual(round(self.p1E.unspent()+self.p1M.unspent()),233) #passes here but fails below!
-        #self.assertEqual(round(self.p2E.unspent()+self.p2M.unspent()),345) #should work when I sort out 893 problem
+        self.assertEqual(round(self.p1E.unspent()+self.p1M.unspent()),233)
+        self.assertEqual(round(self.p2E.unspent()+self.p2M.unspent()),345)
+
+
+    def test_summary_for_future(self):
+        self.assertEqual(round(self.p0E.summary_for_future()['strike_price']['OFW'],2), 114.07)
+
 
 class AuctionYearMethodTests(TestCase):
     fixtures = ['test_data.json']
@@ -497,6 +502,7 @@ class LcfViewsTestCase(TestCase):
         resp = self.client.post(reverse('scenario_new',kwargs={'pk': 119}), post_data)
         self.assertEqual(resp.status_code, 302)
         #don't know how to check location
+        #max pk + 1?
         #self.assertEqual(resp['Location'],'scenario/2/')
         self.assertEqual(Scenario.objects.count(), 2)
 
