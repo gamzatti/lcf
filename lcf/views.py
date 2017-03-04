@@ -142,13 +142,11 @@ def scenario_new(request,pk):
 
             for i, y in enumerate(range(2020,2023)):
                 a = AuctionYear.objects.create(year=y, scenario=scenario_new, gas_price=gas_prices[i], wholesale_price=wholesale_prices[i])
-                for p in [p.name for p in a.pot_set.all()]:
+
+                for p in [p.name for p in scenario_original.auctionyear_set.all()[0].pot_set.all()]:
                     Pot.objects.create(auctionyear=a,name=p)
             q = Pot.objects.filter(auctionyear__scenario=scenario_new)
-
-            for form in formset:
-                print(form.errors)
-                #form = offshore wind:
+            for form in string_formset:
                 name = form.cleaned_data['name']
                 form_pot_name = form.cleaned_data['pot']
                 strike_price = [float(s) for s in list(filter(None, re.split("[, \-!?:\t]+",form.cleaned_data['strike_price'])))]
@@ -181,7 +179,6 @@ def scenario_new(request,pk):
 
 
             return redirect('scenario_detail', pk=scenario_new.pk)
-
     scenario_form = ScenarioForm(instance=scenario_original)
 
     initial_prices = {'gas_prices': str([a.gas_price for a in scenario_original.auctionyear_set.all()]).strip('[]'), 'wholesale_prices': str([a.wholesale_price for a in scenario_original.auctionyear_set.all() ]).strip('[]')}

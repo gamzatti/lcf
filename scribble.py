@@ -198,3 +198,23 @@ def scenario_new(request,pk):
         initial_technologies.append(line)
     string_formset = TechnologyStringFormSet(initial=initial_technologies)
     return render(request, 'lcf/scenario_new.html', {'scenario': scenario_original, 'scenarios': scenarios, 'scenario_form': scenario_form, 'prices_form': prices_form, 'string_formset': string_formset})
+
+
+
+
+test:
+    def test_valid_stringformset(self):
+        data = {
+                'form-0-pot': "E",
+                'form-0-min_levelised_cost': "50 51 52",
+                'form-0-max_levelised_cost': "60 61 62",
+                'form-0-strike_price': "43 45 34",
+                'form-0-load_factor': "33 34 34",
+                'form-0-project_gen': "44 34 34",
+                'form-0-name': "OFW",
+                'form-0-max_deployment_cap': "3 23 23"
+                }
+        TechnologyStringFormSet = formset_factory(TechnologyStringForm, extra=0, max_num=1)
+        string_formset = TechnologyStringFormSet(data, initial=data)
+        print(string_formset.errors)
+        #self.assertTrue(string_formset.is_valid())

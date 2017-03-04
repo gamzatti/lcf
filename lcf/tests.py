@@ -2,12 +2,12 @@ from django.test import TestCase
 import pandas as pd
 import numpy as np
 from pandas import DataFrame, Series
-from django.forms import modelformset_factory
+from django.forms import modelformset_factory, formset_factory
 
 from django.core.urlresolvers import reverse
 
 from .models import Scenario, AuctionYear, Pot, Technology
-from .forms import ScenarioForm, PricesForm
+from .forms import ScenarioForm, PricesForm, TechnologyStringForm
 
 class TechnologyMethodTests(TestCase):
     fixtures = ['test_data.json']
@@ -468,19 +468,39 @@ class LcfViewsTestCase(TestCase):
         resp = self.client.get(reverse('scenario_detail',kwargs={'pk': 999}))
         self.assertEqual(resp.status_code, 404)
 
-    """def test_good_scenario(self):
+    def test_good_post(self):
         #sanity check
         test_scenario = Scenario.objects.get(pk=119)
         a2020 = test_scenario.auctionyear_set.get(year=2020)
         self.assertEqual(a2020.gas_price, 85)
         self.assertEqual(Scenario.objects.count(), 1)
-        resp = self.client.post(reverse('scenario_new',kwargs={'pk': 119}), {'name': 'test2', 'percent_emerging': 0.5, 'budget': 2})
+        post_data = {'name': 'test2',
+                    'percent_emerging': 0.5,
+                    'budget': 2,
+                    'start_year': 2020,
+                    'end_year': 2022,
+                    'wholesale_prices': "50 51 52",
+                    'gas_prices': "60 61 62",
+                    'form-TOTAL_FORMS': "1",
+                    'form-INITIAL_FORMS': "1",
+                    'form-MIN_NUM_FORMS': "0",
+                    'form-MAX_NUM_FORMS': "1",
+                    'form-0-name': "OFW",
+                    'form-0-pot': "E",
+                    'form-0-min_levelised_cost': "50 51 52",
+                    'form-0-max_levelised_cost': "60 61 62",
+                    'form-0-strike_price': "43 45 34",
+                    'form-0-load_factor': "33 34 34",
+                    'form-0-project_gen': "44 34 34",
+                    'form-0-max_deployment_cap': "3 23 23"
+                    }
+        resp = self.client.post(reverse('scenario_new',kwargs={'pk': 119}), post_data)
         self.assertEqual(resp.status_code, 302)
         #don't know how to check location
         #self.assertEqual(resp['Location'],'scenario/2/')
         self.assertEqual(Scenario.objects.count(), 2)
 
-    def test_bad_scenario(self):
+    """def test_bad_scenario(self):
         #Ensure a non-existent pk throws a not found
         resp = self.client.post(reverse('scenario_new',kwargs={'pk': 999}))
         self.assertEqual(resp.status_code, 404)
@@ -496,12 +516,12 @@ class LcfViewsTestCase(TestCase):
 
         #send junk post data
         resp = self.client.post(reverse('scenario_new',kwargs={'pk': 119}),  {'foo': 'bar'})
-        self.assertEqual(resp.status_code, 200)"""
-        #self.assertEqual(resp.context['error_message'], "You didn't select a choice.")
+        self.assertEqual(resp.status_code, 200)
+        #self.assertEqual(resp.context['error_message'], "You didn't select a choice.")"""
 
     def test_valid_scenarioform(self):
-        s = Scenario.objects.create(name="test_form", budget=4, percent_emerging=0.9, end_year=2022)
-        data = {'name': s.name, 'budget': s.budget, 'percent_emerging': s.percent_emerging, 'end_year': s.end_year}
+        s = Scenario.objects.create(name="test_form", budget=4, percent_emerging=0.9, start_year= 2021, end_year=2022)
+        data = {'name': s.name, 'budget': s.budget, 'percent_emerging': s.percent_emerging, 'start_year': s.start_year, 'end_year': s.end_year}
         form = ScenarioForm(data)
         self.assertTrue(form.is_valid())
         #s.delete()
@@ -520,3 +540,22 @@ class LcfViewsTestCase(TestCase):
         data = {'foo': "50 51 52", 'bar': "60 61 62"}
         form = PricesForm(data)
         self.assertFalse(form.is_valid())
+
+    def test_valid_stringformset(self):
+        data = {
+                'form-TOTAL_FORMS': "1",
+                'form-INITIAL_FORMS': "1",
+                'form-MIN_NUM_FORMS': "0",
+                'form-MAX_NUM_FORMS': "1",
+                'form-0-name': "OFW",
+                'form-0-pot': "E",
+                'form-0-min_levelised_cost': "50 51 52",
+                'form-0-max_levelised_cost': "60 61 62",
+                'form-0-strike_price': "43 45 34",
+                'form-0-load_factor': "33 34 34",
+                'form-0-project_gen': "44 34 34",
+                'form-0-max_deployment_cap': "3 23 23"
+                }
+        TechnologyStringFormSet = formset_factory(TechnologyStringForm, extra=0, max_num=1)
+        string_formset = TechnologyStringFormSet(data)
+        self.assertTrue(string_formset.is_valid())

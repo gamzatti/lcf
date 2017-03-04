@@ -25,7 +25,7 @@ class TechnologyStringForm(forms.Form):
     project_gen = forms.CharField(max_length=200)
     max_deployment_cap = forms.CharField(max_length=200)
 
-    def __init__(self, *args, **kwargs):
+    """def __init__(self, *args, **kwargs):
         super(TechnologyStringForm, self).__init__(*args, **kwargs)
         self.fields['name'].disabled = True
-        self.fields['pot'].disabled = True
+        self.fields['pot'].disabled = True"""
