@@ -1,8 +1,15 @@
 {% extends 'lcf/base.html' %}
 
 {% block content %}
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        google.load("visualization", "1", {packages:["corechart"]});
+    </script>
+
     <h1>{{ scenario.name }}</h1>
-        {{ scenario.description }}
+        {% if scenario.description %}
+            <p>{{ scenario.description }}</p>
+        {% endif %}
     <p>created {{ scenario.date }}</p>
     <p>budget: £{{ scenario.budget }}bn</p>
     <p>percent in emerging pot: {{ scenario.percent_emerging }}</p>
@@ -11,45 +18,35 @@
 
     <p>Cumulative new generation: {{ scenario.cum_gen_end_year }}TWh</p>
 
+    {{ chart.as_html }}
     {% for a in scenario.auctionyear_set.all %}
-        <hr>
-        <h2>Year: {{ a.year }}</h2>
-        <p>Wholesale price: £{{ a.wholesale_price }}/MWh</p>
-        <p>Budget: £{{ a.budget }}m</p>
-        <p>Awarded: £{{ a.awarded }}bn</p>
-        <p>Unspent: {{ a.unspent }}</p>
-        <p>Paid: {{ a.paid }}</p>
-        <p>Previous year unspent: {{ a.previous_year_unspent }}</p>
-        <p>Starting budget: {{ a.starting_budget}}</p> -->
-        {% for p in a.pot_set.all %}
-            {% if p.name == "E" or p.name == "M" %}
-                <h3>Pot: {{ p.name }}</h3>
-                <p>Budget: £{{ p.budget }}m</p>
-                <p>Cost: £{{ p.cost }}m</p>
-    <!--            <p>Generation: {{ p.gen }}TWh</p>
-                <p>unspent: £{{ p.unspent }}m</p>-->
-                <p>Affordable projects: {{ p.projects.to_html | safe }}</p>
-                {% for t in p.technology_set.all %}
-                    <h4>{{ t.name }}</h4>
-                    <li>Deployment: {{ t.project_gen }}</li>
-                {% endfor %}
-            {% endif %}
-        {% endfor %}
-<!--        <ul>
-        {% for t in y.auctionyeartechnology_set.all %}
-            <h4>Technology: {{ t.technology_name }}</h4>
-
-            <li>Min LCOE: {{ t.min_levelised_cost }}</li>
-            <li>Max LCOE: {{ t.max_levelised_cost }}</li>
-            <li>Strike price: {{ t.strike_price }}</li>
-            <li>Load factor: {{ t.load_factor }}</li>
-            <li>Project size: {{ t.project_gen }}</li>
-            <li>Max deployment: {{ t.max_deployment }}</li>
-        {% endfor %}
-        </ul>-->
+        {% if a.year != 2020 %}
+            <hr>
+            <h2>Year: {{ a.year }}</h2>
+            <p>Awarded: £{{ a.awarded }}m</p>
+            <p>Awarded generation: {{ a.awarded_gen }}GWh</p>
+            <p>Paid: £{{ a.paid }}m</p>
+            <!--<p>Wholesale price: £{{ a.wholesale_price }}/MWh</p>
+            <p>Budget: £{{ a.budget }}m</p>
+            <p>Unspent: {{ a.unspent }}</p>
+            <p>Previous year unspent: {{ a.previous_year_unspent }}</p>
+            <p>Starting budget: {{ a.starting_budget}}</p>-->
+            {% for p in a.pot_set.all %}
+                {% if p.name == "E" or p.name == "M" %}
+                    <h3>Pot: {{ p.name }}</h3>
+                    <!--<p>Budget: £{{ p.budget }}m</p>-->
+                    <p>Cost: £{{ p.cost }}m</p>
+                    <p>Generation: {{ p.gen }}TWh</p>
+                    <p>{{p.summary_gen_by_tech.to_html | safe}} </p>
+                    <!--<p>unspent: £{{ p.unspent }}m</p>
+                    <p>Projects: {{ p.projects.to_html | safe }}</p>-->
+                    <!--{% for t in p.technology_set.all %}
+                        <h4>{{ t.name }}:</h4>
+                    {% endfor %}-->
+                {% endif %}
+            {% endfor %}
+        {% endif %}
     {% endfor %}
-
-
 
 
 {% endblock %}

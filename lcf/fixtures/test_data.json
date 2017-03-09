@@ -4,7 +4,6 @@
     "pk": 119,
     "fields": {
         "name": "test1",
-        "description": null,
         "date": "2017-02-28T21:40:08.623Z",
         "budget": 3.3,
         "percent_emerging": 0.6,

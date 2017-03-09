@@ -6,6 +6,8 @@ from django.http import HttpResponse
 import pandas as pd
 import numpy as np
 import re
+from graphos.sources.simple import SimpleDataSource
+from graphos.renderers.gchart import LineChart
 
 def scenario_new(request,pk):
     scenarios = Scenario.objects.all()
@@ -13,7 +15,7 @@ def scenario_new(request,pk):
     queryset = Technology.objects.filter(pot__auctionyear__scenario=scenario_original)
     techs = Technology.objects.filter(pot__auctionyear=scenario_original.auctionyear_set.all()[0])
     num_techs = techs.count()
-    TechnologyStringFormSet = formset_factory(TechnologyStringForm, extra=0, max_num=num_techs)
+    TechnologyStringFormSet = formset_factory(TechnologyStringForm, extra=3, max_num=10)
     if request.method == "POST":
         scenario_form = ScenarioForm(request.POST)
         prices_form = PricesForm(request.POST)
@@ -24,7 +26,7 @@ def scenario_new(request,pk):
             wholesale_prices = [float(w) for w in list(filter(None, re.split("[, \-!?:\t]+",prices_form.cleaned_data['wholesale_prices'])))]
             gas_prices = [float(g) for g in list(filter(None, re.split("[, \-!?:\t]+",prices_form.cleaned_data['gas_prices'])))]
 
-            for i, y in enumerate(range(2020,2023)):
+            for i, y in enumerate(range(2020,scenario_new.end_year+1)):
                 a = AuctionYear.objects.create(year=y, scenario=scenario_new, gas_price=gas_prices[i], wholesale_price=wholesale_prices[i])
                 for p in [p.name for p in scenario_original.auctionyear_set.all()[0].pot_set.all()]:
                     Pot.objects.create(auctionyear=a,name=p)
@@ -59,4 +61,7 @@ def scenario_delete(request, pk):
 def scenario_detail(request, pk):
     scenario = get_object_or_404(Scenario,pk=pk)
     scenarios = Scenario.objects.all()
-    return render(request, 'lcf/scenario_detail.html', {'scenario': scenario, 'scenarios': scenarios})
+    data = scenario.accounting_cost()
+    data_source = SimpleDataSource(data=data)
+    chart = LineChart(data_source)
+    return render(request, 'lcf/scenario_detail.html', {'scenario': scenario, 'scenarios': scenarios, 'chart': chart})

@@ -450,6 +450,15 @@ class ScenarioMethodTests(TestCase):
         value3 = self.s.initial_technologies()[1][2]['project_gen']
         self.assertTrue(set([value1, value2, value3]),set(['27.0, 27.0', '30.0', '30.0, 30.0', '832.0, 832.0, 832.0']))
 
+    def test_accounting_cost(self):
+        years = [2020,2021,2022]
+        paid = [328.3, 426.71, 927.18]
+        self.assertEqual(self.s.accounting_cost()[0][0],'year')
+        self.assertEqual(self.s.accounting_cost()[2][0],2021)
+        self.assertEqual(round(self.s.accounting_cost()[1][1],2),328.31)
+        self.assertEqual(round(self.s.accounting_cost()[2][1],2),426.71)
+        self.assertEqual(round(self.s.accounting_cost()[3][1],2),927.18)
+
 
 class LcfViewsTestCase(TestCase):
     fixtures = ['test_data.json']

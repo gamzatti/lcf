@@ -16,6 +16,7 @@ class Scenario(models.Model):
     set_strike_price =  models.BooleanField(default=False, verbose_name="Generate strike price ourselves?")
     start_year = models.IntegerField(default=2021)
     end_year = models.IntegerField(default=2025)
+    excel_wp_error = models.BooleanField(default=True, verbose_name="Include the Excel error in the emerging pot wholesale price?")
 
 
     def __init__(self, *args, **kwargs):
@@ -67,6 +68,18 @@ class Scenario(models.Model):
         t_names = [t.name for t in techs]
         return t_names, initial_technologies
 
+
+    def accounting_cost(self):
+        title = [['year', 'accounting cost', 'DECC 2015 w/TCCP', 'Meets 90TWh (no TCCP)', 'Meets 90TWh']]
+        auctionyears = self.auctionyear_set.filter(year__gte=2021)
+        years = [a.year for a in auctionyears]
+        accounting_costs = [a.paid()/1000 for a in auctionyears]
+        decc = [1.07055505120968, 1.49485703401083, 1.96202174324618, 2.49374812823629, 2.93865520551304]
+        m_90_no_TCCP = [1.01677248921882, 1.45462660670601, 1.88986715668434, 2.50808000031501,	2.97952038924637]
+        m_90 = [1.00594113294511, 1.40460686828232, 1.76626877818907, 2.23697361578951, 2.49061992003395]
+        data = DataFrame([years,accounting_costs, decc, m_90_no_TCCP, m_90]).T.values.tolist()
+        title.extend(data)
+        return title
 
 class AuctionYear(models.Model):
     scenario = models.ForeignKey('lcf.scenario', default=1)#http://stackoverflow.com/questions/937954/how-do-you-specify-a-default-for-a-django-foreignkey-model-or-adminmodel-field
@@ -154,12 +167,13 @@ class AuctionYear(models.Model):
             for t in pot.technology_set.all():
                 gen = data['gen'][t.name]
                 strike_price = data['strike_price'][t.name]
-                #next 5 lines account for Angela's error
-                if (pot.name == "E"):
-                    try:
-                        strike_price = self.pot_set.get(name=pot.name).technology_set.get(name=t.name).strike_price
-                    except:
-                        break
+                if self.scenario.excel_wp_error == True:
+                    #next 5 lines account for Angela's error
+                    if (pot.name == "E"):
+                        try:
+                            strike_price = self.pot_set.get(name=pot.name).technology_set.get(name=t.name).strike_price
+                        except:
+                            break
                 difference = strike_price - self.wholesale_price
                 tech_owed = gen * difference
                 owed[pot.name] += tech_owed
@@ -248,7 +262,8 @@ class Pot(models.Model):
             strike_price[tech.name] = tech_projects.strike_price.max() if pd.notnull(tech_projects.strike_price.max()) else 0
         return {'gen': gen, 'strike_price': strike_price}
 
-
+    def summary_gen_by_tech(self):
+        return DataFrame([self.summary_for_future()['gen']],index=["Gen"]).T
 
     #@lru_cache(maxsize=None)
     def cost(self):
