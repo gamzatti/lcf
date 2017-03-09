@@ -454,11 +454,14 @@ class ScenarioMethodTests(TestCase):
         years = [2020,2021,2022]
         paid = [328.3, 426.71, 927.18]
         self.assertEqual(self.s.accounting_cost()[0][0],'year')
-        self.assertEqual(self.s.accounting_cost()[2][0],2021)
-        self.assertEqual(round(self.s.accounting_cost()[1][1],2),328.31)
-        self.assertEqual(round(self.s.accounting_cost()[2][1],2),426.71)
-        self.assertEqual(round(self.s.accounting_cost()[3][1],2),927.18)
+        self.assertEqual(self.s.accounting_cost()[1][0],2021)
+        self.assertEqual(round(self.s.accounting_cost()[1][1],2),0.43)
+        self.assertEqual(round(self.s.accounting_cost()[2][1],2),0.93)
 
+    def test_summary_gen_by_tech(self):
+        self.s.summary_gen_by_tech()
+        print(self.s.start_year)
+        #print([ self.p1E.summary_for_future()['gen'][t] for t in ['OFW','WA'] ])
 
 class LcfViewsTestCase(TestCase):
     fixtures = ['test_data.json']

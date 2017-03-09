@@ -18,7 +18,10 @@
 
     <p>Cumulative new generation: {{ scenario.cum_gen_end_year }}TWh</p>
 
-    {{ chart.as_html }}
+    {{ accounting_cost_chart.as_html }}
+    {{ gen_by_tech_chart.as_html }}
+    {{ cap_by_tech_chart.as_html }}
+
     {% for a in scenario.auctionyear_set.all %}
         {% if a.year != 2020 %}
             <hr>

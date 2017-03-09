@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from pandas import DataFrame, Series
 from functools import lru_cache
-
+import datetime
 
 class Scenario(models.Model):
     name = models.CharField(max_length=200)
@@ -70,9 +70,9 @@ class Scenario(models.Model):
 
 
     def accounting_cost(self):
-        title = [['year', 'accounting cost', 'DECC 2015 w/TCCP', 'Meets 90TWh (no TCCP)', 'Meets 90TWh']]
-        auctionyears = self.auctionyear_set.filter(year__gte=2021)
-        years = [a.year for a in auctionyears]
+        title = [['year', 'Accounting cost', 'DECC 2015 w/TCCP', 'Meets 90TWh (no TCCP)', 'Meets 90TWh']]
+        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
+        years = [str(a.year) for a in auctionyears]
         accounting_costs = [a.paid()/1000 for a in auctionyears]
         decc = [1.07055505120968, 1.49485703401083, 1.96202174324618, 2.49374812823629, 2.93865520551304]
         m_90_no_TCCP = [1.01677248921882, 1.45462660670601, 1.88986715668434, 2.50808000031501,	2.97952038924637]
@@ -80,6 +80,45 @@ class Scenario(models.Model):
         data = DataFrame([years,accounting_costs, decc, m_90_no_TCCP, m_90]).T.values.tolist()
         title.extend(data)
         return title
+
+    def summary_gen_by_tech(self):
+        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
+        years = [a.year for a in auctionyears]
+        tech_names = self.initial_technologies()[0]
+        title = ['year']
+        title.extend(tech_names)
+        df = DataFrame(columns=title, index=years)
+        for a in auctionyears:
+            for p in a.pot_set.all():
+                for t in p.technology_set.all():
+                    df.at[a.year,t.name] = p.summary_for_future()['gen'][t.name]
+        df['year'] = df.index
+        #df['year'] = [datetime.date(i,1,1) for i in df.index]
+        df['year'] = [str(i) for i in df.index]
+        data = df.values.tolist()
+        title = [title]
+        title.extend(data)
+        return title
+
+    def summary_cap_by_tech(self):
+        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
+        years = [a.year for a in auctionyears]
+        tech_names = self.initial_technologies()[0]
+        title = ['year']
+        title.extend(tech_names)
+        df = DataFrame(columns=title, index=years)
+        for a in auctionyears:
+            for p in a.pot_set.all():
+                for t in p.technology_set.all():
+                    df.at[a.year,t.name] = p.summary_for_future()['gen'][t.name]/8.760/t.load_factor
+        df['year'] = df.index
+        #df['year'] = [datetime.date(i,1,1) for i in df.index]
+        df['year'] = [str(i) for i in df.index]
+        data = df.values.tolist()
+        title = [title]
+        title.extend(data)
+        return title
+
 
 class AuctionYear(models.Model):
     scenario = models.ForeignKey('lcf.scenario', default=1)#http://stackoverflow.com/questions/937954/how-do-you-specify-a-default-for-a-django-foreignkey-model-or-adminmodel-field

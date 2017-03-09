@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import re
 from graphos.sources.simple import SimpleDataSource
-from graphos.renderers.gchart import LineChart
+from graphos.renderers.gchart import LineChart, ColumnChart
 
 def scenario_new(request,pk):
     scenarios = Scenario.objects.all()
@@ -61,7 +61,23 @@ def scenario_delete(request, pk):
 def scenario_detail(request, pk):
     scenario = get_object_or_404(Scenario,pk=pk)
     scenarios = Scenario.objects.all()
-    data = scenario.accounting_cost()
-    data_source = SimpleDataSource(data=data)
-    chart = LineChart(data_source)
-    return render(request, 'lcf/scenario_detail.html', {'scenario': scenario, 'scenarios': scenarios, 'chart': chart})
+
+    accounting_cost_data = scenario.accounting_cost()
+    accounting_cost_data_source = SimpleDataSource(data=accounting_cost_data)
+    accounting_cost_options = {'title': 'Accounting cost', 'vAxis': {'title': '£bn'}}
+    accounting_cost_chart = LineChart(accounting_cost_data_source, options=accounting_cost_options)
+
+    gen_by_tech_data = scenario.summary_gen_by_tech()
+    gen_by_tech_data_source = SimpleDataSource(data=gen_by_tech_data)
+    gen_by_tech_options = {'vAxis': {'title': 'TWh'}, 'title': 'Generation by technology'}
+    gen_by_tech_chart = ColumnChart(gen_by_tech_data_source, options=gen_by_tech_options)
+
+
+    cap_by_tech_data = scenario.summary_cap_by_tech()
+    cap_by_tech_data_source = SimpleDataSource(data=cap_by_tech_data)
+    cap_by_tech_options = {'vAxis': {'title': 'GW'}, 'title': 'Capacity by technology'}
+    cap_by_tech_chart = ColumnChart(cap_by_tech_data_source, options=cap_by_tech_options)
+
+    context = {'scenario': scenario, 'scenarios': scenarios, 'accounting_cost_chart': accounting_cost_chart, 'gen_by_tech_chart': gen_by_tech_chart, 'cap_by_tech_chart': cap_by_tech_chart }
+
+    return render(request, 'lcf/scenario_detail.html', context)
