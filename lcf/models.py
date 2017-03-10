@@ -308,8 +308,12 @@ class Pot(models.Model):
 
         projects['attempted_project_gen'] = np.where(projects.eligible == True, projects.gen, 0)
         projects['attempted_cum_gen'] = np.cumsum(projects.attempted_project_gen)
-        cost = projects[projects.funded_this_year==True].attempted_cum_cost.max()
-        gen = projects[projects.funded_this_year==True].attempted_cum_gen.max()
+        if projects.empty:
+            cost = 0
+            gen = 0
+        else:
+            cost = projects[projects.funded_this_year==True].attempted_cum_cost.max()
+            gen = projects[projects.funded_this_year==True].attempted_cum_gen.max()
 
         return {'cost': cost, 'gen': gen, 'projects': projects, 'tech_cost': tech_cost, 'tech_gen': tech_gen}
 

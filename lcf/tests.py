@@ -547,6 +547,7 @@ class NuclearTests(TestCase):
         self.assertEqual(sn_pot_set[4].unspent(),0)
         self.assertEqual(round(sn_pot_set[4].cost(),2),250.31)#10*(90-64.9687482891174)
         self.assertEqual(round(sn_pot_set[5].cost(),2),252.34)#10*(92.5-67.2664653151834)
+        print(sn_pot_set[1].cost())
 
 
     def test_auctionyear(self):
