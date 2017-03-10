@@ -453,14 +453,14 @@ class ScenarioMethodTests(TestCase):
     def test_accounting_cost(self):
         years = [2020,2021,2022]
         paid = [328.3, 426.71, 927.18]
-        self.assertEqual(self.s.accounting_cost()[0][0],'year')
-        self.assertEqual(self.s.accounting_cost()[1][0],2021)
-        self.assertEqual(round(self.s.accounting_cost()[1][1],2),0.43)
-        self.assertEqual(round(self.s.accounting_cost()[2][1],2),0.93)
+        self.assertEqual(self.s.accounting_cost()['title'][0][0],'year')
+        self.assertEqual(self.s.accounting_cost()['title'][1][0],str(2021))
+        self.assertEqual(round(self.s.accounting_cost()['title'][1][1],2),0.43)
+        self.assertEqual(round(self.s.accounting_cost()['title'][2][1],2),0.93)
 
     def test_summary_gen_by_tech(self):
         self.s.summary_gen_by_tech()
-        print(self.s.start_year)
+        #print(self.s.start_year)
         #print([ self.p1E.summary_for_future()['gen'][t] for t in ['OFW','WA'] ])
 
 class LcfViewsTestCase(TestCase):

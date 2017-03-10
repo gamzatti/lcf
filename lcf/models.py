@@ -70,16 +70,21 @@ class Scenario(models.Model):
 
 
     def accounting_cost(self):
-        title = [['year', 'Accounting cost', 'DECC 2015 w/TCCP', 'Meets 90TWh (no TCCP)', 'Meets 90TWh']]
+        title = [['year', 'Accounting cost: '+self.name, 'DECC 2015 w/TCCP', 'Meets 90TWh (no TCCP)', 'Meets 90TWh']]
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
         years = [str(a.year) for a in auctionyears]
         accounting_costs = [a.paid()/1000 for a in auctionyears]
         decc = [1.07055505120968, 1.49485703401083, 1.96202174324618, 2.49374812823629, 2.93865520551304]
         m_90_no_TCCP = [1.01677248921882, 1.45462660670601, 1.88986715668434, 2.50808000031501,	2.97952038924637]
         m_90 = [1.00594113294511, 1.40460686828232, 1.76626877818907, 2.23697361578951, 2.49061992003395]
-        data = DataFrame([years,accounting_costs, decc, m_90_no_TCCP, m_90]).T.values.tolist()
+        ddf = DataFrame([years,accounting_costs, decc, m_90_no_TCCP, m_90])
+        df = ddf.copy()
+        df.columns = years
+        df.index = title
+        df = df.drop('year')
+        data = ddf.T.values.tolist()
         title.extend(data)
-        return title
+        return {'title': title, 'df': df}
 
     def summary_gen_by_tech(self):
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
@@ -92,13 +97,15 @@ class Scenario(models.Model):
             for p in a.pot_set.all():
                 for t in p.technology_set.all():
                     df.at[a.year,t.name] = p.summary_for_future()['gen'][t.name]
-        df['year'] = df.index
+        ddf = df.copy()
+        ddf['year'] = ddf.index
         #df['year'] = [datetime.date(i,1,1) for i in df.index]
-        df['year'] = [str(i) for i in df.index]
-        data = df.values.tolist()
+        ddf['year'] = [str(i) for i in ddf.index]
+        data = ddf.values.tolist()
         title = [title]
         title.extend(data)
-        return title
+        df = df.drop('year',axis=1).T
+        return {'title': title, 'df': df}
 
     def summary_cap_by_tech(self):
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
@@ -111,13 +118,16 @@ class Scenario(models.Model):
             for p in a.pot_set.all():
                 for t in p.technology_set.all():
                     df.at[a.year,t.name] = p.summary_for_future()['gen'][t.name]/8.760/t.load_factor
-        df['year'] = df.index
+        ddf = df.copy()
+        ddf['year'] = ddf.index
         #df['year'] = [datetime.date(i,1,1) for i in df.index]
-        df['year'] = [str(i) for i in df.index]
-        data = df.values.tolist()
+        ddf['year'] = [str(i) for i in ddf.index]
+        data = ddf.values.tolist()
         title = [title]
         title.extend(data)
-        return title
+        df = df.drop('year',axis=1).T
+        return {'title': title, 'df': df}
+
 
 
 class AuctionYear(models.Model):

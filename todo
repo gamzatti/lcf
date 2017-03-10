@@ -3,12 +3,12 @@ python logic:
   *figure out separate negotiations and negawatts
   *think about post 2026
   *include comparison to gas prices: where does this enter in? presumably not in the actual auction process, just in the cost tally?
-  ability to turn off technologies
-  deal with tidal that has initial generation rather than capacity
+  *ability to turn off technologies
 
 
 inputs:
   improve interface, eg  hide technology inputs initially with jquery, disallow editing of year and technology. ability to turn off technologies, maybe add choice options for prices? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
+  deal with tidal that has initial generation rather than capacity (for form?)
 
 tests:
   improve views tests
@@ -18,13 +18,11 @@ initial data:
   load in data for existing scenarios (1, 2 and 3)
   write code that converts csv to either json or probably more easily to Django model
 
+appearance:
+  write some CSS/use bootstrap components
 
 output page:
-  *improve summary data, eg generation and cost of each technology (maybe display in table)
-  add graphs/visualisations
   give option to display inputs with jquery
-  create csv output option
-
 
 diverge from Excel model:
   ?create normal distribution of projects?
@@ -37,6 +35,9 @@ speed up!/refactor:
   review lru_cache and consider initialising instance variables and then doing lazy calculation. and find out how to clear cache? (or at least do this http://stackoverflow.com/questions/2237624/applying-python-decorators-to-methods-in-a-class)
   simplify model code eg by making template tags? http://stackoverflow.com/questions/28513528/passing-arguments-to-model-methods-in-django-templates
   add javascript to delete buttons
-  generally refactor according to better OOD
+  generally refactor according to better OOD and pandas
   clean up the different generation, capacity and money units
   deal with error message: a value is trying to be set on a copy of a slice from a DataFrame
+
+
+Finally feeling more alive so would like to have some actual goals for today.

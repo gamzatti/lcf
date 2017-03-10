@@ -5,7 +5,9 @@ from .models import Scenario, AuctionYear, Pot, Technology
 from django.http import HttpResponse
 import pandas as pd
 import numpy as np
+from pandas import DataFrame, Series
 import re
+import csv
 from graphos.sources.simple import SimpleDataSource
 from graphos.renderers.gchart import LineChart, ColumnChart
 
@@ -48,7 +50,13 @@ def scenario_new(request,pk):
     names = scenario_original.initial_technologies()[0]
     initial_technologies = scenario_original.initial_technologies()[1]
     string_formset = TechnologyStringFormSet(initial=initial_technologies)
-    return render(request, 'lcf/scenario_new.html', {'scenario': scenario_original, 'scenarios': scenarios, 'scenario_form': scenario_form, 'prices_form': prices_form, 'string_formset': string_formset, 'names': names})
+    context = {'scenario': scenario_original,
+               'scenarios': scenarios,
+               'scenario_form': scenario_form,
+               'prices_form': prices_form,
+               'string_formset': string_formset,
+               'names': names}
+    return render(request, 'lcf/scenario_new.html', context)
 
 
 
@@ -62,22 +70,52 @@ def scenario_detail(request, pk):
     scenario = get_object_or_404(Scenario,pk=pk)
     scenarios = Scenario.objects.all()
 
-    accounting_cost_data = scenario.accounting_cost()
+    accounting_cost_data = scenario.accounting_cost()['title']
     accounting_cost_data_source = SimpleDataSource(data=accounting_cost_data)
-    accounting_cost_options = {'title': 'Accounting cost', 'vAxis': {'title': '£bn'}}
+    accounting_cost_options = {'title': None, 'vAxis': {'title': '£bn'}}
     accounting_cost_chart = LineChart(accounting_cost_data_source, options=accounting_cost_options)
+    accounting_cost_df = scenario.accounting_cost()['df']
 
-    gen_by_tech_data = scenario.summary_gen_by_tech()
+    gen_by_tech_data = scenario.summary_gen_by_tech()['title']
     gen_by_tech_data_source = SimpleDataSource(data=gen_by_tech_data)
-    gen_by_tech_options = {'vAxis': {'title': 'TWh'}, 'title': 'Generation by technology'}
+    gen_by_tech_options = {'vAxis': {'title': 'TWh'}, 'title': None}
     gen_by_tech_chart = ColumnChart(gen_by_tech_data_source, options=gen_by_tech_options)
+    gen_by_tech_df = scenario.summary_gen_by_tech()['df']
 
-
-    cap_by_tech_data = scenario.summary_cap_by_tech()
+    cap_by_tech_data = scenario.summary_cap_by_tech()['title']
     cap_by_tech_data_source = SimpleDataSource(data=cap_by_tech_data)
-    cap_by_tech_options = {'vAxis': {'title': 'GW'}, 'title': 'Capacity by technology'}
+    cap_by_tech_options = {'vAxis': {'title': 'GW'}, 'title': None}
     cap_by_tech_chart = ColumnChart(cap_by_tech_data_source, options=cap_by_tech_options)
+    cap_by_tech_df = scenario.summary_cap_by_tech()['df']
 
-    context = {'scenario': scenario, 'scenarios': scenarios, 'accounting_cost_chart': accounting_cost_chart, 'gen_by_tech_chart': gen_by_tech_chart, 'cap_by_tech_chart': cap_by_tech_chart }
+    context = {'scenario': scenario,
+               'scenarios': scenarios,
+               'accounting_cost_chart': accounting_cost_chart,
+               'gen_by_tech_chart': gen_by_tech_chart,
+               'cap_by_tech_chart': cap_by_tech_chart,
+               'accounting_cost_df': accounting_cost_df,
+               'cap_by_tech_df': cap_by_tech_df,
+               'gen_by_tech_df': gen_by_tech_df }
 
     return render(request, 'lcf/scenario_detail.html', context)
+
+def scenario_download(request,pk):
+    scenario = get_object_or_404(Scenario,pk=pk)
+    scenarios = Scenario.objects.all()
+
+    accounting_cost_df = scenario.accounting_cost()['df']
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="accounting_cost.csv"'
+
+    writer = csv.writer(response)
+    headers = ['']
+    headers.extend(accounting_cost_df.columns)
+    writer.writerow(headers)
+    for i in range(len(accounting_cost_df.index)):
+        row = [accounting_cost_df.index[i]]
+        row.extend(accounting_cost_df.iloc[i])
+        writer.writerow(row)
+
+    return response
