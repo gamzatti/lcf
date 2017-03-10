@@ -17,7 +17,7 @@ def scenario_new(request,pk):
     queryset = Technology.objects.filter(pot__auctionyear__scenario=scenario_original)
     techs = Technology.objects.filter(pot__auctionyear=scenario_original.auctionyear_set.all()[0])
     num_techs = techs.count()
-    TechnologyStringFormSet = formset_factory(TechnologyStringForm, extra=3, max_num=10)
+    TechnologyStringFormSet = formset_factory(TechnologyStringForm, extra=0, max_num=10)
     if request.method == "POST":
         scenario_form = ScenarioForm(request.POST)
         prices_form = PricesForm(request.POST)
@@ -31,6 +31,7 @@ def scenario_new(request,pk):
             for i, y in enumerate(range(2020,scenario_new.end_year+1)):
                 a = AuctionYear.objects.create(year=y, scenario=scenario_new, gas_price=gas_prices[i], wholesale_price=wholesale_prices[i])
                 for p in [p.name for p in scenario_original.auctionyear_set.all()[0].pot_set.all()]:
+                #for p in ['E', 'M', 'SN']:
                     Pot.objects.create(auctionyear=a,name=p)
             q = Pot.objects.filter(auctionyear__scenario=scenario_new)
 
@@ -63,7 +64,7 @@ def scenario_new(request,pk):
 def scenario_delete(request, pk):
     scenario = get_object_or_404(Scenario, pk=pk)
     scenario.delete()
-    return redirect('scenario_new', pk=119)
+    return redirect('scenario_new', pk=196)
 
 
 def scenario_detail(request, pk):

@@ -38,29 +38,30 @@
         {{ cap_by_tech_df.to_html | safe }}
     </div>
 
-    <!--{% for a in scenario.auctionyear_set.all %}
+    {% for a in scenario.auctionyear_set.all %}
         {% if a.year != 2020 %}
             <hr>
             <h2>Year: {{ a.year }}</h2>
-            <p>Awarded: £{{ a.awarded }}m</p>
+            <!--<p>Awarded: £{{ a.awarded }}m</p>
             <p>Awarded generation: {{ a.awarded_gen }}GWh</p>
             <p>Paid: £{{ a.paid }}m</p>
             <p>Wholesale price: £{{ a.wholesale_price }}/MWh</p>
             <p>Budget: £{{ a.budget }}m</p>
             <p>Unspent: {{ a.unspent }}</p>
             <p>Previous year unspent: {{ a.previous_year_unspent }}</p>
-            <p>Starting budget: {{ a.starting_budget}}</p>
+            <p>Starting budget: {{ a.starting_budget}}</p>-->
             {% for p in a.pot_set.all %}
                 {% if p.name == "E" or p.name == "M" %}
-                    <h3>Pot: {{ p.name }}</h3>
+                    <!--<h3>Pot: {{ p.name }}</h3>
                     <p>Budget: £{{ p.budget }}m</p>
                     <p>Cost: £{{ p.cost }}m</p>
                     <p>Generation: {{ p.gen }}TWh</p>
                     <p>{{p.summary_gen_by_tech.to_html | safe}} </p>
                     <p>unspent: £{{ p.unspent }}m</p>
-                    <p>Projects: {{ p.projects.to_html | safe }}</p>
+                    <p>Projects: {{ p.projects.to_html | safe }}</p>-->
                     {% for t in p.technology_set.all %}
                         <h4>{{ t.name }}:</h4>
+                        {{ t.num_projects }}
                     {% endfor %}
                 {% endif %}
             {% endfor %}

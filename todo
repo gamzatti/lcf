@@ -1,28 +1,32 @@
 python logic:
   *figure out why my answers don't match up!!
+     - realised that solar PV (and possibly others?) are affected by the previous years. Because there are projects already funded at the lowest levelised costs, these ones aren't eligible in eg 2022
+     I can't realllly be bothered to try and replicate this error in python. But it does point back to the problem in general with how it calculates costs including previously funded projects.
+     - but what is going on with Wave, TS and TL? :(
   *figure out separate negotiations and negawatts
-  *think about post 2026
   *include comparison to gas prices: where does this enter in? presumably not in the actual auction process, just in the cost tally?
-  *ability to turn off technologies
+  ability to turn off technologies
+  think about post 2026
 
+
+initial data:
+  *load in data for existing scenarios (1, 2 and 3) / write code that converts csv to either json or probably more easily to Django model
 
 inputs:
   improve interface, eg  hide technology inputs initially with jquery, disallow editing of year and technology. ability to turn off technologies, maybe add choice options for prices? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
   deal with tidal that has initial generation rather than capacity (for form?)
+  errors for form fields being empty/incorrect?
 
 tests:
   improve views tests
-
-
-initial data:
-  load in data for existing scenarios (1, 2 and 3)
-  write code that converts csv to either json or probably more easily to Django model
+  test new scenario methods
 
 appearance:
   write some CSS/use bootstrap components
 
 output page:
   give option to display inputs with jquery
+  output all the rest of the data to CSV
 
 diverge from Excel model:
   ?create normal distribution of projects?
@@ -41,3 +45,6 @@ speed up!/refactor:
 
 
 Finally feeling more alive so would like to have some actual goals for today.
+It would be great if I could do top three things...
+Maybe ambitious though!
+It would also be great though if I could get back at a reasonable hour, eat a healthy dinner with Jon, get dressed up in plenty of time, and get to the party reasonably earlyish.

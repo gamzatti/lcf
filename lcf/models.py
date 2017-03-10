@@ -158,6 +158,12 @@ class AuctionYear(models.Model):
     def awarded(self):
         awarded = 0
         for pot in self.pot_set.all():
+            awarded += pot.cost()
+        return awarded
+
+    def awarded_from_auction(self):
+        awarded = 0
+        for pot in self.pot_set.all():
             if pot.name == "E" or pot.name == "M":
                 awarded += pot.cost()
         return awarded
@@ -174,7 +180,7 @@ class AuctionYear(models.Model):
         if self._unspent:
             return self._unspent
         else:
-            self._unspent = self.budget() - self.awarded()
+            self._unspent = self.budget() - self.awarded_from_auction()
             return self._unspent
 
 
@@ -250,7 +256,10 @@ class Pot(models.Model):
 
     #@lru_cache(maxsize=None)
     def budget(self):
-        return (self.auctionyear.budget() * self.percent())
+        if self.name == "M" or self.name == "E":
+            return (self.auctionyear.budget() * self.percent())
+        elif self.name == "SN":
+            return np.nan
 
     #@lru_cache(maxsize=None)
     def percent(self):
@@ -292,7 +301,11 @@ class Pot(models.Model):
         projects['cost'] = np.where(projects.eligible == True, projects.gen/1000 * projects.difference, 0)
 
         projects['attempted_cum_cost'] = np.cumsum(projects.cost)
-        projects['funded_this_year'] = (projects.eligible) & (projects.attempted_cum_cost < self.budget())
+        if self.name == "SN":
+            projects['funded_this_year'] = (projects.eligible)
+        else:
+            projects['funded_this_year'] = (projects.eligible) & (projects.attempted_cum_cost < self.budget())
+
         projects['attempted_project_gen'] = np.where(projects.eligible == True, projects.gen, 0)
         projects['attempted_cum_gen'] = np.cumsum(projects.attempted_project_gen)
         cost = projects[projects.funded_this_year==True].attempted_cum_cost.max()
@@ -320,6 +333,8 @@ class Pot(models.Model):
 
     #@lru_cache(maxsize=None)
     def unspent(self):
+        if self.name == "SN":
+            return 0
         if self.auctionyear.year == 2020:
             return 0
         else:
