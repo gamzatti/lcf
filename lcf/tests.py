@@ -504,15 +504,15 @@ class ExcelCompareTests(TestCase):
         #for pv in pv_set:
         #    print(pv.pot.auctionyear.year)
         #    print(pv.projects())
-        print(pv_set[2].min_levelised_cost)
+        #print(pv_set[2].min_levelised_cost)
 
         mature_pot_set = Pot.objects.filter(name="M", auctionyear__year__gte=2021)
         #for p in mature_pot_set:
         p2 = mature_pot_set[1]
         p2proj = p2.projects()
-        print(p2proj[150:180])
-        print(p2.summary_gen_by_tech())
-        print(p2.budget())
+        #print(p2proj[150:180])
+        #print(p2.summary_gen_by_tech())
+        #print(p2.budget())
 
 
 class NuclearTests(TestCase):
@@ -547,13 +547,13 @@ class NuclearTests(TestCase):
         self.assertEqual(sn_pot_set[4].unspent(),0)
         self.assertEqual(round(sn_pot_set[4].cost(),2),250.31)#10*(90-64.9687482891174)
         self.assertEqual(round(sn_pot_set[5].cost(),2),252.34)#10*(92.5-67.2664653151834)
-        print(sn_pot_set[1].cost())
+        #print(sn_pot_set[1].cost())
 
 
     def test_auctionyear(self):
         auctionyears = AuctionYear.objects.all()
-        for a in auctionyears:
-            print(a.year,round(a.budget(),2),'\n')
+        #for a in auctionyears:
+            #print(a.year,round(a.budget(),2),'\n')
         #auctionyears[4]
 
 class LcfViewsTestCase(TestCase):
@@ -669,4 +669,6 @@ class LcfViewsTestCase(TestCase):
                 }
         TechnologyStringFormSet = formset_factory(TechnologyStringForm, extra=0, max_num=1)
         string_formset = TechnologyStringFormSet(data)
+        for error in string_formset.errors:
+            print(error)
         self.assertTrue(string_formset.is_valid())

@@ -1,42 +1,79 @@
 {% extends 'lcf/base.html' %}
 
 {% block content %}
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-        google.load("visualization", "1", {packages:["corechart"]});
-    </script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+    google.load("visualization", "1", {packages:["corechart"]});
+</script>
 
-    <h1>{{ scenario.name }}</h1>
-        {% if scenario.description %}
-            <p>{{ scenario.description }}</p>
-        {% endif %}
-    <p>created {{ scenario.date }}</p>
-    <p>budget: £{{ scenario.budget }}bn</p>
-    <p>percent in emerging pot: {{ scenario.percent_emerging }}</p>
+<h1 class="page-header">{{ scenario.name }}</h1>
+<!--
+<div class="row placeholders">
+  <div class="col-xs-6 col-sm-3 placeholder">
+    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
+    <h4>Label</h4>
+    <span class="text-muted">Something else</span>
+  </div>
+  <div class="col-xs-6 col-sm-3 placeholder">
+    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
+    <h4>Label</h4>
+    <span class="text-muted">Something else</span>
+  </div>
+  <div class="col-xs-6 col-sm-3 placeholder">
+    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
+    <h4>Label</h4>
+    <span class="text-muted">Something else</span>
+  </div>
+  <div class="col-xs-6 col-sm-3 placeholder">
+    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
+    <h4>Label</h4>
+    <span class="text-muted">Something else</span>
+  </div>
+</div>
+-->
 
-    <p>Paid out in last year: £{{ scenario.paid_end_year }}m</p>
+{% if scenario.description %}
+    <p>{{ scenario.description }}</p>
+{% endif %}
+<p>created {{ scenario.date }}</p>
+<p>budget: £{{ scenario.budget }}bn</p>
+<p>percent in emerging pot: {{ scenario.percent_emerging }}</p>
 
-    <p>Cumulative new generation: {{ scenario.cum_gen_end_year }}TWh</p>
+<p>Paid out in last year: £{{ scenario.paid_end_year }}m</p>
 
-    <a href="{% url 'scenario_download' pk=scenario.pk %}"><div class="btn btn-primary">Download CSV</div></a>
+<p>Cumulative new generation: {{ scenario.cum_gen_end_year }}TWh</p>
 
-    <div class="container">
-        <h2>Accounting cost</h2>
-        {{ accounting_cost_chart.as_html }}
-        {{ accounting_cost_df.to_html | safe }}
-    </div>
+<a href="{% url 'scenario_download' pk=scenario.pk %}"><div class="btn btn-primary">Download CSV</div></a>
 
-    <div class="container">
-        <h2>Generation by technology</h2>
-        {{ gen_by_tech_chart.as_html }}
-        {{ gen_by_tech_df.to_html | safe }}
-    </div>
 
-    <div class="container">
-      <h2>Capacity by technology</h2>
-        {{ cap_by_tech_chart.as_html }}
-        {{ cap_by_tech_df.to_html | safe }}
-    </div>
+<h2 class="sub-header">Accounting cost</h2>
+<div class="graph">
+    {{ accounting_cost_chart.as_html }}
+    {{ accounting_cost_df | safe }}
+</div>
+
+<h2 class="sub-header">Generation by technology</h2>
+<div class="graph">
+    {{ gen_by_tech_chart.as_html }}
+    {{ gen_by_tech_df | safe }}
+</div>
+
+<h2 class="sub-header">Capacity by technology</h2>
+<div class="graph">
+    {{ cap_by_tech_chart.as_html }}
+    {{ cap_by_tech_df | safe }}
+</div>
+
+
+{% endblock %}
+
+
+<!--
+
+
+
+
+
 
    {% for a in scenario.auctionyear_set.all %}
         {% if a.year != 2020 %}
@@ -45,15 +82,15 @@
             <p>Budget: £{{ a.budget }}m</p>
             <p>Awarded: £{{ a.awarded }}m</p>
             <!--<p>Awarded generation: {{ a.awarded_gen }}GWh</p>-->
-            <p>Paid: £{{ a.paid }}m</p>
+            <!--<p>Paid: £{{ a.paid }}m</p>
             <p>Unspent: {{ a.unspent }}</p>
             <p>Previous year unspent: {{ a.previous_year_unspent }}</p>
             <!--<p>Starting budget: {{ a.starting_budget}}</p>-->
-            {% for p in a.pot_set.all %}
+            <!--{% for p in a.pot_set.all %}
                     <h3>Pot: {{ p.name }}</h3>
                     <p>Budget: £{{ p.budget }}m</p>
                 <!--{% if p.name == "E" or p.name == "M" %}-->
-                    <p>Cost: £{{ p.cost }}m</p>
+                    <!--<p>Cost: £{{ p.cost }}m</p>
                     <p>Generation: {{ p.gen }}TWh</p>
                     <p>{{p.summary_gen_by_tech.to_html | safe}} </p>
                     <p>unspent: £{{ p.unspent }}m</p>
@@ -61,11 +98,8 @@
 <!--                    {% for t in p.technology_set.all %}
                         <h4>{{ t.name }}:</h4>
                         {{ t.num_projects }}-->
-                    {% endfor %}
+                    <!--{% endfor %}
                 <!--{% endif %}-->
-            {% endfor %}
+            <!--{% endfor %}
         {% endif %}
     {% endfor %}-->
-
-
-{% endblock %}

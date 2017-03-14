@@ -74,20 +74,20 @@ def scenario_detail(request, pk):
     accounting_cost_data = scenario.accounting_cost()['title']
     accounting_cost_data_source = SimpleDataSource(data=accounting_cost_data)
     accounting_cost_options = {'title': None, 'vAxis': {'title': '£bn'}}
-    accounting_cost_chart = LineChart(accounting_cost_data_source, options=accounting_cost_options)
-    accounting_cost_df = scenario.accounting_cost()['df']
+    accounting_cost_chart = LineChart(accounting_cost_data_source, options=accounting_cost_options, height=400, width="100%")
+    accounting_cost_df = scenario.accounting_cost()['df'].to_html(classes="table table-striped table-condensed")
 
     gen_by_tech_data = scenario.summary_gen_by_tech()['title']
     gen_by_tech_data_source = SimpleDataSource(data=gen_by_tech_data)
     gen_by_tech_options = {'vAxis': {'title': 'TWh'}, 'title': None}
-    gen_by_tech_chart = ColumnChart(gen_by_tech_data_source, options=gen_by_tech_options)
-    gen_by_tech_df = scenario.summary_gen_by_tech()['df']
+    gen_by_tech_chart = ColumnChart(gen_by_tech_data_source, options=gen_by_tech_options, height=400, width="100%")
+    gen_by_tech_df = scenario.summary_gen_by_tech()['df'].to_html(classes="table table-striped table-condensed")
 
     cap_by_tech_data = scenario.summary_cap_by_tech()['title']
     cap_by_tech_data_source = SimpleDataSource(data=cap_by_tech_data)
     cap_by_tech_options = {'vAxis': {'title': 'GW'}, 'title': None}
-    cap_by_tech_chart = ColumnChart(cap_by_tech_data_source, options=cap_by_tech_options)
-    cap_by_tech_df = scenario.summary_cap_by_tech()['df']
+    cap_by_tech_chart = ColumnChart(cap_by_tech_data_source, options=cap_by_tech_options, height=400, width="100%")
+    cap_by_tech_df = scenario.summary_cap_by_tech()['df'].to_html(classes="table table-striped table-condensed")
 
     context = {'scenario': scenario,
                'scenarios': scenarios,

@@ -7,10 +7,13 @@
         {{ scenario_form }}
         <button type="submit" class="save btn btn-default">Save</button>
         <div class="to-hide">
-            <h3>Edit prices? 2020 to {{scenario.end_year}}</h3>
+            <h3>Edit prices?</h3>
+            <p>Enter values for 2020 to scenario end year (inclusive), separated by commas, spaces or tabs, eg if start year is 2021 and end year is 2025 enter five values.</p>
             {{ prices_form }}
             <h3>Edit technologies?</h3>
             {{ string_formset.as_p }}
         </div>
+        <button type="submit" class="save btn btn-default">Save</button>
+        
     </form>
 {% endblock %}

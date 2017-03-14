@@ -6,7 +6,7 @@ python logic:
   *figure out separate negotiations and negawatts
   *include comparison to gas prices: where does this enter in? presumably not in the actual auction process, just in the cost tally?
   ability to turn off technologies
-  think about post 2026
+  think about post 2026. create option to have two auction periods?
 
 
 initial data:
@@ -16,6 +16,7 @@ inputs:
   improve interface, eg  hide technology inputs initially with jquery, disallow editing of year and technology. ability to turn off technologies, maybe add choice options for prices? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
   deal with tidal that has initial generation rather than capacity (for form?)
   errors for form fields being empty/incorrect?
+  change form to not use 2020 input
 
 tests:
   improve views tests
