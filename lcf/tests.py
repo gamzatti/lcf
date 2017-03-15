@@ -616,6 +616,93 @@ class NuclearTests(TestCase):
         self.assertEqual(round(s.paid_end_year()/1000,3),2.384)
 
 
+class FITTests(TestCase):
+    fixtures = ['fit_data.json']
+
+    def test_spent_fit(self):
+        a1 = AuctionYear.objects.get(year=2021)
+        a2 = AuctionYear.objects.get(year=2022)
+        a3 = AuctionYear.objects.get(year=2023)
+        a4 = AuctionYear.objects.get(year=2024)
+        a5 = AuctionYear.objects.get(year=2025)
+        p1 = a1.pot_set.get(name="FIT")
+        p2 = a2.pot_set.get(name="FIT")
+        p3 = a3.pot_set.get(name="FIT")
+        p4 = a4.pot_set.get(name="FIT")
+        p5 = a5.pot_set.get(name="FIT")
+
+        self.assertEqual(p1.cost(),89)
+        self.assertEqual(p2.cost(),89)
+        self.assertEqual(p3.cost(),89)
+        self.assertEqual(p4.cost(),89)
+        self.assertEqual(p5.cost(),89)
+
+
+        t1 = p1.technology_set.get(name="NW")
+        t2 = p2.technology_set.get(name="NW")
+        t3 = p3.technology_set.get(name="NW")
+        t4 = p4.technology_set.get(name="NW")
+        t5 = p5.technology_set.get(name="NW")
+
+    def test_other_pots(self):
+        a1 = AuctionYear.objects.get(year=2021)
+        a2 = AuctionYear.objects.get(year=2022)
+        a3 = AuctionYear.objects.get(year=2023)
+        a4 = AuctionYear.objects.get(year=2024)
+        a5 = AuctionYear.objects.get(year=2025)
+        self.assertEqual(round(a1.budget()),571)
+
+        e1 = a1.pot_set.get(name="E")
+        m1 = a1.pot_set.get(name="M")
+        self.assertEqual(round(a1.unspent()),281)
+        #self.assertEqual(round(m1.unspent()),130)
+        #self.assertEqual(round(e1.unspent()),15)
+
+        self.assertEqual(round(a2.previous_year_unspent()),281)
+        self.assertEqual(round(a1.budget()),571)
+        self.assertEqual(round(a2.budget()),852)
+        self.assertEqual(round(a3.budget()),1005)
+        self.assertEqual(round(a4.budget()),844)
+        self.assertEqual(round(a5.budget()),894)
+
+    def test_paid(self):
+        s = Scenario.objects.get(name="with nuclear and negawatts")
+        #self.assertEqual(round(s.paid_end_year()/1000,3),2.805)
+        a1 = AuctionYear.objects.get(year=2021)
+        a2 = AuctionYear.objects.get(year=2022)
+        a3 = AuctionYear.objects.get(year=2023)
+        a4 = AuctionYear.objects.get(year=2024)
+        a5 = AuctionYear.objects.get(year=2025)
+
+    def test_owed(self):
+        s = Scenario.objects.get(name="with nuclear and negawatts")
+        s.tidal_levelised_cost_distribution = True
+        s.save()
+        a1 = AuctionYear.objects.get(year=2021)
+        a2 = AuctionYear.objects.get(year=2022)
+        a3 = AuctionYear.objects.get(year=2023)
+        a4 = AuctionYear.objects.get(year=2024)
+        a5 = AuctionYear.objects.get(year=2025)
+
+        self.assertEqual(round(a4.owed(a3)),round(447.26+37.504+89))
+        self.assertEqual(round(a5.owed(a3)),round(401.44+31.77+89))
+        self.assertEqual(round(a5.owed(a4)),round(277.92+41.20+89+252.34))
+#        print(a3.awarded()+a3.owed(a2)+ a3.owed(a1), a3.paid())
+#        print(a4.awarded()+a4.owed(a3)+ a4.owed(a2)+ a4.owed(a1), a4.paid())
+#        print(a5.awarded()+a5.owed(a4)+a5.owed(a3)+ a5.owed(a2)+ a5.owed(a1), a5.paid())
+
+        e5 = a5.pot_set.get(name="E")
+        m5 = a5.pot_set.get(name="M")
+        sn5 = a5.pot_set.get(name="SN")
+        #print(e5.projects()[e5.projects().funded_this_year==True])
+
+
+#        print(a5.awarded(), 252.34+454.75+51.807+89)
+        self.assertEqual(round(a3.paid()/1000,3),1.621)
+        self.assertEqual(round(a4.paid()/1000,3),2.117)
+        self.assertEqual(round(a5.paid()/1000,3),2.805)
+
+
 class LcfViewsTestCase(TestCase):
     fixtures = ['test_data.json']
 

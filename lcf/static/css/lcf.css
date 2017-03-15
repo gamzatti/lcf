@@ -150,12 +150,22 @@ body {
   padding-right: 5px;
   padding-left: 5px;
 }
-.nav-sidebar > .active > a,
+
+
+.nav-sidebar > .active > a {
+  background-color: #d0e0f0;
+}
+
+/*.nav-sidebar > .active > a,
 .nav-sidebar > .active > a:hover,
 .nav-sidebar > .active > a:focus {
   color: #fff;
   background-color: #428bca;
-}
+}*/
+
+/*.nav-sidebar > .active {
+}*/
+
 
 
 /*

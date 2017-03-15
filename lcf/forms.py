@@ -7,7 +7,7 @@ class ScenarioForm(forms.ModelForm):
 
     class Meta:
         model = Scenario
-        fields = ('name', 'description', 'budget', 'percent_emerging','start_year','end_year','excel_wp_error')
+        fields = ('name', 'description', 'budget', 'percent_emerging','start_year','end_year','excel_wp_error', 'tidal_levelised_cost_distribution')
         widgets = {
           'description': Textarea(attrs={'rows':2, 'cols':20}),
         }
@@ -20,7 +20,7 @@ class TechnologyStringForm(forms.Form):
     POT_CHOICES = (
             ('E', 'Emerging'),
             ('M', 'Mature'),
-            ('NW', 'Negawatts'),
+            ('FIT', 'Feed-in-tariff'),
             ('SN', 'Separate negotiations'),
     )
     name = forms.CharField(max_length=200)

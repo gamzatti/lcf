@@ -17,6 +17,7 @@ class Scenario(models.Model):
     start_year = models.IntegerField(default=2021)
     end_year = models.IntegerField(default=2025)
     excel_wp_error = models.BooleanField(default=True, verbose_name="Include the Excel error in the emerging pot wholesale price?")
+    tidal_levelised_cost_distribution = models.BooleanField(default=False)
 
 
     def __init__(self, *args, **kwargs):
@@ -151,7 +152,7 @@ class AuctionYear(models.Model):
         if self._budget:
             return self._budget
         else:
-            self._budget = self.starting_budget + self.previous_year_unspent() - self.awarded_from_negotiation()
+            self._budget = self.starting_budget + self.previous_year_unspent() - self.awarded_from_negotiation() - self.awarded_from_fit()
             return self._budget
 
 
@@ -167,6 +168,13 @@ class AuctionYear(models.Model):
             return self.pot_set.get(name="SN").cost()
         else:
             return 0
+
+    def awarded_from_fit(self):
+        if self.pot_set.filter(name="FIT").exists():
+            return self.pot_set.get(name="FIT").cost()
+        else:
+            return 0
+
 
     def awarded_from_auction(self):
         awarded = 0
@@ -186,7 +194,7 @@ class AuctionYear(models.Model):
         if self._unspent:
             return self._unspent
         else:
-            self._unspent = self.budget() - self.awarded_from_auction()
+            self._unspent = self.budget() - self.awarded_from_auction() + self.awarded_from_fit()
             return self._unspent
 
 
@@ -236,6 +244,8 @@ class AuctionYear(models.Model):
                         except:
                             break
                 difference = strike_price - self.wholesale_price
+                if pot.name == "FIT":
+                    difference = strike_price
                 tech_owed = gen * difference
                 owed[pot.name] += tech_owed
                 #print(self.year, previous_year.year, t.name, tech_owed)
@@ -248,11 +258,11 @@ class Pot(models.Model):
     POT_CHOICES = (
             ('E', 'Emerging'),
             ('M', 'Mature'),
-            ('NW', 'Negawatts'),
+            ('FIT', 'Feed-in-tariff'),
             ('SN', 'Separate negotiations'),
     )
     auctionyear = models.ForeignKey('lcf.auctionyear', default=232)
-    name = models.CharField(max_length=1, choices=POT_CHOICES, default='E')
+    name = models.CharField(max_length=3, choices=POT_CHOICES, default='E')
 
     def __str__(self):
         return str((self.auctionyear, self.name))
@@ -265,7 +275,7 @@ class Pot(models.Model):
     def budget(self):
         if self.name == "M" or self.name == "E":
             return (self.auctionyear.budget() * self.percent())
-        elif self.name == "SN":
+        elif self.name == "SN" or self.name == "FIT":
             return np.nan
 
     #@lru_cache(maxsize=None)
@@ -305,10 +315,13 @@ class Pot(models.Model):
         projects['eligible'] = (projects.previously_funded == False) & projects.affordable
 
         projects['difference'] = projects.strike_price - self.auctionyear.wholesale_price
+        if self.name == "FIT":
+            projects['difference'] = projects.strike_price
+
         projects['cost'] = np.where(projects.eligible == True, projects.gen/1000 * projects.difference, 0)
 
         projects['attempted_cum_cost'] = np.cumsum(projects.cost)
-        if self.name == "SN":
+        if self.name == "SN" or self.name == "FIT":
             projects['funded_this_year'] = (projects.eligible)
         else:
             projects['funded_this_year'] = (projects.eligible) & (projects.attempted_cum_cost < self.budget())
@@ -344,7 +357,7 @@ class Pot(models.Model):
 
     #@lru_cache(maxsize=None)
     def unspent(self):
-        if self.name == "SN":
+        if self.name == "SN" or self.name == "FIT":
             return 0
         if self.auctionyear.year == 2020:
             return 0
@@ -438,9 +451,8 @@ class Technology(models.Model):
 
     #@lru_cache(maxsize=None)
     def levelised_cost_distribution(self):
-        if self.name == "TL":
-            #return Series(np.linspace(self.min_levelised_cost,self.max_levelised_cost,self.num_projects()),name="levelised_cost", index=self.projects_index())
-            return Series(np.linspace(self.min_levelised_cost,self.max_levelised_cost,self.num_projects()+2)[1:-1],name="levelised_cost", index=self.projects_index())
+        if self.pot.auctionyear.scenario.tidal_levelised_cost_distribution == True and self.pot.auctionyear.year == 2025 and self.name == "TL":
+            return Series(np.linspace(self.min_levelised_cost,150,self.num_projects()),name="levelised_cost", index=self.projects_index())
 
         else:
             return Series(np.linspace(self.min_levelised_cost,self.max_levelised_cost,self.num_projects()+2)[1:-1],name="levelised_cost", index=self.projects_index())
