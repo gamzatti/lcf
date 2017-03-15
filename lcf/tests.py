@@ -466,47 +466,22 @@ class ScenarioMethodTests(TestCase):
 
 
 class ExcelCompareTests(TestCase):
-    fixtures = ['excel_compare.json']
+    #fixtures = ['no_nuclear_data.json']
+    fixtures = ['all_data.json']
 
     def setUp(self):
-        """self.s = Scenario.objects.get(pk=196)
-
-        self.a0 = self.s.auctionyear_set.get(year=2020)
-        self.a1 = self.s.auctionyear_set.get(year=2021)
-        self.a2 = self.s.auctionyear_set.get(year=2022)
-
-        self.p0E = self.a0.pot_set.get(name="E")
-        self.p0M = self.a0.pot_set.get(name="M")
-        self.p1E = self.a1.pot_set.get(name="E")
-        self.p1M = self.a1.pot_set.get(name="M")
-        self.p2E = self.a2.pot_set.get(name="E")
-        self.p2M = self.a2.pot_set.get(name="M")
-
-        self.t0ofw = self.p0E.technology_set.get(name="OFW")
-        self.t0wa = self.p0E.technology_set.get(name="WA")
-        self.t0onw = self.p0M.technology_set.get(name="ONW")
-        self.t0pv = self.p0M.technology_set.get(name="PVLS")
-
-        self.t1ofw = self.p1E.technology_set.get(name="OFW")
-        self.t1wa = self.p1E.technology_set.get(name="WA")
-        self.t1onw = self.p1M.technology_set.get(name="ONW")
-        self.t1pv = self.p1M.technology_set.get(name="PVLS")
-
-        self.t2ofw = self.p2E.technology_set.get(name="OFW")
-        self.t2wa = self.p2E.technology_set.get(name="WA")
-        self.t2onw = self.p2M.technology_set.get(name="ONW")
-        self.t2pv = self.p2M.technology_set.get(name="PVLS")"""
+        pass
 
 
 
     def test_solar_num_projects(self):
-        pv_set = Technology.objects.filter(name="PVLS")
+        pv_set = Technology.objects.filter(name="PVLS", pot__auctionyear__scenario__name="no nuclear")
         #for pv in pv_set:
         #    print(pv.pot.auctionyear.year)
         #    print(pv.projects())
         #print(pv_set[2].min_levelised_cost)
 
-        mature_pot_set = Pot.objects.filter(name="M", auctionyear__year__gte=2021)
+        mature_pot_set = Pot.objects.filter(name="M", auctionyear__year__gte=2021, auctionyear__scenario__name="no nuclear")
         #for p in mature_pot_set:
         p2 = mature_pot_set[1]
         p2proj = p2.projects()
@@ -515,13 +490,48 @@ class ExcelCompareTests(TestCase):
         #print(p2.budget())
 
 
+    def test_wave_num_projects(self):
+        wave_set = Technology.objects.filter(name="WA", pot__auctionyear__scenario__name="no nuclear")
+        self.assertEqual(wave_set[1].num_projects(),3)
+        self.assertEqual(wave_set[2].num_projects(),4)
+        self.assertEqual(wave_set[3].num_projects(),4)
+        self.assertEqual(wave_set[4].num_projects(),4)
+        self.assertEqual(wave_set[5].num_projects(),5)
+
+
+    def test_tl_num_projects(self):
+        tl_set = Technology.objects.filter(name="TL", pot__auctionyear__scenario__name="no nuclear")
+
+        self.assertEqual(round(tl_set[1].new_generation_available()),2200)
+        self.assertEqual(round(tl_set[2].new_generation_available()),2200)
+        self.assertEqual(round(tl_set[3].new_generation_available()),2200)
+        self.assertEqual(round(tl_set[4].new_generation_available()),2200)
+        self.assertEqual(round(tl_set[5].new_generation_available()),4400)
+        self.assertEqual(tl_set[1].num_projects(),1)
+        self.assertEqual(tl_set[2].num_projects(),1)
+        self.assertEqual(tl_set[3].num_projects(),1)
+        self.assertEqual(tl_set[4].num_projects(),1)
+        self.assertEqual(tl_set[5].num_projects(),2)
+
+    def test_ts_num_projects(self):
+        ts_set = Technology.objects.filter(name="TS", pot__auctionyear__scenario__name="no nuclear")
+        self.assertEqual(ts_set[1].num_projects(),3)
+        self.assertEqual(ts_set[2].num_projects(),4)
+        self.assertEqual(ts_set[3].num_projects(),4)
+        self.assertEqual(ts_set[4].num_projects(),5)
+        self.assertEqual(ts_set[5].num_projects(),5)
+        #p3 = Pot.objects.filter(name="E")[3]
+        #print(p3.projects())
+
+    def test_alt_scenario(self):
+        p5 = Pot.objects.filter(name="E", auctionyear__scenario__name="no nuclear v2")[5]
+        #print(p5.projects())
+
 class NuclearTests(TestCase):
-    fixtures = ['nuclear_test_data.json']
+    fixtures = ['nuclear_data.json']
 
     def test_nuclear_num_projects(self):
         nu_set = Technology.objects.filter(name="NU")
-        nu2024 = nu_set.get(pot__auctionyear__year=2024)
-        nu2025 = nu_set.get(pot__auctionyear__year=2025)
         self.assertEqual(nu_set[0].num_projects(),0)
         self.assertEqual(nu_set[1].num_projects(),0)
         self.assertEqual(nu_set[2].num_projects(),0)
@@ -547,14 +557,64 @@ class NuclearTests(TestCase):
         self.assertEqual(sn_pot_set[4].unspent(),0)
         self.assertEqual(round(sn_pot_set[4].cost(),2),250.31)#10*(90-64.9687482891174)
         self.assertEqual(round(sn_pot_set[5].cost(),2),252.34)#10*(92.5-67.2664653151834)
-        #print(sn_pot_set[1].cost())
 
 
-    def test_auctionyear(self):
-        auctionyears = AuctionYear.objects.all()
-        #for a in auctionyears:
-            #print(a.year,round(a.budget(),2),'\n')
-        #auctionyears[4]
+
+    def test_other_pots(self):
+        a3 = AuctionYear.objects.get(year=2023)
+        a4 = AuctionYear.objects.get(year=2024)
+        a5 = AuctionYear.objects.get(year=2025)
+        self.assertEqual(round(a3.pot_set.get(name="E").budget()),601)
+        self.assertEqual(round(a3.pot_set.get(name="M").budget()),401)
+
+        self.assertEqual(round(a4.pot_set.get(name="E").budget()),577)
+        self.assertEqual(round(a4.pot_set.get(name="M").budget()),385)
+
+        self.assertEqual(round(a5.pot_set.get(name="E").budget()),449)
+        self.assertEqual(round(a5.pot_set.get(name="M").budget()),300)
+
+    def test_unspent(self):
+        a3 = AuctionYear.objects.get(year=2023)
+        a4 = AuctionYear.objects.get(year=2024)
+        a5 = AuctionYear.objects.get(year=2025)
+        self.assertEqual(round(a3.unspent()),553)
+        self.assertEqual(round(a4.unspent()),341)
+        p3e = a3.pot_set.get(name="E")
+        p4e = a4.pot_set.get(name="E")
+
+
+    def test_awarded(self):
+        a3 = AuctionYear.objects.get(year=2023)
+        a4 = AuctionYear.objects.get(year=2024)
+        a5 = AuctionYear.objects.get(year=2025)
+        p3e = a3.pot_set.get(name="E")
+        p4e = a4.pot_set.get(name="E")
+        self.assertEqual(round(a3.awarded_from_auction()),450)
+        self.assertEqual(round(a4.awarded_from_auction()),621)
+        self.assertEqual(round(a5.awarded_from_auction()),471)
+        p5e = a5.pot_set.get(name="E")
+        p5m = a5.pot_set.get(name="M")
+        s = Scenario.objects.get(name="with nuclear")
+        self.assertEqual(round(p5m.cost()),52)
+        self.assertEqual(round(p5e.cost()),419)
+        self.assertEqual(round(a4.awarded()),871)
+        self.assertEqual(round(a5.awarded()),723)
+
+    def test_paid(self):
+        a3 = AuctionYear.objects.get(year=2023)
+        a4 = AuctionYear.objects.get(year=2024)
+        a5 = AuctionYear.objects.get(year=2025)
+        s = Scenario.objects.get(name="with nuclear")
+        self.assertEqual(round(a4.paid()/1000,3),1.989)
+
+        self.assertEqual(round(a4.owed(a3),2),381.55)
+        self.assertEqual(round(a5.owed(a3),2),340.58)
+        self.assertEqual(round(a5.owed(a4),1), 661.5)
+
+
+        self.assertEqual(round(a5.paid()/1000,3),2.384)
+        self.assertEqual(round(s.paid_end_year()/1000,3),2.384)
+
 
 class LcfViewsTestCase(TestCase):
     fixtures = ['test_data.json']

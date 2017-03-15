@@ -89,7 +89,7 @@ class Scenario(models.Model):
     def summary_gen_by_tech(self):
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
         years = [a.year for a in auctionyears]
-        tech_names = self.initial_technologies()[0]
+        tech_names = sorted(self.initial_technologies()[0])
         title = ['year']
         title.extend(tech_names)
         df = DataFrame(columns=title, index=years)
@@ -110,7 +110,7 @@ class Scenario(models.Model):
     def summary_cap_by_tech(self):
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
         years = [a.year for a in auctionyears]
-        tech_names = self.initial_technologies()[0]
+        tech_names = sorted(self.initial_technologies()[0])
         title = ['year']
         title.extend(tech_names)
         df = DataFrame(columns=title, index=years)
@@ -151,15 +151,22 @@ class AuctionYear(models.Model):
         if self._budget:
             return self._budget
         else:
-            self._budget = self.starting_budget + self.previous_year_unspent()
+            self._budget = self.starting_budget + self.previous_year_unspent() - self.awarded_from_negotiation()
             return self._budget
+
 
     #@lru_cache(maxsize=None)
     def awarded(self):
         awarded = 0
-        for pot in self.pot_set.all():
+        for pot in self.pot_set.order_by("name"):
             awarded += pot.cost()
         return awarded
+
+    def awarded_from_negotiation(self):
+        if self.pot_set.filter(name="SN").exists():
+            return self.pot_set.get(name="SN").cost()
+        else:
+            return 0
 
     def awarded_from_auction(self):
         awarded = 0
@@ -171,8 +178,7 @@ class AuctionYear(models.Model):
     def awarded_gen(self):
         awarded_gen = 0
         for pot in self.pot_set.all():
-            if pot.name == "E" or pot.name == "M":
-                awarded_gen += pot.gen()
+            awarded_gen += pot.gen()
         return awarded_gen
 
     #@lru_cache(maxsize=None)
@@ -224,7 +230,7 @@ class AuctionYear(models.Model):
                 strike_price = data['strike_price'][t.name]
                 if self.scenario.excel_wp_error == True:
                     #next 5 lines account for Angela's error
-                    if (pot.name == "E"):
+                    if (pot.name == "E") or (pot.name == "SN"):
                         try:
                             strike_price = self.pot_set.get(name=pot.name).technology_set.get(name=t.name).strike_price
                         except:
@@ -232,6 +238,7 @@ class AuctionYear(models.Model):
                 difference = strike_price - self.wholesale_price
                 tech_owed = gen * difference
                 owed[pot.name] += tech_owed
+                #print(self.year, previous_year.year, t.name, tech_owed)
         owed = sum(owed.values())
         return owed
 
@@ -293,7 +300,7 @@ class Pot(models.Model):
         tech_gen = {}
         previously_funded_projects = self.previously_funded_projects()
         projects = pd.concat([t.projects() for t in self.technology_set.all()])
-        projects.sort_values('levelised_cost',inplace=True)
+        projects.sort_values(['strike_price', 'levelised_cost'],inplace=True)
         projects['previously_funded'] = np.where(projects.index.isin(previously_funded_projects.index),True,False)
         projects['eligible'] = (projects.previously_funded == False) & projects.affordable
 
@@ -431,7 +438,13 @@ class Technology(models.Model):
 
     #@lru_cache(maxsize=None)
     def levelised_cost_distribution(self):
-        return Series(np.linspace(self.min_levelised_cost,self.max_levelised_cost,self.num_projects()+2)[1:-1],name="levelised_cost", index=self.projects_index())
+        if self.name == "TL":
+            #return Series(np.linspace(self.min_levelised_cost,self.max_levelised_cost,self.num_projects()),name="levelised_cost", index=self.projects_index())
+            return Series(np.linspace(self.min_levelised_cost,self.max_levelised_cost,self.num_projects()+2)[1:-1],name="levelised_cost", index=self.projects_index())
+
+        else:
+            return Series(np.linspace(self.min_levelised_cost,self.max_levelised_cost,self.num_projects()+2)[1:-1],name="levelised_cost", index=self.projects_index())
+
 
     #@lru_cache(maxsize=None)
     def projects(self):

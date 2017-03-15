@@ -1,13 +1,17 @@
-python logic:
-  *figure out why my answers don't match up!!
-     - realised that solar PV (and possibly others?) are affected by the previous years. Because there are projects already funded at the lowest levelised costs, these ones aren't eligible in eg 2022
-     I can't realllly be bothered to try and replicate this error in python. But it does point back to the problem in general with how it calculates costs including previously funded projects.
-     - but what is going on with Wave, TS and TL? :(
-  *figure out separate negotiations and negawatts
+priority:
+  *figure out negawatts
   *include comparison to gas prices: where does this enter in? presumably not in the actual auction process, just in the cost tally?
-  ability to turn off technologies
-  think about post 2026. create option to have two auction periods?
+  *ability to turn off technologies
 
+additional functionality:
+  *include absolute cost (ie not compared to wholesale price or gas price)
+  *check that swapping pots works as expected - eg separate negotiations for tidal
+  *maybe create a technology agnostic pot?
+  *think about post 2026. create option to have two auction periods?
+  *the way it currently deals with TL is really stupid. I need to make it just allow manual numbers of projects and size or something
+
+hosting:
+  *upload to github/python anywhere (or heroku)
 
 initial data:
   *load in data for existing scenarios (1, 2 and 3) / write code that converts csv to either json or probably more easily to Django model
@@ -17,6 +21,7 @@ inputs:
   deal with tidal that has initial generation rather than capacity (for form?)
   errors for form fields being empty/incorrect?
   change form to not use 2020 input
+  change form to not make name editable
 
 tests:
   improve views tests
@@ -24,19 +29,21 @@ tests:
 
 appearance:
   write some CSS/use bootstrap components
+  how to put python in title?
+  how to select active scenario?
 
 output page:
   give option to display inputs with jquery
-  output all the rest of the data to CSV
 
 diverge from Excel model:
   ?create normal distribution of projects?
   maxima/minima?
   change the way each year is based on cumulative generation with the cost distribution therefore including previously funded projects
-  create policy model
-  various other things we talked about
+
+create policy model:
 
 speed up!/refactor:
+  stop the pots being in random order
   review lru_cache and consider initialising instance variables and then doing lazy calculation. and find out how to clear cache? (or at least do this http://stackoverflow.com/questions/2237624/applying-python-decorators-to-methods-in-a-class)
   simplify model code eg by making template tags? http://stackoverflow.com/questions/28513528/passing-arguments-to-model-methods-in-django-templates
   add javascript to delete buttons
@@ -45,7 +52,4 @@ speed up!/refactor:
   deal with error message: a value is trying to be set on a copy of a slice from a DataFrame
 
 
-Finally feeling more alive so would like to have some actual goals for today.
-It would be great if I could do top three things...
-Maybe ambitious though!
-It would also be great though if I could get back at a reasonable hour, eat a healthy dinner with Jon, get dressed up in plenty of time, and get to the party reasonably earlyish.
+- realised that solar PV was affected by the previous years. Because there are projects already funded at the lowest levelised costs, these ones aren't eligible in eg 2022. the way I've fixed this for now is just putting 0 for all years up to but not including 2020 in the number of projects in Excel version

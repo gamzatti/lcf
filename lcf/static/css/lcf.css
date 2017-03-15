@@ -42,6 +42,10 @@ h1, h2, h3, h4 {
     float: right;
 }
 
+.post-form {
+  width: 70%;
+}
+
 .post-form textarea, .post-form input {
     width: 100%;
 }

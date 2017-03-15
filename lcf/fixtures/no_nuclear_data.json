@@ -3,7 +3,7 @@
     "model": "lcf.scenario",
     "pk": 196,
     "fields": {
-        "name": "Test 1 Excel version, attempt 2",
+        "name": "no nuclear",
         "description": "",
         "date": "2017-03-05T12:25:21Z",
         "budget": 3.3,
@@ -427,10 +427,10 @@
     "model": "lcf.technology",
     "pk": 1249,
     "fields": {
-        "name": "TL",
+        "name": "",
         "pot": 1675,
-        "min_levelised_cost": 0.0,
-        "max_levelised_cost": 0.0,
+        "min_levelised_cost": 150,
+        "max_levelised_cost": 150,
         "strike_price": 0.0,
         "load_factor": 0.0,
         "project_gen": 2200.0,
@@ -441,70 +441,70 @@
     "model": "lcf.technology",
     "pk": 1250,
     "fields": {
-        "name": "TL",
+        "name": "",
         "pot": 1677,
         "min_levelised_cost": 150.0,
         "max_levelised_cost": 150.0,
         "strike_price": 168.0,
         "load_factor": 0.25,
         "project_gen": 2200.0,
-        "max_deployment_cap": 0.226027397260274
+        "max_deployment_cap": 1.0045662100457
     }
 },
 {
     "model": "lcf.technology",
     "pk": 1251,
     "fields": {
-        "name": "TL",
+        "name": "",
         "pot": 1679,
-        "min_levelised_cost": 0.0,
-        "max_levelised_cost": 0.0,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
         "strike_price": 168.0,
         "load_factor": 0.25,
         "project_gen": 2200.0,
-        "max_deployment_cap": 0.0
+        "max_deployment_cap": 0
     }
 },
 {
     "model": "lcf.technology",
     "pk": 1252,
     "fields": {
-        "name": "TL",
+        "name": "",
         "pot": 1681,
-        "min_levelised_cost": 0.0,
-        "max_levelised_cost": 0.0,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
         "strike_price": 168.0,
         "load_factor": 0.25,
         "project_gen": 2200.0,
-        "max_deployment_cap": 0.0
+        "max_deployment_cap": 0
     }
 },
 {
     "model": "lcf.technology",
     "pk": 1253,
     "fields": {
-        "name": "TL",
+        "name": "",
         "pot": 1683,
-        "min_levelised_cost": 0.0,
-        "max_levelised_cost": 0.0,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
         "strike_price": 168.0,
         "load_factor": 0.25,
         "project_gen": 2200.0,
-        "max_deployment_cap": 0.0
+        "max_deployment_cap": 0
     }
 },
 {
     "model": "lcf.technology",
     "pk": 1254,
     "fields": {
-        "name": "TL",
+        "name": "",
         "pot": 1685,
         "min_levelised_cost": 90.0,
-        "max_levelised_cost": 90.0,
+        "max_levelised_cost": 90,
         "strike_price": 92.0,
         "load_factor": 0.25,
         "project_gen": 2200.0,
-        "max_deployment_cap": 2.73972602739726
+        "max_deployment_cap": 1.0045662100457
     }
 },
 {

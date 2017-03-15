@@ -1,0 +1,2970 @@
+[
+{
+    "model": "lcf.scenario",
+    "pk": 196,
+    "fields": {
+        "name": "no nuclear",
+        "description": "",
+        "date": "2017-03-05T12:25:21Z",
+        "budget": 3.3,
+        "percent_emerging": 0.6,
+        "rank_by_levelised_cost": true,
+        "set_strike_price": false,
+        "start_year": 2021,
+        "end_year": 2025,
+        "excel_wp_error": true
+    }
+},
+{
+    "model": "lcf.scenario",
+    "pk": 212,
+    "fields": {
+        "name": "with nuclear",
+        "description": "",
+        "date": "2017-03-14T17:34:23.527Z",
+        "budget": 3.3,
+        "percent_emerging": 0.6,
+        "rank_by_levelised_cost": true,
+        "set_strike_price": false,
+        "start_year": 2021,
+        "end_year": 2025,
+        "excel_wp_error": true
+    }
+},
+{
+    "model": "lcf.scenario",
+    "pk": 213,
+    "fields": {
+        "name": "with nuclear v2",
+        "description": "",
+        "date": "2017-03-14T17:41:45.232Z",
+        "budget": 2.5,
+        "percent_emerging": 0.7,
+        "rank_by_levelised_cost": true,
+        "set_strike_price": false,
+        "start_year": 2021,
+        "end_year": 2025,
+        "excel_wp_error": true
+    }
+},
+{
+    "model": "lcf.scenario",
+    "pk": 214,
+    "fields": {
+        "name": "no nuclear v2",
+        "description": "",
+        "date": "2017-03-14T17:46:08.663Z",
+        "budget": 2.5,
+        "percent_emerging": 0.7,
+        "rank_by_levelised_cost": true,
+        "set_strike_price": false,
+        "start_year": 2021,
+        "end_year": 2025,
+        "excel_wp_error": true
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1165,
+    "fields": {
+        "scenario": 196,
+        "year": 2020,
+        "wholesale_price": 48.5400340402009,
+        "gas_price": 85.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1166,
+    "fields": {
+        "scenario": 196,
+        "year": 2021,
+        "wholesale_price": 54.285722954952,
+        "gas_price": 87.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1167,
+    "fields": {
+        "scenario": 196,
+        "year": 2022,
+        "wholesale_price": 58.4749297906221,
+        "gas_price": 89.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1168,
+    "fields": {
+        "scenario": 196,
+        "year": 2023,
+        "wholesale_price": 60.1487865144807,
+        "gas_price": 91.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1169,
+    "fields": {
+        "scenario": 196,
+        "year": 2024,
+        "wholesale_price": 64.9687482891174,
+        "gas_price": 93.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1170,
+    "fields": {
+        "scenario": 196,
+        "year": 2025,
+        "wholesale_price": 67.2664653151834,
+        "gas_price": 95.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1255,
+    "fields": {
+        "scenario": 212,
+        "year": 2020,
+        "wholesale_price": 48.5400340402009,
+        "gas_price": 85.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1256,
+    "fields": {
+        "scenario": 212,
+        "year": 2021,
+        "wholesale_price": 54.285722954952,
+        "gas_price": 87.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1257,
+    "fields": {
+        "scenario": 212,
+        "year": 2022,
+        "wholesale_price": 58.4749297906221,
+        "gas_price": 89.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1258,
+    "fields": {
+        "scenario": 212,
+        "year": 2023,
+        "wholesale_price": 60.1487865144807,
+        "gas_price": 91.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1259,
+    "fields": {
+        "scenario": 212,
+        "year": 2024,
+        "wholesale_price": 64.9687482891174,
+        "gas_price": 93.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1260,
+    "fields": {
+        "scenario": 212,
+        "year": 2025,
+        "wholesale_price": 67.2664653151834,
+        "gas_price": 95.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1261,
+    "fields": {
+        "scenario": 213,
+        "year": 2020,
+        "wholesale_price": 48.5400340402009,
+        "gas_price": 85.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1262,
+    "fields": {
+        "scenario": 213,
+        "year": 2021,
+        "wholesale_price": 54.285722954952,
+        "gas_price": 87.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1263,
+    "fields": {
+        "scenario": 213,
+        "year": 2022,
+        "wholesale_price": 58.4749297906221,
+        "gas_price": 89.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1264,
+    "fields": {
+        "scenario": 213,
+        "year": 2023,
+        "wholesale_price": 60.1487865144807,
+        "gas_price": 91.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1265,
+    "fields": {
+        "scenario": 213,
+        "year": 2024,
+        "wholesale_price": 64.9687482891174,
+        "gas_price": 93.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1266,
+    "fields": {
+        "scenario": 213,
+        "year": 2025,
+        "wholesale_price": 67.2664653151834,
+        "gas_price": 95.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1267,
+    "fields": {
+        "scenario": 214,
+        "year": 2020,
+        "wholesale_price": 48.5400340402009,
+        "gas_price": 85.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1268,
+    "fields": {
+        "scenario": 214,
+        "year": 2021,
+        "wholesale_price": 54.285722954952,
+        "gas_price": 87.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1269,
+    "fields": {
+        "scenario": 214,
+        "year": 2022,
+        "wholesale_price": 58.4749297906221,
+        "gas_price": 89.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1270,
+    "fields": {
+        "scenario": 214,
+        "year": 2023,
+        "wholesale_price": 60.1487865144807,
+        "gas_price": 91.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1271,
+    "fields": {
+        "scenario": 214,
+        "year": 2024,
+        "wholesale_price": 64.9687482891174,
+        "gas_price": 93.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 1272,
+    "fields": {
+        "scenario": 214,
+        "year": 2025,
+        "wholesale_price": 67.2664653151834,
+        "gas_price": 95.0
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1675,
+    "fields": {
+        "auctionyear": 1165,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1676,
+    "fields": {
+        "auctionyear": 1165,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1677,
+    "fields": {
+        "auctionyear": 1166,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1678,
+    "fields": {
+        "auctionyear": 1166,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1679,
+    "fields": {
+        "auctionyear": 1167,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1680,
+    "fields": {
+        "auctionyear": 1167,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1681,
+    "fields": {
+        "auctionyear": 1168,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1682,
+    "fields": {
+        "auctionyear": 1168,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1683,
+    "fields": {
+        "auctionyear": 1169,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1684,
+    "fields": {
+        "auctionyear": 1169,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1685,
+    "fields": {
+        "auctionyear": 1170,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1686,
+    "fields": {
+        "auctionyear": 1170,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1897,
+    "fields": {
+        "auctionyear": 1255,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1898,
+    "fields": {
+        "auctionyear": 1255,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1899,
+    "fields": {
+        "auctionyear": 1255,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1900,
+    "fields": {
+        "auctionyear": 1256,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1901,
+    "fields": {
+        "auctionyear": 1256,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1902,
+    "fields": {
+        "auctionyear": 1256,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1903,
+    "fields": {
+        "auctionyear": 1257,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1904,
+    "fields": {
+        "auctionyear": 1257,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1905,
+    "fields": {
+        "auctionyear": 1257,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1906,
+    "fields": {
+        "auctionyear": 1258,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1907,
+    "fields": {
+        "auctionyear": 1258,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1908,
+    "fields": {
+        "auctionyear": 1258,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1909,
+    "fields": {
+        "auctionyear": 1259,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1910,
+    "fields": {
+        "auctionyear": 1259,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1911,
+    "fields": {
+        "auctionyear": 1259,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1912,
+    "fields": {
+        "auctionyear": 1260,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1913,
+    "fields": {
+        "auctionyear": 1260,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1914,
+    "fields": {
+        "auctionyear": 1260,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1915,
+    "fields": {
+        "auctionyear": 1261,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1916,
+    "fields": {
+        "auctionyear": 1261,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1917,
+    "fields": {
+        "auctionyear": 1261,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1918,
+    "fields": {
+        "auctionyear": 1262,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1919,
+    "fields": {
+        "auctionyear": 1262,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1920,
+    "fields": {
+        "auctionyear": 1262,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1921,
+    "fields": {
+        "auctionyear": 1263,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1922,
+    "fields": {
+        "auctionyear": 1263,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1923,
+    "fields": {
+        "auctionyear": 1263,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1924,
+    "fields": {
+        "auctionyear": 1264,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1925,
+    "fields": {
+        "auctionyear": 1264,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1926,
+    "fields": {
+        "auctionyear": 1264,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1927,
+    "fields": {
+        "auctionyear": 1265,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1928,
+    "fields": {
+        "auctionyear": 1265,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1929,
+    "fields": {
+        "auctionyear": 1265,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1930,
+    "fields": {
+        "auctionyear": 1266,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1931,
+    "fields": {
+        "auctionyear": 1266,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1932,
+    "fields": {
+        "auctionyear": 1266,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1933,
+    "fields": {
+        "auctionyear": 1267,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1934,
+    "fields": {
+        "auctionyear": 1267,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1935,
+    "fields": {
+        "auctionyear": 1268,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1936,
+    "fields": {
+        "auctionyear": 1268,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1937,
+    "fields": {
+        "auctionyear": 1269,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1938,
+    "fields": {
+        "auctionyear": 1269,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1939,
+    "fields": {
+        "auctionyear": 1270,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1940,
+    "fields": {
+        "auctionyear": 1270,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1941,
+    "fields": {
+        "auctionyear": 1271,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1942,
+    "fields": {
+        "auctionyear": 1271,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1943,
+    "fields": {
+        "auctionyear": 1272,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 1944,
+    "fields": {
+        "auctionyear": 1272,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1231,
+    "fields": {
+        "name": "WA",
+        "pot": 1675,
+        "min_levelised_cost": 260.75,
+        "max_levelised_cost": 298.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.034
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1232,
+    "fields": {
+        "name": "WA",
+        "pot": 1677,
+        "min_levelised_cost": 245.875,
+        "max_levelised_cost": 281.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1233,
+    "fields": {
+        "name": "WA",
+        "pot": 1679,
+        "min_levelised_cost": 231.0,
+        "max_levelised_cost": 264.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1234,
+    "fields": {
+        "name": "WA",
+        "pot": 1681,
+        "min_levelised_cost": 216.125,
+        "max_levelised_cost": 247.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1235,
+    "fields": {
+        "name": "WA",
+        "pot": 1683,
+        "min_levelised_cost": 201.25,
+        "max_levelised_cost": 230.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1236,
+    "fields": {
+        "name": "WA",
+        "pot": 1685,
+        "min_levelised_cost": 186.375,
+        "max_levelised_cost": 213.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1237,
+    "fields": {
+        "name": "ONW",
+        "pot": 1676,
+        "min_levelised_cost": 61.0,
+        "max_levelised_cost": 80.0,
+        "strike_price": 80.0,
+        "load_factor": 0.278125,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1238,
+    "fields": {
+        "name": "ONW",
+        "pot": 1678,
+        "min_levelised_cost": 61.4,
+        "max_levelised_cost": 81.0,
+        "strike_price": 80.0,
+        "load_factor": 0.2803125,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1239,
+    "fields": {
+        "name": "ONW",
+        "pot": 1680,
+        "min_levelised_cost": 61.8,
+        "max_levelised_cost": 82.0,
+        "strike_price": 80.0,
+        "load_factor": 0.2825,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1240,
+    "fields": {
+        "name": "ONW",
+        "pot": 1682,
+        "min_levelised_cost": 62.2,
+        "max_levelised_cost": 83.0,
+        "strike_price": 80.0,
+        "load_factor": 0.2846875,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1241,
+    "fields": {
+        "name": "ONW",
+        "pot": 1684,
+        "min_levelised_cost": 62.6,
+        "max_levelised_cost": 84.0,
+        "strike_price": 80.0,
+        "load_factor": 0.286875,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1242,
+    "fields": {
+        "name": "ONW",
+        "pot": 1686,
+        "min_levelised_cost": 63.0,
+        "max_levelised_cost": 85.0,
+        "strike_price": 80.0,
+        "load_factor": 0.2890625,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1243,
+    "fields": {
+        "name": "OFW",
+        "pot": 1675,
+        "min_levelised_cost": 71.3353908668731,
+        "max_levelised_cost": 103.034791021672,
+        "strike_price": 114.074615384615,
+        "load_factor": 0.42,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1244,
+    "fields": {
+        "name": "OFW",
+        "pot": 1677,
+        "min_levelised_cost": 71.1099729102167,
+        "max_levelised_cost": 101.917093653251,
+        "strike_price": 112.136153846154,
+        "load_factor": 0.434,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1245,
+    "fields": {
+        "name": "OFW",
+        "pot": 1679,
+        "min_levelised_cost": 70.8845549535604,
+        "max_levelised_cost": 100.79939628483,
+        "strike_price": 110.197692307692,
+        "load_factor": 0.448,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1246,
+    "fields": {
+        "name": "OFW",
+        "pot": 1681,
+        "min_levelised_cost": 70.659136996904,
+        "max_levelised_cost": 99.6816989164087,
+        "strike_price": 108.259230769231,
+        "load_factor": 0.462,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1247,
+    "fields": {
+        "name": "OFW",
+        "pot": 1683,
+        "min_levelised_cost": 70.4337190402477,
+        "max_levelised_cost": 98.5640015479876,
+        "strike_price": 106.320769230769,
+        "load_factor": 0.476,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1248,
+    "fields": {
+        "name": "OFW",
+        "pot": 1685,
+        "min_levelised_cost": 70.2083010835913,
+        "max_levelised_cost": 97.4463041795666,
+        "strike_price": 104.382307692308,
+        "load_factor": 0.49,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1249,
+    "fields": {
+        "name": "TL",
+        "pot": 1675,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 0.0,
+        "load_factor": 0.0,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1250,
+    "fields": {
+        "name": "TL",
+        "pot": 1677,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 168.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 1.0045662100457
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1251,
+    "fields": {
+        "name": "TL",
+        "pot": 1679,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 168.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1252,
+    "fields": {
+        "name": "TL",
+        "pot": 1681,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 168.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1253,
+    "fields": {
+        "name": "TL",
+        "pot": 1683,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 168.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1254,
+    "fields": {
+        "name": "TL",
+        "pot": 1685,
+        "min_levelised_cost": 90.0,
+        "max_levelised_cost": 90.0,
+        "strike_price": 92.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 1.0045662100457
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1255,
+    "fields": {
+        "name": "TS",
+        "pot": 1675,
+        "min_levelised_cost": 151.25,
+        "max_levelised_cost": 225.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.066
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1256,
+    "fields": {
+        "name": "TS",
+        "pot": 1677,
+        "min_levelised_cost": 143.125,
+        "max_levelised_cost": 212.5,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1257,
+    "fields": {
+        "name": "TS",
+        "pot": 1679,
+        "min_levelised_cost": 135.0,
+        "max_levelised_cost": 200.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1258,
+    "fields": {
+        "name": "TS",
+        "pot": 1681,
+        "min_levelised_cost": 126.875,
+        "max_levelised_cost": 187.5,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1259,
+    "fields": {
+        "name": "TS",
+        "pot": 1683,
+        "min_levelised_cost": 118.75,
+        "max_levelised_cost": 175.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1260,
+    "fields": {
+        "name": "TS",
+        "pot": 1685,
+        "min_levelised_cost": 110.625,
+        "max_levelised_cost": 162.5,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1261,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1676,
+        "min_levelised_cost": 84.0,
+        "max_levelised_cost": 96.0,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 0.78
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1262,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1678,
+        "min_levelised_cost": 81.8,
+        "max_levelised_cost": 93.2,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1263,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1680,
+        "min_levelised_cost": 79.6,
+        "max_levelised_cost": 90.4,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1264,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1682,
+        "min_levelised_cost": 77.4,
+        "max_levelised_cost": 87.6,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1265,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1684,
+        "min_levelised_cost": 75.2,
+        "max_levelised_cost": 84.8,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1266,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1686,
+        "min_levelised_cost": 73.0,
+        "max_levelised_cost": 82.0,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1741,
+    "fields": {
+        "name": "OFW",
+        "pot": 1897,
+        "min_levelised_cost": 71.3353908668731,
+        "max_levelised_cost": 103.034791021672,
+        "strike_price": 114.074615384615,
+        "load_factor": 0.42,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1742,
+    "fields": {
+        "name": "OFW",
+        "pot": 1900,
+        "min_levelised_cost": 71.1099729102167,
+        "max_levelised_cost": 101.917093653251,
+        "strike_price": 112.136153846154,
+        "load_factor": 0.434,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1743,
+    "fields": {
+        "name": "OFW",
+        "pot": 1903,
+        "min_levelised_cost": 70.8845549535604,
+        "max_levelised_cost": 100.79939628483,
+        "strike_price": 110.197692307692,
+        "load_factor": 0.448,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1744,
+    "fields": {
+        "name": "OFW",
+        "pot": 1906,
+        "min_levelised_cost": 70.659136996904,
+        "max_levelised_cost": 99.6816989164087,
+        "strike_price": 108.259230769231,
+        "load_factor": 0.462,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1745,
+    "fields": {
+        "name": "OFW",
+        "pot": 1909,
+        "min_levelised_cost": 70.4337190402477,
+        "max_levelised_cost": 98.5640015479876,
+        "strike_price": 106.320769230769,
+        "load_factor": 0.476,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1746,
+    "fields": {
+        "name": "OFW",
+        "pot": 1912,
+        "min_levelised_cost": 70.2083010835913,
+        "max_levelised_cost": 97.4463041795666,
+        "strike_price": 104.382307692308,
+        "load_factor": 0.49,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1747,
+    "fields": {
+        "name": "TL",
+        "pot": 1897,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 0.0,
+        "load_factor": 0.0,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1748,
+    "fields": {
+        "name": "TL",
+        "pot": 1900,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 168.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 1.0045662100457
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1749,
+    "fields": {
+        "name": "TL",
+        "pot": 1903,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 168.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1750,
+    "fields": {
+        "name": "TL",
+        "pot": 1906,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 168.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1751,
+    "fields": {
+        "name": "TL",
+        "pot": 1909,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 168.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1752,
+    "fields": {
+        "name": "TL",
+        "pot": 1912,
+        "min_levelised_cost": 90.0,
+        "max_levelised_cost": 90.0,
+        "strike_price": 92.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 1.0045662100457
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1753,
+    "fields": {
+        "name": "TS",
+        "pot": 1897,
+        "min_levelised_cost": 151.25,
+        "max_levelised_cost": 225.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.066
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1754,
+    "fields": {
+        "name": "TS",
+        "pot": 1900,
+        "min_levelised_cost": 143.125,
+        "max_levelised_cost": 212.5,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1755,
+    "fields": {
+        "name": "TS",
+        "pot": 1903,
+        "min_levelised_cost": 135.0,
+        "max_levelised_cost": 200.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1756,
+    "fields": {
+        "name": "TS",
+        "pot": 1906,
+        "min_levelised_cost": 126.875,
+        "max_levelised_cost": 187.5,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1757,
+    "fields": {
+        "name": "TS",
+        "pot": 1909,
+        "min_levelised_cost": 118.75,
+        "max_levelised_cost": 175.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1758,
+    "fields": {
+        "name": "TS",
+        "pot": 1912,
+        "min_levelised_cost": 110.625,
+        "max_levelised_cost": 162.5,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1759,
+    "fields": {
+        "name": "ONW",
+        "pot": 1898,
+        "min_levelised_cost": 61.0,
+        "max_levelised_cost": 80.0,
+        "strike_price": 80.0,
+        "load_factor": 0.278125,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1760,
+    "fields": {
+        "name": "ONW",
+        "pot": 1901,
+        "min_levelised_cost": 61.4,
+        "max_levelised_cost": 81.0,
+        "strike_price": 80.0,
+        "load_factor": 0.2803125,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1761,
+    "fields": {
+        "name": "ONW",
+        "pot": 1904,
+        "min_levelised_cost": 61.8,
+        "max_levelised_cost": 82.0,
+        "strike_price": 80.0,
+        "load_factor": 0.2825,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1762,
+    "fields": {
+        "name": "ONW",
+        "pot": 1907,
+        "min_levelised_cost": 62.2,
+        "max_levelised_cost": 83.0,
+        "strike_price": 80.0,
+        "load_factor": 0.2846875,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1763,
+    "fields": {
+        "name": "ONW",
+        "pot": 1910,
+        "min_levelised_cost": 62.6,
+        "max_levelised_cost": 84.0,
+        "strike_price": 80.0,
+        "load_factor": 0.286875,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1764,
+    "fields": {
+        "name": "ONW",
+        "pot": 1913,
+        "min_levelised_cost": 63.0,
+        "max_levelised_cost": 85.0,
+        "strike_price": 80.0,
+        "load_factor": 0.2890625,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1765,
+    "fields": {
+        "name": "WA",
+        "pot": 1897,
+        "min_levelised_cost": 260.75,
+        "max_levelised_cost": 298.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.034
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1766,
+    "fields": {
+        "name": "WA",
+        "pot": 1900,
+        "min_levelised_cost": 245.875,
+        "max_levelised_cost": 281.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1767,
+    "fields": {
+        "name": "WA",
+        "pot": 1903,
+        "min_levelised_cost": 231.0,
+        "max_levelised_cost": 264.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1768,
+    "fields": {
+        "name": "WA",
+        "pot": 1906,
+        "min_levelised_cost": 216.125,
+        "max_levelised_cost": 247.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1769,
+    "fields": {
+        "name": "WA",
+        "pot": 1909,
+        "min_levelised_cost": 201.25,
+        "max_levelised_cost": 230.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1770,
+    "fields": {
+        "name": "WA",
+        "pot": 1912,
+        "min_levelised_cost": 186.375,
+        "max_levelised_cost": 213.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1771,
+    "fields": {
+        "name": "NU",
+        "pot": 1899,
+        "min_levelised_cost": 79.0,
+        "max_levelised_cost": 102.0,
+        "strike_price": 100.609806276033,
+        "load_factor": 0.8,
+        "project_gen": 10000.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1772,
+    "fields": {
+        "name": "NU",
+        "pot": 1902,
+        "min_levelised_cost": 78.2,
+        "max_levelised_cost": 101.8,
+        "strike_price": 98.9878450208266,
+        "load_factor": 0.8,
+        "project_gen": 10000.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1773,
+    "fields": {
+        "name": "NU",
+        "pot": 1905,
+        "min_levelised_cost": 77.4,
+        "max_levelised_cost": 101.6,
+        "strike_price": 97.3658837656199,
+        "load_factor": 0.8,
+        "project_gen": 10000.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1774,
+    "fields": {
+        "name": "NU",
+        "pot": 1908,
+        "min_levelised_cost": 76.6,
+        "max_levelised_cost": 101.4,
+        "strike_price": 90.0,
+        "load_factor": 0.8,
+        "project_gen": 10000.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1775,
+    "fields": {
+        "name": "NU",
+        "pot": 1911,
+        "min_levelised_cost": 75.8,
+        "max_levelised_cost": 101.2,
+        "strike_price": 90.0,
+        "load_factor": 0.8,
+        "project_gen": 10000.0,
+        "max_deployment_cap": 2.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1776,
+    "fields": {
+        "name": "NU",
+        "pot": 1914,
+        "min_levelised_cost": 75.0,
+        "max_levelised_cost": 101.0,
+        "strike_price": 92.5,
+        "load_factor": 0.9,
+        "project_gen": 10000.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1777,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1898,
+        "min_levelised_cost": 84.0,
+        "max_levelised_cost": 96.0,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 0.78
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1778,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1901,
+        "min_levelised_cost": 81.8,
+        "max_levelised_cost": 93.2,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1779,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1904,
+        "min_levelised_cost": 79.6,
+        "max_levelised_cost": 90.4,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1780,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1907,
+        "min_levelised_cost": 77.4,
+        "max_levelised_cost": 87.6,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1781,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1910,
+        "min_levelised_cost": 75.2,
+        "max_levelised_cost": 84.8,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1782,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1913,
+        "min_levelised_cost": 73.0,
+        "max_levelised_cost": 82.0,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1783,
+    "fields": {
+        "name": "TS",
+        "pot": 1915,
+        "min_levelised_cost": 151.25,
+        "max_levelised_cost": 225.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.066
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1784,
+    "fields": {
+        "name": "TS",
+        "pot": 1918,
+        "min_levelised_cost": 143.125,
+        "max_levelised_cost": 212.5,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1785,
+    "fields": {
+        "name": "TS",
+        "pot": 1921,
+        "min_levelised_cost": 135.0,
+        "max_levelised_cost": 200.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1786,
+    "fields": {
+        "name": "TS",
+        "pot": 1924,
+        "min_levelised_cost": 126.875,
+        "max_levelised_cost": 187.5,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1787,
+    "fields": {
+        "name": "TS",
+        "pot": 1927,
+        "min_levelised_cost": 118.75,
+        "max_levelised_cost": 175.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1788,
+    "fields": {
+        "name": "TS",
+        "pot": 1930,
+        "min_levelised_cost": 110.625,
+        "max_levelised_cost": 162.5,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1789,
+    "fields": {
+        "name": "OFW",
+        "pot": 1915,
+        "min_levelised_cost": 71.3353908668731,
+        "max_levelised_cost": 103.034791021672,
+        "strike_price": 114.074615384615,
+        "load_factor": 0.42,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1790,
+    "fields": {
+        "name": "OFW",
+        "pot": 1918,
+        "min_levelised_cost": 71.1099729102167,
+        "max_levelised_cost": 101.917093653251,
+        "strike_price": 112.136153846154,
+        "load_factor": 0.434,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1791,
+    "fields": {
+        "name": "OFW",
+        "pot": 1921,
+        "min_levelised_cost": 70.8845549535604,
+        "max_levelised_cost": 100.79939628483,
+        "strike_price": 110.197692307692,
+        "load_factor": 0.448,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1792,
+    "fields": {
+        "name": "OFW",
+        "pot": 1924,
+        "min_levelised_cost": 70.659136996904,
+        "max_levelised_cost": 99.6816989164087,
+        "strike_price": 108.259230769231,
+        "load_factor": 0.462,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1793,
+    "fields": {
+        "name": "OFW",
+        "pot": 1927,
+        "min_levelised_cost": 70.4337190402477,
+        "max_levelised_cost": 98.5640015479876,
+        "strike_price": 106.320769230769,
+        "load_factor": 0.476,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1794,
+    "fields": {
+        "name": "OFW",
+        "pot": 1930,
+        "min_levelised_cost": 70.2083010835913,
+        "max_levelised_cost": 97.4463041795666,
+        "strike_price": 104.382307692308,
+        "load_factor": 0.49,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1795,
+    "fields": {
+        "name": "WA",
+        "pot": 1915,
+        "min_levelised_cost": 260.75,
+        "max_levelised_cost": 298.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.034
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1796,
+    "fields": {
+        "name": "WA",
+        "pot": 1918,
+        "min_levelised_cost": 245.875,
+        "max_levelised_cost": 281.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1797,
+    "fields": {
+        "name": "WA",
+        "pot": 1921,
+        "min_levelised_cost": 231.0,
+        "max_levelised_cost": 264.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1798,
+    "fields": {
+        "name": "WA",
+        "pot": 1924,
+        "min_levelised_cost": 216.125,
+        "max_levelised_cost": 247.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1799,
+    "fields": {
+        "name": "WA",
+        "pot": 1927,
+        "min_levelised_cost": 201.25,
+        "max_levelised_cost": 230.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1800,
+    "fields": {
+        "name": "WA",
+        "pot": 1930,
+        "min_levelised_cost": 186.375,
+        "max_levelised_cost": 213.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1801,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1916,
+        "min_levelised_cost": 84.0,
+        "max_levelised_cost": 96.0,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 0.78
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1802,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1919,
+        "min_levelised_cost": 81.8,
+        "max_levelised_cost": 93.2,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1803,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1922,
+        "min_levelised_cost": 79.6,
+        "max_levelised_cost": 90.4,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1804,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1925,
+        "min_levelised_cost": 77.4,
+        "max_levelised_cost": 87.6,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1805,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1928,
+        "min_levelised_cost": 75.2,
+        "max_levelised_cost": 84.8,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1806,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1931,
+        "min_levelised_cost": 73.0,
+        "max_levelised_cost": 82.0,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1807,
+    "fields": {
+        "name": "TL",
+        "pot": 1915,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 0.0,
+        "load_factor": 0.0,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1808,
+    "fields": {
+        "name": "TL",
+        "pot": 1918,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 168.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 1.0045662100457
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1809,
+    "fields": {
+        "name": "TL",
+        "pot": 1921,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 168.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1810,
+    "fields": {
+        "name": "TL",
+        "pot": 1924,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 168.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1811,
+    "fields": {
+        "name": "TL",
+        "pot": 1927,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 168.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1812,
+    "fields": {
+        "name": "TL",
+        "pot": 1930,
+        "min_levelised_cost": 90.0,
+        "max_levelised_cost": 90.0,
+        "strike_price": 92.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 1.0045662100457
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1813,
+    "fields": {
+        "name": "NU",
+        "pot": 1917,
+        "min_levelised_cost": 79.0,
+        "max_levelised_cost": 102.0,
+        "strike_price": 100.609806276033,
+        "load_factor": 0.8,
+        "project_gen": 10000.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1814,
+    "fields": {
+        "name": "NU",
+        "pot": 1920,
+        "min_levelised_cost": 78.2,
+        "max_levelised_cost": 101.8,
+        "strike_price": 98.9878450208266,
+        "load_factor": 0.8,
+        "project_gen": 10000.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1815,
+    "fields": {
+        "name": "NU",
+        "pot": 1923,
+        "min_levelised_cost": 77.4,
+        "max_levelised_cost": 101.6,
+        "strike_price": 97.3658837656199,
+        "load_factor": 0.8,
+        "project_gen": 10000.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1816,
+    "fields": {
+        "name": "NU",
+        "pot": 1926,
+        "min_levelised_cost": 76.6,
+        "max_levelised_cost": 101.4,
+        "strike_price": 90.0,
+        "load_factor": 0.8,
+        "project_gen": 10000.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1817,
+    "fields": {
+        "name": "NU",
+        "pot": 1929,
+        "min_levelised_cost": 75.8,
+        "max_levelised_cost": 101.2,
+        "strike_price": 90.0,
+        "load_factor": 0.8,
+        "project_gen": 10000.0,
+        "max_deployment_cap": 2.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1818,
+    "fields": {
+        "name": "NU",
+        "pot": 1932,
+        "min_levelised_cost": 75.0,
+        "max_levelised_cost": 101.0,
+        "strike_price": 92.5,
+        "load_factor": 0.9,
+        "project_gen": 10000.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1819,
+    "fields": {
+        "name": "ONW",
+        "pot": 1916,
+        "min_levelised_cost": 61.0,
+        "max_levelised_cost": 80.0,
+        "strike_price": 80.0,
+        "load_factor": 0.278125,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1820,
+    "fields": {
+        "name": "ONW",
+        "pot": 1919,
+        "min_levelised_cost": 61.4,
+        "max_levelised_cost": 81.0,
+        "strike_price": 80.0,
+        "load_factor": 0.2803125,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1821,
+    "fields": {
+        "name": "ONW",
+        "pot": 1922,
+        "min_levelised_cost": 61.8,
+        "max_levelised_cost": 82.0,
+        "strike_price": 80.0,
+        "load_factor": 0.2825,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1822,
+    "fields": {
+        "name": "ONW",
+        "pot": 1925,
+        "min_levelised_cost": 62.2,
+        "max_levelised_cost": 83.0,
+        "strike_price": 80.0,
+        "load_factor": 0.2846875,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1823,
+    "fields": {
+        "name": "ONW",
+        "pot": 1928,
+        "min_levelised_cost": 62.6,
+        "max_levelised_cost": 84.0,
+        "strike_price": 80.0,
+        "load_factor": 0.286875,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1824,
+    "fields": {
+        "name": "ONW",
+        "pot": 1931,
+        "min_levelised_cost": 63.0,
+        "max_levelised_cost": 85.0,
+        "strike_price": 80.0,
+        "load_factor": 0.2890625,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1825,
+    "fields": {
+        "name": "TS",
+        "pot": 1933,
+        "min_levelised_cost": 151.25,
+        "max_levelised_cost": 225.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.066
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1826,
+    "fields": {
+        "name": "TS",
+        "pot": 1935,
+        "min_levelised_cost": 143.125,
+        "max_levelised_cost": 212.5,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1827,
+    "fields": {
+        "name": "TS",
+        "pot": 1937,
+        "min_levelised_cost": 135.0,
+        "max_levelised_cost": 200.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1828,
+    "fields": {
+        "name": "TS",
+        "pot": 1939,
+        "min_levelised_cost": 126.875,
+        "max_levelised_cost": 187.5,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1829,
+    "fields": {
+        "name": "TS",
+        "pot": 1941,
+        "min_levelised_cost": 118.75,
+        "max_levelised_cost": 175.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1830,
+    "fields": {
+        "name": "TS",
+        "pot": 1943,
+        "min_levelised_cost": 110.625,
+        "max_levelised_cost": 162.5,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 50.0,
+        "max_deployment_cap": 0.0068
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1831,
+    "fields": {
+        "name": "OFW",
+        "pot": 1933,
+        "min_levelised_cost": 71.3353908668731,
+        "max_levelised_cost": 103.034791021672,
+        "strike_price": 114.074615384615,
+        "load_factor": 0.42,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1832,
+    "fields": {
+        "name": "OFW",
+        "pot": 1935,
+        "min_levelised_cost": 71.1099729102167,
+        "max_levelised_cost": 101.917093653251,
+        "strike_price": 112.136153846154,
+        "load_factor": 0.434,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1833,
+    "fields": {
+        "name": "OFW",
+        "pot": 1937,
+        "min_levelised_cost": 70.8845549535604,
+        "max_levelised_cost": 100.79939628483,
+        "strike_price": 110.197692307692,
+        "load_factor": 0.448,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1834,
+    "fields": {
+        "name": "OFW",
+        "pot": 1939,
+        "min_levelised_cost": 70.659136996904,
+        "max_levelised_cost": 99.6816989164087,
+        "strike_price": 108.259230769231,
+        "load_factor": 0.462,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1835,
+    "fields": {
+        "name": "OFW",
+        "pot": 1941,
+        "min_levelised_cost": 70.4337190402477,
+        "max_levelised_cost": 98.5640015479876,
+        "strike_price": 106.320769230769,
+        "load_factor": 0.476,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1836,
+    "fields": {
+        "name": "OFW",
+        "pot": 1943,
+        "min_levelised_cost": 70.2083010835913,
+        "max_levelised_cost": 97.4463041795666,
+        "strike_price": 104.382307692308,
+        "load_factor": 0.49,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1837,
+    "fields": {
+        "name": "WA",
+        "pot": 1933,
+        "min_levelised_cost": 260.75,
+        "max_levelised_cost": 298.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.034
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1838,
+    "fields": {
+        "name": "WA",
+        "pot": 1935,
+        "min_levelised_cost": 245.875,
+        "max_levelised_cost": 281.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1839,
+    "fields": {
+        "name": "WA",
+        "pot": 1937,
+        "min_levelised_cost": 231.0,
+        "max_levelised_cost": 264.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1840,
+    "fields": {
+        "name": "WA",
+        "pot": 1939,
+        "min_levelised_cost": 216.125,
+        "max_levelised_cost": 247.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1841,
+    "fields": {
+        "name": "WA",
+        "pot": 1941,
+        "min_levelised_cost": 201.25,
+        "max_levelised_cost": 230.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1842,
+    "fields": {
+        "name": "WA",
+        "pot": 1943,
+        "min_levelised_cost": 186.375,
+        "max_levelised_cost": 213.0,
+        "strike_price": 305.0,
+        "load_factor": 0.31,
+        "project_gen": 27.0,
+        "max_deployment_cap": 0.0032
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1843,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1934,
+        "min_levelised_cost": 84.0,
+        "max_levelised_cost": 96.0,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 0.78
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1844,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1936,
+        "min_levelised_cost": 81.8,
+        "max_levelised_cost": 93.2,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1845,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1938,
+        "min_levelised_cost": 79.6,
+        "max_levelised_cost": 90.4,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1846,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1940,
+        "min_levelised_cost": 77.4,
+        "max_levelised_cost": 87.6,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1847,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1942,
+        "min_levelised_cost": 75.2,
+        "max_levelised_cost": 84.8,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1848,
+    "fields": {
+        "name": "PVLS",
+        "pot": 1944,
+        "min_levelised_cost": 73.0,
+        "max_levelised_cost": 82.0,
+        "strike_price": 80.0,
+        "load_factor": 0.1113,
+        "project_gen": 11.699856,
+        "max_deployment_cap": 1.53
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1849,
+    "fields": {
+        "name": "TL",
+        "pot": 1933,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 0.0,
+        "load_factor": 0.0,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1850,
+    "fields": {
+        "name": "TL",
+        "pot": 1935,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 168.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 1.0045662100457
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1851,
+    "fields": {
+        "name": "TL",
+        "pot": 1937,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 168.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1852,
+    "fields": {
+        "name": "TL",
+        "pot": 1939,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 168.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1853,
+    "fields": {
+        "name": "TL",
+        "pot": 1941,
+        "min_levelised_cost": 150.0,
+        "max_levelised_cost": 150.0,
+        "strike_price": 168.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 0.0
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1854,
+    "fields": {
+        "name": "TL",
+        "pot": 1943,
+        "min_levelised_cost": 90.0,
+        "max_levelised_cost": 90.0,
+        "strike_price": 92.0,
+        "load_factor": 0.25,
+        "project_gen": 2200.0,
+        "max_deployment_cap": 1.0045662100457
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1855,
+    "fields": {
+        "name": "ONW",
+        "pot": 1934,
+        "min_levelised_cost": 61.0,
+        "max_levelised_cost": 80.0,
+        "strike_price": 80.0,
+        "load_factor": 0.278125,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1856,
+    "fields": {
+        "name": "ONW",
+        "pot": 1936,
+        "min_levelised_cost": 61.4,
+        "max_levelised_cost": 81.0,
+        "strike_price": 80.0,
+        "load_factor": 0.2803125,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1857,
+    "fields": {
+        "name": "ONW",
+        "pot": 1938,
+        "min_levelised_cost": 61.8,
+        "max_levelised_cost": 82.0,
+        "strike_price": 80.0,
+        "load_factor": 0.2825,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1858,
+    "fields": {
+        "name": "ONW",
+        "pot": 1940,
+        "min_levelised_cost": 62.2,
+        "max_levelised_cost": 83.0,
+        "strike_price": 80.0,
+        "load_factor": 0.2846875,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1859,
+    "fields": {
+        "name": "ONW",
+        "pot": 1942,
+        "min_levelised_cost": 62.6,
+        "max_levelised_cost": 84.0,
+        "strike_price": 80.0,
+        "load_factor": 0.286875,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 1860,
+    "fields": {
+        "name": "ONW",
+        "pot": 1944,
+        "min_levelised_cost": 63.0,
+        "max_levelised_cost": 85.0,
+        "strike_price": 80.0,
+        "load_factor": 0.2890625,
+        "project_gen": 30.0,
+        "max_deployment_cap": 0.73
+    }
+}
+]

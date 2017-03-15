@@ -104,19 +104,25 @@ def scenario_download(request,pk):
     scenario = get_object_or_404(Scenario,pk=pk)
     scenarios = Scenario.objects.all()
 
-    accounting_cost_df = scenario.accounting_cost()['df']
-
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="accounting_cost.csv"'
+    response['Content-Disposition'] = 'attachment; filename="data.csv"'
 
     writer = csv.writer(response)
-    headers = ['']
-    headers.extend(accounting_cost_df.columns)
-    writer.writerow(headers)
-    for i in range(len(accounting_cost_df.index)):
-        row = [accounting_cost_df.index[i]]
-        row.extend(accounting_cost_df.iloc[i])
-        writer.writerow(row)
+    df_list = [('Accounting cost', scenario.accounting_cost()['df']),
+               ('Generation', scenario.summary_gen_by_tech()['df']),
+               ('Capacity', scenario.summary_cap_by_tech()['df'])]
+
+    for df_pair in df_list:
+        title = [df_pair[0]]
+        writer.writerow(title)
+        headers = ['']
+        headers.extend(df_pair[1].columns)
+        writer.writerow(headers)
+        for i in range(len(df_pair[1].index)):
+            row = [df_pair[1].index[i]]
+            row.extend(df_pair[1].iloc[i])
+            writer.writerow(row)
+        writer.writerow([])
 
     return response
