@@ -1,15 +1,12 @@
 priority:
-  *ability to turn off technologies.
-  *include comparison to gas prices: where does this enter in? presumably not in the actual auction process, just in the cost tally?
+  *ability to turn off technologies (and pots)
 
 additional functionality:
-  *include absolute cost (ie not compared to wholesale price or gas price)
-  *check that swapping pots works as expected - eg separate negotiations for tidal (and putting nuclear in emerging?)
-  *maybe create a technology agnostic pot?
   *think about post 2026. create option to have two auction periods?
+  *check that swapping pots works as expected - eg separate negotiations for tidal (and putting nuclear in emerging?)
   *make it allow manual numbers of projects for TL and maybe manual amount of NW
-  *create options to get rid of 89 extra being carried over, and for cumulative generation to start from 2021 not 2020.
-  *combine all excel quirks into one checkbox
+  *create options to get rid of 89 extra being carried over, and for cumulative generation to start from 2021 not 2020 / combine all excel quirks into one checkbox
+  *include absolute cost (ie not compared to wholesale price or gas price)
 
 hosting:
   *upload to github/python anywhere (or heroku)
@@ -30,17 +27,17 @@ tests:
 
 appearance:
   write some CSS/use bootstrap components
-  how to select active scenario?
 
 output page:
   give option to display inputs with jquery
+  *improve layout. create more tables.
+
+create policy model:
 
 diverge from Excel model:
   ?create normal distribution of projects?
   maxima/minima?
   change the way each year is based on cumulative generation with the cost distribution therefore including previously funded projects
-
-create policy model:
 
 speed up!/refactor:
   stop the pots being in random order
@@ -57,3 +54,4 @@ Resolved issues:
 Unresolved issues:
   * tidal is still funny because of the levelised cost being manually inputted for projects. Means I can't always match the answers. I've added a scenario option to sort of account for this, though it's only for the case of max_levelised cost = 150.
   * there seems to be a weird quirk that £89m extra is carried over each year than ought to be, because NW is counted in initial budget, but then 'unspent' is calculated by subtracting only the auction and negotiation spend from the initial budget
+  * there's also a problem with trying to keep the generation constant while changing reference to gas prices, because you might think that cumulative generation is the same but if some of the distribution has shifted into 2020 then what you're paying for after that will be different.

@@ -46,7 +46,7 @@ class Scenario(models.Model):
         return sum([a.awarded_gen() for a in self.auctionyear_set.filter(year__range=(start_year,end_year))])
 
     def cum_gen_end_year(self):
-        return self.cum_gen(2020,self.end_year) - 2760
+        return self.cum_gen(2020,self.end_year) - 2760 # only if FIT
 
     def innovation_premium_end_year(self):
         return self.paid_end_year() - 445

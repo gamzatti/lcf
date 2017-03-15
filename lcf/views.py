@@ -83,19 +83,19 @@ def scenario_detail(request, pk):
     gen_by_tech_chart = ColumnChart(gen_by_tech_data_source, options=gen_by_tech_options, height=400, width="100%")
     gen_by_tech_df = scenario.summary_gen_by_tech()['df'].to_html(classes="table table-striped table-condensed")
 
-    cap_by_tech_data = scenario.summary_cap_by_tech()['title']
-    cap_by_tech_data_source = SimpleDataSource(data=cap_by_tech_data)
-    cap_by_tech_options = {'vAxis': {'title': 'GW'}, 'title': None}
-    cap_by_tech_chart = ColumnChart(cap_by_tech_data_source, options=cap_by_tech_options, height=400, width="100%")
-    cap_by_tech_df = scenario.summary_cap_by_tech()['df'].to_html(classes="table table-striped table-condensed")
+    #cap_by_tech_data = scenario.summary_cap_by_tech()['title']
+    #cap_by_tech_data_source = SimpleDataSource(data=cap_by_tech_data)
+    #cap_by_tech_options = {'vAxis': {'title': 'GW'}, 'title': None}
+    #cap_by_tech_chart = ColumnChart(cap_by_tech_data_source, options=cap_by_tech_options, height=400, width="100%")
+    #cap_by_tech_df = scenario.summary_cap_by_tech()['df'].to_html(classes="table table-striped table-condensed")
 
     context = {'scenario': scenario,
                'scenarios': scenarios,
                'accounting_cost_chart': accounting_cost_chart,
                'gen_by_tech_chart': gen_by_tech_chart,
-               'cap_by_tech_chart': cap_by_tech_chart,
+               #'cap_by_tech_chart': cap_by_tech_chart,
                'accounting_cost_df': accounting_cost_df,
-               'cap_by_tech_df': cap_by_tech_df,
+               #'cap_by_tech_df': cap_by_tech_df,
                'gen_by_tech_df': gen_by_tech_df }
 
     return render(request, 'lcf/scenario_detail.html', context)
