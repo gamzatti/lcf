@@ -31,14 +31,29 @@ class Scenario(models.Model):
         a = self.auctionyear_set.get(year=year)
         return a.paid()
 
+    def paid_v_gas(self, year):
+        a = self.auctionyear_set.get(year=year)
+        return a.paid_v_gas()
+
     def paid_end_year(self):
         return self.paid(self.end_year)
+
+    def paid_v_gas_end_year(self):
+        return self.paid_v_gas(self.end_year)
+
 
     def cum_gen(self, start_year, end_year):
         return sum([a.awarded_gen() for a in self.auctionyear_set.filter(year__range=(start_year,end_year))])
 
     def cum_gen_end_year(self):
-        return self.cum_gen(2020,self.end_year)
+        return self.cum_gen(2020,self.end_year) - 2760
+
+    def innovation_premium_end_year(self):
+        return self.paid_end_year() - 445
+
+    def innovation_premium_v_gas_end_year(self):
+        return self.paid_v_gas_end_year() - 445
+
 
     def projects_df(self):
         projects = pd.concat([t.projects() for a in self.auctionyear_set.all() for p in a.pot_set.all() for t in p.technology_set.all() ])
@@ -186,6 +201,7 @@ class AuctionYear(models.Model):
     def awarded_gen(self):
         awarded_gen = 0
         for pot in self.pot_set.all():
+            print(pot.name, 'awarded', self.year, pot.gen())
             awarded_gen += pot.gen()
         return awarded_gen
 
@@ -220,12 +236,24 @@ class AuctionYear(models.Model):
         else:
             return self.scenario.auctionyear_set.filter(year__range=(self.scenario.start_year,self.year-1)).order_by('year')
 
+    def years(self):
+        if self.year == 2020:
+            return self
+        else:
+            return self.scenario.auctionyear_set.filter(year__range=(self.scenario.start_year,self.year)).order_by('year')
+
 
     def paid(self):
         if self.year == 2020:
-            return self.awarded()
+            return self.owed(self)
         else:
-            return self.awarded() + sum([self.owed(previous_year) for previous_year in self.previous_years()])
+            return sum([self.owed(year) for year in self.years()])
+
+    def paid_v_gas(self):
+        if self.year == 2020:
+            return self.owed_v_gas(self)
+        else:
+            return sum([self.owed_v_gas(year) for year in self.years()])
 
 
     def owed(self, previous_year):
@@ -252,6 +280,32 @@ class AuctionYear(models.Model):
         owed = sum(owed.values())
         return owed
 
+
+
+
+    def owed_v_gas(self, previous_year):
+        owed = {}
+        for pot in previous_year.pot_set.all():
+            owed[pot.name] = 0
+            data = pot.summary_for_future()
+            for t in pot.technology_set.all():
+                gen = data['gen'][t.name]
+                strike_price = data['strike_price'][t.name]
+                if self.scenario.excel_wp_error == True:
+                    #next 5 lines account for Angela's error
+                    if (pot.name == "E") or (pot.name == "SN"):
+                        try:
+                            strike_price = self.pot_set.get(name=pot.name).technology_set.get(name=t.name).strike_price
+                        except:
+                            break
+                difference = strike_price - self.gas_price
+                if pot.name == "FIT":
+                    difference = strike_price
+                tech_owed = gen * difference
+                owed[pot.name] += tech_owed
+                #print(self.year, previous_year.year, t.name, tech_owed)
+        owed = sum(owed.values())
+        return owed
 
 
 class Pot(models.Model):

@@ -1,7 +1,7 @@
 {% extends 'lcf/base.html' %}
 
 {% block title %}
-    {{ scenario.name }} - 
+    {{ scenario.name }} -
 {% endblock %}
 
 {% block content %}
@@ -43,9 +43,16 @@
 <p>budget: £{{ scenario.budget }}bn</p>
 <p>percent in emerging pot: {{ scenario.percent_emerging }}</p>
 
-<p>Paid out in last year: £{{ scenario.paid_end_year }}m</p>
-
 <p>Cumulative new generation: {{ scenario.cum_gen_end_year }}TWh</p>
+
+<p>Paid out in last year: £{{ scenario.paid_end_year }}m</p>
+<p>Paid out in last year, v gas: £{{ scenario.paid_v_gas_end_year }}m
+
+<p>Innovation premium end year (paid v gas - FIT): £{{ scenario.innovation_premium_v_gas_end_year }}m</p>
+
+
+<p>Innovation premium end year (accounting cost - FIT): £{{ scenario.innovation_premium_end_year }}m</p>
+
 
 <a href="{% url 'scenario_download' pk=scenario.pk %}"><div class="btn btn-primary">Download CSV</div></a>
 
