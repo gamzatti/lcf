@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory, formset_factory
 from .forms import ScenarioForm, PricesForm, TechnologyStringForm
 from .models import Scenario, AuctionYear, Pot, Technology
+
+
 from django.http import HttpResponse
 import pandas as pd
 import numpy as np
