@@ -35,26 +35,17 @@ class Scenario(models.Model):
         a = self.auctionyear_set.get(year=year)
         return a.paid_v_gas()
 
-    def paid_end_year(self):
-        return round(self.paid(self.end_year)/1000,2)
-
-    def paid_v_gas_end_year(self):
-        return round(self.paid_v_gas(self.end_year),2)
-
+    def innovation_premium_v_gas(self, year):
+        fit = 445
+        return self.paid_v_gas() - fit
 
     def cum_gen(self, start_year, end_year):
         return sum([a.awarded_gen() for a in self.auctionyear_set.filter(year__range=(start_year,end_year))])
 
-    def cum_gen_end_year(self):
-        return round((self.cum_gen(2020,self.end_year) - 2760)/1000,2) # only if FIT
-
-    def innovation_premium_end_year(self):
-        return self.paid_end_year() - 445
-
-    def innovation_premium_v_gas_end_year(self):
-        return round(self.paid_v_gas_end_year() - 445,2)
 
 
+
+    #form helper methods
     def projects_df(self):
         projects = pd.concat([t.projects() for a in self.auctionyear_set.all() for p in a.active_pots().all() for t in p.tech_set().all() ])
         #print(projects)
@@ -87,7 +78,46 @@ class Scenario(models.Model):
         return t_names, initial_technologies
 
 
+
+
+    #end year summary data methods (because functions with arguments can't be called in templates)
+    def paid_end_year(self):
+        return round(self.paid(self.end_year)/1000,2)
+
+    def paid_v_gas_end_year(self):
+        return round(self.paid_v_gas(self.end_year),2)
+
+    def cum_gen_end_year(self):
+        return round((self.cum_gen(2020,self.end_year) - 2760)/1000,2) # only if FIT
+
+    #def innovation_premium_end_year(self):
+        #return self.paid_end_year() - 445
+
+    def innovation_premium_v_gas_end_year(self):
+        return round(self.paid_v_gas_end_year() - 445,2)
+
+
+
+
+    #graph/table methods
     def accounting_cost(self):
+        title = [['year', 'Accounting cost', 'Cost v gas', 'Innovation premium']]
+        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
+        years = [str(a.year) for a in auctionyears]
+        accounting_costs = [round(a.paid()/1000,3) for a in auctionyears]
+        cost_v_gas = [round(a.paid_v_gas()/1000,3) for a in auctionyears]
+        innovation_premium = [round(a.innovation_premium()/1000,3) for a in auctionyears]
+        ddf = DataFrame([years,accounting_costs, cost_v_gas, innovation_premium])
+        df = ddf.copy()
+        df.columns = years
+        df.index = title
+        df = df.drop('year')
+        data = ddf.T.values.tolist()
+        title.extend(data)
+        return {'title': title, 'df': df}
+
+
+    def accounting_cost_comparison(self):
         title = [['year', 'Accounting cost: '+self.name, 'DECC 2015 w/TCCP', 'Meets 90TWh (no TCCP)', 'Meets 90TWh']]
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
         years = [str(a.year) for a in auctionyears]
@@ -257,6 +287,9 @@ class AuctionYear(models.Model):
         else:
             return sum([self.owed_v_gas(year) for year in self.years()])
 
+    def innovation_premium(self):
+        return self.paid_v_gas() - self.nw_paid()
+
 
     def owed(self, previous_year):
         owed = {}
@@ -282,7 +315,20 @@ class AuctionYear(models.Model):
         owed = sum(owed.values())
         return owed
 
+    def nw_paid(self):
+        if self.year == 2020:
+            return self.nw_owed(self)
+        else:
+            return sum([self.nw_owed(year) for year in self.years()])
 
+    def nw_owed(self,previous_year):
+        pot = previous_year.active_pots().get(name="FIT")
+        data = pot.summary_for_future()
+        t = Technology.objects.get(name="NW", pot=pot)
+        gen = data['gen'][t.name]
+        difference = data['strike_price'][t.name]
+        owed = gen * difference
+        return owed
 
 
     def owed_v_gas(self, previous_year):
@@ -397,18 +443,21 @@ class Pot(models.Model):
             cost = projects[projects.funded_this_year==True].attempted_cum_cost.max()
             gen = projects[projects.funded_this_year==True].attempted_cum_gen.max()
 
-        return {'cost': cost, 'gen': gen, 'projects': projects, 'tech_cost': tech_cost, 'tech_gen': tech_gen}
+
+        return {'cost': cost, 'gen': gen, 'projects': projects}
 
 
 
     def summary_for_future(self):
         gen = {}
         strike_price = {}
+        cost = {}
         for tech in self.tech_set().all():
             tech_projects = self.projects()[(self.projects().funded_this_year == True) & (self.projects().technology == tech.name)]
             gen[tech.name] = tech_projects.attempted_project_gen.sum()/1000 if pd.notnull(tech_projects.attempted_project_gen.sum()) else 0
             strike_price[tech.name] = tech_projects.strike_price.max() if pd.notnull(tech_projects.strike_price.max()) else 0
-        return {'gen': gen, 'strike_price': strike_price}
+            cost[tech.name] = sum(tech_projects.cost)
+        return {'gen': gen, 'strike_price': strike_price, 'cost': cost}
 
     def summary_gen_by_tech(self):
         return DataFrame([self.summary_for_future()['gen']],index=["Gen"]).T

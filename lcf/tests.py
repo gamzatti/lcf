@@ -434,7 +434,7 @@ class ScenarioMethodTests(TestCase):
         self.assertEqual(round(self.s.cum_gen(2020,2022)+428),26088)
 
     def test_paid_end_year(self):
-        self.assertEqual(round(self.s.paid_end_year(),2),927.18)
+        self.assertEqual(round(self.s.paid_end_year(),2),0.93)
 
     def test_cum_gen_end_year(self):
         pass
@@ -615,7 +615,7 @@ class NuclearTests(TestCase):
 
 
         self.assertEqual(round(a5.paid()/1000,3),2.384)
-        self.assertEqual(round(s.paid_end_year()/1000,3),2.384)
+        self.assertEqual(round(s.paid_end_year(),2),2.38)
 
 
 class FITTests(TestCase):
@@ -752,6 +752,24 @@ class ExclusionTests(TestCase):
         pass
         #print(a1.active_pots())
 
+class RefactorTests(TestCase):
+    fixtures = ['all_data2.json']
+
+    def setUp(self):
+        self.s = Scenario.objects.get(pk=245)
+
+    def test_technology_cost(self):
+        e2 = Pot.objects.get(auctionyear__year=2022, name="E", auctionyear__scenario=self.s)
+        #print(e2.projects())
+        self.assertEqual(round(e2.summary_for_future()['cost']['OFW']),473)
+        self.assertEqual(round(e2.summary_for_future()['cost']['TL']),0)
+        e5 = Pot.objects.get(auctionyear__year=2025, name="E", auctionyear__scenario=self.s)
+        self.assertEqual(round(e5.summary_for_future()['cost']['TL']),54)
+        self.assertEqual(round(sum(e5.summary_for_future()['cost'].values()),2),round(e5.cost(),2))
+
+    def test_innovation_premium(self):
+        a2 = self.s.auctionyear_set.get(year=2022)
+        a2.innovation_premium()
 
 class LcfViewsTestCase(TestCase):
     fixtures = ['test_data.json']
