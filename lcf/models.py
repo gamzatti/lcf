@@ -36,23 +36,23 @@ class Scenario(models.Model):
         return a.paid_v_gas()
 
     def paid_end_year(self):
-        return self.paid(self.end_year)
+        return round(self.paid(self.end_year)/1000,2)
 
     def paid_v_gas_end_year(self):
-        return self.paid_v_gas(self.end_year)
+        return round(self.paid_v_gas(self.end_year),2)
 
 
     def cum_gen(self, start_year, end_year):
         return sum([a.awarded_gen() for a in self.auctionyear_set.filter(year__range=(start_year,end_year))])
 
     def cum_gen_end_year(self):
-        return self.cum_gen(2020,self.end_year) - 2760 # only if FIT
+        return round((self.cum_gen(2020,self.end_year) - 2760)/1000,2) # only if FIT
 
     def innovation_premium_end_year(self):
         return self.paid_end_year() - 445
 
     def innovation_premium_v_gas_end_year(self):
-        return self.paid_v_gas_end_year() - 445
+        return round(self.paid_v_gas_end_year() - 445,2)
 
 
     def projects_df(self):

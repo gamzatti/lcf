@@ -1,7 +1,6 @@
 priority:
-  *ability to turn off technologies (and pots) / check that swapping pots works as expected - eg separate negotiations for tidal (and putting nuclear in emerging?)
-  *improve layout. create more tables and graphs inc. summary of pots (in dataframe?)
   *some proper refactoring!
+  *improve layout. create more tables and graphs inc. summary of pots (in dataframe?)
   *upload to github/python anywhere (or heroku)
 
 additional functionality:
@@ -19,11 +18,11 @@ initial data:
   *load in data for existing scenarios (1, 2 and 3) / write code that converts csv to either json or probably more easily to Django model
 
 inputs:
-  improve interface, eg  hide technology inputs initially with jquery, disallow editing of year and technology. ability to turn off technologies, maybe add choice options for prices? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
+  improve interface, eg  hide technology inputs initially with jquery, disallow editing of year and technology, disable editing when technologies are turned off, maybe add choice options for prices? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
   deal with tidal that has initial generation rather than capacity (for form?)
   errors for form fields being empty/incorrect?
   change form to not use 2020 input
-  change form to not make name editable
+
 
 tests:
   improve views tests
@@ -45,6 +44,7 @@ speed up!/refactor:
   generally refactor according to better OOD and pandas
   clean up the different generation, capacity and money units
   deal with error message: a value is trying to be set on a copy of a slice from a DataFrame
+  figure out why sometimes technologies end up in wrong pot!
 
 Resolved issues:
   * realised that solar PV was affected by the previous years. Because there are projects already funded at the lowest levelised costs, these ones aren't eligible in eg 2022. the way I've fixed this for now is just putting 0 for all years up to but not including 2020 in the number of projects in Excel version

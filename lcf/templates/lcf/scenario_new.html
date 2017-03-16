@@ -17,7 +17,11 @@ console.log('hello')
             <p>Enter values for 2020 to scenario end year (inclusive), separated by commas, spaces or tabs, eg if end year is 2025 enter six values.</p>
             {{ prices_form }}
             <h3>Edit technologies?</h3>
-            {{ string_formset }}
+            {% for form in string_formset %}
+                <hr>
+                {{ form }}
+            {% endfor %}
+            {{ string_formset.management_form }}
         </div>
         <button type="submit" class="save btn btn-default">Save</button>
 

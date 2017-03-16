@@ -40,18 +40,15 @@
     <p>{{ scenario.description }}</p>
 {% endif %}
 <p>created {{ scenario.date }}</p>
-<p>budget: £{{ scenario.budget }}bn</p>
-<p>percent in emerging pot: {{ scenario.percent_emerging }}</p>
+<p>period: <strong>{{ scenario.start_year }} to {{ scenario.end_year }}</strong></p>
+<p>budget: <strong>£{{ scenario.budget }}bn</strong></p>
+<p>percent in emerging pot: <strong>{{ scenario.percent_emerging }}</strong></p>
 
-<p>Cumulative new generation: {{ scenario.cum_gen_end_year }}TWh</p>
+<p>cumulative new generation: <strong>{{ scenario.cum_gen_end_year }}TWh</strong></p>
 
-<p>Paid out in last year: £{{ scenario.paid_end_year }}m</p>
-<p>Paid out in last year, v gas: £{{ scenario.paid_v_gas_end_year }}m
-
-<p>Innovation premium end year (paid v gas - FIT): £{{ scenario.innovation_premium_v_gas_end_year }}m</p>
-
-
-<p>Innovation premium end year (accounting cost - FIT): £{{ scenario.innovation_premium_end_year }}m</p>
+<p>accounting cost end year: <strong>£{{ scenario.paid_end_year }}bn</strong></p>
+<p>cost compared to gas end year: <strong>£{{ scenario.paid_v_gas_end_year }}m</strong></p>
+<p>innovation premium end year: <strong>£{{ scenario.innovation_premium_v_gas_end_year }}m</strong></p>
 
 
 <a href="{% url 'scenario_download' pk=scenario.pk %}"><div class="btn btn-primary">Download CSV</div></a>
