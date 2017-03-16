@@ -36,11 +36,12 @@ def scenario_new(request,pk):
             q = Pot.objects.filter(auctionyear__scenario=scenario_new)
 
             for form in string_formset:
-                fields = [f.name for f in Technology._meta.get_fields() if f.name not in ["pot", "id", "name"]]
+                fields = [f.name for f in Technology._meta.get_fields() if f.name not in ["pot", "id", "name", "included"]]
                 field_data = { field : [float(s) for s in list(filter(None, re.split("[, \-!?:\t]+",form.cleaned_data[field])))] for field in fields }
                 for i, a in enumerate(AuctionYear.objects.filter(scenario=scenario_new)):
                     kwargs = { field : field_data[field][i] for field in field_data }
                     kwargs['name'] = form.cleaned_data['name']
+                    kwargs['included'] = form.cleaned_data['included']
                     kwargs['pot'] = q.filter(auctionyear=a).get(name=form.cleaned_data['pot'])
                     Technology.objects.create(**kwargs)
             return redirect('scenario_detail', pk=scenario_new.pk)
@@ -83,19 +84,19 @@ def scenario_detail(request, pk):
     gen_by_tech_chart = ColumnChart(gen_by_tech_data_source, options=gen_by_tech_options, height=400, width="100%")
     gen_by_tech_df = scenario.summary_gen_by_tech()['df'].to_html(classes="table table-striped table-condensed")
 
-    #cap_by_tech_data = scenario.summary_cap_by_tech()['title']
-    #cap_by_tech_data_source = SimpleDataSource(data=cap_by_tech_data)
-    #cap_by_tech_options = {'vAxis': {'title': 'GW'}, 'title': None}
-    #cap_by_tech_chart = ColumnChart(cap_by_tech_data_source, options=cap_by_tech_options, height=400, width="100%")
-    #cap_by_tech_df = scenario.summary_cap_by_tech()['df'].to_html(classes="table table-striped table-condensed")
+    cap_by_tech_data = scenario.summary_cap_by_tech()['title']
+    cap_by_tech_data_source = SimpleDataSource(data=cap_by_tech_data)
+    cap_by_tech_options = {'vAxis': {'title': 'GW'}, 'title': None}
+    cap_by_tech_chart = ColumnChart(cap_by_tech_data_source, options=cap_by_tech_options, height=400, width="100%")
+    cap_by_tech_df = scenario.summary_cap_by_tech()['df'].to_html(classes="table table-striped table-condensed")
 
     context = {'scenario': scenario,
                'scenarios': scenarios,
                'accounting_cost_chart': accounting_cost_chart,
                'gen_by_tech_chart': gen_by_tech_chart,
-               #'cap_by_tech_chart': cap_by_tech_chart,
+               'cap_by_tech_chart': cap_by_tech_chart,
                'accounting_cost_df': accounting_cost_df,
-               #'cap_by_tech_df': cap_by_tech_df,
+               'cap_by_tech_df': cap_by_tech_df,
                'gen_by_tech_df': gen_by_tech_df }
 
     return render(request, 'lcf/scenario_detail.html', context)

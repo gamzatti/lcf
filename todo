@@ -1,15 +1,19 @@
 priority:
-  *ability to turn off technologies (and pots)
+  *ability to turn off technologies (and pots) / check that swapping pots works as expected - eg separate negotiations for tidal (and putting nuclear in emerging?)
+  *improve layout. create more tables and graphs inc. summary of pots (in dataframe?)
+  *some proper refactoring!
+  *upload to github/python anywhere (or heroku)
 
 additional functionality:
   *think about post 2026. create option to have two auction periods?
-  *check that swapping pots works as expected - eg separate negotiations for tidal (and putting nuclear in emerging?)
-  *make it allow manual numbers of projects for TL and maybe manual amount of NW
   *create options to get rid of 89 extra being carried over, and for cumulative generation to start from 2021 not 2020 / combine all excel quirks into one checkbox
-  *include absolute cost (ie not compared to wholesale price or gas price)
+  *make it allow manual numbers of projects for TL and maybe manual amount of NW
+  include absolute cost (ie not compared to wholesale price or gas price)
+  option to switch between sets of prices?
+  make a new model that groups together preferences
 
-hosting:
-  *upload to github/python anywhere (or heroku)
+output page:
+  give option to display inputs with jquery
 
 initial data:
   *load in data for existing scenarios (1, 2 and 3) / write code that converts csv to either json or probably more easily to Django model
@@ -28,11 +32,7 @@ tests:
 appearance:
   write some CSS/use bootstrap components
 
-output page:
-  give option to display inputs with jquery
-  *improve layout. create more tables.
 
-create policy model:
 
 diverge from Excel model:
   ?create normal distribution of projects?
@@ -40,9 +40,7 @@ diverge from Excel model:
   change the way each year is based on cumulative generation with the cost distribution therefore including previously funded projects
 
 speed up!/refactor:
-  stop the pots being in random order
   review lru_cache and consider initialising instance variables and then doing lazy calculation. and find out how to clear cache? (or at least do this http://stackoverflow.com/questions/2237624/applying-python-decorators-to-methods-in-a-class)
-  simplify model code eg by making template tags? http://stackoverflow.com/questions/28513528/passing-arguments-to-model-methods-in-django-templates
   add javascript to delete buttons
   generally refactor according to better OOD and pandas
   clean up the different generation, capacity and money units

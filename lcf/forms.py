@@ -24,6 +24,7 @@ class TechnologyStringForm(forms.Form):
             ('SN', 'Separate negotiations'),
     )
     name = forms.CharField(max_length=200)
+    included = forms.BooleanField(required=False)
     pot = forms.ChoiceField(widget=forms.Select,
         choices=POT_CHOICES)
     min_levelised_cost = forms.CharField(max_length=200)

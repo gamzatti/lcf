@@ -56,12 +56,12 @@ class Scenario(models.Model):
 
 
     def projects_df(self):
-        projects = pd.concat([t.projects() for a in self.auctionyear_set.all() for p in a.pot_set.all() for t in p.technology_set.all() ])
+        projects = pd.concat([t.projects() for a in self.auctionyear_set.all() for p in a.active_pots().all() for t in p.tech_set().all() ])
         #print(projects)
         return projects
 
     def techs_df(self):
-        techs = pd.concat([t.fields_df() for a in self.auctionyear_set.all() for p in a.pot_set.all() for t in p.technology_set.all() ])
+        techs = pd.concat([t.fields_df() for a in self.auctionyear_set.all() for p in a.active_pots().all() for t in p.technology_set.all() ])
         techs = techs.set_index('id')
         #print('\n',techs)
         return techs
@@ -76,6 +76,8 @@ class Scenario(models.Model):
                     pass
                 elif field == "name":
                     t_form_data[t.name][field] = t.name
+                elif field == "included":
+                    t_form_data[t.name][field] = t.included
                 elif field == "pot":
                     t_form_data[t.name][field] = t.pot.name
                 else:
@@ -110,8 +112,8 @@ class Scenario(models.Model):
         title.extend(tech_names)
         df = DataFrame(columns=title, index=years)
         for a in auctionyears:
-            for p in a.pot_set.all():
-                for t in p.technology_set.all():
+            for p in a.active_pots().all():
+                for t in p.tech_set().all():
                     df.at[a.year,t.name] = p.summary_for_future()['gen'][t.name]
         ddf = df.copy()
         ddf['year'] = ddf.index
@@ -131,8 +133,8 @@ class Scenario(models.Model):
         title.extend(tech_names)
         df = DataFrame(columns=title, index=years)
         for a in auctionyears:
-            for p in a.pot_set.all():
-                for t in p.technology_set.all():
+            for p in a.active_pots().all():
+                for t in p.tech_set().all():
                     df.at[a.year,t.name] = p.summary_for_future()['gen'][t.name]/8.760/t.load_factor
         ddf = df.copy()
         ddf['year'] = ddf.index
@@ -174,34 +176,34 @@ class AuctionYear(models.Model):
     #@lru_cache(maxsize=None)
     def awarded(self):
         awarded = 0
-        for pot in self.pot_set.order_by("name"):
+        for pot in self.active_pots().order_by("name"):
             awarded += pot.cost()
         return awarded
 
     def awarded_from_negotiation(self):
-        if self.pot_set.filter(name="SN").exists():
-            return self.pot_set.get(name="SN").cost()
+        if self.active_pots().filter(name="SN").exists():
+            return self.active_pots().get(name="SN").cost()
         else:
             return 0
 
     def awarded_from_fit(self):
-        if self.pot_set.filter(name="FIT").exists():
-            return self.pot_set.get(name="FIT").cost()
+        if self.active_pots().filter(name="FIT").exists():
+            return self.active_pots().get(name="FIT").cost()
         else:
             return 0
 
 
     def awarded_from_auction(self):
         awarded = 0
-        for pot in self.pot_set.all():
+        for pot in self.active_pots().all():
             if pot.name == "E" or pot.name == "M":
                 awarded += pot.cost()
         return awarded
 
     def awarded_gen(self):
         awarded_gen = 0
-        for pot in self.pot_set.all():
-            print(pot.name, 'awarded', self.year, pot.gen())
+        for pot in self.active_pots().all():
+            #print(pot.name, 'awarded', self.year, pot.gen())
             awarded_gen += pot.gen()
         return awarded_gen
 
@@ -258,17 +260,17 @@ class AuctionYear(models.Model):
 
     def owed(self, previous_year):
         owed = {}
-        for pot in previous_year.pot_set.all():
+        for pot in previous_year.active_pots().all():
             owed[pot.name] = 0
             data = pot.summary_for_future()
-            for t in pot.technology_set.all():
+            for t in pot.tech_set().all():
                 gen = data['gen'][t.name]
                 strike_price = data['strike_price'][t.name]
                 if self.scenario.excel_wp_error == True:
                     #next 5 lines account for Angela's error
                     if (pot.name == "E") or (pot.name == "SN"):
                         try:
-                            strike_price = self.pot_set.get(name=pot.name).technology_set.get(name=t.name).strike_price
+                            strike_price = self.active_pots().get(name=pot.name).tech_set().get(name=t.name).strike_price
                         except:
                             break
                 difference = strike_price - self.wholesale_price
@@ -285,17 +287,17 @@ class AuctionYear(models.Model):
 
     def owed_v_gas(self, previous_year):
         owed = {}
-        for pot in previous_year.pot_set.all():
+        for pot in previous_year.active_pots().all():
             owed[pot.name] = 0
             data = pot.summary_for_future()
-            for t in pot.technology_set.all():
+            for t in pot.tech_set().all():
                 gen = data['gen'][t.name]
                 strike_price = data['strike_price'][t.name]
                 if self.scenario.excel_wp_error == True:
                     #next 5 lines account for Angela's error
                     if (pot.name == "E") or (pot.name == "SN"):
                         try:
-                            strike_price = self.pot_set.get(name=pot.name).technology_set.get(name=t.name).strike_price
+                            strike_price = self.active_pots().get(name=pot.name).tech_set().get(name=t.name).strike_price
                         except:
                             break
                 difference = strike_price - self.gas_price
@@ -306,6 +308,12 @@ class AuctionYear(models.Model):
                 #print(self.year, previous_year.year, t.name, tech_owed)
         owed = sum(owed.values())
         return owed
+
+    @lru_cache(maxsize=None)
+    def active_pots(self):
+        active_names = [ pot.name for pot in self.pot_set.all() if pot.tech_set().count() > 0 ]
+        return self.pot_set.filter(name__in=active_names)
+
 
 
 class Pot(models.Model):
@@ -346,7 +354,7 @@ class Pot(models.Model):
             return 0
 
     def previous_year(self):
-        return self.auctionyear.scenario.auctionyear_set.get(year = self.auctionyear.year - 1).pot_set.get(name=self.name)
+        return self.auctionyear.scenario.auctionyear_set.get(year = self.auctionyear.year - 1).active_pots().get(name=self.name)
 
     def previously_funded_projects(self):
         if self.auctionyear.year == 2020:
@@ -363,7 +371,7 @@ class Pot(models.Model):
         tech_cost = {}
         tech_gen = {}
         previously_funded_projects = self.previously_funded_projects()
-        projects = pd.concat([t.projects() for t in self.technology_set.all()])
+        projects = pd.concat([t.projects() for t in self.tech_set().all()])
         projects.sort_values(['strike_price', 'levelised_cost'],inplace=True)
         projects['previously_funded'] = np.where(projects.index.isin(previously_funded_projects.index),True,False)
         projects['eligible'] = (projects.previously_funded == False) & projects.affordable
@@ -382,7 +390,7 @@ class Pot(models.Model):
 
         projects['attempted_project_gen'] = np.where(projects.eligible == True, projects.gen, 0)
         projects['attempted_cum_gen'] = np.cumsum(projects.attempted_project_gen)
-        if projects.empty:
+        if projects[projects.funded_this_year].empty:
             cost = 0
             gen = 0
         else:
@@ -396,7 +404,7 @@ class Pot(models.Model):
     def summary_for_future(self):
         gen = {}
         strike_price = {}
-        for tech in self.technology_set.all():
+        for tech in self.tech_set().all():
             tech_projects = self.projects()[(self.projects().funded_this_year == True) & (self.projects().technology == tech.name)]
             gen[tech.name] = tech_projects.attempted_project_gen.sum()/1000 if pd.notnull(tech_projects.attempted_project_gen.sum()) else 0
             strike_price[tech.name] = tech_projects.strike_price.max() if pd.notnull(tech_projects.strike_price.max()) else 0
@@ -430,8 +438,8 @@ class Pot(models.Model):
     def projects(self):
         return self.run_auction()['projects']
 
-
-
+    def tech_set(self):
+        return self.technology_set.filter(included=True)
 
 
 class Technology(models.Model):
@@ -452,6 +460,7 @@ class Technology(models.Model):
     load_factor = models.FloatField(default=0.5)
     project_gen = models.FloatField(default=100, verbose_name="Average project generation") #"Average project pa (GWh)"
     max_deployment_cap = models.FloatField(default=100)
+    included = models.BooleanField(default=True)
 
     def __init__(self, *args, **kwargs):
         super(Technology, self).__init__(*args, **kwargs)
@@ -476,8 +485,8 @@ class Technology(models.Model):
             return None
         else:
             previous_auctionyear = self.pot.auctionyear.scenario.auctionyear_set.get(year=self.pot.auctionyear.year-1)
-            previous_pot = previous_auctionyear.pot_set.get(name=self.pot.name)
-            previous_tech = previous_pot.technology_set.get(name=self.name)
+            previous_pot = previous_auctionyear.active_pots().get(name=self.pot.name)
+            previous_tech = previous_pot.tech_set().get(name=self.name)
             return previous_tech
 
     #@lru_cache(maxsize=None)

@@ -1,9 +1,12 @@
 {% extends 'lcf/base.html' %}
 {% block title %}
-    New scenario based on {{ scenario.name }} - 
+    New scenario based on {{ scenario.name }} -
 {% endblock %}
 
 {% block content %}
+<script>
+console.log('hello')
+</script>
     <h1>New scenario based on {{ scenario.name }}</h1>
     <p>pk {{ scenario.pk }}</p>
     <form method="POST" class="post-form">{% csrf_token %}
@@ -14,9 +17,10 @@
             <p>Enter values for 2020 to scenario end year (inclusive), separated by commas, spaces or tabs, eg if end year is 2025 enter six values.</p>
             {{ prices_form }}
             <h3>Edit technologies?</h3>
-            {{ string_formset.as_p }}
+            {{ string_formset }}
         </div>
         <button type="submit" class="save btn btn-default">Save</button>
 
     </form>
+
 {% endblock %}
