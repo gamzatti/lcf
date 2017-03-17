@@ -27,7 +27,7 @@ class Technology(models.Model):
     project_gen = models.FloatField(default=100, verbose_name="Average project generation") #"Average project pa (GWh)"
     max_deployment_cap = models.FloatField(default=100)
     included = models.BooleanField(default=True)
-    awarded_gen = models.FloatField(default=0)
+    awarded_gen = models.FloatField(null=True, blank=True)
     awarded_cost = models.FloatField(default=0)
 
 

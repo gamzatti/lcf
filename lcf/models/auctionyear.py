@@ -119,14 +119,22 @@ class AuctionYear(models.Model):
 
     def owed(self, previous_year):
         owed = {}
+        for pot in self.active_pots():
+            pot.run_auction()
         for pot in previous_year.active_pots().all():
+            pot.run_auction()
+            #for t in Technology.objects.filter(pot=pot):
+            #    print(t.name,t.awarded_gen)
             owed[pot.name] = 0
             data = pot.summary_for_future()
             for t in pot.tech_set().all():
+                #print('tech_set',t.awarded_gen)
+
                 gen = t.awarded_gen
                 strike_price = t.strike_price
-
+                #print('gen',gen)
                 gen = data['gen'][t.name]
+                #print('data gen', gen)
                 strike_price = data['strike_price'][t.name]
                 if self.scenario.excel_wp_error == True:
                     #next 5 lines account for Angela's error
