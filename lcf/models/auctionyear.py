@@ -27,7 +27,7 @@ class AuctionYear(models.Model):
         self._unspent = None
         self._previous_year_unspent = None
 
-    @lru_cache(maxsize=None)
+    #@lru_cache(maxsize=None)
     def budget(self):
         if self._budget:
             return self._budget
@@ -35,7 +35,7 @@ class AuctionYear(models.Model):
             self._budget = self.starting_budget + self.previous_year_unspent() - self.awarded_from("SN") - self.awarded_from("FIT")
             return self._budget
 
-    @lru_cache(maxsize=None)
+    #@lru_cache(maxsize=None)
     def unspent(self):
         if self._unspent:
             return self._unspent
@@ -51,7 +51,7 @@ class AuctionYear(models.Model):
             return None
         return self.scenario.auctionyear_set.get(year=self.year-1)
 
-    @lru_cache(maxsize=None)
+    #@lru_cache(maxsize=None)
     def previous_year_unspent(self):
         if self._previous_year_unspent:
             return self._previous_year_unspent
@@ -63,7 +63,7 @@ class AuctionYear(models.Model):
             return previous_year.unspent()
 
 
-    @lru_cache(maxsize=None)
+    #@lru_cache(maxsize=None)
     def awarded_from(self,pot):
         if pot == "FIT" or pot == "SN":
             if self.active_pots().filter(name=pot).exists():
@@ -184,7 +184,7 @@ class AuctionYear(models.Model):
         owed = sum(owed.values())
         return owed
 
-    @lru_cache(maxsize=None)
+    #@lru_cache(maxsize=None)
     def active_pots(self):
         active_names = [ pot.name for pot in self.pot_set.all() if pot.tech_set().count() > 0 ]
         return self.pot_set.filter(name__in=active_names)

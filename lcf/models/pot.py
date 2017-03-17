@@ -26,14 +26,14 @@ class Pot(models.Model):
         super(Pot, self).__init__(*args, **kwargs)
         self._percent = None
 
-    @lru_cache(maxsize=None)
+    #@lru_cache(maxsize=None)
     def budget(self):
         if self.name == "M" or self.name == "E":
             return (self.auctionyear.budget() * self.percent())
         elif self.name == "SN" or self.name == "FIT":
             return np.nan
 
-    @lru_cache(maxsize=None)
+    #@lru_cache(maxsize=None)
     def percent(self):
         if self._percent:
             return self._percent
@@ -57,7 +57,7 @@ class Pot(models.Model):
         return previously_funded_projects
 
 
-    @lru_cache(maxsize=None)
+    #@lru_cache(maxsize=None)
     def run_auction(self):
         gen = 0
         cost = 0
@@ -109,11 +109,11 @@ class Pot(models.Model):
     def summary_gen_by_tech(self):
         return DataFrame([self.summary_for_future()['gen']],index=["Gen"]).T
 
-    @lru_cache(maxsize=None)
+    #@lru_cache(maxsize=None)
     def cost(self):
         return self.run_auction()['cost']
 
-    @lru_cache(maxsize=None)
+    #@lru_cache(maxsize=None)
     def unspent(self):
         if self.name == "SN" or self.name == "FIT":
             return 0
@@ -122,15 +122,15 @@ class Pot(models.Model):
         else:
             return self.budget() - self.cost()
 
-    @lru_cache(maxsize=None)
+    #@lru_cache(maxsize=None)
     def gen(self):
         return self.run_auction()['gen']
 
-    @lru_cache(maxsize=None)
+    #@lru_cache(maxsize=None)
     def funded_projects(self):
         return self.projects()[self.projects().funded == "this year"]
 
-    @lru_cache(maxsize=None)
+    #@lru_cache(maxsize=None)
     def projects(self):
         return self.run_auction()['projects']
 
