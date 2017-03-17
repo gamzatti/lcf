@@ -774,10 +774,28 @@ class RefactorTests(TestCase):
         self.assertEqual(round(e5.summary_for_future()['cost']['TL']),54)
         self.assertEqual(round(sum(e5.summary_for_future()['cost'].values()),2),round(e5.cost(),2))
 
-    def test_innovation_premium(self):
-        a2 = self.s.auctionyear_set.get(year=2022)
-        a2.innovation_premium()
+    #def test_innovation_premium(self):
+    #    a2 = self.s.auctionyear_set.get(year=2022)
+    #    a2.innovation_premium()
 
+
+    def test_tech_awarded_gen(self):
+        p2 = Pot.objects.get(name="E", auctionyear__year=2022, auctionyear__scenario=245)
+        p3 = Pot.objects.get(name="E", auctionyear__year=2023, auctionyear__scenario=245)
+        t2 = Technology.objects.get(name="OFW", pot=p2)
+        t3 = Technology.objects.get(name="OFW", pot=p3)
+        self.assertEqual(t2.awarded_gen,0)
+        self.assertEqual(t3.awarded_gen,0)
+
+        p2.run_auction()
+        p3.run_auction()
+        t2 = Technology.objects.get(name="OFW", pot=p2)
+        t3 = Technology.objects.get(name="OFW", pot=p3)
+
+        self.assertEqual(t2.awarded_gen,9.152)
+        self.assertEqual(t3.awarded_gen,10.816)
+    #    p2.run_auction()
+    #    self.asserEqual(t2.awarded_gen,9.152)
 
 
 class LcfViewsTestCase(TestCase):

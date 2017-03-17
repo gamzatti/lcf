@@ -38,7 +38,7 @@ def scenario_new(request,pk):
             q = Pot.objects.filter(auctionyear__scenario=scenario_new)
 
             for form in string_formset:
-                fields = [f.name for f in Technology._meta.get_fields() if f.name not in ["pot", "id", "name", "included"]]
+                fields = [f.name for f in Technology._meta.get_fields() if f.name not in ["pot", "id", "name", "included", "awarded_gen", "awarded_cost"]]
                 field_data = { field : [float(s) for s in list(filter(None, re.split("[, \-!?:\t]+",form.cleaned_data[field])))] for field in fields }
                 for i, a in enumerate(AuctionYear.objects.filter(scenario=scenario_new)):
                     kwargs = { field : field_data[field][i] for field in field_data }

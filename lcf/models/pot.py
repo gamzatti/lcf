@@ -57,7 +57,7 @@ class Pot(models.Model):
         return previously_funded_projects
 
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def run_auction(self):
         gen = 0
         cost = 0
@@ -90,9 +90,16 @@ class Pot(models.Model):
             cost = projects[projects.funded_this_year==True].attempted_cum_cost.max()
             gen = projects[projects.funded_this_year==True].attempted_cum_gen.max()
 
+        self.update(projects)
 
         return {'cost': cost, 'gen': gen, 'projects': projects}
 
+    def update(self,projects):
+        for tech in self.tech_set().all():
+            tech_projects = projects[(projects.funded_this_year == True) & (projects.technology == tech.name)]
+            tech.awarded_gen = tech_projects.attempted_project_gen.sum()/1000 if pd.notnull(tech_projects.attempted_project_gen.sum()) else 0
+            tech.awarded_cost = sum(tech_projects.cost)
+            tech.save()
 
 
     def summary_for_future(self):

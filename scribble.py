@@ -218,3 +218,16 @@ test:
         string_formset = TechnologyStringFormSet(data, initial=data)
         print(string_formset.errors)
         #self.assertTrue(string_formset.is_valid())
+
+
+
+
+
+#code to go in a method update_tech_db, to be called at the end of run_auction() in pot
+
+        for tech in self.tech_set().all():
+            tech_projects = projects[(projects.funded_this_year == True) & (projects.technology == tech.name)]
+            tech.awarded_cost = sum(tech_projects.cost)
+            tech.awarded_gen = tech_projects.attempted_project_gen.sum()/1000 if pd.notnull(tech_projects.attempted_project_gen.sum()) else 0
+            #print(tech)
+            tech.save()

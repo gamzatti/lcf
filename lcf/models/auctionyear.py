@@ -123,6 +123,9 @@ class AuctionYear(models.Model):
             owed[pot.name] = 0
             data = pot.summary_for_future()
             for t in pot.tech_set().all():
+                gen = t.awarded_gen
+                strike_price = t.strike_price
+
                 gen = data['gen'][t.name]
                 strike_price = data['strike_price'][t.name]
                 if self.scenario.excel_wp_error == True:
@@ -164,10 +167,12 @@ class AuctionYear(models.Model):
         owed = {}
         for pot in previous_year.active_pots().all():
             owed[pot.name] = 0
-            data = pot.summary_for_future()
+            #data = pot.summary_for_future()
             for t in pot.tech_set().all():
-                gen = data['gen'][t.name]
-                strike_price = data['strike_price'][t.name]
+                #gen = data['gen'][t.name]
+                #strike_price = data['strike_price'][t.name]
+                gen = t.awarded_gen
+                strike_price = t.strike_price
                 if self.scenario.excel_wp_error == True:
                     #next 5 lines account for Angela's error
                     if (pot.name == "E") or (pot.name == "SN"):
@@ -184,7 +189,7 @@ class AuctionYear(models.Model):
         owed = sum(owed.values())
         return owed
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def active_pots(self):
         active_names = [ pot.name for pot in self.pot_set.all() if pot.tech_set().count() > 0 ]
         return self.pot_set.filter(name__in=active_names)

@@ -27,6 +27,8 @@ class Technology(models.Model):
     project_gen = models.FloatField(default=100, verbose_name="Average project generation") #"Average project pa (GWh)"
     max_deployment_cap = models.FloatField(default=100)
     included = models.BooleanField(default=True)
+    awarded_gen = models.FloatField(default=0)
+    awarded_cost = models.FloatField(default=0)
 
 
     def __init__(self, *args, **kwargs):
@@ -37,6 +39,8 @@ class Technology(models.Model):
 
     def get_field_values(self):
         fields = [f.name for f in Technology._meta.get_fields()]
+        fields.remove('awarded_gen')
+        fields.remove('awarded_cost')
         values = [getattr(self, f, None) for f in fields]
         return dict(zip(fields,values))
 
