@@ -23,27 +23,11 @@ class Scenario(models.Model):
     end_year = models.IntegerField(default=2025)
     excel_wp_error = models.BooleanField(default=True, verbose_name="Include the Excel error in the emerging pot wholesale price?")
     tidal_levelised_cost_distribution = models.BooleanField(default=False)
-
+    excel_2020_gen_error = models.BooleanField(default=True, verbose_name="Include the Excel error that counts cumulative generation from 2020 for auction and negotiations (but not FIT)")
+    excel_nw_carry_error = models.BooleanField(default=True, verbose_name="Include the Excel error that carries NWFIT into next year, even though it's been spent")
 
     def __str__(self):
         return self.name
-
-    def paid(self, year):
-        a = self.auctionyear_set.get(year=year)
-        return a.paid()
-
-    def paid_v_gas(self, year):
-        a = self.auctionyear_set.get(year=year)
-        return a.paid_v_gas()
-
-    def innovation_premium_v_gas(self, year):
-        fit = 445
-        return self.paid_v_gas() - fit
-
-    def cum_gen(self, start_year, end_year):
-        return sum([a.awarded_gen() for a in self.auctionyear_set.filter(year__range=(start_year,end_year))])
-
-
 
 
     #form helper methods
@@ -58,7 +42,7 @@ class Scenario(models.Model):
         #print('\n',techs)
         return techs
 
-    def initial_technologies(self):
+    def technology_form_helper(self):
         techs = [t for p in self.auctionyear_set.all()[0].pot_set.all() for t in p.technology_set.all() ]
         t_form_data = { t.name : {} for t in techs}
         for t in techs:
@@ -82,23 +66,6 @@ class Scenario(models.Model):
 
 
     #end year summary data methods (because functions with arguments can't be called in templates)
-    def paid_end_year(self):
-        return round(self.paid(self.end_year)/1000,2)
-
-    def paid_v_gas_end_year(self):
-        return round(self.paid_v_gas(self.end_year),2)
-
-    def cum_gen_end_year(self):
-        return round((self.cum_gen(2020,self.end_year) - 2760)/1000,2) # only if FIT
-
-    #def innovation_premium_end_year(self):
-        #return self.paid_end_year() - 445
-
-    def innovation_premium_v_gas_end_year(self):
-        return round(self.paid_v_gas_end_year() - 445,2)
-
-
-
 
     #graph/table methods
     def accounting_cost(self):
@@ -138,7 +105,7 @@ class Scenario(models.Model):
     def summary_gen_by_tech(self):
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
         years = [a.year for a in auctionyears]
-        tech_names = sorted(self.initial_technologies()[0])
+        tech_names = sorted(self.technology_form_helper()[0])
         title = ['year']
         title.extend(tech_names)
         df = DataFrame(columns=title, index=years)
@@ -159,7 +126,7 @@ class Scenario(models.Model):
     def summary_cap_by_tech(self):
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
         years = [a.year for a in auctionyears]
-        tech_names = sorted(self.initial_technologies()[0])
+        tech_names = sorted(self.technology_form_helper()[0])
         title = ['year']
         title.extend(tech_names)
         df = DataFrame(columns=title, index=years)

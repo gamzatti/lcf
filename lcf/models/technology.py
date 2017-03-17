@@ -46,7 +46,7 @@ class Technology(models.Model):
         df['listed_year'] = self.pot.auctionyear.year
         return df
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def previous_year(self):
         if self.pot.auctionyear.year == 2020:
             return None
@@ -56,47 +56,42 @@ class Technology(models.Model):
             previous_tech = previous_pot.tech_set().get(name=self.name)
             return previous_tech
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def this_year_gen(self):
         return self.max_deployment_cap * self.load_factor * 8.760 * 1000
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def previous_gen(self):
-        if self.pot.auctionyear.year == 2020:
-            return 0
-        else:
-            return self.previous_year().new_generation_available()
+        return 0 if self.pot.auctionyear.year == 2020 else self.previous_year().new_generation_available()
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def new_generation_available(self):
         return self.previous_gen() + self.this_year_gen()
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def num_projects(self):
         return int(self.new_generation_available() / self.project_gen)
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def projects_index(self):
         return [ self.name + str(i + 1) for i in range(self.num_projects()) ]
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def levelised_cost_distribution(self):
         if self.pot.auctionyear.scenario.tidal_levelised_cost_distribution == True and self.pot.auctionyear.year == 2025 and self.name == "TL":
             return Series(np.linspace(self.min_levelised_cost,150,self.num_projects()),name="levelised_cost", index=self.projects_index())
-
         else:
             return Series(np.linspace(self.min_levelised_cost,self.max_levelised_cost,self.num_projects()+2)[1:-1],name="levelised_cost", index=self.projects_index())
 
-
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def projects(self):
         projects = DataFrame(data=self.levelised_cost_distribution(), index=self.projects_index())
         #projects['gen'] = self.new_generation_available()
         projects['gen'] = self.project_gen
         projects['technology'] = self.name
         projects['strike_price'] = self.strike_price
-        projects['clearing_price'] = np.nan
+        #projects['clearing_price'] = np.nan
         projects['affordable'] = projects.levelised_cost <= projects.strike_price
-        projects['funded'] = 'no'
+        projects['pot'] = self.pot.name
         projects['listed_year'] = self.pot.auctionyear.year
         return projects

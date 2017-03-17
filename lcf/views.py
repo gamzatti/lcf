@@ -51,9 +51,9 @@ def scenario_new(request,pk):
     scenario_form = ScenarioForm(instance=scenario_original)
     initial_prices = {'gas_prices': str([a.gas_price for a in scenario_original.auctionyear_set.all()]).strip('[]'), 'wholesale_prices': str([a.wholesale_price for a in scenario_original.auctionyear_set.all() ]).strip('[]')}
     prices_form = PricesForm(initial=initial_prices)
-    names = scenario_original.initial_technologies()[0]
-    initial_technologies = scenario_original.initial_technologies()[1]
-    string_formset = TechnologyStringFormSet(initial=initial_technologies)
+    names = scenario_original.technology_form_helper()[0]
+    technology_form_helper = scenario_original.technology_form_helper()[1]
+    string_formset = TechnologyStringFormSet(initial=technology_form_helper)
     context = {'scenario': scenario_original,
                'scenarios': scenarios,
                'scenario_form': scenario_form,
@@ -73,6 +73,8 @@ def scenario_delete(request, pk):
 def scenario_detail(request, pk):
     scenario = get_object_or_404(Scenario,pk=pk)
     scenarios = Scenario.objects.all()
+
+    end_year = scenario.auctionyear_set.get(year=scenario.end_year)
 
     accounting_cost_data = scenario.accounting_cost()['title']
     accounting_cost_data_source = SimpleDataSource(data=accounting_cost_data)
@@ -94,6 +96,7 @@ def scenario_detail(request, pk):
 
     context = {'scenario': scenario,
                'scenarios': scenarios,
+               'end_year': end_year,
                'accounting_cost_chart': accounting_cost_chart,
                'gen_by_tech_chart': gen_by_tech_chart,
                'cap_by_tech_chart': cap_by_tech_chart,

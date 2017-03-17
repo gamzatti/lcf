@@ -27,64 +27,31 @@ class AuctionYear(models.Model):
         self._unspent = None
         self._previous_year_unspent = None
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def budget(self):
         if self._budget:
             return self._budget
         else:
-            self._budget = self.starting_budget + self.previous_year_unspent() - self.awarded_from_negotiation() - self.awarded_from_fit()
+            self._budget = self.starting_budget + self.previous_year_unspent() - self.awarded_from("SN") - self.awarded_from("FIT")
             return self._budget
 
-
-    #@lru_cache(maxsize=None)
-    def awarded(self):
-        awarded = 0
-        for pot in self.active_pots().order_by("name"):
-            awarded += pot.cost()
-        return awarded
-
-    def awarded_from_negotiation(self):
-        if self.active_pots().filter(name="SN").exists():
-            return self.active_pots().get(name="SN").cost()
-        else:
-            return 0
-
-    def awarded_from_fit(self):
-        if self.active_pots().filter(name="FIT").exists():
-            return self.active_pots().get(name="FIT").cost()
-        else:
-            return 0
-
-
-    def awarded_from_auction(self):
-        awarded = 0
-        for pot in self.active_pots().all():
-            if pot.name == "E" or pot.name == "M":
-                awarded += pot.cost()
-        return awarded
-
-    def awarded_gen(self):
-        awarded_gen = 0
-        for pot in self.active_pots().all():
-            #print(pot.name, 'awarded', self.year, pot.gen())
-            awarded_gen += pot.gen()
-        return awarded_gen
-
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def unspent(self):
         if self._unspent:
             return self._unspent
         else:
-            self._unspent = self.budget() - self.awarded_from_auction() + self.awarded_from_fit()
+            nw_carry = 0
+            if self.scenario.excel_nw_carry_error:
+                nw_carry =  self.awarded_from("FIT")
+            self._unspent = self.budget() - self.awarded_from("auction") + nw_carry
             return self._unspent
-
 
     def previous_year(self):
         if self.year == 2020:
             return None
         return self.scenario.auctionyear_set.get(year=self.year-1)
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def previous_year_unspent(self):
         if self._previous_year_unspent:
             return self._previous_year_unspent
@@ -95,15 +62,41 @@ class AuctionYear(models.Model):
             self._previous_year_unspent = previous_year.unspent()
             return previous_year.unspent()
 
-    def previous_years(self):
-        if self.year == 2020:
-            return None
-        else:
-            return self.scenario.auctionyear_set.filter(year__range=(self.scenario.start_year,self.year-1)).order_by('year')
+
+    @lru_cache(maxsize=None)
+    def awarded_from(self,pot):
+        if pot == "FIT" or pot == "SN":
+            if self.active_pots().filter(name=pot).exists():
+                return self.active_pots().get(name=pot).cost()
+            else:
+                return 0
+        elif pot == "auction":
+            return sum([pot.cost() for pot in self.active_pots() if pot.name == "E" or pot.name == "M"])
+        elif pot == "total":
+            return sum([self.awarded_from("FIT"),self.awarded_from("SN"),self.awarded_from("auction")])
+
+
+#refactor this in a sec
+    def awarded_gen(self):
+        awarded_gen = 0
+        for pot in self.active_pots().all():
+            #print(pot.name, 'awarded', self.year, pot.gen())
+            awarded_gen += pot.gen()
+        return awarded_gen
+
+
+    def cum_awarded_gen(self):
+        extra2020 = 0
+        if self.scenario.excel_2020_gen_error:
+            pots2020 = self.scenario.auctionyear_set.get(year=2020).active_pots().exclude(name="FIT")
+            extra2020 = sum([pot.gen() for pot in pots2020])
+        return sum([year.awarded_gen() for year in self.years()]) + extra2020
+
+
 
     def years(self):
         if self.year == 2020:
-            return self
+            return [self]
         else:
             return self.scenario.auctionyear_set.filter(year__range=(self.scenario.start_year,self.year)).order_by('year')
 
@@ -155,13 +148,16 @@ class AuctionYear(models.Model):
             return sum([self.nw_owed(year) for year in self.years()])
 
     def nw_owed(self,previous_year):
-        pot = previous_year.active_pots().get(name="FIT")
-        data = pot.summary_for_future()
-        t = Technology.objects.get(name="NW", pot=pot)
-        gen = data['gen'][t.name]
-        difference = data['strike_price'][t.name]
-        owed = gen * difference
-        return owed
+        if self.active_pots().filter(name="FIT").exists():
+            pot = previous_year.active_pots().get(name="FIT")
+            data = pot.summary_for_future()
+            t = Technology.objects.get(name="NW", pot=pot)
+            gen = data['gen'][t.name]
+            difference = data['strike_price'][t.name]
+            owed = gen * difference
+            return owed
+        else:
+            return 0
 
 
     def owed_v_gas(self, previous_year):

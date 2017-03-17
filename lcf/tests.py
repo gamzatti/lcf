@@ -124,7 +124,7 @@ class TechnologyMethodTests(TestCase):
         self.assertEqual(round(self.t2E.projects().gen[13]),832)
         self.assertEqual(self.t0E.projects().technology[4],"OFW")
         self.assertEqual(round(self.t1E.projects().strike_price[8],2),112.14)
-        self.assertEqual(self.t0E.projects().funded[4],"no")
+        #self.assertEqual(self.t0E.projects().funded[4],"no")
 
     def test_projects_affordable(self):
         self.assertEqual(self.t2E.projects().affordable[18],True)
@@ -308,13 +308,12 @@ class AuctionYearMethodTests(TestCase):
         self.assertEqual(self.a0.previous_year(),None)
         self.assertEqual(self.a1.previous_year(),self.a0)
         self.assertEqual(self.a2.previous_year(),self.a1)
-        self.assertEqual(self.a2.previous_year().awarded(), self.a1.awarded())
+        self.assertEqual(self.a2.previous_year().awarded_from("total"), self.a1.awarded_from("total"))
         self.assertEqual(self.a1.unspent(),self.a2.previous_year().unspent())
 
-    def test_previous_years(self):
-        self.assertEqual(self.a0.previous_years(), None)
-        self.assertQuerysetEqual(self.a1.previous_years(), [])
-        self.assertQuerysetEqual(self.a2.previous_years(), ['<AuctionYear: 2021>'])
+    def test_years(self):
+        self.assertQuerysetEqual(self.a1.years(), ['<AuctionYear: 2021>'])
+        self.assertQuerysetEqual(self.a2.years(), ['<AuctionYear: 2021>', '<AuctionYear: 2022>'])
 
     #first year tests
     def test_starting_budget0(self):
@@ -327,7 +326,7 @@ class AuctionYearMethodTests(TestCase):
         self.assertEqual(round(self.a0.budget()),round(481.29+0)) #481.29
 
     def test_awarded0(self):
-        self.assertEqual(round(self.a0.awarded()),round(272.62+55.68))#328.3
+        self.assertEqual(round(self.a0.awarded_from("total")),round(272.62+55.68))#328.3
 
     def test_unspent0(self):
         self.assertEqual(round(self.a0.unspent()),round(481.3-328.3)) #153
@@ -336,7 +335,7 @@ class AuctionYearMethodTests(TestCase):
         pass
 
     def test_paid0(self):
-        self.assertEqual(round(self.a0.paid(),2),round(self.a0.awarded(),2))
+        self.assertEqual(round(self.a0.paid(),2),round(self.a0.awarded_from("total"),2))
 
 
     #second year tests
@@ -350,13 +349,13 @@ class AuctionYearMethodTests(TestCase):
         self.assertEqual(round(self.a1.budget()),round(660+0)) #660
 
     def test_awarded1(self):
-        self.assertEqual(round(self.a1.awarded()),round(385.05+41.66))#426.71
+        self.assertEqual(round(self.a1.awarded_from("total")),round(385.05+41.66))#426.71
 
     def test_unspent1(self):
         self.assertEqual(round(self.a1.unspent()),round(660-426.71)) #233.29
 
     def test_paid1(self):
-        self.assertEqual(self.a1.paid(),self.a1.awarded())
+        self.assertEqual(self.a1.paid(),self.a1.awarded_from("total"))
 
     def test_owed1(self):
         self.assertEqual(round(self.a1.owed(self.a0),2),286.17)
@@ -372,13 +371,13 @@ class AuctionYearMethodTests(TestCase):
         self.assertEqual(round(self.a2.budget()),round(660+233.29)) #893.29
 
     def test_awarded2(self):
-        self.assertEqual(round(self.a2.awarded()),round(516.4+31.64))#548.04
+        self.assertEqual(round(self.a2.awarded_from("total")),round(516.4+31.64))#548.04
 
     def test_unspent2(self):
         self.assertEqual(round(self.a2.unspent()),round(893.29-548.04)) #345.25
 
     def test_paid2(self):
-        self.assertEqual(round(self.a2.paid(),2),round(self.a2.awarded() + self.a2.owed(self.a1),2))
+        self.assertEqual(round(self.a2.paid(),2),round(self.a2.awarded_from("total") + self.a2.owed(self.a1),2))
         self.assertEqual(round(self.a2.paid(),2),927.18)
 
 
@@ -391,6 +390,17 @@ class AuctionYearMethodTests(TestCase):
         self.assertEqual(round(self.a1.awarded_gen()),8276)
         self.assertEqual(round(self.a2.awarded_gen()),11454)
 
+
+    def test_cum_awarded_gen(self):
+        self.assertEqual(round(self.a1.cum_awarded_gen()+428),14634) #I can't remember why I was adding 428?!
+        self.assertEqual(round(self.a2.cum_awarded_gen()+428),26088) #+428?
+        self.s.excel_2020_gen_error = False
+        self.s.save()
+
+        self.a1 = self.s.auctionyear_set.get(year=2021)
+        self.a2 = self.s.auctionyear_set.get(year=2022)
+        self.assertEqual(round(self.a1.cum_awarded_gen()),8276)
+        self.assertEqual(round(self.a2.cum_awarded_gen()),19730)
 
 class ScenarioMethodTests(TestCase):
     fixtures = ['test_data.json']
@@ -422,24 +432,22 @@ class ScenarioMethodTests(TestCase):
         self.t2M = self.p2M.technology_set.get(name="ONW")
 
 
+#deleted methods:
+#    def test_paid(self):
+#        self.assertEqual(round(self.s.paid(2021),2),426.71)
+#        self.assertEqual(round(self.s.paid(2022),2),927.18)
 
-    def test_paid(self):
-        self.assertEqual(round(self.s.paid(2021),2),426.71)
-        self.assertEqual(round(self.s.paid(2022),2),927.18)
+#    def test_paid_end_year(self):
+#        self.assertEqual(round(self.s.paid_end_year(),2),0.93)
 
-    def test_cum_gen(self):
-        self.assertEqual(round(self.s.cum_gen(2021,2021)),8276)
-        self.assertEqual(round(self.s.cum_gen(2021,2022)),19730)
-        self.assertEqual(round(self.s.cum_gen(2020,2021)+428),14634)
-        self.assertEqual(round(self.s.cum_gen(2020,2022)+428),26088)
 
-    def test_paid_end_year(self):
-        self.assertEqual(round(self.s.paid_end_year(),2),0.93)
+#    def test_cum_gen(self):
+#        self.assertEqual(round(self.s.cum_gen(2021,2021)),8276)
+#        self.assertEqual(round(self.s.cum_gen(2021,2022)),19730)
+#        self.assertEqual(round(self.s.cum_gen(2020,2021)+428),14634)
+#        self.assertEqual(round(self.s.cum_gen(2020,2022)+428),26088)
 
-    def test_cum_gen_end_year(self):
-        pass
-        #still a problem with tidal?
-        #self.assertEqual(round(self.s.cum_gen_end_year()+428),26088)
+
 
     def test_projects_df(self):
         self.assertEqual(self.s.projects_df().listed_year[0],2020)
@@ -447,10 +455,10 @@ class ScenarioMethodTests(TestCase):
     def test_techs_df(self):
         self.assertEqual(self.s.techs_df().listed_year[771],2020)
 
-    def test_initial_technologies(self):
-        value1 = self.s.initial_technologies()[1][0]['project_gen']
-        value2 = self.s.initial_technologies()[1][1]['project_gen']
-        value3 = self.s.initial_technologies()[1][2]['project_gen']
+    def test_technology_form_helper(self):
+        value1 = self.s.technology_form_helper()[1][0]['project_gen']
+        value2 = self.s.technology_form_helper()[1][1]['project_gen']
+        value3 = self.s.technology_form_helper()[1][2]['project_gen']
         self.assertTrue(set([value1, value2, value3]),set(['27.0, 27.0', '30.0', '30.0, 30.0', '832.0, 832.0, 832.0']))
 
     def test_accounting_cost(self):
@@ -591,16 +599,16 @@ class NuclearTests(TestCase):
         a5 = AuctionYear.objects.get(year=2025)
         p3e = a3.pot_set.get(name="E")
         p4e = a4.pot_set.get(name="E")
-        self.assertEqual(round(a3.awarded_from_auction()),450)
-        self.assertEqual(round(a4.awarded_from_auction()),621)
-        self.assertEqual(round(a5.awarded_from_auction()),471)
+        self.assertEqual(round(a3.awarded_from("auction")),450)
+        self.assertEqual(round(a4.awarded_from("auction")),621)
+        self.assertEqual(round(a5.awarded_from("auction")),471)
         p5e = a5.pot_set.get(name="E")
         p5m = a5.pot_set.get(name="M")
         s = Scenario.objects.get(name="with nuclear")
         self.assertEqual(round(p5m.cost()),52)
         self.assertEqual(round(p5e.cost()),419)
-        self.assertEqual(round(a4.awarded()),871)
-        self.assertEqual(round(a5.awarded()),723)
+        self.assertEqual(round(a4.awarded_from("total")),871)
+        self.assertEqual(round(a5.awarded_from("total")),723)
 
     def test_paid(self):
         a3 = AuctionYear.objects.get(year=2023)
@@ -615,7 +623,6 @@ class NuclearTests(TestCase):
 
 
         self.assertEqual(round(a5.paid()/1000,3),2.384)
-        self.assertEqual(round(s.paid_end_year(),2),2.38)
 
 
 class FITTests(TestCase):
@@ -770,6 +777,8 @@ class RefactorTests(TestCase):
     def test_innovation_premium(self):
         a2 = self.s.auctionyear_set.get(year=2022)
         a2.innovation_premium()
+
+
 
 class LcfViewsTestCase(TestCase):
     fixtures = ['test_data.json']
