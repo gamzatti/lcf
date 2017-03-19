@@ -64,6 +64,10 @@ class Scenario(models.Model):
 
 
 
+    def df_to_chart_data(self,df):
+        title = [df.columns]
+        years = df.index
+        return {'chart_data': chart_data, 'table_data': table_data}
 
     #end year summary data methods (because functions with arguments can't be called in templates)
 

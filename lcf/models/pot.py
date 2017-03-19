@@ -101,23 +101,8 @@ class Pot(models.Model):
             tech.awarded_cost = sum(tech_projects.cost)
             tech.save()
 
-
-    """def summary_for_future(self):
-        gen = {}
-        strike_price = {}
-        cost = {}
-        for tech in self.tech_set().all():
-            tech_projects = self.projects()[(self.projects().funded_this_year == True) & (self.projects().technology == tech.name)]
-            gen[tech.name] = tech_projects.attempted_project_gen.sum()/1000 if pd.notnull(tech_projects.attempted_project_gen.sum()) else 0
-            strike_price[tech.name] = tech_projects.strike_price.max() if pd.notnull(tech_projects.strike_price.max()) else 0
-            cost[tech.name] = sum(tech_projects.cost)
-        return {'gen': gen, 'strike_price': strike_price, 'cost': cost}"""
-
-    """def summary_gen_by_tech(self):
-        return DataFrame([self.summary_for_future()['gen']],index=["Gen"]).T"""
-
     #@lru_cache(maxsize=None)
-    def cost(self):
+    def awarded_cost(self):
         self.run_auction()
         return sum(t.awarded_cost for t in self.tech_set())
         #return self.run_auction()['cost']
@@ -129,10 +114,10 @@ class Pot(models.Model):
         if self.auctionyear.year == 2020:
             return 0
         else:
-            return self.budget() - self.cost()
+            return self.budget() - self.awarded_cost()
 
     #@lru_cache(maxsize=None)
-    def gen(self):
+    def awarded_gen(self):
         self.run_auction()
         return sum(t.awarded_gen for t in self.tech_set())
         #return self.run_auction()['gen']
@@ -147,3 +132,11 @@ class Pot(models.Model):
 
     def tech_set(self):
         return self.technology_set.filter(included=True)
+
+    def nw_owed(self,previous_pot):
+        previous_pot.run_auction()
+        t = Technology.objects.get(name="NW", pot=previous_pot)
+        gen = t.awarded_gen
+        difference = t.strike_price
+        owed = gen * difference
+        return owed

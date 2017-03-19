@@ -75,7 +75,7 @@ def scenario_detail(request, pk):
     scenarios = Scenario.objects.all()
 
     end_year = scenario.auctionyear_set.get(year=scenario.end_year)
-    penultimate_year = scenario.auctionyear_set.get(year=scenario.end_year-1)
+    second_last_year = scenario.auctionyear_set.get(year=scenario.end_year-1)
 
     accounting_cost_data = scenario.accounting_cost()['title']
     accounting_cost_data_source = SimpleDataSource(data=accounting_cost_data)
@@ -98,6 +98,7 @@ def scenario_detail(request, pk):
     context = {'scenario': scenario,
                'scenarios': scenarios,
                'end_year': end_year,
+               'second_last_year': second_last_year,
                'accounting_cost_chart': accounting_cost_chart,
                'gen_by_tech_chart': gen_by_tech_chart,
                'cap_by_tech_chart': cap_by_tech_chart,
