@@ -111,8 +111,10 @@ class Scenario(models.Model):
         df = DataFrame(columns=title, index=years)
         for a in auctionyears:
             for p in a.active_pots().all():
+                p.run_auction()
                 for t in p.tech_set().all():
-                    df.at[a.year,t.name] = p.summary_for_future()['gen'][t.name]
+                    #df.at[a.year,t.name] = p.summary_for_future()['gen'][t.name]
+                    df.at[a.year,t.name] = t.awarded_gen
         ddf = df.copy()
         ddf['year'] = ddf.index
         #df['year'] = [datetime.date(i,1,1) for i in df.index]
@@ -133,7 +135,9 @@ class Scenario(models.Model):
         for a in auctionyears:
             for p in a.active_pots().all():
                 for t in p.tech_set().all():
-                    df.at[a.year,t.name] = p.summary_for_future()['gen'][t.name]/8.760/t.load_factor
+                    #df.at[a.year,t.name] = p.summary_for_future()['gen'][t.name]/8.760/t.load_factor
+                    df.at[a.year,t.name] = t.awarded_gen/8.760/t.load_factor
+
         ddf = df.copy()
         ddf['year'] = ddf.index
         #df['year'] = [datetime.date(i,1,1) for i in df.index]

@@ -790,13 +790,13 @@ class RefactorTests(TestCase):
         #        pot.run_auction()
         #        print('After', t.name, t.awarded_gen)
 
-
-        """p2 = Pot.objects.get(name="E", auctionyear__year=2022, auctionyear__scenario=245)
+        """
+        p2 = Pot.objects.get(name="E", auctionyear__year=2022, auctionyear__scenario=245)
         p3 = Pot.objects.get(name="E", auctionyear__year=2023, auctionyear__scenario=245)
         t2 = Technology.objects.get(name="OFW", pot=p2)
         t3 = Technology.objects.get(name="OFW", pot=p3)
-        #self.assertEqual(t2.awarded_gen,0)
-        #self.assertEqual(t3.awarded_gen,0)
+        self.assertEqual(t2.awarded_gen,0)
+        self.assertEqual(t3.awarded_gen,0)
 
         p2.run_auction()
         p3.run_auction()
@@ -804,11 +804,16 @@ class RefactorTests(TestCase):
         t3 = Technology.objects.get(name="OFW", pot=p3)
 
         self.assertEqual(t2.awarded_gen,9.152)
-        self.assertEqual(t3.awarded_gen,10.816)"""
+        self.assertEqual(t3.awarded_gen,10.816)
 
-        a4 = AuctionYear.objects.get(scenario=245,year=2024)
+        """
+
+    def test_owed(self):
+
         a3 = AuctionYear.objects.get(scenario=245,year=2023)
-        a4.owed(a3)
+        a4 = AuctionYear.objects.get(scenario=245,year=2024)
+        a5 = AuctionYear.objects.get(scenario=245,year=2025)
+        a5.owed(a5)
 
 class LcfViewsTestCase(TestCase):
     fixtures = ['test_data.json']

@@ -119,23 +119,16 @@ class AuctionYear(models.Model):
 
     def owed(self, previous_year):
         owed = {}
-        for pot in self.active_pots():
-            pot.run_auction()
         for pot in previous_year.active_pots().all():
-            pot.run_auction()
-            #for t in Technology.objects.filter(pot=pot):
-            #    print(t.name,t.awarded_gen)
             owed[pot.name] = 0
-            data = pot.summary_for_future()
+            #data = pot.summary_for_future()
+            pot.run_auction()
             for t in pot.tech_set().all():
-                #print('tech_set',t.awarded_gen)
-
                 gen = t.awarded_gen
                 strike_price = t.strike_price
-                #print('gen',gen)
-                gen = data['gen'][t.name]
-                #print('data gen', gen)
-                strike_price = data['strike_price'][t.name]
+                #gen = data['gen'][t.name]
+                #print('expected value from summary for future method:', data['gen'][t.name])
+                #strike_price = data['strike_price'][t.name]
                 if self.scenario.excel_wp_error == True:
                     #next 5 lines account for Angela's error
                     if (pot.name == "E") or (pot.name == "SN"):
@@ -161,10 +154,13 @@ class AuctionYear(models.Model):
     def nw_owed(self,previous_year):
         if self.active_pots().filter(name="FIT").exists():
             pot = previous_year.active_pots().get(name="FIT")
-            data = pot.summary_for_future()
+            pot.run_auction()
+            #data = pot.summary_for_future()
             t = Technology.objects.get(name="NW", pot=pot)
-            gen = data['gen'][t.name]
-            difference = data['strike_price'][t.name]
+            #gen = data['gen'][t.name]
+            #difference = data['strike_price'][t.name]
+            gen = t.awarded_gen
+            difference = t.strike_price
             owed = gen * difference
             return owed
         else:
@@ -175,10 +171,7 @@ class AuctionYear(models.Model):
         owed = {}
         for pot in previous_year.active_pots().all():
             owed[pot.name] = 0
-            #data = pot.summary_for_future()
             for t in pot.tech_set().all():
-                #gen = data['gen'][t.name]
-                #strike_price = data['strike_price'][t.name]
                 gen = t.awarded_gen
                 strike_price = t.strike_price
                 if self.scenario.excel_wp_error == True:
@@ -193,7 +186,6 @@ class AuctionYear(models.Model):
                     difference = strike_price
                 tech_owed = gen * difference
                 owed[pot.name] += tech_owed
-                #print(self.year, previous_year.year, t.name, tech_owed)
         owed = sum(owed.values())
         return owed
 
