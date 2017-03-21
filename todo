@@ -3,7 +3,7 @@ call:
 
 to explain:
   *haven't tested it for other years apart from 2020-2025
-  
+  *it's not very fast yet
 
 priority:
   *upload to github/python anywhere (or heroku)
@@ -12,7 +12,7 @@ priority:
 
 
 additional functionality:
-  *think about post 2026. create option to have two auction periods?
+  *think about post 2026. create option to have two auction periods? (at the moment I can create scenarios out to 2030 but they don't save/redirect properly)
   *create options to get rid of 89 extra being carried over, and for cumulative generation to start from 2021 not 2020 / combine all excel quirks into one checkbox
   *make it allow manual numbers of projects for TL and maybe manual amount of NW
   include absolute cost (ie not compared to wholesale price or gas price)

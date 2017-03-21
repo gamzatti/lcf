@@ -67,7 +67,7 @@ def scenario_new(request,pk):
 def scenario_delete(request, pk):
     scenario = get_object_or_404(Scenario, pk=pk)
     scenario.delete()
-    return redirect('scenario_new', pk=245)
+    return redirect('scenario_detail', pk=245)
 
 
 def scenario_detail(request, pk):
