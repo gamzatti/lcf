@@ -26,6 +26,7 @@ SECRET_KEY = '&8nwg=v--h&(1p_4m0ea4z@9%w4x)4$^l1nx57wcskq8o0+!#!'
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    '127.0.0.1',
     'gamzatti.pythonanywhere.com',
 ]
 
