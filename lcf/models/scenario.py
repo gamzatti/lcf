@@ -72,50 +72,33 @@ class Scenario(models.Model):
 
 
     def df_to_chart_data(self,df):
-        title = [df.columns]
-        years = df.index
-        return {'chart_data': chart_data, 'table_data': table_data}
+        chart_data = df.copy()
+        chart_data['index_column'] = chart_data.index
+        chart_data.loc['years_row'] = chart_data.columns
+        chart_data = chart_data.reindex(index = ['years_row']+list(chart_data.index)[:-1], columns = ['index_column'] +list(chart_data.columns)[:-1])
+        chart_data = chart_data.T.values.tolist()
+        return {'title': chart_data, 'df': df}
 
+    def accounting_cost_df(self):
+        print("generating accounting cost df")
+        index = ['Accounting cost', 'Cost v gas', 'Innovation premium']
+        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
+        columns = [str(a.year) for a in auctionyears]
+        accounting_costs = [round(a.cum_owed_v("wp")/1000,3) for a in auctionyears]
+        cost_v_gas = [round(a.cum_owed_v("gas")/1000,3) for a in auctionyears]
+        innovation_premium = [round(a.innovation_premium()/1000,3) for a in auctionyears]
+        df = DataFrame([accounting_costs, cost_v_gas, innovation_premium], index=index, columns=columns)
+        return df
 
     #graph/table methods
     def accounting_cost(self):
         if self._accounting_cost:
             return self._accounting_cost
         else:
-            print('generating chart1')
-            title = [['year', 'Accounting cost', 'Cost v gas', 'Innovation premium']]
-            auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
-            years = [str(a.year) for a in auctionyears]
-            accounting_costs = [round(a.cum_owed_v("wp")/1000,3) for a in auctionyears]
-            cost_v_gas = [round(a.cum_owed_v("gas")/1000,3) for a in auctionyears]
-            innovation_premium = [round(a.innovation_premium()/1000,3) for a in auctionyears]
-            ddf = DataFrame([years,accounting_costs, cost_v_gas, innovation_premium])
-            df = ddf.copy()
-            df.columns = years
-            df.index = title
-            df = df.drop('year')
-            data = ddf.T.values.tolist()
-            title.extend(data)
-            self._accounting_cost =  {'title': title, 'df': df}
-        return {'title': title, 'df': df}
+            self._accounting_cost = self.df_to_chart_data(self.accounting_cost_df())
+            return self._accounting_cost
 
 
-    def accounting_cost_comparison(self):
-        title = [['year', 'Accounting cost: '+self.name, 'DECC 2015 w/TCCP', 'Meets 90TWh (no TCCP)', 'Meets 90TWh']]
-        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
-        years = [str(a.year) for a in auctionyears]
-        accounting_costs = [a.cum_owed_v("wp")/1000 for a in auctionyears]
-        decc = [1.07055505120968, 1.49485703401083, 1.96202174324618, 2.49374812823629, 2.93865520551304]
-        m_90_no_TCCP = [1.01677248921882, 1.45462660670601, 1.88986715668434, 2.50808000031501,	2.97952038924637]
-        m_90 = [1.00594113294511, 1.40460686828232, 1.76626877818907, 2.23697361578951, 2.49061992003395]
-        ddf = DataFrame([years,accounting_costs, decc, m_90_no_TCCP, m_90])
-        df = ddf.copy()
-        df.columns = years
-        df.index = title
-        df = df.drop('year')
-        data = ddf.T.values.tolist()
-        title.extend(data)
-        return {'title': title, 'df': df}
 
 
     def summary_cum_awarded_gen_by_pot(self):
@@ -236,3 +219,21 @@ class Scenario(models.Model):
 
     def wholesale_prices(self):
         return str([round(a.wholesale_price,2) for a in self.auctionyear_set.all() ]).strip('[]')
+
+
+    def accounting_cost_comparison(self):
+        title = [['year', 'Accounting cost: '+self.name, 'DECC 2015 w/TCCP', 'Meets 90TWh (no TCCP)', 'Meets 90TWh']]
+        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
+        years = [str(a.year) for a in auctionyears]
+        accounting_costs = [a.cum_owed_v("wp")/1000 for a in auctionyears]
+        decc = [1.07055505120968, 1.49485703401083, 1.96202174324618, 2.49374812823629, 2.93865520551304]
+        m_90_no_TCCP = [1.01677248921882, 1.45462660670601, 1.88986715668434, 2.50808000031501,	2.97952038924637]
+        m_90 = [1.00594113294511, 1.40460686828232, 1.76626877818907, 2.23697361578951, 2.49061992003395]
+        ddf = DataFrame([years,accounting_costs, decc, m_90_no_TCCP, m_90])
+        df = ddf.copy()
+        df.columns = years
+        df.index = title
+        df = df.drop('year')
+        data = ddf.T.values.tolist()
+        title.extend(data)
+        return {'title': title, 'df': df}
