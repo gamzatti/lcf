@@ -101,29 +101,31 @@ class AuctionYear(models.Model):
             return self.scenario.auctionyear_set.filter(year__range=(self.scenario.start_year,self.year)).order_by('year')
 
 
-    def paid(self):
+    def cum_owed_v(self, comparison):
         if self.year == 2020:
-            return self.owed(self)
+            return self.owed_v(comparison,self)
         else:
-            return sum([self.owed(year) for year in self.years()])
-
-    def paid_v_gas(self):
-        if self.year == 2020:
-            return self.owed_v_gas(self)
-        else:
-            return sum([self.owed_v_gas(year) for year in self.years()])
+            return sum([self.owed_v(comparison,year) for year in self.years()])
 
     def innovation_premium(self):
-        return self.paid_v_gas() - self.nw_paid()
+        return self.cum_owed_v("gas") - self.nw_paid()
 
-
-    def owed(self, previous_year):
+    @lru_cache(maxsize=None)
+    def owed_v(self, comparison, previous_year):
+        if comparison == "gas":
+            compare = self.gas_price
+        elif comparison == "wp":
+            compare = self.wholesale_price
+        elif comparison == "absolute":
+            compare = 0
         owed = {}
         for pot in previous_year.active_pots().all():
             owed[pot.name] = 0
             pot.run_auction()
             for t in pot.tech_set().all():
                 gen = t.awarded_gen
+                #print(gen)
+                #print(t)
                 strike_price = t.strike_price
                 if self.scenario.excel_wp_error == True:
                     #next 5 lines account for Angela's error
@@ -132,9 +134,13 @@ class AuctionYear(models.Model):
                             strike_price = self.active_pots().get(name=pot.name).tech_set().get(name=t.name).strike_price
                         except:
                             break
-                difference = strike_price - self.wholesale_price
+                difference = strike_price - compare
                 if pot.name == "FIT":
                     difference = strike_price
+                #print(pot.name)
+                #print(pot.auctionyear.year)
+                #print("gen",gen)
+                #print("difference",difference)
                 tech_owed = gen * difference
                 owed[pot.name] += tech_owed
         owed = sum(owed.values())
@@ -155,42 +161,15 @@ class AuctionYear(models.Model):
             return 0
 
 
-    """def nw_owed_old(self,previous_year):
-        if self.active_pots().filter(name="FIT").exists():
-            pot = previous_year.active_pots().get(name="FIT")
-            pot.run_auction()
-            t = Technology.objects.get(name="NW", pot=pot)
-            gen = t.awarded_gen
-            difference = t.strike_price
-            owed = gen * difference
-            return owed
-        else:
-            return 0"""
-
-
-    def owed_v_gas(self, previous_year):
-        owed = {}
-        for pot in previous_year.active_pots().all():
-            owed[pot.name] = 0
-            for t in pot.tech_set().all():
-                gen = t.awarded_gen
-                strike_price = t.strike_price
-                if self.scenario.excel_wp_error == True:
-                    #next 5 lines account for Angela's error
-                    if (pot.name == "E") or (pot.name == "SN"):
-                        try:
-                            strike_price = self.active_pots().get(name=pot.name).tech_set().get(name=t.name).strike_price
-                        except:
-                            break
-                difference = strike_price - self.gas_price
-                if pot.name == "FIT":
-                    difference = strike_price
-                tech_owed = gen * difference
-                owed[pot.name] += tech_owed
-        owed = sum(owed.values())
-        return owed
-
     @lru_cache(maxsize=None)
     def active_pots(self):
         active_names = [ pot.name for pot in self.pot_set.all() if pot.tech_set().count() > 0 ]
         return self.pot_set.filter(name__in=active_names)
+
+
+    #template methods:
+    def cum_owed_v_wp(self):
+        return self.cum_owed_v("wp")
+
+    def cum_owed_v_gas(self):
+        return self.cum_owed_v("gas")

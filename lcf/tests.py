@@ -351,7 +351,7 @@ class AuctionYearMethodTests(TestCase):
         pass
 
     def test_paid0(self):
-        self.assertEqual(round(self.a0.paid(),2),round(self.a0.awarded_from("total"),2))
+        self.assertEqual(round(self.a0.cum_owed_v("wp"),2),round(self.a0.awarded_from("total"),2))
 
 
     #second year tests
@@ -371,10 +371,10 @@ class AuctionYearMethodTests(TestCase):
         self.assertEqual(round(self.a1.unspent()),round(660-426.71)) #233.29
 
     def test_paid1(self):
-        self.assertEqual(self.a1.paid(),self.a1.awarded_from("total"))
+        self.assertEqual(self.a1.cum_owed_v("wp"),self.a1.awarded_from("total"))
 
     def test_owed1(self):
-        self.assertEqual(round(self.a1.owed(self.a0),2),286.17)
+        self.assertEqual(round(self.a1.owed_v("wp",self.a0),2),286.17)
 
     #third year tests
     def test_starting_budget2(self):
@@ -393,12 +393,12 @@ class AuctionYearMethodTests(TestCase):
         self.assertEqual(round(self.a2.unspent()),round(893.29-548.04)) #345.25
 
     def test_paid2(self):
-        self.assertEqual(round(self.a2.paid(),2),round(self.a2.awarded_from("total") + self.a2.owed(self.a1),2))
-        self.assertEqual(round(self.a2.paid(),2),927.18)
+        self.assertEqual(round(self.a2.cum_owed_v("wp"),2),round(self.a2.awarded_from("total") + self.a2.owed_v("wp",self.a1),2))
+        self.assertEqual(round(self.a2.cum_owed_v("wp"),2),927.18)
 
 
     def test_owed2(self):
-        self.assertEqual(round(self.a2.owed(self.a1)),379)
+        self.assertEqual(round(self.a2.owed_v("wp",self.a1)),379)
 
 
     def test_awarded_gen(self):
@@ -598,14 +598,14 @@ class NuclearTests(TestCase):
         a4 = AuctionYear.objects.get(year=2024)
         a5 = AuctionYear.objects.get(year=2025)
         s = Scenario.objects.get(name="with nuclear")
-        self.assertEqual(round(a4.paid()/1000,3),1.989)
+        self.assertEqual(round(a4.cum_owed_v("wp")/1000,3),1.989)
 
-        self.assertEqual(round(a4.owed(a3),2),381.55)
-        self.assertEqual(round(a5.owed(a3),2),340.58)
-        self.assertEqual(round(a5.owed(a4),1), 661.5)
+        self.assertEqual(round(a4.owed_v("wp",a3),2),381.55)
+        self.assertEqual(round(a5.owed_v("wp",a3),2),340.58)
+        self.assertEqual(round(a5.owed_v("wp",a4),1), 661.5)
 
 
-        self.assertEqual(round(a5.paid()/1000,3),2.384)
+        self.assertEqual(round(a5.cum_owed_v("wp")/1000,3),2.384)
 
 
 class FITTests(TestCase):
@@ -622,6 +622,9 @@ class FITTests(TestCase):
         p3 = a3.pot_set.get(name="FIT")
         p4 = a4.pot_set.get(name="FIT")
         p5 = a5.pot_set.get(name="FIT")
+
+        #for p in [p1,p2,p3,p4,p5]:
+        #    p.run_auction()
 
         self.assertEqual(p1.awarded_cost(),89)
         self.assertEqual(p2.awarded_cost(),89)
@@ -668,26 +671,34 @@ class FITTests(TestCase):
 
     def test_owed(self):
         s = Scenario.objects.get(name="with nuclear and negawatts")
-        s.tidal_levelised_cost_distribution = True
-        s.save()
+        #s.tidal_levelised_cost_distribution = True
+        #s.save()
         a1 = AuctionYear.objects.get(year=2021)
         a2 = AuctionYear.objects.get(year=2022)
         a3 = AuctionYear.objects.get(year=2023)
         a4 = AuctionYear.objects.get(year=2024)
         a5 = AuctionYear.objects.get(year=2025)
 
-        self.assertEqual(round(a4.owed(a3)),round(447.26+37.504+89))
-        self.assertEqual(round(a5.owed(a3)),round(401.44+31.77+89))
-        self.assertEqual(round(a5.owed(a4)),round(277.92+41.20+89+252.34))
-
         e5 = a5.pot_set.get(name="E")
         m5 = a5.pot_set.get(name="M")
         sn5 = a5.pot_set.get(name="SN")
+        e5.run_auction()
+        m5.run_auction()
+        sn5.run_auction()
 
-        self.assertEqual(round(a3.paid()/1000,3),1.621)
-        self.assertEqual(round(a4.paid()/1000,3),2.117)
+        for t in e5.tech_set():
+            print(t.awarded_cost)
+
+        print(a5.owed_v("wp",a5))
+        self.assertEqual(round(a4.owed_v("wp",a3)),round(447.26+37.504+89))
+        self.assertEqual(round(a5.owed_v("wp",a3)),round(401.44+31.77+89))
+        self.assertEqual(round(a5.owed_v("wp",a4)),round(277.92+41.20+89+252.34))
+
+
+        self.assertEqual(round(a3.cum_owed_v("wp")/1000,3),1.621)
+        self.assertEqual(round(a4.cum_owed_v("wp")/1000,3),2.117)
         #tidal issue still not resolved!!!!!
-        #self.assertEqual(round(a5.paid()/1000,3),2.805)
+        #self.assertEqual(round(a5.cum_owed_v("wp")/1000,3),2.805)
 
     def test_generation(self):
         s = Scenario.objects.get(name="with nuclear and negawatts")
@@ -697,7 +708,7 @@ class GasCompareTests(TestCase):
 
     def test_owed_v_gas(self):
         a1 = AuctionYear.objects.get(year=2021)
-        self.assertEqual(round(a1.owed_v_gas(a1)/1000,3),0.266)
+        self.assertEqual(round(a1.owed_v("gas",a1)/1000,3),0.266)
 
 class ExclusionTests(TestCase):
     fixtures = ['all_data_inc_exclusions.json']
@@ -767,11 +778,11 @@ class RefactorTests(TestCase):
 
         """
 
-    def test_owed(self):
+    def test_owed_v_wp(self):
         a3 = AuctionYear.objects.get(scenario=245,year=2023)
         a4 = AuctionYear.objects.get(scenario=245,year=2024)
         a5 = AuctionYear.objects.get(scenario=245,year=2025)
-        a5.owed(a5)
+        a5.owed_v("wp",a5)
 
 class LcfViewsTestCase(TestCase):
     fixtures = ['test_data.json']

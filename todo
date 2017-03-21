@@ -1,7 +1,15 @@
+call:
+  *check about NW carry problem?
+
+to explain:
+  *haven't tested it for other years apart from 2020-2025
+  
+
 priority:
+  *upload to github/python anywhere (or heroku)
   *some proper refactoring!
   *improve layout. create more tables and graphs inc. summary of pots (in dataframe?)
-  *upload to github/python anywhere (or heroku)
+
 
 additional functionality:
   *think about post 2026. create option to have two auction periods?
@@ -9,7 +17,10 @@ additional functionality:
   *make it allow manual numbers of projects for TL and maybe manual amount of NW
   include absolute cost (ie not compared to wholesale price or gas price)
   option to switch between sets of prices?
+
+policy model:
   make a new model that groups together preferences
+  maybe also name inputs over years, like new wholesale prices?
 
 output page:
   give option to display inputs with jquery
@@ -25,6 +36,7 @@ inputs:
 
 
 tests:
+  *get tests to start working again! (seems like nuclear in 2025 in FITtest keeps getting gen = None. Is this because the NU object doesn't exist at all?)
   improve views tests
   test new scenario methods
 

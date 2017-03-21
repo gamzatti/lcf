@@ -76,8 +76,8 @@ class Scenario(models.Model):
         title = [['year', 'Accounting cost', 'Cost v gas', 'Innovation premium']]
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
         years = [str(a.year) for a in auctionyears]
-        accounting_costs = [round(a.paid()/1000,3) for a in auctionyears]
-        cost_v_gas = [round(a.paid_v_gas()/1000,3) for a in auctionyears]
+        accounting_costs = [round(a.cum_owed_v("wp")/1000,3) for a in auctionyears]
+        cost_v_gas = [round(a.cum_owed_v("gas")/1000,3) for a in auctionyears]
         innovation_premium = [round(a.innovation_premium()/1000,3) for a in auctionyears]
         ddf = DataFrame([years,accounting_costs, cost_v_gas, innovation_premium])
         df = ddf.copy()
@@ -93,7 +93,7 @@ class Scenario(models.Model):
         title = [['year', 'Accounting cost: '+self.name, 'DECC 2015 w/TCCP', 'Meets 90TWh (no TCCP)', 'Meets 90TWh']]
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
         years = [str(a.year) for a in auctionyears]
-        accounting_costs = [a.paid()/1000 for a in auctionyears]
+        accounting_costs = [a.cum_owed_v("wp")/1000 for a in auctionyears]
         decc = [1.07055505120968, 1.49485703401083, 1.96202174324618, 2.49374812823629, 2.93865520551304]
         m_90_no_TCCP = [1.01677248921882, 1.45462660670601, 1.88986715668434, 2.50808000031501,	2.97952038924637]
         m_90 = [1.00594113294511, 1.40460686828232, 1.76626877818907, 2.23697361578951, 2.49061992003395]
@@ -106,7 +106,32 @@ class Scenario(models.Model):
         title.extend(data)
         return {'title': title, 'df': df}
 
-    def summary_gen_by_tech(self):
+
+    def summary_cum_awarded_gen_by_pot(self):
+        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
+        years = [a.year for a in auctionyears]
+        pot_names = [pot.name for pot in auctionyears.get(year=self.start_year).active_pots()]
+        pot_names = ['all']
+        title = ['year']
+        title.extend(pot_names)
+        df = DataFrame(columns=title, index=years)
+        for a in auctionyears:
+            df.at[a.year,'all'] = a.cum_awarded_gen()
+        #    for p in a.active_pots().all():
+        #        p.run_auction()
+        #        df.at[a.year,p.name] = p.cum_awarded_gen()
+        ddf = df.copy()
+        ddf['year'] = ddf.index
+        #df['year'] = [datetime.date(i,1,1) for i in df.index]
+        ddf['year'] = [str(i) for i in ddf.index]
+        data = ddf.values.tolist()
+        title = [title]
+        title.extend(data)
+        df = df.drop('year',axis=1).T
+        return {'title': title, 'df': df}
+
+
+    def summary_awarded_cost_by_tech(self):
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
         years = [a.year for a in auctionyears]
         tech_names = sorted(self.technology_form_helper()[0])
@@ -118,6 +143,30 @@ class Scenario(models.Model):
                 p.run_auction()
                 for t in p.tech_set().all():
                     #df.at[a.year,t.name] = p.summary_for_future()['gen'][t.name]
+                    df.at[a.year,t.name] = t.awarded_cost
+        ddf = df.copy()
+        ddf['year'] = ddf.index
+        #df['year'] = [datetime.date(i,1,1) for i in df.index]
+        ddf['year'] = [str(i) for i in ddf.index]
+        data = ddf.values.tolist()
+        title = [title]
+        title.extend(data)
+        df = df.drop('year',axis=1).T
+        return {'title': title, 'df': df}
+
+
+
+    def summary_gen_by_tech(self):
+        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
+        years = [a.year for a in auctionyears]
+        tech_names = sorted(self.technology_form_helper()[0])
+        title = ['year']
+        title.extend(tech_names)
+        df = DataFrame(columns=title, index=years)
+        for a in auctionyears:
+            for p in a.active_pots().all():
+                p.run_auction()
+                for t in p.tech_set().all():
                     df.at[a.year,t.name] = t.awarded_gen
         ddf = df.copy()
         ddf['year'] = ddf.index
@@ -139,7 +188,6 @@ class Scenario(models.Model):
         for a in auctionyears:
             for p in a.active_pots().all():
                 for t in p.tech_set().all():
-                    #df.at[a.year,t.name] = p.summary_for_future()['gen'][t.name]/8.760/t.load_factor
                     df.at[a.year,t.name] = t.awarded_gen/8.760/t.load_factor
 
         ddf = df.copy()
@@ -151,3 +199,6 @@ class Scenario(models.Model):
         title.extend(data)
         df = df.drop('year',axis=1).T
         return {'title': title, 'df': df}
+
+    def wholesale_prices(self):
+        return str([round(a.wholesale_price,2) for a in self.auctionyear_set.all() ]).strip('[]')

@@ -43,14 +43,7 @@
 <p>period: <strong>{{ scenario.start_year }} to {{ scenario.end_year }}</strong></p>
 <p>budget: <strong>£{{ scenario.budget }}bn</strong></p>
 <p>percent in emerging pot: <strong>{{ scenario.percent_emerging }}</strong></p>
-
-<p>cumulative new generation: <strong>{{ end_year.cum_awarded_gen }}TWh</strong></p>
-
-<p>accounting cost end year: <strong>£{{ end_year.paid }}bn</strong></p>
-<p>cost compared to gas end year: <strong>£{{ end_year.paid_v_gas }}m</strong></p>
-<p>innovation premium end year: <strong>£{{ end_year.innovation_premium }}m</strong></p>
-
-<p> second last year nw paid {{ second_last_year.nw_paid }}</p>
+<p>wholesale prices: <strong>{{ scenario.wholesale_prices }}</strong></p>
 
 
 <a href="{% url 'scenario_download' pk=scenario.pk %}"><div class="btn btn-primary">Download CSV</div></a>
@@ -60,6 +53,18 @@
 <div class="graph">
     {{ accounting_cost_chart.as_html }}
     {{ accounting_cost_df | safe }}
+</div>
+
+<h2 class="sub-header">Cumulative new generation</h2>
+<div class="graph">
+    {{ cum_awarded_gen_by_pot_chart.as_html }}
+    {{ cum_awarded_gen_by_pot_df | safe }}
+</div>
+
+<h2 class="sub-header">Cost each year of new generation awarded</h2>
+<div class="graph">
+    {{ awarded_cost_by_tech_chart.as_html }}
+    {{ awarded_cost_by_tech_df | safe }}
 </div>
 
 <h2 class="sub-header">Generation by technology</h2>
