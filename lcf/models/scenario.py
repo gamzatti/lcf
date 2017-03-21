@@ -69,7 +69,6 @@ class Scenario(models.Model):
         years = df.index
         return {'chart_data': chart_data, 'table_data': table_data}
 
-    #end year summary data methods (because functions with arguments can't be called in templates)
 
     #graph/table methods
     def accounting_cost(self):
@@ -118,7 +117,8 @@ class Scenario(models.Model):
         for a in auctionyears:
             df.at[a.year,'all'] = a.cum_awarded_gen()
         #    for p in a.active_pots().all():
-        #        p.run_auction()
+        #        if p.auction_has_run == False:
+        #            p.run_auction()
         #        df.at[a.year,p.name] = p.cum_awarded_gen()
         ddf = df.copy()
         ddf['year'] = ddf.index
@@ -140,7 +140,8 @@ class Scenario(models.Model):
         df = DataFrame(columns=title, index=years)
         for a in auctionyears:
             for p in a.active_pots().all():
-                p.run_auction()
+                if p.auction_has_run == False:
+                    p.run_auction()
                 for t in p.tech_set().all():
                     #df.at[a.year,t.name] = p.summary_for_future()['gen'][t.name]
                     df.at[a.year,t.name] = t.awarded_cost
@@ -165,7 +166,8 @@ class Scenario(models.Model):
         df = DataFrame(columns=title, index=years)
         for a in auctionyears:
             for p in a.active_pots().all():
-                p.run_auction()
+                if p.auction_has_run == False:
+                    p.run_auction()
                 for t in p.tech_set().all():
                     df.at[a.year,t.name] = t.awarded_gen
         ddf = df.copy()

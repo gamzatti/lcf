@@ -18,6 +18,7 @@ class Pot(models.Model):
     )
     auctionyear = models.ForeignKey('lcf.auctionyear', default=232)
     name = models.CharField(max_length=3, choices=POT_CHOICES, default='E')
+    auction_has_run = models.BooleanField(default=False)
 
     def __str__(self):
         return str((self.auctionyear, self.name))
@@ -59,6 +60,7 @@ class Pot(models.Model):
 
     @lru_cache(maxsize=None)
     def run_auction(self):
+        print('running auction', self.name, self.auctionyear.year)
         gen = 0
         cost = 0
         tech_cost = {}
@@ -103,20 +105,14 @@ class Pot(models.Model):
 
             tech.awarded_cost = sum(tech_projects.cost)
             tech.save(update_fields=['awarded_cost', 'awarded_gen'])
+            self.auction_has_run = True
+            self.save(update_fields=['auction_has_run'])
 
     #@lru_cache(maxsize=None)
     def awarded_cost(self):
-        self.run_auction()
-        #total = sum(t.awarded_cost for t in self.tech_set())
-        #total = 0
-        #for t in self.tech_set():
-            #print(t.awarded_cost)
-        #    total += t.awarded_cost
-            #print(self.auctionyear.year,self.name,t.name,total,'\n\n\n')
-        #print(total)
-        #return total
+        if self.auction_has_run == False:
+            self.run_auction()
         return sum(t.awarded_cost for t in self.tech_set())
-        #return self.run_auction()['cost']
 
     #@lru_cache(maxsize=None)
     def unspent(self):
@@ -129,15 +125,15 @@ class Pot(models.Model):
 
     #@lru_cache(maxsize=None)
     def awarded_gen(self):
-        self.run_auction()
+        if self.auction_has_run == False:
+            self.run_auction()
         return sum(t.awarded_gen for t in self.tech_set())
-        #return self.run_auction()['gen']
 
     #@lru_cache(maxsize=None)
     def funded_projects(self):
         return self.projects()[self.projects().funded == "this year"]
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def projects(self):
         return self.run_auction()['projects']
 
@@ -145,9 +141,10 @@ class Pot(models.Model):
         return self.technology_set.filter(included=True)
 
     def nw_owed(self,previous_pot):
-        previous_pot.run_auction()
-        t = Technology.objects.get(name="NW", pot=previous_pot)
-        gen = t.awarded_gen
-        difference = t.strike_price
+        if previous_pot.auction_has_run == False:
+            previous_pot.run_auction()
+        previous_t = Technology.objects.get(name="NW", pot=previous_pot)
+        gen = previous_t.awarded_gen
+        difference = previous_t.strike_price
         owed = gen * difference
         return owed

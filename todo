@@ -1,14 +1,10 @@
 call:
   *check about NW carry problem?
 
-to explain:
-  *haven't tested it for other years apart from 2020-2025
-  *it's not very fast yet
 
 priority:
-  *upload to github/python anywhere (or heroku)
+  *make faster!
   *some proper refactoring!
-  *improve layout. create more tables and graphs inc. summary of pots (in dataframe?)
 
 
 additional functionality:

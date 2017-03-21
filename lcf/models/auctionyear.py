@@ -79,13 +79,10 @@ class AuctionYear(models.Model):
 #refactor this in a sec
     def awarded_gen(self):
         return sum(pot.awarded_gen() for pot in self.active_pots().all())
-        awarded_gen = 0
-        for pot in self.active_pots().all():
-            awarded_gen += pot.awarded_gen()
-        return awarded_gen
 
 
     def cum_awarded_gen(self):
+        print('accumulating generation', self.year)
         extra2020 = 0
         if self.scenario.excel_2020_gen_error:
             pots2020 = self.scenario.auctionyear_set.get(year=2020).active_pots().exclude(name="FIT")
@@ -121,11 +118,10 @@ class AuctionYear(models.Model):
         owed = {}
         for pot in previous_year.active_pots().all():
             owed[pot.name] = 0
-            pot.run_auction()
+            if pot.auction_has_run == False:
+                pot.run_auction()
             for t in pot.tech_set().all():
                 gen = t.awarded_gen
-                #print(gen)
-                #print(t)
                 strike_price = t.strike_price
                 if self.scenario.excel_wp_error == True:
                     #next 5 lines account for Angela's error
@@ -137,10 +133,6 @@ class AuctionYear(models.Model):
                 difference = strike_price - compare
                 if pot.name == "FIT":
                     difference = strike_price
-                #print(pot.name)
-                #print(pot.auctionyear.year)
-                #print("gen",gen)
-                #print("difference",difference)
                 tech_owed = gen * difference
                 owed[pot.name] += tech_owed
         owed = sum(owed.values())
