@@ -75,10 +75,8 @@ def scenario_detail(request, pk=None):
     else:
         scenario = get_object_or_404(Scenario,pk=pk)
     scenarios = Scenario.objects.all()
-
     chart = {}
     df = {}
-
     for meth in ["accounting_cost","cum_awarded_gen_by_pot","awarded_cost_by_tech","gen_by_tech","cap_by_tech"]:
         results = scenario.get_or_make_chart_data("_"+meth,meth)
         data =results['data']
