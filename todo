@@ -1,10 +1,14 @@
-call:
-  *check about NW carry problem?
+  *check with Angela about NW carry problem?
 
 
 priority:
-  *make faster!
+  *
+  make faster!
+  *
   *some proper refactoring!
+    - refactor graphs code
+    - 
+
 
 
 additional functionality:

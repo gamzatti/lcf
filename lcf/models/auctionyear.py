@@ -82,7 +82,6 @@ class AuctionYear(models.Model):
 
 
     def cum_awarded_gen(self):
-        print('accumulating generation', self.year)
         extra2020 = 0
         if self.scenario.excel_2020_gen_error:
             pots2020 = self.scenario.auctionyear_set.get(year=2020).active_pots().exclude(name="FIT")

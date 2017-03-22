@@ -77,10 +77,23 @@ class Scenario(models.Model):
         chart_data.loc['years_row'] = chart_data.columns
         chart_data = chart_data.reindex(index = ['years_row']+list(chart_data.index)[:-1], columns = ['index_column'] +list(chart_data.columns)[:-1])
         chart_data = chart_data.T.values.tolist()
+        #print(chart_data)
         return {'title': chart_data, 'df': df}
 
+
+    def get_or_make_chart_data(self,attribute, method):
+        if self.__getattribute__(attribute) == None:
+            methods = globals()['Scenario']
+            meth = getattr(methods,method)
+            df = meth(self)
+            chart_data = self.df_to_chart_data(df)
+            self.__setattr__(attribute, chart_data)
+            return self.__getattribute__(attribute)
+        elif self.__getattribute__(attribute) != None:
+            return self.__getattribute__(attribute)
+
+
     def accounting_cost_df(self):
-        print("generating accounting cost df")
         index = ['Accounting cost', 'Cost v gas', 'Innovation premium']
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
         columns = [str(a.year) for a in auctionyears]
@@ -90,75 +103,20 @@ class Scenario(models.Model):
         df = DataFrame([accounting_costs, cost_v_gas, innovation_premium], index=index, columns=columns)
         return df
 
-    #graph/table methods
-    def accounting_cost(self):
-        if self._accounting_cost:
-            return self._accounting_cost
-        else:
-            self._accounting_cost = self.df_to_chart_data(self.accounting_cost_df())
-            return self._accounting_cost
+    def cum_awarded_gen_by_pot_df(self):
+        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
+        index = [pot.name for pot in auctionyears[0].active_pots()]
+        data = { str(a.year) : [p.cum_awarded_gen() for p in a.active_pots()] for a in auctionyears }
+        df = DataFrame(data=data, index=index)
+        return df
 
 
-
-
-    def summary_cum_awarded_gen_by_pot(self):
-        if self._cum_awarded_gen_by_pot:
-            return self._cum_awarded_gen_by_pot
-        else:
-            print('generating chart2')
-            auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
-            years = [a.year for a in auctionyears]
-            pot_names = [pot.name for pot in auctionyears.get(year=self.start_year).active_pots()]
-            pot_names = ['all']
-            title = ['year']
-            title.extend(pot_names)
-            df = DataFrame(columns=title, index=years)
-            for a in auctionyears:
-                df.at[a.year,'all'] = a.cum_awarded_gen()
-            #    for p in a.active_pots().all():
-            #        if p.auction_has_run == False:
-            #            p.run_auction()
-            #        df.at[a.year,p.name] = p.cum_awarded_gen()
-            ddf = df.copy()
-            ddf['year'] = ddf.index
-            #df['year'] = [datetime.date(i,1,1) for i in df.index]
-            ddf['year'] = [str(i) for i in ddf.index]
-            data = ddf.values.tolist()
-            title = [title]
-            title.extend(data)
-            df = df.drop('year',axis=1).T
-            self._cum_awarded_gen_by_pot = {'title': title, 'df': df}
-            return {'title': title, 'df': df}
-
-
-    def summary_awarded_cost_by_tech(self):
-        if self._awarded_cost_by_tech:
-            return self._awarded_cost_by_tech
-        else:
-            print('generating chart3')
-            auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
-            years = [a.year for a in auctionyears]
-            tech_names = sorted(self.technology_form_helper()[0])
-            title = ['year']
-            title.extend(tech_names)
-            df = DataFrame(columns=title, index=years)
-            for a in auctionyears:
-                for p in a.active_pots().all():
-                    if p.auction_has_run == False:
-                        p.run_auction()
-                    for t in p.tech_set().all():
-                        #df.at[a.year,t.name] = p.summary_for_future()['gen'][t.name]
-                        df.at[a.year,t.name] = t.awarded_cost
-            ddf = df.copy()
-            ddf['year'] = ddf.index
-            #df['year'] = [datetime.date(i,1,1) for i in df.index]
-            ddf['year'] = [str(i) for i in ddf.index]
-            data = ddf.values.tolist()
-            title = [title]
-            title.extend(data)
-            df = df.drop('year',axis=1).T
-            self._awarded_cost_by_tech =  {'title': title, 'df': df}
-            return {'title': title, 'df': df}
+    def awarded_cost_by_tech_df(self):
+        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
+        index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
+        data = { str(a.year) : [t.awarded_cost for p in a.active_pots() for t in p.tech_set().order_by("name")] for a in auctionyears }
+        df = DataFrame(data=data, index=index)
+        return df
 
 
 

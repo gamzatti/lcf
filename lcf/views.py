@@ -70,32 +70,35 @@ def scenario_delete(request, pk):
     return redirect('scenario_detail', pk=245)
 
 
-def scenario_detail(request, pk):
-    scenario = get_object_or_404(Scenario,pk=pk)
+def scenario_detail(request, pk=None):
+    if pk == None:
+        scenario = Scenario.objects.all().order_by("-date")[0]
+    else:
+        scenario = get_object_or_404(Scenario,pk=pk)
     scenarios = Scenario.objects.all()
 
     end_year = scenario.auctionyear_set.get(year=scenario.end_year)
     second_last_year = scenario.auctionyear_set.get(year=scenario.end_year-1)
 
-    accounting_cost_data = scenario.accounting_cost()['title']
+    accounting_cost_data = scenario.get_or_make_chart_data("_accounting_cost","accounting_cost_df")['title']
     accounting_cost_data_source = SimpleDataSource(data=accounting_cost_data)
     accounting_cost_options = {'title': None, 'vAxis': {'title': '£bn'}}
     accounting_cost_chart = LineChart(accounting_cost_data_source, options=accounting_cost_options, height=400, width="100%")
-    accounting_cost_df = scenario.accounting_cost()['df'].to_html(classes="table table-striped table-condensed")
+    accounting_cost_df = scenario.get_or_make_chart_data("_accounting_cost","accounting_cost_df")['df'].to_html(classes="table table-striped table-condensed")
 
-    cum_awarded_gen_by_pot_data = scenario.summary_cum_awarded_gen_by_pot()['title']
+    cum_awarded_gen_by_pot_data = scenario.get_or_make_chart_data("_cum_awarded_gen_by_pot","cum_awarded_gen_by_pot_df")['title']
     cum_awarded_gen_by_pot_data_source = SimpleDataSource(data=cum_awarded_gen_by_pot_data)
     cum_awarded_gen_by_pot_options = {'vAxis': {'title': 'TWh'}, 'title': None}
     cum_awarded_gen_by_pot_chart = LineChart(cum_awarded_gen_by_pot_data_source, options=cum_awarded_gen_by_pot_options, height=400, width="100%")
-    cum_awarded_gen_by_pot_df = scenario.summary_cum_awarded_gen_by_pot()['df'].to_html(classes="table table-striped table-condensed")
+    cum_awarded_gen_by_pot_df = scenario.get_or_make_chart_data("_cum_awarded_gen_by_pot","cum_awarded_gen_by_pot_df")['df'].to_html(classes="table table-striped table-condensed")
 
-    awarded_cost_by_tech_data = scenario.summary_awarded_cost_by_tech()['title']
+    awarded_cost_by_tech_data = scenario.get_or_make_chart_data("_awarded_cost_by_tech","awarded_cost_by_tech_df")['title']
     awarded_cost_by_tech_data_source = SimpleDataSource(data=awarded_cost_by_tech_data)
     awarded_cost_by_tech_options = {'vAxis': {'title': '£m'}, 'title': None}
     awarded_cost_by_tech_chart = ColumnChart(awarded_cost_by_tech_data_source, options=awarded_cost_by_tech_options, height=400, width="100%")
-    awarded_cost_by_tech_df = scenario.summary_awarded_cost_by_tech()['df'].to_html(classes="table table-striped table-condensed")
+    awarded_cost_by_tech_df = scenario.get_or_make_chart_data("_awarded_cost_by_tech","awarded_cost_by_tech_df")['df'].to_html(classes="table table-striped table-condensed")
 
-    gen_by_tech_data = scenario.summary_gen_by_tech()['title']
+    """gen_by_tech_data = scenario.summary_gen_by_tech()['title']
     gen_by_tech_data_source = SimpleDataSource(data=gen_by_tech_data)
     gen_by_tech_options = {'vAxis': {'title': 'TWh'}, 'title': None}
     gen_by_tech_chart = ColumnChart(gen_by_tech_data_source, options=gen_by_tech_options, height=400, width="100%")
@@ -105,28 +108,29 @@ def scenario_detail(request, pk):
     cap_by_tech_data_source = SimpleDataSource(data=cap_by_tech_data)
     cap_by_tech_options = {'vAxis': {'title': 'GW'}, 'title': None}
     cap_by_tech_chart = ColumnChart(cap_by_tech_data_source, options=cap_by_tech_options, height=400, width="100%")
-    cap_by_tech_df = scenario.summary_cap_by_tech()['df'].to_html(classes="table table-striped table-condensed")
+    cap_by_tech_df = scenario.summary_cap_by_tech()['df'].to_html(classes="table table-striped table-condensed")"""
 
 
     context = {'scenario': scenario,
                'scenarios': scenarios,
-               'end_year': end_year,
-               'second_last_year': second_last_year,
+               #'end_year': end_year,
+               #'second_last_year': second_last_year,
                'accounting_cost_chart': accounting_cost_chart,
                'cum_awarded_gen_by_pot_chart': cum_awarded_gen_by_pot_chart,
                'awarded_cost_by_tech_chart': awarded_cost_by_tech_chart,
-               'gen_by_tech_chart': gen_by_tech_chart,
-               'cap_by_tech_chart': cap_by_tech_chart,
+               #'gen_by_tech_chart': gen_by_tech_chart,
+               #'cap_by_tech_chart': cap_by_tech_chart,
                'accounting_cost_df': accounting_cost_df,
                'cum_awarded_gen_by_pot_df': cum_awarded_gen_by_pot_df,
                'awarded_cost_by_tech_df': awarded_cost_by_tech_df,
-               'cap_by_tech_df': cap_by_tech_df,
-               'gen_by_tech_df': gen_by_tech_df,
+               #'cap_by_tech_df': cap_by_tech_df,
+               #'gen_by_tech_df': gen_by_tech_df,
                }
 
     return render(request, 'lcf/scenario_detail.html', context)
 
 def scenario_download(request,pk):
+    print("downloading")
     scenario = get_object_or_404(Scenario,pk=pk)
     scenarios = Scenario.objects.all()
 
@@ -136,7 +140,7 @@ def scenario_download(request,pk):
 
     writer = csv.writer(response)
     df_list = [('Accounting cost (£bn)', scenario.accounting_cost()['df']),
-               ('Cumulative generation (TWh)', scenario.summary_cum_awarded_gen_by_pot()['df']),
+               ('Cumulative generation (TWh)', scenario.cum_awarded_gen_by_pot()['df']),
                ('Cost of new generation awarded (£m)', scenario.summary_awarded_cost_by_tech()['df']),
                ('Generation (TWh)', scenario.summary_gen_by_tech()['df']),
                ('Capacity (GW)', scenario.summary_cap_by_tech()['df']),

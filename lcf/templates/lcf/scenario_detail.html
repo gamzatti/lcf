@@ -54,7 +54,6 @@
     {{ accounting_cost_chart.as_html }}
     {{ accounting_cost_df | safe }}
 </div>
-
 <h2 class="sub-header">Cumulative new generation</h2>
 <div class="graph">
     {{ cum_awarded_gen_by_pot_chart.as_html }}
@@ -66,6 +65,7 @@
     {{ awarded_cost_by_tech_chart.as_html }}
     {{ awarded_cost_by_tech_df | safe }}
 </div>
+<!--
 
 <h2 class="sub-header">Generation by technology</h2>
 <div class="graph">
@@ -78,7 +78,7 @@
     {{ cap_by_tech_chart.as_html }}
     {{ cap_by_tech_df | safe }}
 </div>
-
+-->
 
 {% endblock %}
 

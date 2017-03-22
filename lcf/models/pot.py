@@ -129,6 +129,22 @@ class Pot(models.Model):
             self.run_auction()
         return sum(t.awarded_gen for t in self.tech_set())
 
+
+    def cum_awarded_gen(self):
+        extra2020 = 0
+        if self.auctionyear.scenario.excel_2020_gen_error and self.name != "FIT":
+            pot2020 = self.auctionyear.scenario.auctionyear_set.get(year=2020).active_pots().get(name=self.name)
+            #pot2020 = Pot.objects.get(auctionyear__scenario=self.auctionyear.scenario,auctionyear__year=2020,name=self.name) #which is faster?
+            extra2020 = pot2020.awarded_gen()
+        return sum([year.awarded_gen() for year in self.years()]) + extra2020
+
+    def years(self):
+        if self.auctionyear.year == 2020:
+            return [self]
+        else:
+            years = Pot.objects.filter(auctionyear__scenario=self.auctionyear.scenario, name=self.name, auctionyear__year__range=(self.auctionyear.scenario.start_year, self.auctionyear.year)).order_by("auctionyear__year")
+            return(years)
+
     #@lru_cache(maxsize=None)
     def funded_projects(self):
         return self.projects()[self.projects().funded == "this year"]
