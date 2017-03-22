@@ -49,7 +49,7 @@ def scenario_new(request,pk):
             return redirect('scenario_detail', pk=scenario_new.pk)
 
     scenario_form = ScenarioForm(instance=scenario_original)
-    initial_prices = {'gas_prices': str([a.gas_price for a in scenario_original.auctionyear_set.all()]).strip('[]'), 'wholesale_prices': str([a.wholesale_price for a in scenario_original.auctionyear_set.all() ]).strip('[]')}
+    initial_prices = {'gas_prices': str([round(a.gas_price,2) for a in scenario_original.auctionyear_set.all()]).strip('[]'), 'wholesale_prices': str([round(a.wholesale_price,2) for a in scenario_original.auctionyear_set.all() ]).strip('[]')}
     prices_form = PricesForm(initial=initial_prices)
     names = scenario_original.technology_form_helper()[0]
     technology_form_helper = scenario_original.technology_form_helper()[1]
