@@ -98,7 +98,7 @@ def scenario_detail(request, pk=None):
     awarded_cost_by_tech_chart = ColumnChart(awarded_cost_by_tech_data_source, options=awarded_cost_by_tech_options, height=400, width="100%")
     awarded_cost_by_tech_df = scenario.get_or_make_chart_data("_awarded_cost_by_tech","awarded_cost_by_tech_df")['df'].to_html(classes="table table-striped table-condensed")
 
-    """gen_by_tech_data = scenario.summary_gen_by_tech()['title']
+    gen_by_tech_data = scenario.summary_gen_by_tech()['title']
     gen_by_tech_data_source = SimpleDataSource(data=gen_by_tech_data)
     gen_by_tech_options = {'vAxis': {'title': 'TWh'}, 'title': None}
     gen_by_tech_chart = ColumnChart(gen_by_tech_data_source, options=gen_by_tech_options, height=400, width="100%")
@@ -108,7 +108,7 @@ def scenario_detail(request, pk=None):
     cap_by_tech_data_source = SimpleDataSource(data=cap_by_tech_data)
     cap_by_tech_options = {'vAxis': {'title': 'GW'}, 'title': None}
     cap_by_tech_chart = ColumnChart(cap_by_tech_data_source, options=cap_by_tech_options, height=400, width="100%")
-    cap_by_tech_df = scenario.summary_cap_by_tech()['df'].to_html(classes="table table-striped table-condensed")"""
+    cap_by_tech_df = scenario.summary_cap_by_tech()['df'].to_html(classes="table table-striped table-condensed")
 
 
     context = {'scenario': scenario,
@@ -118,13 +118,13 @@ def scenario_detail(request, pk=None):
                'accounting_cost_chart': accounting_cost_chart,
                'cum_awarded_gen_by_pot_chart': cum_awarded_gen_by_pot_chart,
                'awarded_cost_by_tech_chart': awarded_cost_by_tech_chart,
-               #'gen_by_tech_chart': gen_by_tech_chart,
-               #'cap_by_tech_chart': cap_by_tech_chart,
+               'gen_by_tech_chart': gen_by_tech_chart,
+               'cap_by_tech_chart': cap_by_tech_chart,
                'accounting_cost_df': accounting_cost_df,
                'cum_awarded_gen_by_pot_df': cum_awarded_gen_by_pot_df,
                'awarded_cost_by_tech_df': awarded_cost_by_tech_df,
-               #'cap_by_tech_df': cap_by_tech_df,
-               #'gen_by_tech_df': gen_by_tech_df,
+               'cap_by_tech_df': cap_by_tech_df,
+               'gen_by_tech_df': gen_by_tech_df,
                }
 
     return render(request, 'lcf/scenario_detail.html', context)
