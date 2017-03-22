@@ -92,17 +92,14 @@ class Pot(models.Model):
             cost = projects[projects.funded_this_year==True].attempted_cum_cost.max()
             gen = projects[projects.funded_this_year==True].attempted_cum_gen.max()
 
-        self.update(projects)
+        self.update_techs(projects)
 
         return {'cost': cost, 'gen': gen, 'projects': projects}
 
-    def update(self,projects):
+    def update_techs(self,projects):
         for tech in self.tech_set().all():
             tech_projects = projects[(projects.funded_this_year == True) & (projects.technology == tech.name)]
-            #tech.awarded_gen = 0
-            #print(projects)
             tech.awarded_gen = tech_projects.attempted_project_gen.sum()/1000 if pd.notnull(tech_projects.attempted_project_gen.sum()) else 0
-
             tech.awarded_cost = sum(tech_projects.cost)
             tech.save(update_fields=['awarded_cost', 'awarded_gen'])
             self.auction_has_run = True
@@ -136,14 +133,48 @@ class Pot(models.Model):
             pot2020 = self.auctionyear.scenario.auctionyear_set.get(year=2020).active_pots().get(name=self.name)
             #pot2020 = Pot.objects.get(auctionyear__scenario=self.auctionyear.scenario,auctionyear__year=2020,name=self.name) #which is faster?
             extra2020 = pot2020.awarded_gen()
-        return sum([year.awarded_gen() for year in self.years()]) + extra2020
+        return sum([pot.awarded_gen() for pot in self.cum_pots()]) + extra2020
 
-    def years(self):
+    def cum_pots(self):
         if self.auctionyear.year == 2020:
             return [self]
         else:
-            years = Pot.objects.filter(auctionyear__scenario=self.auctionyear.scenario, name=self.name, auctionyear__year__range=(self.auctionyear.scenario.start_year, self.auctionyear.year)).order_by("auctionyear__year")
-            return(years)
+            cum_pots = Pot.objects.filter(auctionyear__scenario=self.auctionyear.scenario, name=self.name, auctionyear__year__range=(self.auctionyear.scenario.start_year, self.auctionyear.year)).order_by("auctionyear__year")
+            return(cum_pots)
+
+    def cum_owed_v(self,comparison):
+        return sum([self.owed_v(comparison, pot) for pot in self.cum_pots()])
+
+
+    def nw_cum_owed(self):
+        return sum([self.nw_owed(pot) for pot in self.cum_pots()])
+
+
+    def owed_v(self, comparison, previous_pot):
+        if comparison == "gas":
+            compare = self.auctionyear.gas_price
+        elif comparison == "wp":
+            compare = self.auctionyear.wholesale_price
+        if comparison == "absolute" or self.name == "FIT":
+            compare = 0
+        owed = 0
+        if previous_pot.auction_has_run == False:
+            previous_pot.run_auction()
+        for t in previous_pot.tech_set().all():
+            gen = t.awarded_gen
+            strike_price = t.strike_price
+            if self.auctionyear.scenario.excel_wp_error == True:
+                #next 5 lines account for Angela's error
+                if (self.name == "E") or (self.name == "SN"):
+                    try:
+                        strike_price = self.auctionyear.active_pots().get(name=self.name).tech_set().get(name=t.name).strike_price
+                    except:
+                        break
+            difference = strike_price - compare
+            tech_owed = gen * difference
+            owed += tech_owed
+        return owed
+
 
     #@lru_cache(maxsize=None)
     def funded_projects(self):

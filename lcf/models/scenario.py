@@ -37,64 +37,12 @@ class Scenario(models.Model):
         self._gen_by_tech = None
         self._cap_by_tech = None
 
-    #form helper methods
-    def projects_df(self):
-        projects = pd.concat([t.projects() for a in self.auctionyear_set.all() for p in a.active_pots().all() for t in p.tech_set().all() ])
-        #print(projects)
-        return projects
 
-    def techs_df(self):
-        techs = pd.concat([t.fields_df() for a in self.auctionyear_set.all() for p in a.active_pots().all() for t in p.technology_set.all() ])
-        techs = techs.set_index('id')
-        #print('\n',techs)
-        return techs
-
-    def technology_form_helper(self):
-        techs = [t for p in self.auctionyear_set.all()[0].pot_set.all() for t in p.technology_set.all() ]
-        t_form_data = { t.name : {} for t in techs}
-        for t in techs:
-            subset = self.techs_df()[self.techs_df().name == t.name]
-            for field in techs[0].get_field_values():
-                if field == "id":
-                    pass
-                elif field == "name":
-                    t_form_data[t.name][field] = t.name
-                elif field == "included":
-                    t_form_data[t.name][field] = t.included
-                elif field == "pot":
-                    t_form_data[t.name][field] = t.pot.name
-                else:
-                    t_form_data[t.name][field] = str(list(subset[field])).strip('[]')
-        initial_technologies = list(t_form_data.values())
-        t_names = [t.name for t in techs]
-        return t_names, initial_technologies
-
-
-
-    def df_to_chart_data(self,df):
-        chart_data = df['df'].copy()
-        chart_data['index_column'] = chart_data.index
-        chart_data.loc['years_row'] = chart_data.columns
-        chart_data = chart_data.reindex(index = ['years_row']+list(chart_data.index)[:-1], columns = ['index_column'] +list(chart_data.columns)[:-1])
-        chart_data = chart_data.T.values.tolist()
-        return {'data': chart_data, 'df': df['df'], 'options': df['options']}
-
-
-    def get_or_make_chart_data(self,attribute, method):
-        if self.__getattribute__(attribute) == None:
-            methods = globals()['Scenario']
-            meth = getattr(methods,method)
-            df = meth(self)
-            chart_data = self.df_to_chart_data(df)
-            self.__setattr__(attribute, chart_data)
-            return self.__getattribute__(attribute)
-        elif self.__getattribute__(attribute) != None:
-            return self.__getattribute__(attribute)
-
-
+    #chart methods
     def accounting_cost(self):
         index = ['Accounting cost', 'Cost v gas', 'Innovation premium']
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
+        print(auctionyears[2].budget())
         columns = [str(a.year) for a in auctionyears]
         accounting_costs = [round(a.cum_owed_v("wp")/1000,3) for a in auctionyears]
         cost_v_gas = [round(a.cum_owed_v("gas")/1000,3) for a in auctionyears]
@@ -135,5 +83,45 @@ class Scenario(models.Model):
         options = {'vAxis': {'title': 'GW'}, 'title': None}
         return {'df': df, 'options': options}
 
+    #helper methods
+    def df_to_chart_data(self,df):
+        chart_data = df['df'].copy()
+        chart_data['index_column'] = chart_data.index
+        chart_data.loc['years_row'] = chart_data.columns
+        chart_data = chart_data.reindex(index = ['years_row']+list(chart_data.index)[:-1], columns = ['index_column'] +list(chart_data.columns)[:-1])
+        chart_data = chart_data.T.values.tolist()
+        return {'data': chart_data, 'df': df['df'], 'options': df['options']}
+
+    def get_or_make_chart_data(self, attribute, method):
+        if self.__getattribute__(attribute) == None:
+            methods = globals()['Scenario']
+            meth = getattr(methods,method)
+            df = meth(self)
+            chart_data = self.df_to_chart_data(df)
+            self.__setattr__(attribute, chart_data)
+            return self.__getattribute__(attribute)
+        elif self.__getattribute__(attribute) != None:
+            return self.__getattribute__(attribute)
+
     def wholesale_prices(self):
         return str([round(a.wholesale_price,2) for a in self.auctionyear_set.all() ]).strip('[]')
+
+    def technology_form_helper(self):
+        techs = [t for p in self.auctionyear_set.all()[0].pot_set.all() for t in p.technology_set.all() ]
+        t_form_data = { t.name : {} for t in techs}
+        for t in techs:
+            subset = self.techs_df()[self.techs_df().name == t.name]
+            for field in techs[0].get_field_values():
+                if field == "id":
+                    pass
+                elif field == "name":
+                    t_form_data[t.name][field] = t.name
+                elif field == "included":
+                    t_form_data[t.name][field] = t.included
+                elif field == "pot":
+                    t_form_data[t.name][field] = t.pot.name
+                else:
+                    t_form_data[t.name][field] = str(list(subset[field])).strip('[]')
+        initial_technologies = list(t_form_data.values())
+        t_names = [t.name for t in techs]
+        return t_names, initial_technologies

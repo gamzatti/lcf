@@ -27,6 +27,7 @@ class AuctionYear(models.Model):
         self._unspent = None
         self._previous_year_unspent = None
 
+    #budget methods
     #@lru_cache(maxsize=None)
     def budget(self):
         if self._budget:
@@ -63,6 +64,21 @@ class AuctionYear(models.Model):
             return previous_year.unspent()
 
 
+
+    #helper methods
+    def cum_years(self):
+        if self.year == 2020:
+            return [self]
+        else:
+            return self.scenario.auctionyear_set.filter(year__range=(self.scenario.start_year,self.year)).order_by('year')
+
+    @lru_cache(maxsize=None)
+    def active_pots(self):
+        active_names = [ pot.name for pot in self.pot_set.all() if pot.tech_set().count() > 0 ]
+        return self.pot_set.filter(name__in=active_names)
+
+
+    #summary methods
     #@lru_cache(maxsize=None)
     def awarded_from(self,pot):
         if pot == "FIT" or pot == "SN":
@@ -76,91 +92,43 @@ class AuctionYear(models.Model):
             return sum([self.awarded_from("FIT"),self.awarded_from("SN"),self.awarded_from("auction")])
 
 
-#refactor this in a sec
     def awarded_gen(self):
         return sum(pot.awarded_gen() for pot in self.active_pots().all())
 
 
+    @lru_cache(maxsize=None)
+    def owed_v(self, comparison, previous_year):
+        return sum([pot.owed_v(comparison, previous_year.active_pots().get(name=pot.name)) for pot in self.active_pots() ])
+
+
+    def nw_owed(self,previous_year):
+        if self.active_pots().filter(name="FIT").exists():
+            pot = self.active_pots().get(name="FIT")
+            previous_fpot = previous_year.active_pots().get(name="FIT")
+            return pot.owed_v("absolute", previous_fpot)
+        else:
+            return 0
+
+
+    #accumulating methods
     def cum_awarded_gen(self):
         extra2020 = 0
         if self.scenario.excel_2020_gen_error:
             pots2020 = self.scenario.auctionyear_set.get(year=2020).active_pots().exclude(name="FIT")
             extra2020 = sum([pot.awarded_gen() for pot in pots2020])
-        return sum([year.awarded_gen() for year in self.years()]) + extra2020
-
-
-
-    def years(self):
-        if self.year == 2020:
-            return [self]
-        else:
-            return self.scenario.auctionyear_set.filter(year__range=(self.scenario.start_year,self.year)).order_by('year')
-
+        return sum([year.awarded_gen() for year in self.cum_years()]) + extra2020
 
     def cum_owed_v(self, comparison):
         if self.year == 2020:
-            return self.owed_v(comparison,self)
+            return self.owed_v(comparison, self)
         else:
-            return sum([self.owed_v(comparison,year) for year in self.years()])
+            return sum([pot.cum_owed_v(comparison) for pot in self.active_pots()])
 
     def innovation_premium(self):
-        return self.cum_owed_v("gas") - self.nw_paid()
+        return self.cum_owed_v("gas") - self.nw_cum_owed()
 
-    @lru_cache(maxsize=None)
-    def owed_v(self, comparison, previous_year):
-        if comparison == "gas":
-            compare = self.gas_price
-        elif comparison == "wp":
-            compare = self.wholesale_price
-        elif comparison == "absolute":
-            compare = 0
-        owed = {}
-        for pot in previous_year.active_pots().all():
-            owed[pot.name] = 0
-            if pot.auction_has_run == False:
-                pot.run_auction()
-            for t in pot.tech_set().all():
-                gen = t.awarded_gen
-                strike_price = t.strike_price
-                if self.scenario.excel_wp_error == True:
-                    #next 5 lines account for Angela's error
-                    if (pot.name == "E") or (pot.name == "SN"):
-                        try:
-                            strike_price = self.active_pots().get(name=pot.name).tech_set().get(name=t.name).strike_price
-                        except:
-                            break
-                difference = strike_price - compare
-                if pot.name == "FIT":
-                    difference = strike_price
-                tech_owed = gen * difference
-                owed[pot.name] += tech_owed
-        owed = sum(owed.values())
-        return owed
-
-    def nw_paid(self):
+    def nw_cum_owed(self):
         if self.year == 2020:
             return self.nw_owed(self)
         else:
-            return sum([self.nw_owed(year) for year in self.years()])
-
-    def nw_owed(self,previous_year):
-        if self.active_pots().filter(name="FIT").exists():
-            pot = self.active_pots().get(name="FIT")
-            previous_pot = previous_year.active_pots().get(name="FIT")
-            return pot.nw_owed(previous_pot)
-        else:
-            return 0
-
-
-    @lru_cache(maxsize=None)
-    def active_pots(self):
-        active_names = [ pot.name for pot in self.pot_set.all() if pot.tech_set().count() > 0 ]
-        return self.pot_set.filter(name__in=active_names)
-
-
-    #template methods:
-    def cum_owed_v_wp(self):
-        return self.cum_owed_v("wp")
-
-    def cum_owed_v_gas(self):
-        return self.cum_owed_v("gas")
+            return self.active_pots().get(name="FIT").nw_cum_owed()

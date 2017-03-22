@@ -1,62 +1,44 @@
-  *check with Angela about NW carry problem?
-
-
-priority:
-  *
-  make faster!
-  *
-  *some proper refactoring!
-    - refactor graphs code
-    - 
-
-
+make faster/refactor:
+  *move owed methods into pot
+  *give each model a place to store data: pot needs to store gen and awarded cost, maybe budget
 
 additional functionality:
-  *think about post 2026. create option to have two auction periods? (at the moment I can create scenarios out to 2030 but they don't save/redirect properly)
-  *create options to get rid of 89 extra being carried over, and for cumulative generation to start from 2021 not 2020 / combine all excel quirks into one checkbox
-  *make it allow manual numbers of projects for TL and maybe manual amount of NW
+  *think about post 2026. create option to have two auction periods?
+  *combine all excel quirks into one checkbox
+  make it allow manual numbers of projects for TL and maybe manual amount of NW
   include absolute cost (ie not compared to wholesale price or gas price)
-  option to switch between sets of prices?
 
 policy model:
   make a new model that groups together preferences
-  maybe also name inputs over years, like new wholesale prices?
+  allow naming of inputs, like new wholesale prices?
+  allow input group to have a source
 
-output page:
-  give option to display inputs with jquery
+JS/jQuery:
+    *give option to display inputs on output page
+    add javascript to delete buttons
 
-initial data:
-  *load in data for existing scenarios (1, 2 and 3) / write code that converts csv to either json or probably more easily to Django model
-
-inputs:
-  improve interface, eg  hide technology inputs initially with jquery, disallow editing of year and technology, disable editing when technologies are turned off, maybe add choice options for prices? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
+input page:
+  *improve interface, eg hide technology inputs initially with jquery, disallow editing of year and technology, disable editing when technologies are turned off, get rid of decimals, maybe add choice options for prices? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
   deal with tidal that has initial generation rather than capacity (for form?)
   errors for form fields being empty/incorrect?
   change form to not use 2020 input
 
-
 tests:
   *get tests to start working again! (seems like nuclear in 2025 in FITtest keeps getting gen = None. Is this because the NU object doesn't exist at all?)
   improve views tests
-  test new scenario methods
+  start again?!
 
-appearance:
-  write some CSS/use bootstrap components
-
-
+ ----
+research:
+  *check with Angela about NW carry problem?
+  add in data from £730m after auction has happened
+  see if I can find data for new CCGT/carbon prices
+  look at technology costs from 2016 BEIS paper
 
 diverge from Excel model:
   ?create normal distribution of projects?
   maxima/minima?
   change the way each year is based on cumulative generation with the cost distribution therefore including previously funded projects
-
-speed up!/refactor:
-  review lru_cache and consider initialising instance variables and then doing lazy calculation. and find out how to clear cache? (or at least do this http://stackoverflow.com/questions/2237624/applying-python-decorators-to-methods-in-a-class)
-  add javascript to delete buttons
-  generally refactor according to better OOD and pandas
-  clean up the different generation, capacity and money units
-  deal with error message: a value is trying to be set on a copy of a slice from a DataFrame
-  figure out why sometimes technologies end up in wrong pot!
 
 Resolved issues:
   * realised that solar PV was affected by the previous years. Because there are projects already funded at the lowest levelised costs, these ones aren't eligible in eg 2022. the way I've fixed this for now is just putting 0 for all years up to but not including 2020 in the number of projects in Excel version
@@ -65,3 +47,4 @@ Unresolved issues:
   * tidal is still funny because of the levelised cost being manually inputted for projects. Means I can't always match the answers. I've added a scenario option to sort of account for this, though it's only for the case of max_levelised cost = 150.
   * there seems to be a weird quirk that £89m extra is carried over each year than ought to be, because NW is counted in initial budget, but then 'unspent' is calculated by subtracting only the auction and negotiation spend from the initial budget
   * there's also a problem with trying to keep the generation constant while changing reference to gas prices, because you might think that cumulative generation is the same but if some of the distribution has shifted into 2020 then what you're paying for after that will be different.
+  * figure out why sometimes technologies end up in wrong pot in form

@@ -222,12 +222,72 @@ test:
 
 
 
+Scenario debugging methods:
+    def projects_df(self):
+        projects = pd.concat([t.projects() for a in self.auctionyear_set.all() for p in a.active_pots().all() for t in p.tech_set().all() ])
+        return projects
 
-#code to go in a method update_tech_db, to be called at the end of run_auction() in pot
+    def techs_df(self):
+        techs = pd.concat([t.fields_df() for a in self.auctionyear_set.all() for p in a.active_pots().all() for t in p.technology_set.all() ])
+        techs = techs.set_index('id')
+        return techs
 
-        for tech in self.tech_set().all():
-            tech_projects = projects[(projects.funded_this_year == True) & (projects.technology == tech.name)]
-            tech.awarded_cost = sum(tech_projects.cost)
-            tech.awarded_gen = tech_projects.attempted_project_gen.sum()/1000 if pd.notnull(tech_projects.attempted_project_gen.sum()) else 0
-            #print(tech)
-            tech.save()
+Auctionyear old method:
+    @lru_cache(maxsize=None)
+    def owed_v2(self, comparison, previous_year):
+        if comparison == "gas":
+            compare = self.gas_price
+        elif comparison == "wp":
+            compare = self.wholesale_price
+        elif comparison == "absolute":
+            compare = 0
+        owed = {}
+        for pot in previous_year.active_pots().all():
+            owed[pot.name] = 0
+            if pot.auction_has_run == False:
+                pot.run_auction()
+            for t in pot.tech_set().all():
+                gen = t.awarded_gen
+                strike_price = t.strike_price
+                if self.scenario.excel_wp_error == True:
+                    #next 5 lines account for Angela's error
+                    if (pot.name == "E") or (pot.name == "SN"):
+                        try:
+                            strike_price = self.active_pots().get(name=pot.name).tech_set().get(name=t.name).strike_price
+                        except:
+                            break
+                difference = strike_price - compare
+                if pot.name == "FIT":
+                    difference = strike_price
+                tech_owed = gen * difference
+                owed[pot.name] += tech_owed
+        owed = sum(owed.values())
+        return owed
+
+    def nw_owed_old(self,previous_year):
+        if self.active_pots().filter(name="FIT").exists():
+            pot = self.active_pots().get(name="FIT")
+            previous_pot = previous_year.active_pots().get(name="FIT")
+            return pot.nw_owed(previous_pot)
+        else:
+            return 0
+
+
+    def cum_owed_v2(self, comparison):
+        if self.year == 2020:
+            return self.owed_v(comparison,self)
+        else:
+            return sum([self.owed_v(comparison,year) for year in self.cum_years()])
+
+    def nw_cum_owed_old(self):
+        if self.year == 2020:
+            return self.nw_owed(self)
+        else:
+            return sum([self.nw_owed(year) for year in self.cum_years()])
+
+    #template methods:
+    def cum_owed_v_wp(self):
+        return self.cum_owed_v("wp")
+
+    def cum_owed_v_gas(self):
+        return self.cum_owed_v("gas")
