@@ -103,20 +103,18 @@ class Pot(models.Model):
         projects['attempted_project_gen'] = np.where(projects.eligible == True, projects.gen, 0)
         projects['attempted_cum_gen'] = np.cumsum(projects.attempted_project_gen)
         self.update_techs(projects)
-
         return projects
 
     def update_techs(self,projects):
-        print("updating database")
         for tech in self.tech_set().all():
             tech_projects = projects[(projects.funded_this_year == True) & (projects.technology == tech.name)]
             tech.awarded_gen = tech_projects.attempted_project_gen.sum()/1000 if pd.notnull(tech_projects.attempted_project_gen.sum()) else 0
             tech.awarded_cost = sum(tech_projects.cost)
             tech.save(update_fields=['awarded_cost', 'awarded_gen'])
-            #print(tech.awarded_gen)
         self.auction_has_run = True
         self.save(update_fields=['auction_has_run'])
-        #print(self.auction_has_run)
+
+
     #summary methods
     #@lru_cache(maxsize=None)
     def awarded_cost(self):

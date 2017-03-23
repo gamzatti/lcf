@@ -1,15 +1,10 @@
-tests:
-  improve views tests
-  start again?!
-  make failing tests pass
-
 JS/jQuery:
-    *give option to display inputs on output page
-    add javascript to delete buttons
+  *give option to display inputs on output page
+  add javascript to delete buttons
 
 
 additional functionality:
-  *think about post 2026. create option to have two auction periods?
+  *think about post 2026. create option to have two auction periods? load data into production db
   *combine all excel quirks into one checkbox
   make it allow manual numbers of projects for TL and maybe manual amount of NW
   include absolute cost (ie not compared to wholesale price or gas price)
@@ -33,6 +28,12 @@ input page:
   deal with tidal that has initial generation rather than capacity (for form?)
   errors for form fields being empty/incorrect?
   change form to not use 2020 input
+
+tests:
+  make sure I am testing everything / make failing gas test pass
+    download view
+  remove useless tests and duplicate import code
+  deal with the fact that tests need to be run separately
 
 
  ----

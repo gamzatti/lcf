@@ -1,6 +1,12 @@
 {% load staticfiles %}
-{% load lcf_extras %}
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+    $( "div.btn-primary" ).click(function(){
+        $(this).html("changed");
+    });
+});
+</script>
 <html>
     <head>
         <title>{% block title %}{% endblock %}LCF scenario generator</title>

@@ -115,9 +115,9 @@ def scenario_download(request,pk):
     writer = csv.writer(response)
     df_list = [('Accounting cost (£bn)', scenario.accounting_cost()['df']),
                ('Cumulative generation (TWh)', scenario.cum_awarded_gen_by_pot()['df']),
-               ('Cost of new generation awarded (£m)', scenario.summary_awarded_cost_by_tech()['df']),
-               ('Generation (TWh)', scenario.summary_gen_by_tech()['df']),
-               ('Capacity (GW)', scenario.summary_cap_by_tech()['df']),
+               ('Cost of new generation awarded (£m)', scenario.awarded_cost_by_tech()['df']),
+               ('Generation (TWh)', scenario.gen_by_tech()['df']),
+               ('Capacity (GW)', scenario.cap_by_tech()['df']),
                ]
 
     for df_pair in df_list:
