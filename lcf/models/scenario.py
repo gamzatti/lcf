@@ -125,3 +125,8 @@ class Scenario(models.Model):
         initial_technologies = list(t_form_data.values())
         t_names = [t.name for t in techs]
         return t_names, initial_technologies
+
+    def techs_df(self):
+        techs = pd.concat([t.fields_df() for a in self.auctionyear_set.all() for p in a.active_pots().all() for t in p.technology_set.all() ])
+        techs = techs.set_index('id')
+        return techs

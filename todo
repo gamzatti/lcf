@@ -1,6 +1,16 @@
-make faster/refactor:
-  *move owed methods into pot
-  *give each model a place to store data: pot needs to store gen and awarded cost, maybe budget
+tests:
+  *get tests to start working again! (seems like nuclear in 2025 in FITtest keeps getting gen = None. Is this because the NU object doesn't exist at all?)
+  improve views tests
+  start again?!
+
+refactor:
+  *make the answers right again!
+  give each model a place to store data: pot needs to store gen and awarded cost, maybe budget
+
+JS/jQuery:
+    *give option to display inputs on output page
+    add javascript to delete buttons
+
 
 additional functionality:
   *think about post 2026. create option to have two auction periods?
@@ -8,14 +18,15 @@ additional functionality:
   make it allow manual numbers of projects for TL and maybe manual amount of NW
   include absolute cost (ie not compared to wholesale price or gas price)
 
+speed:
+  profile code?
+  investigate caching
+  investigate hosting elsewhere
+
 policy model:
   make a new model that groups together preferences
   allow naming of inputs, like new wholesale prices?
   allow input group to have a source
-
-JS/jQuery:
-    *give option to display inputs on output page
-    add javascript to delete buttons
 
 input page:
   *improve interface, eg hide technology inputs initially with jquery, disallow editing of year and technology, disable editing when technologies are turned off, get rid of decimals, maybe add choice options for prices? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
@@ -23,10 +34,6 @@ input page:
   errors for form fields being empty/incorrect?
   change form to not use 2020 input
 
-tests:
-  *get tests to start working again! (seems like nuclear in 2025 in FITtest keeps getting gen = None. Is this because the NU object doesn't exist at all?)
-  improve views tests
-  start again?!
 
  ----
 research:

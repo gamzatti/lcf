@@ -112,11 +112,7 @@ class AuctionYear(models.Model):
 
     #accumulating methods
     def cum_awarded_gen(self):
-        extra2020 = 0
-        if self.scenario.excel_2020_gen_error:
-            pots2020 = self.scenario.auctionyear_set.get(year=2020).active_pots().exclude(name="FIT")
-            extra2020 = sum([pot.awarded_gen() for pot in pots2020])
-        return sum([year.awarded_gen() for year in self.cum_years()]) + extra2020
+        return sum([pot.cum_awarded_gen() for pot in self.active_pots()])
 
     def cum_owed_v(self, comparison):
         if self.year == 2020:
