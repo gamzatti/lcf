@@ -49,7 +49,7 @@ def scenario_new(request,pk):
             return redirect('scenario_detail', pk=scenario_new.pk)
 
     scenario_form = ScenarioForm(instance=scenario_original)
-    initial_prices = {'gas_prices': str([round(a.gas_price,2) for a in scenario_original.auctionyear_set.all()]).strip('[]'), 'wholesale_prices': str([round(a.wholesale_price,2) for a in scenario_original.auctionyear_set.all() ]).strip('[]')}
+    initial_prices = {'gas_prices': str([round(a.gas_price,2) for a in scenario_original.auctionyear_set.all()]).strip('[]'), 'wholesale_prices': str([round(a.wholesale_price,5) for a in scenario_original.auctionyear_set.all() ]).strip('[]')}
     prices_form = PricesForm(initial=initial_prices)
     names = scenario_original.technology_form_helper()[0]
     technology_form_helper = scenario_original.technology_form_helper()[1]
@@ -119,8 +119,8 @@ def scenario_download(request,pk):
                ('Cost of new generation awarded (£m)', scenario.awarded_cost_by_tech()['df']),
                ('Generation (TWh)', scenario.gen_by_tech()['df']),
                ('Capacity (GW)', scenario.cap_by_tech()['df']),
-               ('Inputs - Prices (£/MWh)', scenario.prices()),
-               ('Inputs - Technology data', scenario.techs_df_download()),
+               ('Inputs - Prices (£/MWh)', scenario.prices_input()),
+               ('Inputs - Technology data', scenario.techs_input()),
                ]
 
     writer.writerow([scenario.name])

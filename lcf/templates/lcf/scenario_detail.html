@@ -79,9 +79,11 @@
 
 <div class="hide-button btn btn-primary">Show/hide inputs</div>
 <div class="to-hide">
-  {{ scenario.techs_df_html | safe }}
-  {{ scenario.prices_html | safe }}
-
+  {{ scenario.techs_input_html | safe }}
+  {{ scenario.prices_input_html | safe }}
+  <!-- {% for tech_df in scenario.tech_df_list %}
+    {{ tech_df | safe }}
+  {% endfor %}-->
 </div>
 {% endblock %}
 

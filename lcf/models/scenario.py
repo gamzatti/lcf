@@ -102,20 +102,6 @@ class Scenario(models.Model):
         elif self.__getattribute__(attribute) != None:
             return self.__getattribute__(attribute)
 
-    def wholesale_prices(self):
-        return str([round(a.wholesale_price,2) for a in self.auctionyear_set.all() ]).strip('[]')
-
-
-    def prices(self):
-        return DataFrame(
-                    {
-                    'wholesale prices': [round(a.wholesale_price,2) for a in self.auctionyear_set.all() ],
-                    'gas prices': [round(a.gas_price,2) for a in self.auctionyear_set.all() ]
-                    }, index=[a.year for a in self.auctionyear_set.all()]).T
-
-    def prices_html(self):
-        return self.prices().to_html(classes="table table-striped table-condensed")
-
     def technology_form_helper(self):
         techs = [t for p in self.auctionyear_set.all()[0].pot_set.all() for t in p.technology_set.all() ]
         t_form_data = { t.name : {} for t in techs}
@@ -131,7 +117,10 @@ class Scenario(models.Model):
                 elif field == "pot":
                     t_form_data[t.name][field] = t.pot.name
                 else:
-                    t_form_data[t.name][field] = str(list(subset[field])).strip('[]')
+                    li = list(subset[field])
+                    li = ['{:.2f}'.format(x) for x in li]
+                    t_form_data[t.name][field] = str(li).strip('[]').replace("'",'')
+
         initial_technologies = list(t_form_data.values())
         t_names = [t.name for t in techs]
         return t_names, initial_technologies
@@ -141,14 +130,39 @@ class Scenario(models.Model):
         techs = techs.set_index('id')
         return techs
 
-    def techs_df_download(self):
+    def df_to_html(self,df):
+        #html = df.style.format('<input style="width:120px;" name="df" value="{}" />').render()
+        html = df.style.render()
+        html = html.replace('<table id=', '<table class="table table-striped table-condensed" id=')
+        return html
+
+
+    #inputs
+    def techs_input(self):
         df = self.techs_df().sort_values(["pot_name", "name", "listed_year"]).drop('pot', axis=1)
         df.set_index(["pot_name", 'name','listed_year'],drop=False, inplace=True)
-        df = df.reindex(columns =["pot_name", "name", "listed_year", 'included', 'load_factor', 'min_levelised_cost', 'max_levelised_cost', 'max_deployment_cap', 'strike_price', 'project_gen'])
+        df = df.reindex(columns =["pot_name", "name", "listed_year", 'included', 'min_levelised_cost', 'max_levelised_cost', 'strike_price', 'load_factor', 'max_deployment_cap', 'project_gen'])
+        df.rename(columns={'pot_name': 'pot', 'listed_year': 'year', 'strike_price': 'strike price', 'load_factor': 'load factor', 'project_gen': 'project size GWh', 'min_levelised_cost': 'min LCOE', 'max_levelised_cost': 'max LCOE', 'max_deployment_cap': 'max GW pa'},inplace=True)
         df = round(df,2)
         return df
 
-    def techs_df_html(self):
-        df = self.techs_df_download()
-        df.set_index(["pot_name", 'name','listed_year'],inplace=True)
-        return df.to_html(classes="table table-striped table-condensed")
+    def prices_input(self):
+        return DataFrame(
+                    {
+                    'wholesale prices': [round(a.wholesale_price,2) for a in self.auctionyear_set.all() ],
+                    'gas prices': [round(a.gas_price,2) for a in self.auctionyear_set.all() ]
+                    }, index=[a.year for a in self.auctionyear_set.all()]).T
+
+    def techs_input_html(self):
+        df = self.techs_input()
+        df.set_index(["pot", 'name','year'],inplace=True)
+        return self.df_to_html(df)
+
+    def prices_input_html(self):
+        df = self.prices_input()
+        return self.df_to_html(df)
+
+#if I separate inputs by technology for display on detail page. needs to be grouped by technology rather than just be individual dfs for all years.
+    def tech_df_list(self):
+        dfs = [t.fields_df_html() for a in self.auctionyear_set.all() for p in a.active_pots().all() for t in p.technology_set.all() ]
+        return dfs

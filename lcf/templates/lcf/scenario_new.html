@@ -12,7 +12,8 @@ console.log('hello')
     <form method="POST" class="post-form">{% csrf_token %}
         {{ scenario_form }}
         <button type="submit" class="save btn btn-default">Save</button>
-        <div class="to-hide">
+        <!--<div class="to-hide">-->
+        <div>
             <h3>Edit prices?</h3>
             <p>Enter values for 2020 to scenario end year (inclusive), separated by commas, spaces or tabs, eg if end year is 2025 enter six values.</p>
             {{ prices_form }}

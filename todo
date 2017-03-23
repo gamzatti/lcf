@@ -1,8 +1,3 @@
-JS/jQuery:
-  *give option to display inputs on output page
-  add javascript to delete buttons
-
-
 additional functionality:
   *think about post 2026. create option to have two auction periods? load data into production db
   *combine all excel quirks into one checkbox
@@ -12,6 +7,7 @@ additional functionality:
 
 refactor:
   give each model a place to store data: pot needs to store gen and awarded cost, maybe budget
+  refactor views
 
 speed:
   profile code?
@@ -24,7 +20,8 @@ policy model:
   allow input group to have a source
 
 input page:
-  *improve interface, eg hide technology inputs initially with jquery, disallow editing of year and technology, disable editing when technologies are turned off, get rid of decimals, maybe add choice options for prices? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
+  *improve interface, eg hide technology inputs initially with jquery, add individual fields?, disallow editing of year and technology, disable editing when technologies are turned off, get rid of decimals, maybe add choice options for prices? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
+  *create upload csv option?
   deal with tidal that has initial generation rather than capacity (for form?)
   errors for form fields being empty/incorrect?
   change form to not use 2020 input
@@ -35,6 +32,12 @@ tests:
   remove useless tests and duplicate import code
   deal with the fact that tests need to be run separately
 
+data:
+  solve fixtures problem
+
+lower priority:
+  add javascript to delete buttons
+  improve jquery on output page to be by technology
 
  ----
 research:
@@ -42,11 +45,13 @@ research:
   add in data from £730m after auction has happened
   see if I can find data for new CCGT/carbon prices
   look at technology costs from 2016 BEIS paper
+  think about rounding
 
 diverge from Excel model:
   ?create normal distribution of projects?
   maxima/minima?
   change the way each year is based on cumulative generation with the cost distribution therefore including previously funded projects
+  make it so technologies can be included some years and not other years
 
 Resolved issues:
   * realised that solar PV was affected by the previous years. Because there are projects already funded at the lowest levelised costs, these ones aren't eligible in eg 2022. the way I've fixed this for now is just putting 0 for all years up to but not including 2020 in the number of projects in Excel version
