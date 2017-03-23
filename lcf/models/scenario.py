@@ -105,6 +105,17 @@ class Scenario(models.Model):
     def wholesale_prices(self):
         return str([round(a.wholesale_price,2) for a in self.auctionyear_set.all() ]).strip('[]')
 
+
+    def prices(self):
+        return DataFrame(
+                    {
+                    'wholesale prices': [round(a.wholesale_price,2) for a in self.auctionyear_set.all() ],
+                    'gas prices': [round(a.gas_price,2) for a in self.auctionyear_set.all() ]
+                    }, index=[a.year for a in self.auctionyear_set.all()]).T
+
+    def prices_html(self):
+        return self.prices().to_html(classes="table table-striped table-condensed")
+
     def technology_form_helper(self):
         techs = [t for p in self.auctionyear_set.all()[0].pot_set.all() for t in p.technology_set.all() ]
         t_form_data = { t.name : {} for t in techs}
@@ -129,3 +140,15 @@ class Scenario(models.Model):
         techs = pd.concat([t.fields_df() for a in self.auctionyear_set.all() for p in a.active_pots().all() for t in p.technology_set.all() ])
         techs = techs.set_index('id')
         return techs
+
+    def techs_df_download(self):
+        df = self.techs_df().sort_values(["pot_name", "name", "listed_year"]).drop('pot', axis=1)
+        df.set_index(["pot_name", 'name','listed_year'],drop=False, inplace=True)
+        df = df.reindex(columns =["pot_name", "name", "listed_year", 'included', 'load_factor', 'min_levelised_cost', 'max_levelised_cost', 'max_deployment_cap', 'strike_price', 'project_gen'])
+        df = round(df,2)
+        return df
+
+    def techs_df_html(self):
+        df = self.techs_df_download()
+        df.set_index(["pot_name", 'name','listed_year'],inplace=True)
+        return df.to_html(classes="table table-striped table-condensed")

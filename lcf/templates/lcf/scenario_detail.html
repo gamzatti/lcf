@@ -78,7 +78,12 @@
     {{ cap_by_tech_df | safe }}
 </div>
 
+<div class="hide-button btn btn-primary">Show/hide inputs</div>
+<div class="to-hide">
+  {{ scenario.techs_df_html | safe }}
+  {{ scenario.prices_html | safe }}
 
+</div>
 {% endblock %}
 
 

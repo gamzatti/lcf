@@ -1,12 +1,7 @@
 {% load staticfiles %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<script>
-$(document).ready(function(){
-    $( "div.btn-primary" ).click(function(){
-        $(this).html("changed");
-    });
-});
-</script>
+<script src="/static/js/script.js"></script>
+
 <html>
     <head>
         <title>{% block title %}{% endblock %}LCF scenario generator</title>
@@ -67,6 +62,17 @@ $(document).ready(function(){
               <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
                   {% block content %}
                   {% endblock %}
+
+<!--
+                  Name: <input type="text" id="myText">
+
+                  <p>Click the button to toggle the text field.</p>
+
+
+                  <button onclick="toggleText()">Toggle text field</button>
+-->
+
+
               </div>
             </div>
           </div>

@@ -113,12 +113,20 @@ def scenario_download(request,pk):
     response['Content-Disposition'] = 'attachment; filename="data.csv"'
 
     writer = csv.writer(response)
-    df_list = [('Accounting cost (£bn)', scenario.accounting_cost()['df']),
+    df_list = [
+               ('Accounting cost (£bn)', scenario.accounting_cost()['df']),
                ('Cumulative generation (TWh)', scenario.cum_awarded_gen_by_pot()['df']),
                ('Cost of new generation awarded (£m)', scenario.awarded_cost_by_tech()['df']),
                ('Generation (TWh)', scenario.gen_by_tech()['df']),
                ('Capacity (GW)', scenario.cap_by_tech()['df']),
+               ('Inputs - Prices (£/MWh)', scenario.prices()),
+               ('Inputs - Technology data', scenario.techs_df_download()),
                ]
+
+    writer.writerow([scenario.name])
+    writer.writerow(['Budget', scenario.budget])
+    writer.writerow(['Percent in emerging pot', scenario.percent_emerging])
+    writer.writerow([''])
 
     for df_pair in df_list:
         title = [df_pair[0]]

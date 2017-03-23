@@ -42,12 +42,15 @@ class Technology(models.Model):
         fields.remove('awarded_gen')
         fields.remove('awarded_cost')
         values = [getattr(self, f, None) for f in fields]
-        return dict(zip(fields,values))
+        di = dict(zip(fields,values))
+        return di
+
 
 
     def fields_df(self):
         df = DataFrame([self.get_field_values()])
         df['listed_year'] = self.pot.auctionyear.year
+        df['pot_name'] = self.pot.name
         return df
 
     #@lru_cache(maxsize=None)
