@@ -42,7 +42,6 @@ class Scenario(models.Model):
     def accounting_cost(self):
         index = ['Accounting cost', 'Cost v gas', 'Innovation premium']
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
-        print(auctionyears[2].budget())
         columns = [str(a.year) for a in auctionyears]
         accounting_costs = [round(a.cum_owed_v("wp")/1000,3) for a in auctionyears]
         cost_v_gas = [round(a.cum_owed_v("gas")/1000,3) for a in auctionyears]

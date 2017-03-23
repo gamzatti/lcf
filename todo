@@ -1,11 +1,7 @@
 tests:
-  *get tests to start working again! (seems like nuclear in 2025 in FITtest keeps getting gen = None. Is this because the NU object doesn't exist at all?)
   improve views tests
   start again?!
-
-refactor:
-  *make the answers right again!
-  give each model a place to store data: pot needs to store gen and awarded cost, maybe budget
+  make failing tests pass
 
 JS/jQuery:
     *give option to display inputs on output page
@@ -17,6 +13,10 @@ additional functionality:
   *combine all excel quirks into one checkbox
   make it allow manual numbers of projects for TL and maybe manual amount of NW
   include absolute cost (ie not compared to wholesale price or gas price)
+  add geothermal
+
+refactor:
+  give each model a place to store data: pot needs to store gen and awarded cost, maybe budget
 
 speed:
   profile code?

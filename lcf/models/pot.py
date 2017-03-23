@@ -5,7 +5,7 @@ import numpy as np
 from pandas import DataFrame, Series
 from functools import lru_cache
 import datetime
-
+import inspect
 
 from .technology import Technology
 
@@ -81,10 +81,12 @@ class Pot(models.Model):
             previously_funded_projects = self.previous_year().run_auction()[(self.previous_year().run_auction().funded_this_year == True) | (self.previous_year().run_auction().previously_funded == True)]
         return previously_funded_projects
 
+    def projects(self):
+        return self.run_auction()
 
     @lru_cache(maxsize=None)
     def run_auction(self):
-        print('running auction', self.name, self.auctionyear.year)
+        print('running auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
         gen = 0
         cost = 0
         tech_cost = {}
@@ -105,14 +107,16 @@ class Pot(models.Model):
         return projects
 
     def update_techs(self,projects):
+        print("updating database")
         for tech in self.tech_set().all():
             tech_projects = projects[(projects.funded_this_year == True) & (projects.technology == tech.name)]
             tech.awarded_gen = tech_projects.attempted_project_gen.sum()/1000 if pd.notnull(tech_projects.attempted_project_gen.sum()) else 0
             tech.awarded_cost = sum(tech_projects.cost)
             tech.save(update_fields=['awarded_cost', 'awarded_gen'])
-            self.auction_has_run = True
-            self.save(update_fields=['auction_has_run'])
-
+            #print(tech.awarded_gen)
+        self.auction_has_run = True
+        self.save(update_fields=['auction_has_run'])
+        #print(self.auction_has_run)
     #summary methods
     #@lru_cache(maxsize=None)
     def awarded_cost(self):
