@@ -39,6 +39,7 @@ class Scenario(models.Model):
 
 
     #chart methods
+
     def accounting_cost(self):
         index = ['Accounting cost', 'Cost v gas', 'Innovation premium']
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
@@ -50,6 +51,7 @@ class Scenario(models.Model):
         options = {'title': None, 'vAxis': {'title': '£bn'}}
         return {'df': df, 'options': options}
 
+
     def cum_awarded_gen_by_pot(self):
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
         index = [pot.name for pot in auctionyears[0].active_pots()]
@@ -57,6 +59,7 @@ class Scenario(models.Model):
         df = DataFrame(data=data, index=index)
         options = {'vAxis': {'title': 'TWh'}, 'title': None}
         return {'df': df, 'options': options}
+
 
     def awarded_cost_by_tech(self):
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
@@ -66,6 +69,7 @@ class Scenario(models.Model):
         options = {'vAxis': {'title': '£m'}, 'title': None}
         return {'df': df, 'options': options}
 
+
     def gen_by_tech(self):
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
         index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
@@ -73,6 +77,7 @@ class Scenario(models.Model):
         df = DataFrame(data=data, index=index)
         options = {'vAxis': {'title': 'TWh'}, 'title': None}
         return {'df': df, 'options': options}
+
 
     def cap_by_tech(self):
         auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
@@ -83,6 +88,7 @@ class Scenario(models.Model):
         return {'df': df, 'options': options}
 
     #helper methods
+
     def df_to_chart_data(self,df):
         chart_data = df['df'].copy()
         chart_data['index_column'] = chart_data.index
@@ -101,6 +107,7 @@ class Scenario(models.Model):
             return self.__getattribute__(attribute)
         elif self.__getattribute__(attribute) != None:
             return self.__getattribute__(attribute)
+
 
     def technology_form_helper(self):
         techs = [t for p in self.auctionyear_set.all()[0].pot_set.all() for t in p.technology_set.all() ]
@@ -125,10 +132,12 @@ class Scenario(models.Model):
         t_names = [t.name for t in techs]
         return t_names, initial_technologies
 
+
     def techs_df(self):
         techs = pd.concat([t.fields_df() for a in self.auctionyear_set.all() for p in a.active_pots().all() for t in p.technology_set.all() ])
         techs = techs.set_index('id')
         return techs
+
 
     def df_to_html(self,df):
         #html = df.style.format('<input style="width:120px;" name="df" value="{}" />').render()
@@ -138,6 +147,7 @@ class Scenario(models.Model):
 
 
     #inputs
+
     def techs_input(self):
         df = self.techs_df().sort_values(["pot_name", "name", "listed_year"]).drop('pot', axis=1)
         df.set_index(["pot_name", 'name','listed_year'],drop=False, inplace=True)
@@ -146,6 +156,7 @@ class Scenario(models.Model):
         df = round(df,2)
         return df
 
+
     def prices_input(self):
         return DataFrame(
                     {
@@ -153,10 +164,12 @@ class Scenario(models.Model):
                     'gas prices': [round(a.gas_price,2) for a in self.auctionyear_set.all() ]
                     }, index=[a.year for a in self.auctionyear_set.all()]).T
 
+
     def techs_input_html(self):
         df = self.techs_input()
         df.set_index(["pot", 'name','year'],inplace=True)
         return self.df_to_html(df)
+
 
     def prices_input_html(self):
         df = self.prices_input()

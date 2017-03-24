@@ -74,6 +74,7 @@ class Pot(models.Model):
     def previous_year(self):
         return self.auctionyear.scenario.auctionyear_set.get(year = self.auctionyear.year - 1).active_pots().get(name=self.name)
 
+    @lru_cache(maxsize=None)
     def previously_funded_projects(self):
         if self.auctionyear.year == 2020:
             previously_funded_projects = DataFrame()
@@ -84,7 +85,7 @@ class Pot(models.Model):
     def projects(self):
         return self.run_auction()
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def run_auction(self):
         print('running auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
         gen = 0

@@ -37,6 +37,7 @@ class Technology(models.Model):
     def __str__(self):
         return str((self.pot.auctionyear,self.pot.name,self.name))
 
+    #@lru_cache(maxsize=None)
     def get_field_values(self):
         fields = [f.name for f in Technology._meta.get_fields()]
         fields.remove('awarded_gen')
@@ -46,13 +47,14 @@ class Technology(models.Model):
         return di
 
 
-
+    #@lru_cache(maxsize=None)
     def fields_df(self):
         df = DataFrame([self.get_field_values()])
         df['listed_year'] = self.pot.auctionyear.year
         df['pot_name'] = self.pot.name
         return df
 
+    #@lru_cache(maxsize=None)
     def fields_df_html(self):
         df = self.fields_df().sort_values(["pot_name", "name", "listed_year"]).drop('pot', axis=1)
         #df = df.reindex(columns =["pot_name", "name", "listed_year", 'included', 'load_factor', 'min_levelised_cost', 'max_levelised_cost', 'max_deployment_cap', 'strike_price', 'project_gen'])

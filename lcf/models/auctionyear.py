@@ -47,6 +47,7 @@ class AuctionYear(models.Model):
             self._unspent = self.budget() - self.awarded_from("auction") + nw_carry
             return self._unspent
 
+    #@lru_cache(maxsize=None)
     def previous_year(self):
         if self.year == 2020:
             return None
@@ -66,6 +67,7 @@ class AuctionYear(models.Model):
 
 
     #helper methods
+    #@lru_cache(maxsize=None)
     def cum_years(self):
         if self.year == 2020:
             return [self]
@@ -91,7 +93,7 @@ class AuctionYear(models.Model):
         elif pot == "total":
             return sum([self.awarded_from("FIT"),self.awarded_from("SN"),self.awarded_from("auction")])
 
-
+    #@lru_cache(maxsize=None)
     def awarded_gen(self):
         return sum(pot.awarded_gen() for pot in self.active_pots().all())
 
@@ -100,7 +102,7 @@ class AuctionYear(models.Model):
     def owed_v(self, comparison, previous_year):
         return sum([pot.owed_v(comparison, previous_year.active_pots().get(name=pot.name)) for pot in self.active_pots() ])
 
-
+    #@lru_cache(maxsize=None)
     def nw_owed(self,previous_year):
         if self.active_pots().filter(name="FIT").exists():
             pot = self.active_pots().get(name="FIT")
@@ -111,15 +113,18 @@ class AuctionYear(models.Model):
 
 
     #accumulating methods
+    #@lru_cache(maxsize=None)
     def cum_awarded_gen(self):
         return sum([pot.cum_awarded_gen() for pot in self.active_pots()])
 
+    #@lru_cache(maxsize=None)
     def cum_owed_v(self, comparison):
         if self.year == 2020:
             return self.owed_v(comparison, self)
         else:
             return sum([pot.cum_owed_v(comparison) for pot in self.active_pots()])
 
+    #@lru_cache(maxsize=None)
     def innovation_premium(self):
         return self.cum_owed_v("gas") - self.nw_cum_owed()
 
