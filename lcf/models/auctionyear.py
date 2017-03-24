@@ -72,7 +72,7 @@ class AuctionYear(models.Model):
         else:
             return self.scenario.auctionyear_set.filter(year__range=(self.scenario.start_year,self.year)).order_by('year')
 
-    @lru_cache(maxsize=None)
+    #@lru_cache(maxsize=None)
     def active_pots(self):
         active_names = [ pot.name for pot in self.pot_set.all() if pot.tech_set().count() > 0 ]
         return self.pot_set.filter(name__in=active_names)
@@ -96,7 +96,7 @@ class AuctionYear(models.Model):
         return sum(pot.awarded_gen() for pot in self.active_pots().all())
 
 
-    @lru_cache(maxsize=None)
+    #@lru_cache(maxsize=None)
     def owed_v(self, comparison, previous_year):
         return sum([pot.owed_v(comparison, previous_year.active_pots().get(name=pot.name)) for pot in self.active_pots() ])
 

@@ -1,5 +1,20 @@
+Right now:
+
+**think about post 2026. create option to have two(+?) auction periods?**
+  load 2026-2030 data into production db:
+    fix fixtures:
+      identify whether problem is in code or data by deleting data
+      so it seems to be that any fixtures dumped previously load correctly, but any dumped now don't, even when they contain the same data.?
+    create upload csv function:
+
+  create/test basic functionality and compare to excel
+  improve to allow splitting up of existing period and/or creating more auction periods
+
+
+
+
+
 additional functionality:
-  *think about post 2026. create option to have two auction periods? load data into production db
   *combine all excel quirks into one checkbox
   make it allow manual numbers of projects for TL and maybe manual amount of NW
   include absolute cost (ie not compared to wholesale price or gas price)

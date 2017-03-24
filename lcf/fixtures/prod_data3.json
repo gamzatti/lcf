@@ -1,4 +1,99 @@
 [
+  {
+      "model": "lcf.scenario",
+      "pk": 245,
+      "fields": {
+          "name": "nuc in SN",
+          "description": "",
+          "date": "2017-03-16T15:07:09.308Z",
+          "budget": 3.3,
+          "percent_emerging": 0.6,
+          "rank_by_levelised_cost": true,
+          "set_strike_price": false,
+          "start_year": 2021,
+          "end_year": 2025,
+          "excel_wp_error": true,
+          "tidal_levelised_cost_distribution": true,
+          "excel_2020_gen_error": true,
+          "excel_nw_carry_error": true
+      }
+  },
+  {
+      "model": "lcf.scenario",
+      "pk": 248,
+      "fields": {
+          "name": "nuc in SN - no NW error",
+          "description": "",
+          "date": "2017-03-17T12:03:29.999Z",
+          "budget": 3.3,
+          "percent_emerging": 0.6,
+          "rank_by_levelised_cost": true,
+          "set_strike_price": false,
+          "start_year": 2021,
+          "end_year": 2025,
+          "excel_wp_error": true,
+          "tidal_levelised_cost_distribution": true,
+          "excel_2020_gen_error": true,
+          "excel_nw_carry_error": false
+      }
+  },
+  {
+      "model": "lcf.scenario",
+      "pk": 250,
+      "fields": {
+          "name": "nuc in SN new wholesale prices",
+          "description": "",
+          "date": "2017-03-21T11:29:03.854Z",
+          "budget": 3.3,
+          "percent_emerging": 0.6,
+          "rank_by_levelised_cost": true,
+          "set_strike_price": false,
+          "start_year": 2021,
+          "end_year": 2025,
+          "excel_wp_error": true,
+          "tidal_levelised_cost_distribution": true,
+          "excel_2020_gen_error": true,
+          "excel_nw_carry_error": true
+      }
+  },
+  {
+      "model": "lcf.scenario",
+      "pk": 252,
+      "fields": {
+          "name": "nuc in SN new wp TIL 2030",
+          "description": "",
+          "date": "2017-03-21T12:33:49Z",
+          "budget": 6.6,
+          "percent_emerging": 0.6,
+          "rank_by_levelised_cost": true,
+          "set_strike_price": false,
+          "start_year": 2021,
+          "end_year": 2030,
+          "excel_wp_error": true,
+          "tidal_levelised_cost_distribution": true,
+          "excel_2020_gen_error": true,
+          "excel_nw_carry_error": true
+      }
+  },
+  {
+      "model": "lcf.scenario",
+      "pk": 253,
+      "fields": {
+          "name": "nuc in SN new wp TIL 2027",
+          "description": "",
+          "date": "2017-03-21T12:38:45Z",
+          "budget": 6.6,
+          "percent_emerging": 0.6,
+          "rank_by_levelised_cost": true,
+          "set_strike_price": false,
+          "start_year": 2021,
+          "end_year": 2027,
+          "excel_wp_error": true,
+          "tidal_levelised_cost_distribution": true,
+          "excel_2020_gen_error": true,
+          "excel_nw_carry_error": true
+      }
+  },
 {
     "model": "lcf.technology",
     "pk": 3277,
@@ -6731,101 +6826,6 @@
         "year": 2027,
         "wholesale_price": 57.0,
         "gas_price": 95.0
-    }
-},
-{
-    "model": "lcf.scenario",
-    "pk": 245,
-    "fields": {
-        "name": "nuc in SN",
-        "description": "",
-        "date": "2017-03-16T15:07:09.308Z",
-        "budget": 3.3,
-        "percent_emerging": 0.6,
-        "rank_by_levelised_cost": true,
-        "set_strike_price": false,
-        "start_year": 2021,
-        "end_year": 2025,
-        "excel_wp_error": true,
-        "tidal_levelised_cost_distribution": true,
-        "excel_2020_gen_error": true,
-        "excel_nw_carry_error": true
-    }
-},
-{
-    "model": "lcf.scenario",
-    "pk": 248,
-    "fields": {
-        "name": "nuc in SN - no NW error",
-        "description": "",
-        "date": "2017-03-17T12:03:29.999Z",
-        "budget": 3.3,
-        "percent_emerging": 0.6,
-        "rank_by_levelised_cost": true,
-        "set_strike_price": false,
-        "start_year": 2021,
-        "end_year": 2025,
-        "excel_wp_error": true,
-        "tidal_levelised_cost_distribution": true,
-        "excel_2020_gen_error": true,
-        "excel_nw_carry_error": false
-    }
-},
-{
-    "model": "lcf.scenario",
-    "pk": 250,
-    "fields": {
-        "name": "nuc in SN new wholesale prices",
-        "description": "",
-        "date": "2017-03-21T11:29:03.854Z",
-        "budget": 3.3,
-        "percent_emerging": 0.6,
-        "rank_by_levelised_cost": true,
-        "set_strike_price": false,
-        "start_year": 2021,
-        "end_year": 2025,
-        "excel_wp_error": true,
-        "tidal_levelised_cost_distribution": true,
-        "excel_2020_gen_error": true,
-        "excel_nw_carry_error": true
-    }
-},
-{
-    "model": "lcf.scenario",
-    "pk": 252,
-    "fields": {
-        "name": "nuc in SN new wp TIL 2030",
-        "description": "",
-        "date": "2017-03-21T12:33:49Z",
-        "budget": 6.6,
-        "percent_emerging": 0.6,
-        "rank_by_levelised_cost": true,
-        "set_strike_price": false,
-        "start_year": 2021,
-        "end_year": 2030,
-        "excel_wp_error": true,
-        "tidal_levelised_cost_distribution": true,
-        "excel_2020_gen_error": true,
-        "excel_nw_carry_error": true
-    }
-},
-{
-    "model": "lcf.scenario",
-    "pk": 253,
-    "fields": {
-        "name": "nuc in SN new wp TIL 2027",
-        "description": "",
-        "date": "2017-03-21T12:38:45Z",
-        "budget": 6.6,
-        "percent_emerging": 0.6,
-        "rank_by_levelised_cost": true,
-        "set_strike_price": false,
-        "start_year": 2021,
-        "end_year": 2027,
-        "excel_wp_error": true,
-        "tidal_levelised_cost_distribution": true,
-        "excel_2020_gen_error": true,
-        "excel_nw_carry_error": true
     }
 }
 ]

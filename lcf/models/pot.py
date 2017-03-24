@@ -84,7 +84,7 @@ class Pot(models.Model):
     def projects(self):
         return self.run_auction()
 
-    @lru_cache(maxsize=None)
+    #@lru_cache(maxsize=None)
     def run_auction(self):
         print('running auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
         gen = 0
