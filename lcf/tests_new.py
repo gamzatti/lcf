@@ -95,3 +95,50 @@ class PeriodTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         resp = self.client.get(reverse('scenario_detail',kwargs={'pk': 999}))
         self.assertEqual(resp.status_code, 404)
+
+    def test_auctionyear_period(self):
+        s = Scenario.objects.get(pk=252)
+        a = AuctionYear.objects.get(scenario=s, year=2024)
+        self.assertEqual(a.period_num(), 1)
+        self.assertEqual(set(list(a.period())), set(list(s.period(1))))
+        b = AuctionYear.objects.get(scenario=s, year=2027)
+        self.assertEqual(set(list(b.period())), set(list(s.period(2))))
+
+    def test_new_auctionyear_cum_years(self):
+        s = Scenario.objects.get(pk=252)
+        a = AuctionYear.objects.get(scenario=s, year=2024)
+        self.assertQuerysetEqual(a.cum_years(), ["<AuctionYear: 2021>",
+                                                 "<AuctionYear: 2022>",
+                                                 "<AuctionYear: 2023>",
+                                                 "<AuctionYear: 2024>"])
+        b = AuctionYear.objects.get(scenario=s, year=2027)
+        self.assertQuerysetEqual(b.cum_years(), ["<AuctionYear: 2026>",
+                                                 "<AuctionYear: 2027>"])
+
+    def test_new_pot_cum_pots(self):
+        s = Scenario.objects.get(pk=252)
+        a = AuctionYear.objects.get(scenario=s, year=2024)
+        p = Pot.objects.get(auctionyear=a, name="E")
+        self.assertQuerysetEqual(p.cum_pots(), ["<Pot: (<AuctionYear: 2021>, 'E')>",
+                                                "<Pot: (<AuctionYear: 2022>, 'E')>",
+                                                "<Pot: (<AuctionYear: 2023>, 'E')>",
+                                                "<Pot: (<AuctionYear: 2024>, 'E')>",
+                                                ])
+        b = AuctionYear.objects.get(scenario=s, year=2027)
+        q = Pot.objects.get(auctionyear=b, name="M")
+        self.assertQuerysetEqual(q.cum_pots(), ["<Pot: (<AuctionYear: 2026>, 'M')>",
+                                                "<Pot: (<AuctionYear: 2027>, 'M')>",
+                                                ])
+
+
+    def test_pot_period(self):
+        s = Scenario.objects.get(pk=252)
+        a = AuctionYear.objects.get(scenario=s, year=2024)
+        p = Pot.objects.get(auctionyear=a, name="E")
+        self.assertQuerysetEqual(p.period_pots(), ["<Pot: (<AuctionYear: 2021>, 'E')>",
+                                                   "<Pot: (<AuctionYear: 2022>, 'E')>",
+                                                   "<Pot: (<AuctionYear: 2023>, 'E')>",
+                                                   "<Pot: (<AuctionYear: 2024>, 'E')>",
+                                                   "<Pot: (<AuctionYear: 2025>, 'E')>",
+                                                   ])
+                                                   

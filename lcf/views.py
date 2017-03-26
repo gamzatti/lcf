@@ -30,7 +30,7 @@ def scenario_new(request,pk):
             wholesale_prices = [float(w) for w in list(filter(None, re.split("[, \-!?:\t]+",prices_form.cleaned_data['wholesale_prices'])))]
             gas_prices = [float(g) for g in list(filter(None, re.split("[, \-!?:\t]+",prices_form.cleaned_data['gas_prices'])))]
 
-            for i, y in enumerate(range(2020,scenario_new.end_year+1)):
+            for i, y in enumerate(range(2020,scenario_new.end_year2+1)):
                 a = AuctionYear.objects.create(year=y, scenario=scenario_new, gas_price=gas_prices[i], wholesale_price=wholesale_prices[i])
                 for p in [p.name for p in scenario_original.auctionyear_set.all()[0].pot_set.all()]:
                 #for p in ['E', 'M', 'SN', 'FIT']:

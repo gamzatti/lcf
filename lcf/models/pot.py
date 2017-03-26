@@ -32,11 +32,28 @@ class Pot(models.Model):
     def tech_set(self):
         return self.technology_set.filter(included=True)
 
+    def period_pots_calc(self):
+        if self.auctionyear.year == 2020:
+            num = 0
+            pots = [self]
+        else:
+            years = self.auctionyear.period()
+            num = self.auctionyear.period_num()
+            pots = Pot.objects.filter(name=self.name, auctionyear__in=years).order_by("auctionyear__year")
+        return {'num': num, 'pots': pots}
+
+    def period_pots(self):
+        return self.period_pots_calc()['pots']
+
+    def period_num(self):
+        return self.period_pots_calc()['num']
+
     def cum_pots(self):
         if self.auctionyear.year == 2020:
             return [self]
         else:
-            cum_pots = Pot.objects.filter(auctionyear__scenario=self.auctionyear.scenario, name=self.name, auctionyear__year__range=(self.auctionyear.scenario.start_year1, self.auctionyear.year)).order_by("auctionyear__year")
+            start_year = self.auctionyear.scenario.start_year1 if self.auctionyear.year <= self.auctionyear.scenario.end_year1 else self.auctionyear.scenario.start_year2
+            cum_pots = Pot.objects.filter(auctionyear__scenario=self.auctionyear.scenario, name=self.name, auctionyear__year__range=(start_year, self.auctionyear.year)).order_by("auctionyear__year")
             return(cum_pots)
 
 

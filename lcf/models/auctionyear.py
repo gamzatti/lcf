@@ -67,12 +67,33 @@ class AuctionYear(models.Model):
 
 
     #helper methods
+
+    def period(self):
+        return self.period_calc()['years']
+
+    def period_num(self):
+        return self.period_calc()['num']
+
+    def period_calc(self):
+        if self.year == 2020:
+            num = 0
+            years = [self]
+        else:
+            if self in self.scenario.period(1):
+                num = 1
+                years = self.scenario.period(1)
+            elif self in self.scenario.period(2):
+                num = 2
+                years = self.scenario.period(2)
+        return {'num': num, 'years': years}
+
     #@lru_cache(maxsize=None)
     def cum_years(self):
         if self.year == 2020:
             return [self]
         else:
-            return self.scenario.auctionyear_set.filter(year__range=(self.scenario.start_year1,self.year)).order_by('year')
+            start_year = self.scenario.start_year1 if self.year <= self.scenario.end_year1 else self.scenario.start_year2
+            return self.scenario.auctionyear_set.filter(year__range=(start_year,self.year)).order_by('year')
 
     #@lru_cache(maxsize=None)
     def active_pots(self):
