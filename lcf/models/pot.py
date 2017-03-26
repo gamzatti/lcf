@@ -36,7 +36,7 @@ class Pot(models.Model):
         if self.auctionyear.year == 2020:
             return [self]
         else:
-            cum_pots = Pot.objects.filter(auctionyear__scenario=self.auctionyear.scenario, name=self.name, auctionyear__year__range=(self.auctionyear.scenario.start_year, self.auctionyear.year)).order_by("auctionyear__year")
+            cum_pots = Pot.objects.filter(auctionyear__scenario=self.auctionyear.scenario, name=self.name, auctionyear__year__range=(self.auctionyear.scenario.start_year1, self.auctionyear.year)).order_by("auctionyear__year")
             return(cum_pots)
 
 

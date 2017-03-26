@@ -28,3 +28,13 @@ class InputDisplayTests(TestCase):
         #s = Scenario.objects.get(pk=250)
         #val = s.prices_input().at['wholesale prices', 2022]
         #self.assertEqual(val, 44.2)
+
+class PeriodTests(TestCase):
+    fixtures = ['testing_periods.json']
+
+    def test_default_start_and_end_years(self):
+        s = Scenario.objects.get(pk=252)
+        self.assertEqual(s.start_year1,2021)
+        self.assertEqual(s.end_year1,2025)
+        self.assertEqual(s.start_year2,2026)
+        self.assertEqual(s.end_year2,2030)

@@ -10,8 +10,8 @@
         "percent_emerging": 0.6,
         "rank_by_levelised_cost": true,
         "set_strike_price": false,
-        "start_year": 2021,
-        "end_year": 2025,
+        "start_year1": 2021,
+        "end_year1": 2025,
         "excel_wp_error": true
     }
 },

@@ -17,6 +17,7 @@ additional functionality:
 refactor:
   give each model a place to store data: pot needs to store gen and awarded cost, maybe budget
   refactor views
+  think about rounding
 
 speed:
   profile code?
@@ -57,8 +58,6 @@ tests:
   remove useless tests and duplicate import code
   deal with the fact that tests need to be run separately
 
-data:
-  solve fixtures problem
 
 lower priority:
   add javascript to delete buttons
@@ -70,7 +69,6 @@ research:
   add in data from £730m after auction has happened
   see if I can find data for new CCGT/carbon prices
   look at technology costs from 2016 BEIS paper
-  think about rounding
 
 diverge from Excel model:
   ?create normal distribution of projects?

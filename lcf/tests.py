@@ -734,8 +734,8 @@ class LcfViewsTestCase(TestCase):
         post_data = {'name': 'test2',
                     'percent_emerging': 0.5,
                     'budget': 2,
-                    'start_year': 2020,
-                    'end_year': 2022,
+                    'start_year1': 2020,
+                    'end_year1': 2022,
                     'wholesale_prices': "50 51 52",
                     'gas_prices': "60 61 62",
                     'form-TOTAL_FORMS': "1",
@@ -779,8 +779,8 @@ class LcfViewsTestCase(TestCase):
         #self.assertEqual(resp.context['error_message'], "You didn't select a choice.")"""
 
     def test_valid_scenarioform(self):
-        s = Scenario.objects.create(name="test_form", budget=4, percent_emerging=0.9, start_year= 2021, end_year=2022)
-        data = {'name': s.name, 'budget': s.budget, 'percent_emerging': s.percent_emerging, 'start_year': s.start_year, 'end_year': s.end_year, 'excel_wp_error': 'on'}
+        s = Scenario.objects.create(name="test_form", budget=4, percent_emerging=0.9, start_year1= 2021, end_year1=2022)
+        data = {'name': s.name, 'budget': s.budget, 'percent_emerging': s.percent_emerging, 'start_year1': s.start_year1, 'end_year1': s.end_year1, 'excel_wp_error': 'on'}
         form = ScenarioForm(data)
         self.assertTrue(form.is_valid())
         #s.delete()
@@ -964,7 +964,7 @@ class FITTests(TestCase):
 
     def test_paid(self):
         s = Scenario.objects.get(name="with nuclear and negawatts")
-        #self.assertEqual(round(s.paid_end_year()/1000,3),2.805)
+        #self.assertEqual(round(s.paid_end_year1()/1000,3),2.805)
         a1 = AuctionYear.objects.get(year=2021)
         a2 = AuctionYear.objects.get(year=2022)
         a3 = AuctionYear.objects.get(year=2023)

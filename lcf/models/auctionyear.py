@@ -72,7 +72,7 @@ class AuctionYear(models.Model):
         if self.year == 2020:
             return [self]
         else:
-            return self.scenario.auctionyear_set.filter(year__range=(self.scenario.start_year,self.year)).order_by('year')
+            return self.scenario.auctionyear_set.filter(year__range=(self.scenario.start_year1,self.year)).order_by('year')
 
     #@lru_cache(maxsize=None)
     def active_pots(self):

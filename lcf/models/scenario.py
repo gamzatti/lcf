@@ -19,8 +19,10 @@ class Scenario(models.Model):
     percent_emerging = models.FloatField(default=0.6)
     rank_by_levelised_cost = models.BooleanField(default=True)
     set_strike_price =  models.BooleanField(default=False, verbose_name="Generate strike price ourselves?")
-    start_year = models.IntegerField(default=2021)
-    end_year = models.IntegerField(default=2025)
+    start_year1 = models.IntegerField(default=2021)
+    end_year1 = models.IntegerField(default=2025)
+    start_year2 = models.IntegerField(default=2026)
+    end_year2 = models.IntegerField(default=2030)
     excel_wp_error = models.BooleanField(default=True, verbose_name="Include the Excel error in the emerging pot wholesale price?")
     tidal_levelised_cost_distribution = models.BooleanField(default=False)
     excel_2020_gen_error = models.BooleanField(default=True, verbose_name="Include the Excel error that counts cumulative generation from 2020 for auction and negotiations (but not FIT)")
@@ -42,7 +44,7 @@ class Scenario(models.Model):
 
     def accounting_cost(self):
         index = ['Accounting cost', 'Cost v gas', 'Innovation premium']
-        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
+        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year1)
         columns = [str(a.year) for a in auctionyears]
         accounting_costs = [round(a.cum_owed_v("wp")/1000,3) for a in auctionyears]
         cost_v_gas = [round(a.cum_owed_v("gas")/1000,3) for a in auctionyears]
@@ -53,7 +55,7 @@ class Scenario(models.Model):
 
 
     def cum_awarded_gen_by_pot(self):
-        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
+        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year1)
         index = [pot.name for pot in auctionyears[0].active_pots()]
         data = { str(a.year) : [round(p.cum_awarded_gen(),2) for p in a.active_pots()] for a in auctionyears }
         df = DataFrame(data=data, index=index)
@@ -62,7 +64,7 @@ class Scenario(models.Model):
 
 
     def awarded_cost_by_tech(self):
-        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
+        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year1)
         index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
         data = { str(a.year) : [round(t.awarded_cost,2) for p in a.active_pots() for t in p.tech_set().order_by("name")] for a in auctionyears }
         df = DataFrame(data=data, index=index)
@@ -71,7 +73,7 @@ class Scenario(models.Model):
 
 
     def gen_by_tech(self):
-        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
+        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year1)
         index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
         data = { str(a.year) : [round(t.awarded_gen,2) for p in a.active_pots() for t in p.tech_set().order_by("name")] for a in auctionyears }
         df = DataFrame(data=data, index=index)
@@ -80,7 +82,7 @@ class Scenario(models.Model):
 
 
     def cap_by_tech(self):
-        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year)
+        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year1)
         index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
         data = { str(a.year) : [round(t.awarded_gen/8.760/t.load_factor,2) for p in a.active_pots() for t in p.tech_set().order_by("name")] for a in auctionyears }
         df = DataFrame(data=data, index=index)
