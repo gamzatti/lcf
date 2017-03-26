@@ -108,11 +108,16 @@ def scenario_download(request,pk):
 
     writer = csv.writer(response)
     df_list = [
-               ('Accounting cost (£bn)', scenario.accounting_cost()['df']),
-               ('Cumulative generation (TWh)', scenario.cum_awarded_gen_by_pot()['df']),
-               #('Cost of new generation awarded (£m)', scenario.awarded_cost_by_tech()['df']),
-               #('Generation (TWh)', scenario.gen_by_tech()['df']),
-               #('Capacity (GW)', scenario.cap_by_tech()['df']),
+               ('Accounting cost (£bn) (2021-2025)', scenario.accounting_cost(1)['df']),
+               ('Accounting cost (£bn) (2026-2030)', scenario.accounting_cost(2)['df']),
+               ('Cumulative generation (TWh) (2021-2025)', scenario.cum_awarded_gen_by_pot(1)['df']),
+               ('Cumulative generation (TWh) (2026-2030)', scenario.cum_awarded_gen_by_pot(2)['df']),
+               ('Cost of new generation awarded (£m) (2021-2025)', scenario.awarded_cost_by_tech(1)['df']),
+               ('Cost of new generation awarded (£m) (2026-2030)', scenario.awarded_cost_by_tech(2)['df']),
+               ('Generation (TWh) (2021-2025)', scenario.gen_by_tech(1)['df']),
+               ('Generation (TWh) (2026-2030)', scenario.gen_by_tech(2)['df']),
+               ('Capacity (GW) (2021-2025)', scenario.cap_by_tech(1)['df']),
+               ('Capacity (GW) (2026-2030)', scenario.cap_by_tech(2)['df']),
                ('Inputs - Prices (£/MWh)', scenario.prices_input()),
                ('Inputs - Technology data', scenario.techs_input()),
                ]
