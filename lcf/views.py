@@ -20,6 +20,8 @@ def scenario_new(request,pk):
     techs = Technology.objects.filter(pot__auctionyear=scenario_original.auctionyear_set.all()[0])
     num_techs = techs.count()
     TechnologyStringFormSet = formset_factory(TechnologyStringForm, extra=0, max_num=10)
+    recent_pk = Scenario.objects.all().order_by("-date")[0].pk
+
     if request.method == "POST":
         scenario_form = ScenarioForm(request.POST)
         prices_form = PricesForm(request.POST)
@@ -59,14 +61,16 @@ def scenario_new(request,pk):
                'scenario_form': scenario_form,
                'prices_form': prices_form,
                'string_formset': string_formset,
-               'names': names}
+               'names': names,
+               'recent_pk': recent_pk}
     return render(request, 'lcf/scenario_new.html', context)
 
 
 def scenario_delete(request, pk):
     scenario = get_object_or_404(Scenario, pk=pk)
     scenario.delete()
-    return redirect('scenario_detail', pk=245)
+    recent_pk = Scenario.objects.all().order_by("-date")[0].pk
+    return redirect('scenario_detail', pk=recent_pk)
 
 
 def scenario_detail(request, pk=None):
@@ -74,11 +78,13 @@ def scenario_detail(request, pk=None):
         scenario = Scenario.objects.all().order_by("-date")[0]
     else:
         scenario = get_object_or_404(Scenario,pk=pk)
+    recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     scenarios = Scenario.objects.all()
     chart = {}
     df = {}
     context = {'scenario': scenario,
                'scenarios': scenarios,
+               'recent_pk': recent_pk
                }
     for meth in ["accounting_cost","cum_awarded_gen_by_pot","awarded_cost_by_tech","gen_by_tech","cap_by_tech"]:
         chart[meth] = {}
