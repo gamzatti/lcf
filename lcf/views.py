@@ -77,30 +77,24 @@ def scenario_detail(request, pk=None):
     scenarios = Scenario.objects.all()
     chart = {}
     df = {}
-    for meth in ["accounting_cost","cum_awarded_gen_by_pot","awarded_cost_by_tech","gen_by_tech","cap_by_tech"]:
-        results = scenario.get_or_make_chart_data(meth,2)
-        data =results['data']
-        data_source = SimpleDataSource(data=data)
-        options = results['options']
-        if meth == "accounting_cost" or meth == "cum_awarded_gen_by_pot":
-            chart[meth] = LineChart(data_source, options=options, height=400, width="100%")
-        else:
-            chart[meth] = ColumnChart(data_source, options=options, height=400, width="100%")
-        df[meth] = results['df'].to_html(classes="table table-striped table-condensed")
-
     context = {'scenario': scenario,
                'scenarios': scenarios,
-               'accounting_cost_chart': chart["accounting_cost"],
-               'accounting_cost_df': df["accounting_cost"],
-               'cum_awarded_gen_by_pot_chart': chart["cum_awarded_gen_by_pot"],
-               'cum_awarded_gen_by_pot_df': df["cum_awarded_gen_by_pot"],
-               'awarded_cost_by_tech_chart': chart["awarded_cost_by_tech"],
-               'awarded_cost_by_tech_df': df["awarded_cost_by_tech"],
-               'gen_by_tech_chart': chart["gen_by_tech"],
-               'gen_by_tech_df': df["gen_by_tech"],
-               'cap_by_tech_chart': chart["cap_by_tech"],
-               'cap_by_tech_df': df["cap_by_tech"],
                }
+    for meth in ["accounting_cost","cum_awarded_gen_by_pot","awarded_cost_by_tech","gen_by_tech","cap_by_tech"]:
+        chart[meth] = {}
+        df[meth] = {}
+        for period_num in [1,2]:
+            results = scenario.get_or_make_chart_data(meth,period_num)
+            data =results['data']
+            data_source = SimpleDataSource(data=data)
+            options = results['options']
+            if meth == "accounting_cost" or meth == "cum_awarded_gen_by_pot":
+                chart[meth][period_num] = LineChart(data_source, options=options, height=400, width="100%")
+            else:
+                chart[meth][period_num] = ColumnChart(data_source, options=options, height=400, width="100%")
+            df[meth][period_num] = results['df'].to_html(classes="table table-striped table-condensed")
+            context["".join([meth,"_chart",str(period_num)])] = chart[meth][period_num]
+            context["".join([meth,"_df",str(period_num)])] = df[meth][period_num]
 
     return render(request, 'lcf/scenario_detail.html', context)
 

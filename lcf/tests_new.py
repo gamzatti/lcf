@@ -80,6 +80,18 @@ class PeriodTests(TestCase):
     def test_get_or_make_chart_data_with_period_arg(self):
         s = Scenario.objects.get(pk=252)
         s.get_or_make_chart_data("accounting_cost",1)
-        print(s._accounting_cost1['df'])
+        self.assertEqual(s._accounting_cost1['df']['2025']['Accounting cost'],3.668)
         s.get_or_make_chart_data("cum_awarded_gen_by_pot",2)
-        print(s._cum_awarded_gen_by_pot2['df'])
+        self.assertEqual(s._cum_awarded_gen_by_pot2['df'].index[0],'E')
+
+
+    def test_scenario_detail_view(self):
+        s = Scenario.objects.get(pk=252)
+        s.get_or_make_chart_data("accounting_cost",1)
+        df = s._accounting_cost1['df'].to_html(classes="table table-striped table-condensed")
+        resp = self.client.get(reverse('scenario_detail',kwargs={'pk': s.pk}))
+        self.assertTrue('accounting_cost_chart1' in resp.context)
+        self.assertEqual(resp.context['accounting_cost_df1'],df)
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.get(reverse('scenario_detail',kwargs={'pk': 999}))
+        self.assertEqual(resp.status_code, 404)

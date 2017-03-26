@@ -50,31 +50,41 @@
 
 <h2 class="sub-header">Accounting cost</h2>
 <div class="graph">
-    {{ accounting_cost_chart.as_html }}
-    {{ accounting_cost_df | safe }}
+    {{ accounting_cost_chart1.as_html }}
+    {{ accounting_cost_df1 | safe }}
+    {{ accounting_cost_chart2.as_html }}
+    {{ accounting_cost_df2 | safe }}
 </div>
 <h2 class="sub-header">Cumulative new generation</h2>
 <div class="graph">
-    {{ cum_awarded_gen_by_pot_chart.as_html }}
-    {{ cum_awarded_gen_by_pot_df | safe }}
+    {{ cum_awarded_gen_by_pot_chart1.as_html }}
+    {{ cum_awarded_gen_by_pot_df1 | safe }}
+    {{ cum_awarded_gen_by_pot_chart2.as_html }}
+    {{ cum_awarded_gen_by_pot_df2 | safe }}
 </div>
 
 <h2 class="sub-header">Cost each year of new generation awarded</h2>
 <div class="graph">
-    {{ awarded_cost_by_tech_chart.as_html }}
-    {{ awarded_cost_by_tech_df | safe }}
+    {{ awarded_cost_by_tech_chart1.as_html }}
+    {{ awarded_cost_by_tech_df1 | safe }}
+    {{ awarded_cost_by_tech_chart2.as_html }}
+    {{ awarded_cost_by_tech_df2 | safe }}
 </div>
 
 <h2 class="sub-header">Generation by technology</h2>
 <div class="graph">
-    {{ gen_by_tech_chart.as_html }}
-    {{ gen_by_tech_df | safe }}
+    {{ gen_by_tech_chart1.as_html }}
+    {{ gen_by_tech_df1 | safe }}
+    {{ gen_by_tech_chart2.as_html }}
+    {{ gen_by_tech_df2 | safe }}
 </div>
 
 <h2 class="sub-header">Capacity by technology</h2>
 <div class="graph">
-    {{ cap_by_tech_chart.as_html }}
-    {{ cap_by_tech_df | safe }}
+    {{ cap_by_tech_chart1.as_html }}
+    {{ cap_by_tech_df1 | safe }}
+    {{ cap_by_tech_chart2.as_html }}
+    {{ cap_by_tech_df2 | safe }}
 </div>
 
 <div class="hide-button btn btn-primary">Show/hide inputs</div>
@@ -82,7 +92,7 @@
   {{ scenario.techs_input_html | safe }}
   {{ scenario.prices_input_html | safe }}
   <!-- {% for tech_df in scenario.tech_df_list %}
-    {{ tech_df | safe }}
+    {{ tech_df1 | safe }}
   {% endfor %}-->
 </div>
 {% endblock %}
