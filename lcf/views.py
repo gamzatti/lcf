@@ -78,7 +78,7 @@ def scenario_detail(request, pk=None):
     chart = {}
     df = {}
     for meth in ["accounting_cost","cum_awarded_gen_by_pot","awarded_cost_by_tech","gen_by_tech","cap_by_tech"]:
-        results = scenario.get_or_make_chart_data("_"+meth,meth)
+        results = scenario.get_or_make_chart_data(meth,2)
         data =results['data']
         data_source = SimpleDataSource(data=data)
         options = results['options']
@@ -91,15 +91,15 @@ def scenario_detail(request, pk=None):
     context = {'scenario': scenario,
                'scenarios': scenarios,
                'accounting_cost_chart': chart["accounting_cost"],
-               'cum_awarded_gen_by_pot_chart': chart["cum_awarded_gen_by_pot"],
-               'awarded_cost_by_tech_chart': chart["awarded_cost_by_tech"],
-               'gen_by_tech_chart': chart["gen_by_tech"],
-               'cap_by_tech_chart': chart["cap_by_tech"],
                'accounting_cost_df': df["accounting_cost"],
+               'cum_awarded_gen_by_pot_chart': chart["cum_awarded_gen_by_pot"],
                'cum_awarded_gen_by_pot_df': df["cum_awarded_gen_by_pot"],
+               'awarded_cost_by_tech_chart': chart["awarded_cost_by_tech"],
                'awarded_cost_by_tech_df': df["awarded_cost_by_tech"],
-               'cap_by_tech_df': df["cap_by_tech"],
+               'gen_by_tech_chart': chart["gen_by_tech"],
                'gen_by_tech_df': df["gen_by_tech"],
+               'cap_by_tech_chart': chart["cap_by_tech"],
+               'cap_by_tech_df': df["cap_by_tech"],
                }
 
     return render(request, 'lcf/scenario_detail.html', context)
@@ -116,9 +116,9 @@ def scenario_download(request,pk):
     df_list = [
                ('Accounting cost (£bn)', scenario.accounting_cost()['df']),
                ('Cumulative generation (TWh)', scenario.cum_awarded_gen_by_pot()['df']),
-               ('Cost of new generation awarded (£m)', scenario.awarded_cost_by_tech()['df']),
-               ('Generation (TWh)', scenario.gen_by_tech()['df']),
-               ('Capacity (GW)', scenario.cap_by_tech()['df']),
+               #('Cost of new generation awarded (£m)', scenario.awarded_cost_by_tech()['df']),
+               #('Generation (TWh)', scenario.gen_by_tech()['df']),
+               #('Capacity (GW)', scenario.cap_by_tech()['df']),
                ('Inputs - Prices (£/MWh)', scenario.prices_input()),
                ('Inputs - Technology data', scenario.techs_input()),
                ]

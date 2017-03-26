@@ -33,18 +33,30 @@ class Scenario(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(Scenario, self).__init__(*args, **kwargs)
-        self._accounting_cost = None
-        self._cum_awarded_gen_by_pot = None
-        self._awarded_cost_by_tech = None
-        self._gen_by_tech = None
-        self._cap_by_tech = None
+        self._accounting_cost1 = None
+        self._accounting_cost2 = None
+        self._cum_awarded_gen_by_pot1 = None
+        self._cum_awarded_gen_by_pot2 = None
+        self._awarded_cost_by_tech1 = None
+        self._awarded_cost_by_tech2 = None
+        self._gen_by_tech1 = None
+        self._gen_by_tech2 = None
+        self._cap_by_tech1 = None
+        self._cap_by_tech2 = None
 
 
     #chart methods
 
-    def accounting_cost(self):
+    def period(self, num):
+        if num == 1:
+            ran = (self.start_year1, self.end_year1)
+        elif num == 2:
+            ran = (self.start_year2, self.end_year2)
+        return self.auctionyear_set.filter(year__range=ran).order_by("year")
+
+    def accounting_cost(self, period_num):
         index = ['Accounting cost', 'Cost v gas', 'Innovation premium']
-        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year1)
+        auctionyears = self.period(period_num)
         columns = [str(a.year) for a in auctionyears]
         accounting_costs = [round(a.cum_owed_v("wp")/1000,3) for a in auctionyears]
         cost_v_gas = [round(a.cum_owed_v("gas")/1000,3) for a in auctionyears]
@@ -54,8 +66,8 @@ class Scenario(models.Model):
         return {'df': df, 'options': options}
 
 
-    def cum_awarded_gen_by_pot(self):
-        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year1)
+    def cum_awarded_gen_by_pot(self,period_num):
+        auctionyears = self.period(period_num)
         index = [pot.name for pot in auctionyears[0].active_pots()]
         data = { str(a.year) : [round(p.cum_awarded_gen(),2) for p in a.active_pots()] for a in auctionyears }
         df = DataFrame(data=data, index=index)
@@ -63,8 +75,8 @@ class Scenario(models.Model):
         return {'df': df, 'options': options}
 
 
-    def awarded_cost_by_tech(self):
-        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year1)
+    def awarded_cost_by_tech(self,period_num):
+        auctionyears = self.period(period_num)
         index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
         data = { str(a.year) : [round(t.awarded_cost,2) for p in a.active_pots() for t in p.tech_set().order_by("name")] for a in auctionyears }
         df = DataFrame(data=data, index=index)
@@ -72,8 +84,8 @@ class Scenario(models.Model):
         return {'df': df, 'options': options}
 
 
-    def gen_by_tech(self):
-        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year1)
+    def gen_by_tech(self,period_num):
+        auctionyears = self.period(period_num)
         index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
         data = { str(a.year) : [round(t.awarded_gen,2) for p in a.active_pots() for t in p.tech_set().order_by("name")] for a in auctionyears }
         df = DataFrame(data=data, index=index)
@@ -81,8 +93,8 @@ class Scenario(models.Model):
         return {'df': df, 'options': options}
 
 
-    def cap_by_tech(self):
-        auctionyears = self.auctionyear_set.filter(year__gte=self.start_year1)
+    def cap_by_tech(self,period_num):
+        auctionyears = self.period(period_num)
         index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
         data = { str(a.year) : [round(t.awarded_gen/8.760/t.load_factor,2) for p in a.active_pots() for t in p.tech_set().order_by("name")] for a in auctionyears }
         df = DataFrame(data=data, index=index)
@@ -99,16 +111,17 @@ class Scenario(models.Model):
         chart_data = chart_data.T.values.tolist()
         return {'data': chart_data, 'df': df['df'], 'options': df['options']}
 
-    def get_or_make_chart_data(self, attribute, method):
-        if self.__getattribute__(attribute) == None:
+    def get_or_make_chart_data(self, method, period_num):
+        attr_name = ("").join(["_",method,str(period_num)])
+        if self.__getattribute__(attr_name) == None:
             methods = globals()['Scenario']
             meth = getattr(methods,method)
-            df = meth(self)
+            df = meth(self, period_num)
             chart_data = self.df_to_chart_data(df)
-            self.__setattr__(attribute, chart_data)
-            return self.__getattribute__(attribute)
-        elif self.__getattribute__(attribute) != None:
-            return self.__getattribute__(attribute)
+            self.__setattr__(attr_name, chart_data)
+            return self.__getattribute__(attr_name)
+        elif self.__getattribute__(attr_name) != None:
+            return self.__getattribute__(attr_name)
 
 
     def technology_form_helper(self):
