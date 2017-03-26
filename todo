@@ -1,12 +1,6 @@
 Right now:
 
 **think about post 2026. create option to have two(+?) auction periods?**
-  load 2026-2030 data into production db:
-    fix fixtures:
-      identify whether problem is in code or data by deleting data
-      so it seems to be that any fixtures dumped previously load correctly, but any dumped now don't, even when they contain the same data.?
-    create upload csv function:
-
   create/test basic functionality and compare to excel
   improve to allow splitting up of existing period and/or creating more auction periods
 
@@ -34,9 +28,25 @@ policy model:
   allow naming of inputs, like new wholesale prices?
   allow input group to have a source
 
+comparison model:
+  make a new model that groups together sets of scenarios and allows you to compare them side by side
+
 input page:
   *improve interface, eg hide technology inputs initially with jquery, add individual fields?, disallow editing of year and technology, disable editing when technologies are turned off, get rid of decimals, maybe add choice options for prices? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
-  *create upload csv option?
+  create upload csv function OR spreadsheet layout editable: do we need both?
+    csv upload:
+      pros - simpler to do (probably)
+      cons - messy for user having to upload file, hard to check for errors.
+    embedded table: https://paramquery.com/
+      pros - can all be done in one place, can update database immediately, can provide more advanced functionality if desired like nested tables
+      cons - need to learn to use the libray, may be slow, may not be easy to add new rows?
+    html textarea with grid: http://jsfiddle.net/uos06r59/3/ http://www.techrepublic.com/blog/web-designer/how-to-get-the-ruled-paper-background-effect-with-css3/ http://stackoverflow.com/questions/9468153/textarea-with-horizontal-rule http://stackoverflow.com/questions/3540194/how-to-make-a-grid-like-graph-paper-grid-with-just-css
+      pros - fairly basic so less likely to break
+      cons - fairly basic so more likely to break!
+    embedded microsoft or google spreadsheet
+      pros - full spreadsheet functionality
+      cons - not sure how easy it is to get data out of and into, spreadsheet would need to be stored somewhere, seems hacky
+
   deal with tidal that has initial generation rather than capacity (for form?)
   errors for form fields being empty/incorrect?
   change form to not use 2020 input
