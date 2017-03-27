@@ -305,3 +305,10 @@ Auctionyear old method:
 #Pot methods:
     def funded_projects(self):
         return self.projects()[self.projects().funded == "this year"]
+
+
+        for tl in t_set:
+            if tl.max_deployment_cap == 1:
+                print('changing tidal')
+                tl.max_deployment_cap = 1.0045662100457
+                tl.save()

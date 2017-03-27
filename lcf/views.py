@@ -31,7 +31,6 @@ def scenario_new(request,pk):
             scenario_new = scenario_form.save()
             wholesale_prices = [float(w) for w in list(filter(None, re.split("[, \-!?:\t]+",prices_form.cleaned_data['wholesale_prices'])))]
             gas_prices = [float(g) for g in list(filter(None, re.split("[, \-!?:\t]+",prices_form.cleaned_data['gas_prices'])))]
-
             for i, y in enumerate(range(2020,scenario_new.end_year2+1)):
                 a = AuctionYear.objects.create(year=y, scenario=scenario_new, gas_price=gas_prices[i], wholesale_price=wholesale_prices[i])
                 for p in [p.name for p in scenario_original.auctionyear_set.all()[0].pot_set.all()]:
@@ -49,11 +48,16 @@ def scenario_new(request,pk):
                     kwargs['pot'] = q.filter(auctionyear=a).get(name=form.cleaned_data['pot'])
                     Technology.objects.create(**kwargs)
             return redirect('scenario_detail', pk=scenario_new.pk)
+        else:
+            print(string_formset.errors)
+            print(scenario_form.errors)
+            print(prices_form.errors)
 
     scenario_form = ScenarioForm(instance=scenario_original)
-    initial_prices = {'gas_prices': str([round(a.gas_price,2) for a in scenario_original.auctionyear_set.all()]).strip('[]'), 'wholesale_prices': str([round(a.wholesale_price,5) for a in scenario_original.auctionyear_set.all() ]).strip('[]')}
+    initial_prices = {'gas_prices': str([a.gas_price for a in scenario_original.auctionyear_set.all()]).strip('[]'), 'wholesale_prices': str([a.wholesale_price for a in scenario_original.auctionyear_set.all() ]).strip('[]')}
     prices_form = PricesForm(initial=initial_prices)
     names = scenario_original.technology_form_helper()[0]
+
     technology_form_helper = scenario_original.technology_form_helper()[1]
     string_formset = TechnologyStringFormSet(initial=technology_form_helper)
     context = {'scenario': scenario_original,

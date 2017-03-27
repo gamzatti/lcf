@@ -30,7 +30,7 @@ class InputDisplayTests(TestCase):
         #self.assertEqual(val, 44.2)
 
 class PeriodTests(TestCase):
-    fixtures = ['testing_periods.json']
+    fixtures = ['testing_periods_fresh.json']
 
     def test_default_start_and_end_years(self):
         s = Scenario.objects.get(pk=252)
@@ -141,4 +141,114 @@ class PeriodTests(TestCase):
                                                    "<Pot: (<AuctionYear: 2024>, 'E')>",
                                                    "<Pot: (<AuctionYear: 2025>, 'E')>",
                                                    ])
-                                                   
+
+class ExcelCompareTests(TestCase):
+    fixtures = ['testing_periods_fresh2.json']
+
+    def test_budget(self):
+        s = Scenario.objects.get(pk=281) #10 auctionyears - answers are wrong for first five years
+        a = AuctionYear.objects.get(scenario=s, year=2025)
+        #self.assertEqual(round(a.starting_budget),660)
+        t = Scenario.objects.get(pk=245) #5 auctionyears - answers are right for first five years
+        b = AuctionYear.objects.get(scenario=t, year=2025)
+        #self.assertEqual(round(b.starting_budget),660)
+
+        print(s.accounting_cost(1))
+        print(t.accounting_cost(1))
+        print('\n',s.accounting_cost(2))
+        p = a.pot_set.get(name="E")
+        q = b.pot_set.get(name="E")
+        drop = ['gen', 'technology', 'attempted_project_gen', 'listed_year', 'affordable', 'pot', 'strike_price']
+        pproj = p.projects().drop(drop,axis=1)
+        qproj = q.projects().drop(drop,axis=1)
+        #print(p.awarded_cost(), p.budget())
+        #print(q.awarded_cost(), q.budget())
+        v = Technology.objects.get(name="OFW",pot=p)
+        u = Technology.objects.get(name="OFW",pot=q)
+        t_set = Technology.objects.filter(name="TL", pot__auctionyear__scenario=s)
+        #v = Technology.objects.get(name="TL",pot=p)
+        #u = Technology.objects.get(name="TL",pot=q)
+        #for p in Pot.objects.filter(auctionyear__scenario__in=[s,t]):
+        #    p.run_auction()
+        #print(s.accounting_cost(1))
+        #print(t.accounting_cost(1))
+        #print('264\n',v.projects())
+        #print('245\n',u.projects())
+        #print("\n\n264\n",s.techs_input()[s.techs_input().name == "TL"])
+        #print("\n\n245\n",t.techs_input()[t.techs_input().name == "TL"])
+
+class RemoveRounding(TestCase):
+    fixtures = ['testing_periods_fresh2.json']
+
+    def test_remove_rounding(self):
+        pass
+    def test_scenario_new_view(self):
+        s = Scenario.objects.get(pk=281)
+        resp = self.client.get(reverse('scenario_new',kwargs={'pk': s.pk}))
+        self.assertTrue('scenario_form' in resp.context)
+        self.assertEqual(resp.status_code, 200)
+
+    def test_good_post(self):
+        #sanity check
+        test_scenario = Scenario.objects.get(pk=281)
+        a2020 = test_scenario.auctionyear_set.get(year=2020)
+        self.assertEqual(a2020.gas_price, 85)
+        post_data = {'name': 'test2',
+                    'percent_emerging': 0.5,
+                    'budget': 2,
+                    'start_year1': 2020,
+                    'end_year1': 2022,
+                    'wholesale_prices': "50 51 52 50 51 52 50 51 52 50 51",
+                    'gas_prices': "60 61 62 60 61 62 60 61 62 60 61",
+                    'form-TOTAL_FORMS': "1",
+                    'form-INITIAL_FORMS': "1",
+                    'form-MIN_NUM_FORMS': "0",
+                    'form-MAX_NUM_FORMS': "1",
+                    'form-0-name': "OFW",
+                    'form-0-pot': "E",
+                    'form-0-included': "on",
+                    'form-0-min_levelised_cost': "50 51 52 50 51 52 50 51 52 50 51",
+                    'form-0-max_levelised_cost': "60 61 62 60 61 62 60 61 62 60 61",
+                    'form-0-strike_price': "43 45 34 43 45 34 43 45 34 43 45",
+                    'form-0-load_factor': "33 34 34 33 34 34 33 34 34 33 34",
+                    'form-0-project_gen': "44 34 34 44 34 34 44 34 34 44 34",
+                    'form-0-max_deployment_cap': "3 23 23 3 23 23 3 23 23 3 23"
+                    }
+        resp = self.client.post(reverse('scenario_new',kwargs={'pk': 281}), post_data)
+        self.assertEqual(resp.status_code, 302)
+
+    def test_valid_stringformset(self):
+        data = {
+                'form-TOTAL_FORMS': "1",
+                'form-INITIAL_FORMS': "1",
+                'form-MIN_NUM_FORMS': "0",
+                'form-MAX_NUM_FORMS': "1",
+                'form-0-name': "OFW",
+                'form-0-pot': "E",
+                'form-0-included': "on",
+                'form-0-min_levelised_cost': "50 51 52",
+                'form-0-max_levelised_cost': "60 61 62",
+                'form-0-strike_price': "43 45 34",
+                'form-0-load_factor': "33 34 34",
+                'form-0-project_gen': "44 34 34",
+                'form-0-max_deployment_cap': "3 23 23"
+                }
+        TechnologyStringFormSet = formset_factory(TechnologyStringForm, extra=0, max_num=1)
+        string_formset = TechnologyStringFormSet(data)
+        self.assertTrue(string_formset.is_valid())
+        data = {
+                'form-TOTAL_FORMS': "1",
+                'form-INITIAL_FORMS': "1",
+                'form-MIN_NUM_FORMS': "0",
+                'form-MAX_NUM_FORMS': "1",
+                'form-0-name': "OFW",
+                'form-0-pot': "E",
+                'form-0-min_levelised_cost': "50 51 52",
+                'form-0-max_levelised_cost': "60 61 62",
+                'form-0-strike_price': "43 45 34",
+                'form-0-load_factor': "33 34 34",
+                'form-0-project_gen': "44 34 34",
+                'form-0-max_deployment_cap': "3 23 23"
+                }
+        string_formset = TechnologyStringFormSet(data)
+        self.assertTrue(string_formset.is_valid())

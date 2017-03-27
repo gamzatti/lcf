@@ -140,7 +140,7 @@ class Scenario(models.Model):
                     t_form_data[t.name][field] = t.pot.name
                 else:
                     li = list(subset[field])
-                    li = ['{:.2f}'.format(x) for x in li]
+                    #li = ['{:.2f}'.format(x) for x in li]
                     t_form_data[t.name][field] = str(li).strip('[]').replace("'",'')
 
         initial_technologies = list(t_form_data.values())
