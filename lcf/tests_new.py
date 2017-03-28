@@ -2,6 +2,7 @@ from django.test import TestCase
 import pandas as pd
 import numpy as np
 from pandas import DataFrame, Series
+from pandas.util.testing import assert_frame_equal
 from django.forms import modelformset_factory, formset_factory
 
 from django.core.urlresolvers import reverse
@@ -12,7 +13,7 @@ import math
 
 
 class InputDisplayTests(TestCase):
-    fixtures = ['all_data2.json']
+    fixtures = ['newtests/testing_periods_fresh2.json']
 
     def test_techs_input(self):
         s = Scenario.objects.get(pk=245)
@@ -25,12 +26,9 @@ class InputDisplayTests(TestCase):
         s = Scenario.objects.get(pk=245)
         val = s.prices_input().at['wholesale prices', 2022]
         self.assertEqual(val, 58.47)
-        #s = Scenario.objects.get(pk=250)
-        #val = s.prices_input().at['wholesale prices', 2022]
-        #self.assertEqual(val, 44.2)
 
 class PeriodTests(TestCase):
-    fixtures = ['testing_periods_fresh.json']
+    fixtures = ['newtests/testing_periods_fresh2.json']
 
     def test_default_start_and_end_years(self):
         s = Scenario.objects.get(pk=252)
@@ -142,46 +140,10 @@ class PeriodTests(TestCase):
                                                    "<Pot: (<AuctionYear: 2025>, 'E')>",
                                                    ])
 
-class ExcelCompareTests(TestCase):
-    fixtures = ['testing_periods_fresh2.json']
 
-    def test_budget(self):
-        s = Scenario.objects.get(pk=281) #10 auctionyears - answers are wrong for first five years
-        a = AuctionYear.objects.get(scenario=s, year=2025)
-        #self.assertEqual(round(a.starting_budget),660)
-        t = Scenario.objects.get(pk=245) #5 auctionyears - answers are right for first five years
-        b = AuctionYear.objects.get(scenario=t, year=2025)
-        #self.assertEqual(round(b.starting_budget),660)
+class TestViews(TestCase):
+    fixtures = ['newtests/testing_periods_fresh2.json']
 
-        print(s.accounting_cost(1))
-        print(t.accounting_cost(1))
-        print('\n',s.accounting_cost(2))
-        p = a.pot_set.get(name="E")
-        q = b.pot_set.get(name="E")
-        drop = ['gen', 'technology', 'attempted_project_gen', 'listed_year', 'affordable', 'pot', 'strike_price']
-        pproj = p.projects().drop(drop,axis=1)
-        qproj = q.projects().drop(drop,axis=1)
-        #print(p.awarded_cost(), p.budget())
-        #print(q.awarded_cost(), q.budget())
-        v = Technology.objects.get(name="OFW",pot=p)
-        u = Technology.objects.get(name="OFW",pot=q)
-        t_set = Technology.objects.filter(name="TL", pot__auctionyear__scenario=s)
-        #v = Technology.objects.get(name="TL",pot=p)
-        #u = Technology.objects.get(name="TL",pot=q)
-        #for p in Pot.objects.filter(auctionyear__scenario__in=[s,t]):
-        #    p.run_auction()
-        #print(s.accounting_cost(1))
-        #print(t.accounting_cost(1))
-        #print('264\n',v.projects())
-        #print('245\n',u.projects())
-        #print("\n\n264\n",s.techs_input()[s.techs_input().name == "TL"])
-        #print("\n\n245\n",t.techs_input()[t.techs_input().name == "TL"])
-
-class RemoveRounding(TestCase):
-    fixtures = ['testing_periods_fresh2.json']
-
-    def test_remove_rounding(self):
-        pass
     def test_scenario_new_view(self):
         s = Scenario.objects.get(pk=281)
         resp = self.client.get(reverse('scenario_new',kwargs={'pk': s.pk}))
@@ -252,3 +214,25 @@ class RemoveRounding(TestCase):
                 }
         string_formset = TechnologyStringFormSet(data)
         self.assertTrue(string_formset.is_valid())
+
+class ExcelCompareTests(TestCase):
+    fixtures = ['newtests/testing_periods_fresh2.json']
+
+    def test_budget(self):
+        s = Scenario.objects.get(pk=281) #10 auctionyears - answers are wrong for first five years
+        a = AuctionYear.objects.get(scenario=s, year=2025)
+        #self.assertEqual(round(a.starting_budget),660)
+        t = Scenario.objects.get(pk=245) #5 auctionyears - answers are right for first five years
+        b = AuctionYear.objects.get(scenario=t, year=2025)
+        #self.assertEqual(round(b.starting_budget),660)
+
+        assert_frame_equal(s.accounting_cost(1)['df'], t.accounting_cost(1)['df'])
+        print('\n',s.accounting_cost(2))
+        p = a.pot_set.get(name="E")
+        q = b.pot_set.get(name="E")
+        drop = ['gen', 'technology', 'attempted_project_gen', 'listed_year', 'affordable', 'pot', 'strike_price']
+        pproj = p.projects().drop(drop,axis=1)
+        qproj = q.projects().drop(drop,axis=1)
+        v = Technology.objects.get(name="OFW",pot=p)
+        u = Technology.objects.get(name="OFW",pot=q)
+        t_set = Technology.objects.filter(name="TL", pot__auctionyear__scenario=s)

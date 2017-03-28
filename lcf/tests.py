@@ -11,7 +11,7 @@ from .forms import ScenarioForm, PricesForm, TechnologyStringForm
 import math
 
 class TechnologyMethodTests(TestCase):
-    fixtures = ['test_data.json']
+    fixtures = ['oldtests/test_data.json']
 
     def setUp(self):
         self.s = Scenario.objects.get(pk=119)
@@ -137,7 +137,7 @@ class TechnologyMethodTests(TestCase):
         self.assertEqual(self.t2E.get_field_values()['name'],'OFW')
 
 class PotMethodTests(TestCase):
-    fixtures = ['test_data.json']
+    fixtures = ['oldtests/test_data.json']
 
     def setUp(self):
         self.s = Scenario.objects.get(pk=119)
@@ -255,7 +255,7 @@ class PotMethodTests(TestCase):
 
 
 class PotMethodTests2(TestCase):
-    fixtures = ['test_data.json']
+    fixtures = ['oldtests/test_data.json']
 
     def setUp(self):
         self.s = Scenario.objects.get(pk=119)
@@ -289,7 +289,7 @@ class PotMethodTests2(TestCase):
         self.assertEqual(round(self.p2E.unspent()+self.p2M.unspent()),345)
 
 class PotMethodTests3(TestCase):
-    fixtures = ['test_data.json']
+    fixtures = ['oldtests/test_data.json']
 
     def test_awarded_gen(self):
         #p0E = Pot.objects.get(auctionyear__year=2020, auctionyear__scenario=119, name="E")
@@ -309,7 +309,7 @@ class PotMethodTests3(TestCase):
 
 
 class PotMethodTests4(TestCase):
-    fixtures = ['test_data.json']
+    fixtures = ['oldtests/test_data.json']
 
     def setUp(self):
         self.s = Scenario.objects.get(pk=119)
@@ -339,7 +339,7 @@ class PotMethodTests4(TestCase):
 
 
 class AuctionYearMethodTests(TestCase):
-    fixtures = ['test_data.json']
+    fixtures = ['oldtests/test_data.json']
 
     def setUp(self):
         self.s = Scenario.objects.get(pk=119)
@@ -399,7 +399,7 @@ class AuctionYearMethodTests(TestCase):
 
 
 class AuctionYearMethodTests4(TestCase):
-    fixtures = ['test_data.json']
+    fixtures = ['oldtests/test_data.json']
 
     def setUp(self):
         self.s = Scenario.objects.get(pk=119)
@@ -434,7 +434,7 @@ class AuctionYearMethodTests4(TestCase):
 
 
 class AuctionYearMethodTests5(TestCase):
-    fixtures = ['test_data.json']
+    fixtures = ['oldtests/test_data.json']
 
     def setUp(self):
         self.s = Scenario.objects.get(pk=119)
@@ -448,7 +448,7 @@ class AuctionYearMethodTests5(TestCase):
         self.assertEqual(round(self.a2.cum_awarded_gen()+.428,3),26.088) #+428?
 
 class AuctionYearMethodTests6(TestCase):
-    fixtures = ['test_data.json']
+    fixtures = ['oldtests/test_data.json']
 
     def setUp(self):
         self.s = Scenario.objects.get(pk=119)
@@ -468,7 +468,7 @@ class AuctionYearMethodTests6(TestCase):
 
 
 class AuctionYearMethodTests2(TestCase):
-    fixtures = ['test_data.json']
+    fixtures = ['oldtests/test_data.json']
 
     def setUp(self):
         self.s = Scenario.objects.get(pk=119)
@@ -506,7 +506,7 @@ class AuctionYearMethodTests2(TestCase):
 
 
 class AuctionYearMethodTests3(TestCase):
-    fixtures = ['test_data.json']
+    fixtures = ['oldtests/test_data.json']
 
     def setUp(self):
         self.s = Scenario.objects.get(pk=119)
@@ -523,7 +523,7 @@ class AuctionYearMethodTests3(TestCase):
 
 
 class ScenarioMethodTests(TestCase):
-    fixtures = ['test_data.json']
+    fixtures = ['oldtests/test_data.json']
 
     def setUp(self):
         self.s = Scenario.objects.get(pk=119)
@@ -574,8 +574,8 @@ class ScenarioMethodTests(TestCase):
 
 
 class ExcelCompareTests(TestCase):
-    #fixtures = ['no_nuclear_data.json']
-    fixtures = ['all_data.json']
+    #fixtures = ['oldtests/no_nuclear_data.json']
+    fixtures = ['oldtests/all_data.json']
 
     def setUp(self):
         pass
@@ -625,7 +625,7 @@ class ExcelCompareTests(TestCase):
 
 
 class ExclusionTests(TestCase):
-    fixtures = ['all_data_inc_exclusions.json']
+    fixtures = ['oldtests/all_data_inc_exclusions.json']
 
     def setUp(self):
         self.s = Scenario.objects.get(name="excl ofw and pvls")
@@ -640,7 +640,7 @@ class ExclusionTests(TestCase):
         self.assertEqual(set(p.projects().technology.unique()),{'TS','TL','WA'})
 
 class ExclusionTests2(TestCase):
-    fixtures = ['all_data_inc_exclusions.json']
+    fixtures = ['oldtests/all_data_inc_exclusions.json']
 
     def setUp(self):
         self.s = Scenario.objects.get(name="excl ofw and pvls")
@@ -663,7 +663,7 @@ class ExclusionTests2(TestCase):
 
 
 class RefactorTests(TestCase):
-    fixtures = ['all_data2.json']
+    fixtures = ['oldtests/all_data2.json']
 
     def setUp(self):
         self.s = Scenario.objects.get(pk=245)
@@ -704,7 +704,7 @@ class RefactorTests(TestCase):
         a5.owed_v("wp",a5)
 
 class LcfViewsTestCase(TestCase):
-    fixtures = ['test_data.json']
+    fixtures = ['oldtests/test_data.json']
 
     def test_new(self):
         resp = self.client.get(reverse('scenario_new', kwargs={'pk': 119}))
@@ -838,7 +838,7 @@ class LcfViewsTestCase(TestCase):
 
 
 class NuclearTests(TestCase):
-    fixtures = ['nuclear_data.json']
+    fixtures = ['oldtests/nuclear_data.json']
 
     def test_nuclear_num_projects(self):
         nu_set = Technology.objects.filter(name="NU")
@@ -868,7 +868,7 @@ class NuclearTests(TestCase):
         self.assertEqual(round(a5.awarded_from("total")),723)
 
 class NuclearTests5(TestCase):
-    fixtures = ['nuclear_data.json']
+    fixtures = ['oldtests/nuclear_data.json']
 
     def test_sn_auction(self):
         sn_pot_set = Pot.objects.filter(name="SN")
@@ -890,7 +890,7 @@ class NuclearTests5(TestCase):
         self.assertEqual(round(sn_pot_set[5].awarded_cost(),2),252.34)#10*(92.5-67.2664653151834)
 
 class NuclearTests4(TestCase):
-    fixtures = ['nuclear_data.json']
+    fixtures = ['oldtests/nuclear_data.json']
 
 
     def test_other_pots(self):
@@ -908,7 +908,7 @@ class NuclearTests4(TestCase):
 
 
 class NuclearTests3(TestCase):
-    fixtures = ['nuclear_data.json']
+    fixtures = ['oldtests/nuclear_data.json']
 
     def test_unspent(self):
         a3 = AuctionYear.objects.get(year=2023)
@@ -921,7 +921,7 @@ class NuclearTests3(TestCase):
 
 
 class NuclearTests2(TestCase):
-    fixtures = ['nuclear_data.json']
+    fixtures = ['oldtests/nuclear_data.json']
 
     def test_paid(self):
         a3 = AuctionYear.objects.get(year=2023)
@@ -939,7 +939,7 @@ class NuclearTests2(TestCase):
 
 
 class FITTests(TestCase):
-    fixtures = ['fit_data.json']
+    fixtures = ['oldtests/fit_data.json']
 
     def test_other_pots(self):
         a1 = AuctionYear.objects.get(year=2021)
@@ -976,7 +976,7 @@ class FITTests(TestCase):
         s = Scenario.objects.get(name="with nuclear and negawatts")
 
 class FITTests3(TestCase):
-    fixtures = ['fit_data.json']
+    fixtures = ['oldtests/fit_data.json']
     def test_spent_fit(self):
         a1 = AuctionYear.objects.get(year=2021)
         a2 = AuctionYear.objects.get(year=2022)
@@ -1007,7 +1007,7 @@ class FITTests3(TestCase):
 
 
 class FITTests2(TestCase):
-    fixtures = ['fit_data.json']
+    fixtures = ['oldtests/fit_data.json']
     def test_owed(self):
         s = Scenario.objects.get(name="with nuclear and negawatts")
         #s.tidal_levelised_cost_distribution = True
@@ -1041,7 +1041,7 @@ class FITTests2(TestCase):
 ##Failing tests:
 
 class GasCompareTests(TestCase):
-    fixtures = ['fit_data.json']
+    fixtures = ['oldtests/fit_data.json']
 
     def test_owed_v_gas(self):
         a1 = AuctionYear.objects.get(year=2021)

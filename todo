@@ -1,7 +1,7 @@
 Right now:
 
 **think about post 2026. create option to have two(+?) auction periods?**
-    -compare to excel results
+    -compare post-2026 to Excel results
 
 
 
@@ -9,21 +9,23 @@ Right now:
 
 additional functionality:
   *combine all excel quirks into one checkbox
-  make it allow manual numbers of projects for TL and maybe manual amount of NW
+  *make it allow manual numbers of projects for TL and maybe manual amount of NW
   include absolute cost (ie not compared to wholesale price or gas price)
   add geothermal
 
 refactor:
-  give each model a place to store data: pot needs to store gen and awarded cost, maybe budget
   refactor views:
     research class-based views and class-based generic views http://programeveryday.com/post/writing-django-views-function-based-views-class-based-views-and-class-based-generic-views/
     think about whether context can be made smaller, using template tags instead? https://www.webforefront.com/django/setupdjangocontextprocessors.html http://djangobook.com/advanced-templates/
-  think about rounding
+  think about rounding without losing data
 
 speed:
+  remove spme charts
+  give each model a place to store data: pot needs to store gen and awarded cost, maybe budget
   profile code?
   investigate caching
   investigate hosting elsewhere
+
 
 policy model:
   make a new model that groups together preferences
@@ -35,7 +37,7 @@ comparison model:
 
 input page:
   *improve interface, eg hide technology inputs initially with jquery, add individual fields?, disallow editing of year and technology, disable editing when technologies are turned off, get rid of decimals, maybe add choice options for prices? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
-  create upload csv function OR spreadsheet layout editable: do we need both?
+  *create upload csv function OR spreadsheet layout editable: do we need both?
     csv upload:
       pros - simpler to do (probably)
       cons - messy for user having to upload file, hard to check for errors.

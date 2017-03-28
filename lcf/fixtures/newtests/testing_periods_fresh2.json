@@ -150,7 +150,7 @@
     "model": "lcf.scenario",
     "pk": 281,
     "fields": {
-        "name": "nuc in SN old wp TIL 2030 - w/o rounding att3",
+        "name": "OLD WP",
         "description": "",
         "date": "2017-03-27T16:44:08.271Z",
         "budget": 3.3,
