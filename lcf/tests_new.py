@@ -13,7 +13,7 @@ import math
 
 
 class InputDisplayTests(TestCase):
-    fixtures = ['newtests/testing_periods_fresh2.json']
+    fixtures = ['tests/new/data.json']
 
     def test_techs_input(self):
         s = Scenario.objects.get(pk=245)
@@ -28,10 +28,10 @@ class InputDisplayTests(TestCase):
         self.assertEqual(val, 58.47)
 
 class PeriodTests(TestCase):
-    fixtures = ['newtests/testing_periods_fresh2.json']
+    fixtures = ['tests/new/data.json']
 
     def test_default_start_and_end_years(self):
-        s = Scenario.objects.get(pk=252)
+        s = Scenario.objects.get(pk=281)
         self.assertEqual(s.start_year1,2021)
         self.assertEqual(s.end_year1,2025)
         self.assertEqual(s.start_year2,2026)
@@ -43,7 +43,7 @@ class PeriodTests(TestCase):
         self.assertEqual(t.end_year2,2030)
 
     def test_periods(self):
-        s = Scenario.objects.get(pk=252)
+        s = Scenario.objects.get(pk=281)
         self.assertQuerysetEqual(s.period(1), ["<AuctionYear: 2021>",
                                                "<AuctionYear: 2022>",
                                                "<AuctionYear: 2023>",
@@ -69,22 +69,22 @@ class PeriodTests(TestCase):
                                                "<AuctionYear: 2030>"])
 
     def test_charts_with_periods(self):
-        s = Scenario.objects.get(pk=252)
+        s = Scenario.objects.get(pk=281)
         self.assertEqual(s.accounting_cost(1)['df'].index[0],'Accounting cost')
         self.assertEqual(s.accounting_cost(2)['df'].columns[0],'2026')
         self.assertEqual(s.cum_awarded_gen_by_pot(1)['df'].columns[0],'2021')
         self.assertEqual(s.cum_awarded_gen_by_pot(2)['df'].index[0],'E')
 
     def test_get_or_make_chart_data_with_period_arg(self):
-        s = Scenario.objects.get(pk=252)
+        s = Scenario.objects.get(pk=281)
         s.get_or_make_chart_data("accounting_cost",1)
-        self.assertEqual(s._accounting_cost1['df']['2025']['Accounting cost'],3.668)
+        self.assertEqual(s._accounting_cost1['df']['2025']['Accounting cost'],2.805)
         s.get_or_make_chart_data("cum_awarded_gen_by_pot",2)
         self.assertEqual(s._cum_awarded_gen_by_pot2['df'].index[0],'E')
 
 
     def test_scenario_detail_view(self):
-        s = Scenario.objects.get(pk=252)
+        s = Scenario.objects.get(pk=281)
         s.get_or_make_chart_data("accounting_cost",1)
         df = s._accounting_cost1['df'].to_html(classes="table table-striped table-condensed")
         resp = self.client.get(reverse('scenario_detail',kwargs={'pk': s.pk}))
@@ -95,7 +95,7 @@ class PeriodTests(TestCase):
         self.assertEqual(resp.status_code, 404)
 
     def test_auctionyear_period(self):
-        s = Scenario.objects.get(pk=252)
+        s = Scenario.objects.get(pk=281)
         a = AuctionYear.objects.get(scenario=s, year=2024)
         self.assertEqual(a.period_num(), 1)
         self.assertEqual(set(list(a.period())), set(list(s.period(1))))
@@ -103,7 +103,7 @@ class PeriodTests(TestCase):
         self.assertEqual(set(list(b.period())), set(list(s.period(2))))
 
     def test_new_auctionyear_cum_years(self):
-        s = Scenario.objects.get(pk=252)
+        s = Scenario.objects.get(pk=281)
         a = AuctionYear.objects.get(scenario=s, year=2024)
         self.assertQuerysetEqual(a.cum_years(), ["<AuctionYear: 2021>",
                                                  "<AuctionYear: 2022>",
@@ -114,7 +114,7 @@ class PeriodTests(TestCase):
                                                  "<AuctionYear: 2027>"])
 
     def test_new_pot_cum_pots(self):
-        s = Scenario.objects.get(pk=252)
+        s = Scenario.objects.get(pk=281)
         a = AuctionYear.objects.get(scenario=s, year=2024)
         p = Pot.objects.get(auctionyear=a, name="E")
         self.assertQuerysetEqual(p.cum_pots(), ["<Pot: (<AuctionYear: 2021>, 'E')>",
@@ -130,7 +130,7 @@ class PeriodTests(TestCase):
 
 
     def test_pot_period(self):
-        s = Scenario.objects.get(pk=252)
+        s = Scenario.objects.get(pk=281)
         a = AuctionYear.objects.get(scenario=s, year=2024)
         p = Pot.objects.get(auctionyear=a, name="E")
         self.assertQuerysetEqual(p.period_pots(), ["<Pot: (<AuctionYear: 2021>, 'E')>",
@@ -142,7 +142,7 @@ class PeriodTests(TestCase):
 
 
 class TestViews(TestCase):
-    fixtures = ['newtests/testing_periods_fresh2.json']
+    fixtures = ['tests/new/data.json']
 
     def test_scenario_new_view(self):
         s = Scenario.objects.get(pk=281)
@@ -216,7 +216,7 @@ class TestViews(TestCase):
         self.assertTrue(string_formset.is_valid())
 
 class ExcelCompareTests(TestCase):
-    fixtures = ['newtests/testing_periods_fresh2.json']
+    fixtures = ['tests/new/data.json']
 
     def test_budget(self):
         s = Scenario.objects.get(pk=281) #10 auctionyears - answers are wrong for first five years
@@ -227,7 +227,7 @@ class ExcelCompareTests(TestCase):
         #self.assertEqual(round(b.starting_budget),660)
 
         assert_frame_equal(s.accounting_cost(1)['df'], t.accounting_cost(1)['df'])
-        print('\n',s.accounting_cost(2))
+        print('\n',s.accounting_cost(2)['df'])
         p = a.pot_set.get(name="E")
         q = b.pot_set.get(name="E")
         drop = ['gen', 'technology', 'attempted_project_gen', 'listed_year', 'affordable', 'pot', 'strike_price']
