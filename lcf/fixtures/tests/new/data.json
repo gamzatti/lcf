@@ -2313,7 +2313,7 @@
         "strike_price": 129.0,
         "load_factor": 0.25,
         "project_gen": 2200.0,
-        "max_deployment_cap": 1.68995433789954,
+        "max_deployment_cap": 1.0045662100457,
         "included": true,
         "awarded_gen": 2.2,
         "awarded_cost": 132.671528
@@ -2330,7 +2330,7 @@
         "strike_price": 129.0,
         "load_factor": 0.25,
         "project_gen": 2200.0,
-        "max_deployment_cap": 1.68995433789954,
+        "max_deployment_cap": 1.0045662100457,
         "included": true,
         "awarded_gen": 2.2,
         "awarded_cost": 131.54831800000002
@@ -2347,7 +2347,7 @@
         "strike_price": 129.0,
         "load_factor": 0.25,
         "project_gen": 2200.0,
-        "max_deployment_cap": 1.68995433789954,
+        "max_deployment_cap": 1.0045662100457,
         "included": true,
         "awarded_gen": 4.4,
         "awarded_cost": 275.503096
@@ -2364,7 +2364,7 @@
         "strike_price": 129.0,
         "load_factor": 0.25,
         "project_gen": 2200.0,
-        "max_deployment_cap": 1.68995433789954,
+        "max_deployment_cap": 1.0045662100457,
         "included": true,
         "awarded_gen": 4.4,
         "awarded_cost": 279.28736000000004
@@ -2381,7 +2381,7 @@
         "strike_price": 129.0,
         "load_factor": 0.25,
         "project_gen": 2200.0,
-        "max_deployment_cap": 1.68995433789954,
+        "max_deployment_cap": 1.0045662100457,
         "included": true,
         "awarded_gen": 6.6,
         "awarded_cost": 418.58401200000003
