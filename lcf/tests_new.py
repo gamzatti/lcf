@@ -70,26 +70,26 @@ class PeriodTests(TestCase):
 
     def test_charts_with_periods(self):
         s = Scenario.objects.get(pk=281)
-        self.assertEqual(s.accounting_cost(1)['df'].index[0],'Accounting cost')
-        self.assertEqual(s.accounting_cost(2)['df'].columns[0],'2026')
+        self.assertEqual(s.cumulative_costs(1)['df'].index[0],'Accounting cost')
+        self.assertEqual(s.cumulative_costs(2)['df'].columns[0],'2026')
         self.assertEqual(s.cum_awarded_gen_by_pot(1)['df'].columns[0],'2021')
         self.assertEqual(s.cum_awarded_gen_by_pot(2)['df'].index[0],'E')
 
     def test_get_or_make_chart_data_with_period_arg(self):
         s = Scenario.objects.get(pk=281)
-        s.get_or_make_chart_data("accounting_cost",1)
-        self.assertEqual(s._accounting_cost1['df']['2025']['Accounting cost'],2.805)
+        s.get_or_make_chart_data("cumulative_costs",1)
+        self.assertEqual(s._cumulative_costs1['df']['2025']['Accounting cost'],2.805)
         s.get_or_make_chart_data("cum_awarded_gen_by_pot",2)
         self.assertEqual(s._cum_awarded_gen_by_pot2['df'].index[0],'E')
 
 
     def test_scenario_detail_view(self):
         s = Scenario.objects.get(pk=281)
-        s.get_or_make_chart_data("accounting_cost",1)
-        df = s._accounting_cost1['df'].to_html(classes="table table-striped table-condensed")
+        s.get_or_make_chart_data("cumulative_costs",1)
+        df = s._cumulative_costs1['df'].to_html(classes="table table-striped table-condensed")
         resp = self.client.get(reverse('scenario_detail',kwargs={'pk': s.pk}))
-        self.assertTrue('accounting_cost_chart1' in resp.context)
-        self.assertEqual(resp.context['accounting_cost_df1'],df)
+        self.assertTrue('cumulative_costs_chart1' in resp.context)
+        self.assertEqual(resp.context['cumulative_costs_df1'],df)
         self.assertEqual(resp.status_code, 200)
         resp = self.client.get(reverse('scenario_detail',kwargs={'pk': 999}))
         self.assertEqual(resp.status_code, 404)
@@ -245,13 +245,13 @@ class ExcelQuirkTests(TestCase):
         s.excel_nw_carry_error = True
         s.excel_2020_gen_error = True
         s.save()
-        self.assertEqual(round(s.accounting_cost(1)['df']['2025']['Accounting cost'],3), 2.805)
+        self.assertEqual(round(s.cumulative_costs(1)['df']['2025']['Accounting cost'],3), 2.805)
 
         s.excel_sp_error = False
         s.excel_nw_carry_error = False
         s.excel_2020_gen_error = False
         s.save()
-        #self.assertEqual(round(s.accounting_cost(1)['df']['2025']['Accounting cost'],3), x)
+        #self.assertEqual(round(s.cumulative_costs(1)['df']['2025']['Accounting cost'],3), x)
 
 
 class ExcelCompareTests(TestCase):
@@ -265,8 +265,8 @@ class ExcelCompareTests(TestCase):
         b = AuctionYear.objects.get(scenario=t, year=2025)
         self.assertEqual(round(b.starting_budget()),660)
 
-        assert_frame_equal(s.accounting_cost(1)['df'], t.accounting_cost(1)['df'])
-        print('\n',s.accounting_cost(2)['df'])
+        assert_frame_equal(s.cumulative_costs(1)['df'], t.cumulative_costs(1)['df'])
+        print('\n',s.cumulative_costs(2)['df'])
         p = a.pot_set.get(name="E")
         q = b.pot_set.get(name="E")
         drop = ['gen', 'technology', 'attempted_project_gen', 'listed_year', 'affordable', 'pot', 'strike_price']

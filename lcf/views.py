@@ -90,7 +90,7 @@ def scenario_detail(request, pk=None):
                'scenarios': scenarios,
                'recent_pk': recent_pk
                }
-    for meth in ["accounting_cost","cum_awarded_gen_by_pot","awarded_cost_by_tech","gen_by_tech","cap_by_tech"]:
+    for meth in ["cumulative_costs","cum_awarded_gen_by_pot","awarded_cost_by_tech","gen_by_tech","cap_by_tech"]:
         chart[meth] = {}
         df[meth] = {}
         for period_num in [1,2]:
@@ -98,7 +98,7 @@ def scenario_detail(request, pk=None):
             data =results['data']
             data_source = SimpleDataSource(data=data)
             options = results['options']
-            if meth == "accounting_cost" or meth == "cum_awarded_gen_by_pot":
+            if meth == "cumulative_costs" or meth == "cum_awarded_gen_by_pot":
                 chart[meth][period_num] = LineChart(data_source, options=options, height=400, width="100%")
             else:
                 chart[meth][period_num] = ColumnChart(data_source, options=options, height=400, width="100%")
@@ -118,8 +118,8 @@ def scenario_download(request,pk):
 
     writer = csv.writer(response)
     df_list = [
-               ('Accounting cost (£bn) (2021-2025)', scenario.accounting_cost(1)['df']),
-               ('Accounting cost (£bn) (2026-2030)', scenario.accounting_cost(2)['df']),
+               ('Cumulative costs (£bn) (2021-2025)', scenario.cumulative_costs(1)['df']),
+               ('Cumulative costs (£bn) (2026-2030)', scenario.cumulative_costs(2)['df']),
                ('Cumulative generation (TWh) (2021-2025)', scenario.cum_awarded_gen_by_pot(1)['df']),
                ('Cumulative generation (TWh) (2026-2030)', scenario.cum_awarded_gen_by_pot(2)['df']),
                ('Cost of new generation awarded (£m) (2021-2025)', scenario.awarded_cost_by_tech(1)['df']),

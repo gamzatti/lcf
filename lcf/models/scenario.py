@@ -28,14 +28,14 @@ class Scenario(models.Model):
     tidal_levelised_cost_distribution = models.BooleanField(default=False)
     excel_2020_gen_error = models.BooleanField(default=True, verbose_name="Include the Excel error that counts cumulative generation from 2020 for auction and negotiations (but not FIT)")
     excel_nw_carry_error = models.BooleanField(default=True, verbose_name="Include the Excel error that carries NWFIT into next year, even though it's been spent")
-    
+
     def __str__(self):
         return self.name
 
     def __init__(self, *args, **kwargs):
         super(Scenario, self).__init__(*args, **kwargs)
-        self._accounting_cost1 = None
-        self._accounting_cost2 = None
+        self._cumulative_costs1 = None
+        self._cumulative_costs2 = None
         self._cum_awarded_gen_by_pot1 = None
         self._cum_awarded_gen_by_pot2 = None
         self._awarded_cost_by_tech1 = None
@@ -55,14 +55,15 @@ class Scenario(models.Model):
             ran = (self.start_year2, self.end_year2)
         return self.auctionyear_set.filter(year__range=ran).order_by("year")
 
-    def accounting_cost(self, period_num):
-        index = ['Accounting cost', 'Cost v gas', 'Innovation premium']
+    def cumulative_costs(self, period_num):
+        index = ['Accounting cost', 'Cost v gas', 'Innovation premium', 'Absolute cost']
         auctionyears = self.period(period_num)
         columns = [str(a.year) for a in auctionyears]
         accounting_costs = [round(a.cum_owed_v("wp")/1000,3) for a in auctionyears]
         cost_v_gas = [round(a.cum_owed_v("gas")/1000,3) for a in auctionyears]
         innovation_premium = [round(a.innovation_premium()/1000,3) for a in auctionyears]
-        df = DataFrame([accounting_costs, cost_v_gas, innovation_premium], index=index, columns=columns)
+        absolute_cost = [round(a.cum_owed_v("absolute")/1000,3) for a in auctionyears]
+        df = DataFrame([accounting_costs, cost_v_gas, innovation_premium, absolute_cost], index=index, columns=columns)
         options = {'title': None, 'vAxis': {'title': '£bn'}}
         return {'df': df, 'options': options}
 

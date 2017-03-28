@@ -1,7 +1,6 @@
 
 additional functionality:
   *make it allow manual numbers of projects for TL and maybe manual amount of NW (both in backend and frontend)
-  include absolute cost (ie not compared to wholesale price or gas price)
 
 speed:
   give each model a place to store data: pot needs to store gen and awarded cost, maybe budget
