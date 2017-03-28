@@ -7,7 +7,7 @@ class ScenarioForm(forms.ModelForm):
 
     class Meta:
         model = Scenario
-        fields = ('name', 'description', 'budget', 'percent_emerging','start_year1','end_year1','excel_wp_error','excel_nw_carry_error', 'tidal_levelised_cost_distribution')
+        fields = ('name', 'description', 'budget', 'budget2', 'percent_emerging','start_year1','end_year1','excel_wp_error','excel_nw_carry_error', 'tidal_levelised_cost_distribution')
         widgets = {
           'description': Textarea(attrs={'rows':2, 'cols':20}),
         }

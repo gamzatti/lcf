@@ -22,18 +22,32 @@ class AuctionYear(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(AuctionYear, self).__init__(*args, **kwargs)
-        self.starting_budget = 481.29 if self.year == 2020 else self.scenario.budget / 5 * 1000
         self._budget = None
         self._unspent = None
         self._previous_year_unspent = None
 
+
     #budget methods
+
+    def starting_budget(self):
+        if self.year == 2020:
+            return 481.29
+
+        elif self.period_num() == 2 and self.scenario.budget2 != None:
+            period_length = self.scenario.end_year2 - self.scenario.start_year2 + 1
+            return self.scenario.budget2 / period_length * 1000
+        else:
+            period_length = self.scenario.end_year1 - self.scenario.start_year1 + 1
+            return self.scenario.budget / period_length * 1000
+
+
+
     #@lru_cache(maxsize=None)
     def budget(self):
         if self._budget:
             return self._budget
         else:
-            self._budget = self.starting_budget + self.previous_year_unspent() - self.awarded_from("SN") - self.awarded_from("FIT")
+            self._budget = self.starting_budget() + self.previous_year_unspent() - self.awarded_from("SN") - self.awarded_from("FIT")
             return self._budget
 
     #@lru_cache(maxsize=None)
