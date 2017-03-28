@@ -161,7 +161,7 @@ class Pot(models.Model):
         for t in previous_pot.tech_set().all():
             gen = t.awarded_gen
             strike_price = t.strike_price
-            if self.auctionyear.scenario.excel_wp_error == True:
+            if self.auctionyear.scenario.excel_sp_error == True:
                 #next 5 lines account for Angela's error
                 if (self.name == "E") or (self.name == "SN"):
                     try:
@@ -192,7 +192,7 @@ class Pot(models.Model):
 
     def cum_awarded_gen(self):
         extra2020 = 0
-        if self.auctionyear.scenario.excel_2020_gen_error and self.name != "FIT":
+        if self.auctionyear.scenario.excel_2020_gen_error and self.name != "FIT" and self.period_num() == 1:
             pot2020 = self.auctionyear.scenario.auctionyear_set.get(year=2020).active_pots().get(name=self.name)
             #pot2020 = Pot.objects.get(auctionyear__scenario=self.auctionyear.scenario,auctionyear__year=2020,name=self.name) #which is faster?
             extra2020 = pot2020.awarded_gen()

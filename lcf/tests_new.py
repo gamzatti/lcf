@@ -162,16 +162,106 @@ class PeriodTests(TestCase):
             self.assertEqual(round(a.starting_budget()),round(5000/7))
 
 
+class ExcelQuirkTests(TestCase):
+    fixtures = ['tests/new/data.json']
+
+    def test_excel_2020_gen_error_true(self):
+        s = Scenario.objects.get(pk=281)
+        s.excel_2020_gen_error = True
+        s.save()
+        #period1
+        a0 = s.auctionyear_set.get(year=2020)
+        for p in a0.active_pots():
+            p.run_auction()
+
+        a1 = s.auctionyear_set.get(year=2021)
+        for p in a1.active_pots():
+            p.run_auction()
+
+        a2 = s.auctionyear_set.get(year=2022)
+        for p in a2.active_pots():
+            p.run_auction()
+
+        expected_cum_awarded_gen = a2.awarded_gen() + a1.awarded_gen() + a0.awarded_gen() - a0.pot_set.get(name="FIT").awarded_gen()
+        self.assertEqual(round(a2.cum_awarded_gen(),3),round(expected_cum_awarded_gen,3))
+        #period2
+        a5 = s.auctionyear_set.get(year=2025)
+        for p in a5.active_pots():
+            p.run_auction()
+
+        a6 = s.auctionyear_set.get(year=2026)
+        for p in a6.active_pots():
+            p.run_auction()
+
+        expected_cum_awarded_gen = a6.awarded_gen()
+        self.assertEqual(round(a6.cum_awarded_gen(),3),round(expected_cum_awarded_gen,3))
+
+    def test_excel_2020_gen_error_false(self):
+        s = Scenario.objects.get(pk=281)
+        s.excel_2020_gen_error = False
+        s.save()
+
+        a0 = s.auctionyear_set.get(year=2020)
+        for p in a0.active_pots():
+            p.run_auction()
+
+        a1 = s.auctionyear_set.get(year=2021)
+        for p in a1.active_pots():
+            p.run_auction()
+
+        a2 = s.auctionyear_set.get(year=2022)
+        for p in a2.active_pots():
+            p.run_auction()
+
+        expected_cum_awarded_gen = a2.awarded_gen() + a1.awarded_gen()
+        self.assertEqual(round(a2.cum_awarded_gen(),3),round(expected_cum_awarded_gen,3))
+        #period2
+        a5 = s.auctionyear_set.get(year=2025)
+        for p in a5.active_pots():
+            p.run_auction()
+
+        a6 = s.auctionyear_set.get(year=2026)
+        for p in a6.active_pots():
+            p.run_auction()
+
+        expected_cum_awarded_gen = a6.awarded_gen()
+        self.assertEqual(round(a6.cum_awarded_gen(),3),round(expected_cum_awarded_gen,3))
+
+    def test_excel_sp_error_true(self):
+        pass
+
+    def test_excel_sp_error_false(self):
+        pass
+
+    def test_excel_nw_carry_error_true(self):
+        pass
+
+    def test_excel_nw_carry_error_false(self):
+        pass
+
+    def test_all_excel_quirks(self):
+        s = Scenario.objects.get(pk=281)
+        s.excel_sp_error = True
+        s.excel_nw_carry_error = True
+        s.excel_2020_gen_error = True
+        s.save()
+        self.assertEqual(round(s.accounting_cost(1)['df']['2025']['Accounting cost'],3), 2.805)
+
+        s.excel_sp_error = False
+        s.excel_nw_carry_error = False
+        s.excel_2020_gen_error = False
+        s.save()
+        #self.assertEqual(round(s.accounting_cost(1)['df']['2025']['Accounting cost'],3), x)
 
 
 class ExcelCompareTests(TestCase):
     fixtures = ['tests/new/data.json']
 
     def test_budget(self):
-        s = Scenario.objects.get(pk=281) #10 auctionyears - answers are wrong for first five years
+        s = Scenario.objects.get(pk=281)
         a = AuctionYear.objects.get(scenario=s, year=2025)
         self.assertEqual(round(a.starting_budget()),660)
-        t = Scenario.objects.get(pk=245) #5 auctionyears - answers are right for first five years
+        t = Scenario.objects.get(pk=245)
         b = AuctionYear.objects.get(scenario=t, year=2025)
         self.assertEqual(round(b.starting_budget()),660)
 

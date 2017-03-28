@@ -18,6 +18,15 @@
 
 
 
+function toggle(source) {
+  var checkboxes = [document.getElementById('id_excel_2020_gen_error'),
+                    document.getElementById('id_excel_nw_carry_error'),
+                    document.getElementById('id_excel_sp_error')]
+  for(var i=0, n=checkboxes.length;i<n;i++) {
+    checkboxes[i].checked = source.checked;
+  }
+}
+
 
 $(document).ready(function(){
     //$( "div.btn-primary" ).click(function(){$(this).html("changed");});
@@ -34,5 +43,6 @@ $(document).ready(function(){
     });
 
 
+    document.getElementById("id_all_excel_quirks").onclick = function(){toggle(this)}
 
 });

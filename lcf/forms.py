@@ -4,10 +4,11 @@ from django.forms import Textarea
 
 
 class ScenarioForm(forms.ModelForm):
+    all_excel_quirks = forms.BooleanField(required=False, label="Include/exclude all Excel quirks")
 
     class Meta:
         model = Scenario
-        fields = ('name', 'description', 'budget', 'budget2', 'percent_emerging','start_year1','end_year1','excel_wp_error','excel_nw_carry_error', 'tidal_levelised_cost_distribution')
+        fields = ('name', 'description', 'budget', 'budget2', 'percent_emerging','start_year1','end_year1','excel_2020_gen_error', 'excel_sp_error','excel_nw_carry_error', 'tidal_levelised_cost_distribution')
         widgets = {
           'description': Textarea(attrs={'rows':2, 'cols':20}),
         }

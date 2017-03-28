@@ -14,7 +14,7 @@
         "end_year1": 2025,
         "start_year2": 2026,
         "end_year2": 2030,
-        "excel_wp_error": true,
+        "excel_sp_error": true,
         "tidal_levelised_cost_distribution": true,
         "excel_2020_gen_error": true,
         "excel_nw_carry_error": true
@@ -35,7 +35,7 @@
         "end_year1": 2025,
         "start_year2": 2026,
         "end_year2": 2030,
-        "excel_wp_error": true,
+        "excel_sp_error": true,
         "tidal_levelised_cost_distribution": true,
         "excel_2020_gen_error": true,
         "excel_nw_carry_error": true

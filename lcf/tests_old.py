@@ -780,7 +780,7 @@ class LcfViewsTestCase(TestCase):
 
     def test_valid_scenarioform(self):
         s = Scenario.objects.create(name="test_form", budget=4, percent_emerging=0.9, start_year1= 2021, end_year1=2022)
-        data = {'name': s.name, 'budget': s.budget, 'percent_emerging': s.percent_emerging, 'start_year1': s.start_year1, 'end_year1': s.end_year1, 'excel_wp_error': 'on'}
+        data = {'name': s.name, 'budget': s.budget, 'percent_emerging': s.percent_emerging, 'start_year1': s.start_year1, 'end_year1': s.end_year1, 'excel_sp_error': 'on'}
         form = ScenarioForm(data)
         self.assertTrue(form.is_valid())
         #s.delete()

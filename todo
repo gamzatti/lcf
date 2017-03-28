@@ -1,42 +1,19 @@
-Right now:
-
-**think about post 2026. create option to have two(+?) auction periods?**
-    -compare post-2026 to Excel results
-
-
-
-
 
 additional functionality:
-  *combine all excel quirks into one checkbox
-  *make it allow manual numbers of projects for TL and maybe manual amount of NW
+  *make it allow manual numbers of projects for TL and maybe manual amount of NW (both in backend and frontend)
   include absolute cost (ie not compared to wholesale price or gas price)
-  add geothermal
-
-refactor:
-  refactor views:
-    research class-based views and class-based generic views http://programeveryday.com/post/writing-django-views-function-based-views-class-based-views-and-class-based-generic-views/
-    think about whether context can be made smaller, using template tags instead? https://www.webforefront.com/django/setupdjangocontextprocessors.html http://djangobook.com/advanced-templates/
-  think about rounding without losing data
 
 speed:
-  remove spme charts
   give each model a place to store data: pot needs to store gen and awarded cost, maybe budget
   profile code?
+  see why form page is slow to load
   investigate caching
   investigate hosting elsewhere
 
-
-policy model:
-  make a new model that groups together preferences
-  allow naming of inputs, like new wholesale prices?
-  allow input group to have a source
-
-comparison model:
-  make a new model that groups together sets of scenarios and allows you to compare them side by side
-
 input page:
   *improve interface, eg hide technology inputs initially with jquery, add individual fields?, disallow editing of year and technology, disable editing when technologies are turned off, get rid of decimals, maybe add choice options for prices? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
+    errors for form fields being empty/incorrect?
+    change form to not use 2020 input
   *create upload csv function OR spreadsheet layout editable: do we need both?
     csv upload:
       pros - simpler to do (probably)
@@ -51,22 +28,43 @@ input page:
       pros - full spreadsheet functionality
       cons - not sure how easy it is to get data out of and into, spreadsheet would need to be stored somewhere, seems hacky
 
-  deal with tidal that has initial generation rather than capacity (for form?)
-  errors for form fields being empty/incorrect?
-  change form to not use 2020 input
+
+refactor:
+  refactor views:
+    research class-based views and class-based generic views http://programeveryday.com/post/writing-django-views-function-based-views-class-based-views-and-class-based-generic-views/
+    think about whether context can be made smaller, using template tags instead? https://www.webforefront.com/django/setupdjangocontextprocessors.html http://djangobook.com/advanced-templates/
+  think about rounding without losing data (though I think it's really only TL where this is a big problem)
+
+
+
+policy model:
+  make a new model that groups together preferences
+  allow naming of inputs, like new wholesale prices?
+  allow input group to have a source
+
 
 tests:
   make sure I am testing everything / make failing gas test pass
+  test excel quirks
     download view
   remove useless tests and duplicate import code
   deal with the fact that tests need to be run separately
 
+think about output page:
+  add totals row to tables
+  split by technology
 
 lower priority:
+  create a 'rerun auction' button
   add javascript to delete buttons
   improve jquery on output page to be by technology
   allow creating more auction periods
+  make it easy to add new technology?
+  comparison model: make a new model that groups together sets of scenarios and allows you to compare them side by side
 
+
+ ----
+NB: be careful that fixtures now contain results
 
  ----
 research:
@@ -80,6 +78,7 @@ diverge from Excel model:
   maxima/minima?
   change the way each year is based on cumulative generation with the cost distribution therefore including previously funded projects
   make it so technologies can be included some years and not other years
+  add geothermal
 
 Resolved issues:
   * realised that solar PV was affected by the previous years. Because there are projects already funded at the lowest levelised costs, these ones aren't eligible in eg 2022. the way I've fixed this for now is just putting 0 for all years up to but not including 2020 in the number of projects in Excel version

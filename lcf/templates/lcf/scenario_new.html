@@ -4,9 +4,7 @@
 {% endblock %}
 
 {% block content %}
-<script>
-console.log('hello')
-</script>
+
     <h1>New scenario based on {{ scenario.name }}</h1>
     <p>pk {{ scenario.pk }}</p>
     <form method="POST" class="post-form">{% csrf_token %}
