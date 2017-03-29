@@ -6,7 +6,14 @@ from pandas import DataFrame, Series
 from functools import lru_cache
 import datetime
 
-
+class TechnologyManager(models.Manager):
+    def create_technology(self, **kwargs):
+        t = self.create(**kwargs)
+        if t.num_new_projects != None:
+            t.fill_in_max_deployment_cap()
+        elif t.max_deployment_cap == None:
+            print("You must specify either num_new_projects or max_deployment_cap")
+        return t
 
 class Technology(models.Model):
     TECHNOLOGY_CHOICES = (
@@ -25,17 +32,20 @@ class Technology(models.Model):
     strike_price = models.FloatField(default=100)
     load_factor = models.FloatField(default=0.5)
     project_gen = models.FloatField(default=100, verbose_name="Average project generation") #"Average project pa (GWh)"
-    max_deployment_cap = models.FloatField(default=100)
+    max_deployment_cap = models.FloatField(null=True, blank=True)
     included = models.BooleanField(default=True)
     awarded_gen = models.FloatField(null=True, blank=True)
     awarded_cost = models.FloatField(default=0)
-
+    num_new_projects = models.IntegerField(null=True, blank=True)
+    objects = TechnologyManager()
 
     def __init__(self, *args, **kwargs):
         super(Technology, self).__init__(*args, **kwargs)
 
+
     def __str__(self):
         return str((self.pot.auctionyear,self.pot.name,self.name))
+
 
     #@lru_cache(maxsize=None)
     def get_field_values(self):
@@ -87,7 +97,13 @@ class Technology(models.Model):
 
     #@lru_cache(maxsize=None)
     def num_projects(self):
-        return int(self.new_generation_available() / self.project_gen)
+        if self.num_new_projects != None:
+            if self.pot.auctionyear.year == 2020:
+                return self.num_new_projects
+            else:
+                return self.num_new_projects + self.previous_year().num_projects()
+        else:
+            return int(self.new_generation_available() / self.project_gen)
 
     #@lru_cache(maxsize=None)
     def projects_index(self):
@@ -112,3 +128,8 @@ class Technology(models.Model):
         projects['pot'] = self.pot.name
         projects['listed_year'] = self.pot.auctionyear.year
         return projects
+
+    def fill_in_max_deployment_cap(self):
+        project_cap = self.project_gen / self.load_factor / 8760 # for tidal = 2200 / 0.22 / 8760 = 1.14155251141553
+        self.max_deployment_cap = self.num_new_projects * project_cap # need to check that it's right to put num_new_projects rather than num_projects
+        self.save()

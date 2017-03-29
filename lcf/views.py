@@ -40,26 +40,30 @@ def scenario_new(request,pk):
 
             for form in string_formset:
                 fields = [f.name for f in Technology._meta.get_fields() if f.name not in ["pot", "id", "name", "included", "awarded_gen", "awarded_cost"]]
-                field_data = { field : [float(s) for s in list(filter(None, re.split("[, \-!?:\t]+",form.cleaned_data[field])))] for field in fields }
+                field_data = { field : [float(s) for s in list(filter(None, re.split("[, \-!?:\t]+",form.cleaned_data[field])))] for field in fields  }
                 for i, a in enumerate(AuctionYear.objects.filter(scenario=scenario_new)):
-                    kwargs = { field : field_data[field][i] for field in field_data }
+                    kwargs = { field : field_data[field][i] if field_data[field] != [] else None for field in field_data }
                     kwargs['name'] = form.cleaned_data['name']
                     kwargs['included'] = form.cleaned_data['included']
                     kwargs['pot'] = q.filter(auctionyear=a).get(name=form.cleaned_data['pot'])
-                    Technology.objects.create(**kwargs)
+                    Technology.objects.create_technology(**kwargs)
             return redirect('scenario_detail', pk=scenario_new.pk)
         else:
             print(string_formset.errors)
             print(scenario_form.errors)
             print(prices_form.errors)
-
+    print('rendering scenario form')
     scenario_form = ScenarioForm(instance=scenario_original)
+    print('finding initial prices')
     initial_prices = {'gas_prices': str([a.gas_price for a in scenario_original.auctionyear_set.all()]).strip('[]'), 'wholesale_prices': str([a.wholesale_price for a in scenario_original.auctionyear_set.all() ]).strip('[]')}
+    print('rendering pries form')
     prices_form = PricesForm(initial=initial_prices)
+    print('finding technology data')
     names = scenario_original.technology_form_helper()[0]
-
+    print('rendering technology form')
     technology_form_helper = scenario_original.technology_form_helper()[1]
     string_formset = TechnologyStringFormSet(initial=technology_form_helper)
+    print('assembling context')
     context = {'scenario': scenario_original,
                'scenarios': scenarios,
                'scenario_form': scenario_form,

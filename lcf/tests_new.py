@@ -286,7 +286,7 @@ class TestViews(TestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_good_post(self):
-        #sanity check
+        initial_count = Technology.objects.count()
         test_scenario = Scenario.objects.get(pk=281)
         a2020 = test_scenario.auctionyear_set.get(year=2020)
         self.assertEqual(a2020.gas_price, 85)
@@ -309,10 +309,13 @@ class TestViews(TestCase):
                     'form-0-strike_price': "43 45 34 43 45 34 43 45 34 43 45",
                     'form-0-load_factor': "33 34 34 33 34 34 33 34 34 33 34",
                     'form-0-project_gen': "44 34 34 44 34 34 44 34 34 44 34",
-                    'form-0-max_deployment_cap': "3 23 23 3 23 23 3 23 23 3 23"
+                    'form-0-max_deployment_cap': "3 23 23 3 23 23 3 23 23 3 23",
+                    'form-0-num_new_projects': ""
                     }
         resp = self.client.post(reverse('scenario_new',kwargs={'pk': 281}), post_data)
         self.assertEqual(resp.status_code, 302)
+        self.assertEqual(Technology.objects.count(), initial_count + 11)
+
 
     def test_valid_stringformset(self):
         data = {
@@ -328,7 +331,7 @@ class TestViews(TestCase):
                 'form-0-strike_price': "43 45 34",
                 'form-0-load_factor': "33 34 34",
                 'form-0-project_gen': "44 34 34",
-                'form-0-max_deployment_cap': "3 23 23"
+                'form-0-max_deployment_cap': ""
                 }
         TechnologyStringFormSet = formset_factory(TechnologyStringForm, extra=0, max_num=1)
         string_formset = TechnologyStringFormSet(data)
@@ -345,7 +348,86 @@ class TestViews(TestCase):
                 'form-0-strike_price': "43 45 34",
                 'form-0-load_factor': "33 34 34",
                 'form-0-project_gen': "44 34 34",
-                'form-0-max_deployment_cap': "3 23 23"
+                'form-0-max_deployment_cap': "",
+                'form-0-num_new_projects': ""
+
                 }
         string_formset = TechnologyStringFormSet(data)
         self.assertTrue(string_formset.is_valid())
+
+
+class FixedNumProjectsTests(TestCase):
+    fixtures = ['tests/new/data.json']
+
+    def test_create_tidal(self):
+        s = Scenario.objects.get(pk=281)
+        p = Pot.objects.get(auctionyear__scenario = s, name = "E", auctionyear__year=2022)
+
+        #if num projects not specified, must be calculated
+        t = Technology.objects.create_technology(pot=p, name= "TL", max_deployment_cap = 1.14155251141553, load_factor = 0.22, project_gen=2200)
+        self.assertEqual(round(t.this_year_gen()), 2200)
+        self.assertEqual(t.previous_year().num_projects(),1)
+        self.assertEqual(t.num_projects(),2)
+
+        #using different LF/cap:
+        t = Technology.objects.create_technology(pot=p, name= "TL", max_deployment_cap = 1.00456621004566, load_factor = 0.25, project_gen=2200)
+        self.assertEqual(round(t.this_year_gen()), 2200)
+        self.assertEqual(t.previous_year().num_projects(),1)
+        self.assertEqual(t.num_projects(),2)
+
+        #if num_new_projects is specified, this number should be used instead and max_deployment_cap should be backfilled
+        t = Technology.objects.create_technology(pot=p, name= "TL", num_new_projects = 1, load_factor = 0.22, project_gen=2200)
+        self.assertEqual(round(t.max_deployment_cap,5),round(1.14155251141553,5))
+        self.assertEqual(round(t.this_year_gen()),2200)
+        self.assertEqual(t.previous_year().num_projects(),1)
+        self.assertEqual(t.num_projects(),2)
+
+        #if both are specified, use num projects
+        t = Technology.objects.create_technology(pot=p, name= "TL", num_new_projects = 1, max_deployment_cap = 9999999999, load_factor = 0.22, project_gen=2200)
+        self.assertEqual(round(t.max_deployment_cap,5),round(1.14155251141553,5))
+        self.assertEqual(round(t.this_year_gen()),2200)
+        self.assertEqual(t.previous_year().num_projects(),1)
+        self.assertEqual(t.num_projects(),2)
+
+        #if not tidal:
+        t = Technology.objects.create_technology(pot=p, name= "OFW", num_new_projects = 5, load_factor = 0.448, project_gen=832)
+        self.assertEqual(round(t.this_year_gen()),4160) #= 5 * 832
+        self.assertEqual(round(t.max_deployment_cap,2),round(t.project_gen / t.load_factor / 8760 * 5,2))
+        self.assertEqual(t.previous_year().max_deployment_cap,1.9)
+        self.assertEqual(t.previous_year().load_factor,0.434)
+        self.assertEqual(round(t.previous_year().new_generation_available(),2),round(14213.975999999999,2))
+        self.assertEqual(t.previous_year().num_new_projects,None)
+        self.assertEqual(t.previous_year().project_gen,832)
+        self.assertEqual(t.previous_year().num_projects(),17) # sketchy because I was getting 25 doing the same thing in the shell
+        self.assertEqual(t.num_projects(),22)
+
+    def test_view(self):
+        test_scenario = Scenario.objects.get(pk=281)
+        a2020 = test_scenario.auctionyear_set.get(year=2020)
+        self.assertEqual(a2020.gas_price, 85)
+        post_data = {'name': 'test2',
+                    'percent_emerging': 0.5,
+                    'budget': 2,
+                    'start_year1': 2020,
+                    'end_year1': 2022,
+                    'wholesale_prices': "50 51 52 50 51 52 50 51 52 50 51",
+                    'gas_prices': "60 61 62 60 61 62 60 61 62 60 61",
+                    'form-TOTAL_FORMS': "1",
+                    'form-INITIAL_FORMS': "1",
+                    'form-MIN_NUM_FORMS': "0",
+                    'form-MAX_NUM_FORMS': "1",
+                    'form-0-name': "OFW",
+                    'form-0-pot': "E",
+                    'form-0-included': "on",
+                    'form-0-min_levelised_cost': "50 51 52 50 51 52 50 51 52 50 51",
+                    'form-0-max_levelised_cost': "60 61 62 60 61 62 60 61 62 60 61",
+                    'form-0-strike_price': "43 45 34 43 45 34 43 45 34 43 45",
+                    'form-0-load_factor': "33 34 34 33 34 34 33 34 34 33 34",
+                    'form-0-project_gen': "44 34 34 44 34 34 44 34 34 44 34",
+                    'form-0-max_deployment_cap': "",
+                    'form-0-num_new_projects': "3 23 23 3 23 23 3 23 23 3 23"
+                    }
+        resp = self.client.post(reverse('scenario_new',kwargs={'pk': 281}), post_data)
+        self.assertEqual(resp.status_code, 302)
+        newest = Technology.objects.order_by('-pk')[0]
+        print(newest.max_deployment_cap)

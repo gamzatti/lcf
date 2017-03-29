@@ -125,13 +125,14 @@ class Scenario(models.Model):
         elif self.__getattribute__(attr_name) != None:
             return self.__getattribute__(attr_name)
 
-
+    @lru_cache(maxsize=None)
     def technology_form_helper(self):
         techs = [t for p in self.auctionyear_set.all()[0].pot_set.all() for t in p.technology_set.all() ]
         t_form_data = { t.name : {} for t in techs}
         for t in techs:
+            #creating subset is the slow bit. speed up by directly accessing database?
             subset = self.techs_df()[self.techs_df().name == t.name]
-            for field in techs[0].get_field_values():
+            for field, value in techs[0].get_field_values().items():
                 if field == "id":
                     pass
                 elif field == "name":
@@ -141,9 +142,12 @@ class Scenario(models.Model):
                 elif field == "pot":
                     t_form_data[t.name][field] = t.pot.name
                 else:
-                    li = list(subset[field])
-                    #li = ['{:.2f}'.format(x) for x in li]
-                    t_form_data[t.name][field] = str(li).strip('[]').replace("'",'')
+                    if value == None:
+                        t_form_data[t.name][field] = ""
+                    else:
+                        li = list(subset[field])
+                        #li = ['{:.2f}'.format(x) for x in li]
+                        t_form_data[t.name][field] = str(li).strip('[]').replace("'",'')
 
         initial_technologies = list(t_form_data.values())
         t_names = [t.name for t in techs]
@@ -168,8 +172,8 @@ class Scenario(models.Model):
     def techs_input(self):
         df = self.techs_df().sort_values(["pot_name", "name", "listed_year"]).drop('pot', axis=1)
         df.set_index(["pot_name", 'name','listed_year'],drop=False, inplace=True)
-        df = df.reindex(columns =["pot_name", "name", "listed_year", 'included', 'min_levelised_cost', 'max_levelised_cost', 'strike_price', 'load_factor', 'max_deployment_cap', 'project_gen'])
-        df.rename(columns={'pot_name': 'pot', 'listed_year': 'year', 'strike_price': 'strike price', 'load_factor': 'load factor', 'project_gen': 'project size GWh', 'min_levelised_cost': 'min LCOE', 'max_levelised_cost': 'max LCOE', 'max_deployment_cap': 'max GW pa'},inplace=True)
+        df = df.reindex(columns =["pot_name", "name", "listed_year", 'included', 'min_levelised_cost', 'max_levelised_cost', 'strike_price', 'load_factor', 'max_deployment_cap', 'num_new_projects', 'project_gen'])
+        df.rename(columns={'pot_name': 'pot', 'listed_year': 'year', 'strike_price': 'strike price', 'load_factor': 'load factor', 'project_gen': 'project size GWh', 'num_new_projects': 'number of new projects','min_levelised_cost': 'min LCOE', 'max_levelised_cost': 'max LCOE', 'max_deployment_cap': 'max GW pa'},inplace=True)
         df = round(df,2)
         return df
 

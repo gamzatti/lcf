@@ -1,18 +1,14 @@
-
-additional functionality:
-  *make it allow manual numbers of projects for TL and maybe manual amount of NW (both in backend and frontend)
-
 speed:
   give each model a place to store data: pot needs to store gen and awarded cost, maybe budget
+  use django-pandas
   profile code?
-  see why form page is slow to load
   investigate caching
   investigate hosting elsewhere
 
 input page:
   *improve interface, eg hide technology inputs initially with jquery, add individual fields?, disallow editing of year and technology, disable editing when technologies are turned off, get rid of decimals, maybe add choice options for prices? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
-    errors for form fields being empty/incorrect?
-    change form to not use 2020 input
+    errors for form fields being empty/incorrect? think about default values for model fields
+  fix bug in num projects always coming up blank.
   *create upload csv function OR spreadsheet layout editable: do we need both?
     csv upload:
       pros - simpler to do (probably)
@@ -28,12 +24,9 @@ input page:
       cons - not sure how easy it is to get data out of and into, spreadsheet would need to be stored somewhere, seems hacky
 
 
-refactor:
-  refactor views:
-    research class-based views and class-based generic views http://programeveryday.com/post/writing-django-views-function-based-views-class-based-views-and-class-based-generic-views/
-    think about whether context can be made smaller, using template tags instead? https://www.webforefront.com/django/setupdjangocontextprocessors.html http://djangobook.com/advanced-templates/
-  think about rounding without losing data (though I think it's really only TL where this is a big problem)
-
+think about output page:
+  create pivot tables / add totals row to tables
+  split by technology
 
 
 policy model:
@@ -49,9 +42,14 @@ tests:
   remove useless tests and duplicate import code
   deal with the fact that tests need to be run separately
 
-think about output page:
-  add totals row to tables
-  split by technology
+
+refactor:
+  refactor views:
+    research class-based views and class-based generic views http://programeveryday.com/post/writing-django-views-function-based-views-class-based-views-and-class-based-generic-views/
+    think about whether context can be made smaller, using template tags instead? https://www.webforefront.com/django/setupdjangocontextprocessors.html http://djangobook.com/advanced-templates/
+  think about rounding without losing data (though I think it's really only TL where this is a big problem)
+
+
 
 lower priority:
   create a 'rerun auction' button
@@ -61,6 +59,8 @@ lower priority:
   make it easy to add new technology?
   comparison model: make a new model that groups together sets of scenarios and allows you to compare them side by side
 
+ask D/C:
+  how do you want it to deal with the two auction periods 2021-2025 and 2026-2030?
 
  ----
 NB: be careful that fixtures now contain results

@@ -30,11 +30,11 @@ class TechnologyStringForm(forms.Form):
         choices=POT_CHOICES)
     min_levelised_cost = forms.CharField(max_length=400)
     max_levelised_cost = forms.CharField(max_length=400)
-    max_deployment_cap = forms.CharField(max_length=400)
+    max_deployment_cap = forms.CharField(max_length=400,required=False)
+    num_new_projects = forms.CharField(max_length=400,required=False)
     load_factor = forms.CharField(max_length=400)
     strike_price = forms.CharField(max_length=400)
     project_gen = forms.CharField(max_length=400)
-
     """def __init__(self, *args, **kwargs):
         super(TechnologyStringForm, self).__init__(*args, **kwargs)
         self.fields['name'].disabled = True
