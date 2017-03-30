@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory, formset_factory
-from .forms import ScenarioForm, PricesForm, TechnologyStringForm
+from .forms import ScenarioForm, PricesForm, TechnologyStringForm, UploadFileForm
 from .models import Scenario, AuctionYear, Pot, Technology
 
+from .helpers import handle_uploaded_file
 
 from django.http import HttpResponse
 import pandas as pd
@@ -73,6 +74,29 @@ def scenario_new(request,pk):
                'recent_pk': recent_pk}
     return render(request, 'lcf/scenario_new.html', context)
 
+
+def upload(request):
+    scenarios = Scenario.objects.all()
+    recent_pk = Scenario.objects.all().order_by("-date")[0].pk
+    scenario = Scenario.objects.all().order_by("-date")[0]
+    if request.method == "POST":
+        print("posting")
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            handle_uploaded_file(request.FILES['file'])
+
+            return redirect('scenario_detail', pk=recent_pk)
+        else:
+            print(form.errors)
+    else:
+        print("GETTING ")
+        form = UploadFileForm()
+    context = {'scenario': scenario,
+               'scenarios': scenarios,
+               'recent_pk': recent_pk,
+               'form' : form,
+               }
+    return render(request, 'lcf/upload.html', context)
 
 def scenario_delete(request, pk):
     scenario = get_object_or_404(Scenario, pk=pk)
