@@ -214,7 +214,7 @@ class Scenario(models.Model):
                 p.budget_result = None
                 p.awarded_cost_result = None
                 p.awarded_gen_result = None
-                p.p.auction_results = None
+                p.auction_results = None
                 p.cum_owed_v_wp = None
                 p.cum_owed_v_gas = None
                 cum_owed_v_absolute = None
