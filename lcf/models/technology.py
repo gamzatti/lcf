@@ -5,6 +5,7 @@ import numpy as np
 from pandas import DataFrame, Series
 from functools import lru_cache
 import datetime
+import time
 
 class TechnologyManager(models.Manager):
     def create_technology(self, **kwargs):
@@ -78,9 +79,7 @@ class Technology(models.Model):
         if self.pot.auctionyear.year == 2020:
             return None
         else:
-            previous_auctionyear = self.pot.auctionyear.scenario.auctionyear_set.get(year=self.pot.auctionyear.year-1)
-            previous_pot = previous_auctionyear.active_pots().get(name=self.pot.name)
-            previous_tech = previous_pot.tech_set().get(name=self.name)
+            previous_tech = Technology.objects.get(name = self.name, pot__auctionyear__scenario = self.pot.auctionyear.scenario, pot__auctionyear__year = self.pot.auctionyear.year-1)
             return previous_tech
 
     #@lru_cache(maxsize=None)
@@ -89,36 +88,50 @@ class Technology(models.Model):
 
     #@lru_cache(maxsize=None)
     def previous_gen(self):
-        return 0 if self.pot.auctionyear.year == 2020 else self.previous_year().new_generation_available()
+        res = 0 if self.pot.auctionyear.year == 2020 else self.previous_year().new_generation_available()
+        return res
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def new_generation_available(self):
-        return self.previous_gen() + self.this_year_gen()
+        p = self.previous_gen()
+        t = self.this_year_gen()
+        res = p + t
+        return res
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def num_projects(self):
         if self.num_new_projects != None:
             if self.pot.auctionyear.year == 2020:
                 return self.num_new_projects
             else:
-                return self.num_new_projects + self.previous_year().num_projects()
+                res = self.num_new_projects + self.previous_year().num_projects()
+                return res
         else:
-            return int(self.new_generation_available() / self.project_gen)
+            res = int(self.new_generation_available() / self.project_gen)
+            return res
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def projects_index(self):
         return [ self.name + str(i + 1) for i in range(self.num_projects()) ]
 
     #@lru_cache(maxsize=None)
     def levelised_cost_distribution(self):
         if self.pot.auctionyear.scenario.tidal_levelised_cost_distribution == True and self.pot.auctionyear.year == 2025 and self.name == "TL":
-            return Series(np.linspace(self.min_levelised_cost,150,self.num_projects()),name="levelised_cost", index=self.projects_index())
+            dist = Series(np.linspace(self.min_levelised_cost,150,self.num_projects()),name="levelised_cost", index=self.projects_index())
         else:
-            return Series(np.linspace(self.min_levelised_cost,self.max_levelised_cost,self.num_projects()+2)[1:-1],name="levelised_cost", index=self.projects_index())
+            minlc = self.min_levelised_cost
+            maxlc = self.max_levelised_cost
+            npr = self.num_projects()+2
+            data = np.linspace(minlc,maxlc,npr)[1:-1]
+            dist = Series(data,name="levelised_cost", index=self.projects_index())
+        return dist
 
     #@lru_cache(maxsize=None)
     def projects(self):
-        projects = DataFrame(data=self.levelised_cost_distribution(), index=self.projects_index())
+
+        data = self.levelised_cost_distribution()
+        index = self.projects_index()
+        projects = DataFrame(data=data, index=index)
         #projects['gen'] = self.new_generation_available()
         projects['gen'] = self.project_gen
         projects['technology'] = self.name

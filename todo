@@ -1,8 +1,7 @@
 speed:
-  give each model a place to store data: pot needs to store gen and awarded cost, maybe budget
-  use django-pandas
-  profile code?
-  investigate caching
+  *optimise access/display of results
+  *optimise accumulation of results (cum_owed_v)
+  *optimise creation of new scenario/bulk insert of data
   investigate hosting elsewhere
 
 input page:
@@ -25,8 +24,7 @@ input page:
 
 
 think about output page:
-  create pivot tables / add totals row to tables
-  split by technology
+  create pivot tables / add totals row to tables / use django-pandas / split by technology
 
 
 policy model:

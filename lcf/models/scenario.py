@@ -200,3 +200,18 @@ class Scenario(models.Model):
     def tech_df_list(self):
         dfs = [t.fields_df_html() for a in self.auctionyear_set.all() for p in a.active_pots().all() for t in p.technology_set.all() ]
         return dfs
+
+    def clear_all(self):
+        for a in AuctionYear.objects.filter(scenario = self):
+            a.budget_result = None
+            a.save()
+            for p in Pot.objects.filter(auctionyear = a):
+                p.auction_has_run = False
+                p.budget_result = None
+                p.awarded_cost_result
+                p.awarded_gen_result
+                p.auction_results
+                p.save()
+                for t in Technology.objects.filter(pot=p):
+                    t.awarded_gen = None
+                    t.awarded_cost = 0

@@ -5,7 +5,7 @@ import numpy as np
 from pandas import DataFrame, Series
 from functools import lru_cache
 import datetime
-
+import time
 
 from .pot import Pot
 from .technology import Technology
@@ -15,6 +15,7 @@ class AuctionYear(models.Model):
     year = models.IntegerField(default=2020)
     wholesale_price = models.FloatField(default=53)
     gas_price = models.FloatField(default=85)
+    budget_result = models.FloatField(blank=True, null=True)
 
 
     def __str__(self):
@@ -22,13 +23,12 @@ class AuctionYear(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(AuctionYear, self).__init__(*args, **kwargs)
-        self._budget = None
+        #self._budget = None
         self._unspent = None
         self._previous_year_unspent = None
 
 
     #budget methods
-
     def starting_budget(self):
         if self.year == 2020:
             return 481.29
@@ -44,11 +44,19 @@ class AuctionYear(models.Model):
 
     #@lru_cache(maxsize=None)
     def budget(self):
-        if self._budget:
-            return self._budget
+        if self.budget_result:
+            res = self.budget_result
+            return res
         else:
-            self._budget = self.starting_budget() + self.previous_year_unspent() - self.awarded_from("SN") - self.awarded_from("FIT")
-            return self._budget
+            sb = self.starting_budget() #slower than necessary but not that big a deal
+            pyu = self.previous_year_unspent()
+            afsn = self.awarded_from("SN")
+            affit = self.awarded_from("FIT")
+            self.budget_result = sb + pyu - afsn - affit
+            res = self.budget_result
+            self.save()
+
+        return res
 
     #@lru_cache(maxsize=None)
     def unspent(self):
@@ -77,8 +85,6 @@ class AuctionYear(models.Model):
             previous_year = self.previous_year()
             self._previous_year_unspent = previous_year.unspent()
             return previous_year.unspent()
-
-
 
     #helper methods
 
@@ -120,20 +126,27 @@ class AuctionYear(models.Model):
     def awarded_from(self,pot):
         if pot == "FIT" or pot == "SN":
             if self.active_pots().filter(name=pot).exists():
-                return self.active_pots().get(name=pot).awarded_cost()
+                p = Pot.objects.get(name=pot,auctionyear=self)
+                res = p.awarded_cost()
+                return res
             else:
                 return 0
         elif pot == "auction":
-            return sum([pot.awarded_cost() for pot in self.active_pots() if pot.name == "E" or pot.name == "M"])
+            res = sum([pot.awarded_cost() for pot in self.active_pots() if pot.name == "E" or pot.name == "M"])
+            return res
         elif pot == "total":
-            return sum([self.awarded_from("FIT"),self.awarded_from("SN"),self.awarded_from("auction")])
+            res = sum([self.awarded_from("FIT"),self.awarded_from("SN"),self.awarded_from("auction")])
+            return res
+
+
+
 
     #@lru_cache(maxsize=None)
     def awarded_gen(self):
         return sum(pot.awarded_gen() for pot in self.active_pots().all())
 
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def owed_v(self, comparison, previous_year):
         return sum([pot.owed_v(comparison, previous_year.active_pots().get(name=pot.name)) for pot in self.active_pots() ])
 
@@ -152,7 +165,7 @@ class AuctionYear(models.Model):
     def cum_awarded_gen(self):
         return sum([pot.cum_awarded_gen() for pot in self.active_pots()])
 
-    #@lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def cum_owed_v(self, comparison):
         if self.year == 2020:
             return self.owed_v(comparison, self)

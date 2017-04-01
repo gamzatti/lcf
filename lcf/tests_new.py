@@ -4,7 +4,7 @@ import numpy as np
 from pandas import DataFrame, Series
 from pandas.util.testing import assert_frame_equal
 from django.forms import modelformset_factory, formset_factory
-
+import time
 from django.core.urlresolvers import reverse
 
 from .models import Scenario, AuctionYear, Pot, Technology
@@ -12,10 +12,28 @@ from .forms import ScenarioForm, PricesForm, TechnologyStringForm
 import math
 
 
+
+def clear_all():
+    for p in Pot.objects.all():
+        p.auction_has_run = False
+        p.budget_result = None
+        p.awarded_cost_result
+        p.awarded_gen_result
+        p.auction_results
+        p.save()
+
+    for a in AuctionYear.objects.all():
+        a.budget_result = None
+        a.save()
+
 class InputDisplayTests(TestCase):
     fixtures = ['tests/new/data.json']
 
+    def setUp(self):
+        clear_all()
+
     def test_techs_input(self):
+        clear_all()
         s = Scenario.objects.get(pk=245)
         val = s.techs_input().at[('E','OFW',2025),'min LCOE']
         self.assertEqual(val, 70.21)
@@ -23,6 +41,7 @@ class InputDisplayTests(TestCase):
         self.assertEqual(val, 2.9)
 
     def test_prices_input(self):
+        clear_all()
         s = Scenario.objects.get(pk=245)
         val = s.prices_input().at['wholesale prices', 2022]
         self.assertEqual(val, 58.47)
@@ -30,7 +49,11 @@ class InputDisplayTests(TestCase):
 class PeriodTests(TestCase):
     fixtures = ['tests/new/data.json']
 
+    def setUp(self):
+        clear_all()
+
     def test_default_start_and_end_years(self):
+        clear_all()
         s = Scenario.objects.get(pk=281)
         self.assertEqual(s.start_year1,2021)
         self.assertEqual(s.end_year1,2025)
@@ -43,6 +66,7 @@ class PeriodTests(TestCase):
         self.assertEqual(t.end_year2,2030)
 
     def test_periods(self):
+        clear_all()
         s = Scenario.objects.get(pk=281)
         self.assertQuerysetEqual(s.period(1), ["<AuctionYear: 2021>",
                                                "<AuctionYear: 2022>",
@@ -69,6 +93,7 @@ class PeriodTests(TestCase):
                                                "<AuctionYear: 2030>"])
 
     def test_charts_with_periods(self):
+        clear_all()
         s = Scenario.objects.get(pk=281)
         self.assertEqual(s.cumulative_costs(1)['df'].index[0],'Accounting cost')
         self.assertEqual(s.cumulative_costs(2)['df'].columns[0],'2026')
@@ -76,6 +101,7 @@ class PeriodTests(TestCase):
         self.assertEqual(s.cum_awarded_gen_by_pot(2)['df'].index[0],'E')
 
     def test_get_or_make_chart_data_with_period_arg(self):
+        clear_all()
         s = Scenario.objects.get(pk=281)
         s.get_or_make_chart_data("cumulative_costs",1)
         self.assertEqual(s._cumulative_costs1['df']['2025']['Accounting cost'],2.805)
@@ -84,6 +110,7 @@ class PeriodTests(TestCase):
 
 
     def test_scenario_detail_view(self):
+        clear_all()
         s = Scenario.objects.get(pk=281)
         s.get_or_make_chart_data("cumulative_costs",1)
         df = s._cumulative_costs1['df'].to_html(classes="table table-striped table-condensed")
@@ -95,6 +122,7 @@ class PeriodTests(TestCase):
         self.assertEqual(resp.status_code, 404)
 
     def test_auctionyear_period(self):
+        clear_all()
         s = Scenario.objects.get(pk=281)
         a = AuctionYear.objects.get(scenario=s, year=2024)
         self.assertEqual(a.period_num(), 1)
@@ -103,6 +131,7 @@ class PeriodTests(TestCase):
         self.assertEqual(set(list(b.period())), set(list(s.period(2))))
 
     def test_new_auctionyear_cum_years(self):
+        clear_all()
         s = Scenario.objects.get(pk=281)
         a = AuctionYear.objects.get(scenario=s, year=2024)
         self.assertQuerysetEqual(a.cum_years(), ["<AuctionYear: 2021>",
@@ -114,6 +143,7 @@ class PeriodTests(TestCase):
                                                  "<AuctionYear: 2027>"])
 
     def test_new_pot_cum_pots(self):
+        clear_all()
         s = Scenario.objects.get(pk=281)
         a = AuctionYear.objects.get(scenario=s, year=2024)
         p = Pot.objects.get(auctionyear=a, name="E")
@@ -130,6 +160,7 @@ class PeriodTests(TestCase):
 
 
     def test_pot_period(self):
+        clear_all()
         s = Scenario.objects.get(pk=281)
         a = AuctionYear.objects.get(scenario=s, year=2024)
         p = Pot.objects.get(auctionyear=a, name="E")
@@ -142,6 +173,7 @@ class PeriodTests(TestCase):
 
 
     def test_budget_for_each_period(self):
+        clear_all()
         s = Scenario.objects.get(pk=281)
         self.assertEqual(s.budget,3.3)
         self.assertIsNone(s.budget2)
@@ -165,7 +197,11 @@ class PeriodTests(TestCase):
 class ExcelQuirkTests(TestCase):
     fixtures = ['tests/new/data.json']
 
+    def setUp(self):
+        clear_all()
+
     def test_excel_2020_gen_error_true(self):
+        clear_all()
         s = Scenario.objects.get(pk=281)
         s.excel_2020_gen_error = True
         s.save()
@@ -197,6 +233,7 @@ class ExcelQuirkTests(TestCase):
         self.assertEqual(round(a6.cum_awarded_gen(),3),round(expected_cum_awarded_gen,3))
 
     def test_excel_2020_gen_error_false(self):
+        clear_all()
         s = Scenario.objects.get(pk=281)
         s.excel_2020_gen_error = False
         s.save()
@@ -240,6 +277,7 @@ class ExcelQuirkTests(TestCase):
         pass
 
     def test_all_excel_quirks(self):
+        clear_all()
         s = Scenario.objects.get(pk=281)
         s.excel_sp_error = True
         s.excel_nw_carry_error = True
@@ -257,7 +295,11 @@ class ExcelQuirkTests(TestCase):
 class ExcelCompareTests(TestCase):
     fixtures = ['tests/new/data.json']
 
+    def setUp(self):
+        clear_all()
+
     def test_budget(self):
+        clear_all()
         s = Scenario.objects.get(pk=281)
         a = AuctionYear.objects.get(scenario=s, year=2025)
         self.assertEqual(round(a.starting_budget()),660)
@@ -279,7 +321,11 @@ class ExcelCompareTests(TestCase):
 class TestViews(TestCase):
     fixtures = ['tests/new/data.json']
 
+    def setUp(self):
+        clear_all()
+
     def test_scenario_new_view(self):
+        clear_all()
         s = Scenario.objects.get(pk=281)
         resp = self.client.get(reverse('scenario_new',kwargs={'pk': s.pk}))
         self.assertTrue('scenario_form' in resp.context)
@@ -359,7 +405,11 @@ class TestViews(TestCase):
 class FixedNumProjectsTests(TestCase):
     fixtures = ['tests/new/data.json']
 
+    def setUp(self):
+        clear_all()
+
     def test_create_tidal(self):
+        clear_all()
         s = Scenario.objects.get(pk=281)
         p = Pot.objects.get(auctionyear__scenario = s, name = "E", auctionyear__year=2022)
 
@@ -431,3 +481,18 @@ class FixedNumProjectsTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         newest = Technology.objects.order_by('-pk')[0]
         print(newest.max_deployment_cap)
+
+class SpeedUp(TestCase):
+    fixtures = ['tests/new/data.json']
+
+    def setUp(self):
+        clear_all()
+
+    def test_run_auction(self):
+        clear_all()
+        s = Scenario.objects.get(pk=281)
+        auctionyears = AuctionYear.objects.filter(scenario=s,year__range=[2020,2030]).order_by('year')
+        pots = Pot.objects.filter(auctionyear__in = auctionyears)
+
+        for p in pots:
+            p.run_auction()

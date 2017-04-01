@@ -312,3 +312,20 @@ Auctionyear old method:
                 print('changing tidal')
                 tl.max_deployment_cap = 1.0045662100457
                 tl.save()
+
+
+# trying to make a groupby version:
+    def all_in_one(self):
+        index = [item for sublist in [t.projects_index() for t in t.pot.tech_set()] for item in sublist]
+        projects = DataFrame(index = index)
+        projects['pot'] = self.name
+        projects['listed_year'] = self.auctionyear.year
+        projects.groupby()
+        for t in self.tech_set().all():
+            projects['levelised_cost'] = t.levelised_cost_distribution()
+            projects['gen'] = t.project_gen
+            projects['technology'] = t.name
+            projects['strike_price'] = t.strike_price
+            projects['affordable'] = projects.levelised_cost <= projects.strike_price
+        print('{} {} time taken to concat: {}'.format(self.name,self.auctionyear.year,(t3-t2)*1000))
+        return projects
