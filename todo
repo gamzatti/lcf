@@ -24,7 +24,7 @@ input page:
 
 
 think about output page:
-  create pivot tables / add totals row to tables / use django-pandas / split by technology
+  *create pivot tables / add totals row to tables / use django-pandas / split by technology
 
 
 policy model:

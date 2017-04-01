@@ -94,7 +94,9 @@ def scenario_detail(request, pk=None):
                'scenarios': scenarios,
                'recent_pk': recent_pk
                }
-    for meth in ["cumulative_costs","cum_awarded_gen_by_pot","awarded_cost_by_tech","gen_by_tech","cap_by_tech"]:
+    meth_list_long = ["cumulative_costs","cum_awarded_gen_by_pot","awarded_cost_by_tech","gen_by_tech","cap_by_tech"]
+    meth_list = ["cumulative_costs","cum_awarded_gen_by_pot","gen_by_tech"]
+    for meth in meth_list:
         chart[meth] = {}
         df[meth] = {}
         for period_num in [1,2]:
@@ -106,7 +108,7 @@ def scenario_detail(request, pk=None):
                 chart[meth][period_num] = LineChart(data_source, options=options, height=400, width="100%")
             else:
                 chart[meth][period_num] = ColumnChart(data_source, options=options, height=400, width="100%")
-            df[meth][period_num] = results['df'].to_html(classes="table table-striped table-condensed")
+            df[meth][period_num] = results['df'].to_html(classes="table table-striped table-condensed") # slowest line; consider saving in db
             context["".join([meth,"_chart",str(period_num)])] = chart[meth][period_num]
             context["".join([meth,"_df",str(period_num)])] = df[meth][period_num]
 

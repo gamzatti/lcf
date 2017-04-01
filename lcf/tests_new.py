@@ -496,3 +496,55 @@ class SpeedUp(TestCase):
 
         for p in pots:
             p.run_auction()
+
+    def test_access_data(self):
+        from graphos.sources.simple import SimpleDataSource
+        from graphos.renderers.gchart import LineChart, ColumnChart
+        clear_all()
+        s = Scenario.objects.get(pk=281)
+        period = 1
+        # get data
+        """t2 = time.time() * 1000
+        s.get_or_make_chart_data("cumulative_costs",period)
+        t3 = time.time() * 1000
+        #print("time to make chart data (cum costs): {}".format(t3-t2))
+
+        t4 = time.time() * 1000
+        s.get_or_make_chart_data("cum_awarded_gen_by_pot",period)
+        t5 = time.time() * 1000
+        #print("time to make chart data (cum_awarded_gen_by_pot): {}".format(t5-t4))
+
+        t6 = time.time() * 1000
+        s.get_or_make_chart_data("cumulative_costs",period)
+        t7 = time.time() * 1000
+        #print("time to make chart data second time (cum costs): {}".format(t7-t6))
+        """
+        timer = []
+        scenario = s
+        chart = {}
+        df = {}
+        context = {'scenario': scenario,
+                   }
+        for meth in ["cumulative_costs","cum_awarded_gen_by_pot","awarded_cost_by_tech","gen_by_tech","cap_by_tech"]:
+            chart[meth] = {}
+            df[meth] = {}
+        for period_num in [1,2]:
+            for meth in ["cumulative_costs","cum_awarded_gen_by_pot","awarded_cost_by_tech","gen_by_tech","cap_by_tech"]:
+                results = scenario.get_or_make_chart_data(meth,period_num)
+                data =results['data']
+                options = results['options']
+                dfr = results['df']
+                data_source = SimpleDataSource(data=data)
+                if meth == "cumulative_costs" or meth == "cum_awarded_gen_by_pot":
+                    chart[meth][period_num] = LineChart(data_source, options=options, height=400, width="100%")
+                else:
+                    chart[meth][period_num] = ColumnChart(data_source, options=options, height=400, width="100%")
+                t9 = time.time() * 1000
+                html = dfr.to_html(classes="table table-striped table-condensed") ###slowest line! consider saving in database?
+                t10 = time.time() * 1000
+                df[meth][period_num] = html
+                print("time to format and put in chart and context - meth: {}, period: {}: {}".format(meth,period_num,t10-t9))
+                timer.append(t10-t9)
+                context["".join([meth,"_chart",str(period_num)])] = chart[meth][period_num]
+                context["".join([meth,"_df",str(period_num)])] = df[meth][period_num]
+        print(sum(timer))

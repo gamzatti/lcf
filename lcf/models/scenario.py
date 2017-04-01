@@ -5,7 +5,7 @@ import numpy as np
 from pandas import DataFrame, Series
 from functools import lru_cache
 import datetime
-
+import time
 
 from .auctionyear import AuctionYear
 from .pot import Pot
@@ -55,6 +55,7 @@ class Scenario(models.Model):
             ran = (self.start_year2, self.end_year2)
         return self.auctionyear_set.filter(year__range=ran).order_by("year")
 
+    @lru_cache(maxsize=None)
     def cumulative_costs(self, period_num):
         index = ['Accounting cost', 'Cost v gas', 'Innovation premium', 'Absolute cost']
         auctionyears = self.period(period_num)
@@ -67,7 +68,7 @@ class Scenario(models.Model):
         options = {'title': None, 'vAxis': {'title': '£bn'}}
         return {'df': df, 'options': options}
 
-
+    @lru_cache(maxsize=None)
     def cum_awarded_gen_by_pot(self,period_num):
         auctionyears = self.period(period_num)
         index = [pot.name for pot in auctionyears[0].active_pots()]
@@ -77,6 +78,7 @@ class Scenario(models.Model):
         return {'df': df, 'options': options}
 
 
+    @lru_cache(maxsize=None)
     def awarded_cost_by_tech(self,period_num):
         auctionyears = self.period(period_num)
         index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
@@ -86,6 +88,7 @@ class Scenario(models.Model):
         return {'df': df, 'options': options}
 
 
+    @lru_cache(maxsize=None)
     def gen_by_tech(self,period_num):
         auctionyears = self.period(period_num)
         index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
@@ -95,6 +98,7 @@ class Scenario(models.Model):
         return {'df': df, 'options': options}
 
 
+    @lru_cache(maxsize=None)
     def cap_by_tech(self,period_num):
         auctionyears = self.period(period_num)
         index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
