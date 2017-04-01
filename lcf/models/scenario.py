@@ -55,7 +55,7 @@ class Scenario(models.Model):
             ran = (self.start_year2, self.end_year2)
         return self.auctionyear_set.filter(year__range=ran).order_by("year")
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=128)
     def cumulative_costs(self, period_num):
         index = ['Accounting cost', 'Cost v gas', 'Innovation premium', 'Absolute cost']
         auctionyears = self.period(period_num)
@@ -68,7 +68,7 @@ class Scenario(models.Model):
         options = {'title': None, 'vAxis': {'title': '£bn'}}
         return {'df': df, 'options': options}
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=128)
     def cum_awarded_gen_by_pot(self,period_num):
         auctionyears = self.period(period_num)
         index = [pot.name for pot in auctionyears[0].active_pots()]
@@ -78,7 +78,7 @@ class Scenario(models.Model):
         return {'df': df, 'options': options}
 
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=128)
     def awarded_cost_by_tech(self,period_num):
         auctionyears = self.period(period_num)
         index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
@@ -88,7 +88,7 @@ class Scenario(models.Model):
         return {'df': df, 'options': options}
 
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=128)
     def gen_by_tech(self,period_num):
         auctionyears = self.period(period_num)
         index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
@@ -98,7 +98,7 @@ class Scenario(models.Model):
         return {'df': df, 'options': options}
 
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=128)
     def cap_by_tech(self,period_num):
         auctionyears = self.period(period_num)
         index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
@@ -129,7 +129,7 @@ class Scenario(models.Model):
         elif self.__getattribute__(attr_name) != None:
             return self.__getattribute__(attr_name)
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=128)
     def technology_form_helper(self):
         techs = [t for p in self.auctionyear_set.all()[0].pot_set.all() for t in p.technology_set.all() ]
         t_form_data = { t.name : {} for t in techs}
@@ -212,9 +212,13 @@ class Scenario(models.Model):
             for p in Pot.objects.filter(auctionyear = a):
                 p.auction_has_run = False
                 p.budget_result = None
-                p.awarded_cost_result
-                p.awarded_gen_result
-                p.auction_results
+                p.awarded_cost_result = None
+                p.awarded_gen_result = None
+                p.p.auction_results = None
+                p.cum_owed_v_wp = None
+                p.cum_owed_v_gas = None
+                cum_owed_v_absolute = None
+                p.previously_funded_projects_results = None
                 p.save()
                 for t in Technology.objects.filter(pot=p):
                     t.awarded_gen = None

@@ -329,3 +329,22 @@ Auctionyear old method:
             projects['affordable'] = projects.levelised_cost <= projects.strike_price
         print('{} {} time taken to concat: {}'.format(self.name,self.auctionyear.year,(t3-t2)*1000))
         return projects
+
+#slow pot methods:
+
+    # slow
+    # def nw_owed(self,previous_pot):
+    #     print('calling nw_owed')
+    #
+    #     if previous_pot.auction_has_run == False:
+    #         previous_pot.run_auction()
+    #     previous_t = Technology.objects.get(name="NW", pot=previous_pot)
+    #     gen = previous_t.awarded_gen
+    #     difference = previous_t.strike_price
+    #     owed = gen * difference
+    #     return owed
+
+    # slow too?
+    # def cum_nw_owed(self):
+    #     print('calling cum_nw_owed')
+    #     return sum([self.nw_owed(pot) for pot in self.cum_pots()])

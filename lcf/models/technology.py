@@ -48,7 +48,7 @@ class Technology(models.Model):
         return str((self.pot.auctionyear,self.pot.name,self.name))
 
 
-    #@lru_cache(maxsize=None)
+    #@lru_cache(maxsize=128)
     def get_field_values(self):
         fields = [f.name for f in Technology._meta.get_fields()]
         fields.remove('awarded_gen')
@@ -58,14 +58,14 @@ class Technology(models.Model):
         return di
 
 
-    #@lru_cache(maxsize=None)
+    #@lru_cache(maxsize=128)
     def fields_df(self):
         df = DataFrame([self.get_field_values()])
         df['listed_year'] = self.pot.auctionyear.year
         df['pot_name'] = self.pot.name
         return df
 
-    #@lru_cache(maxsize=None)
+    #@lru_cache(maxsize=128)
     def fields_df_html(self):
         df = self.fields_df().sort_values(["pot_name", "name", "listed_year"]).drop('pot', axis=1)
         #df = df.reindex(columns =["pot_name", "name", "listed_year", 'included', 'load_factor', 'min_levelised_cost', 'max_levelised_cost', 'max_deployment_cap', 'strike_price', 'project_gen'])
@@ -74,7 +74,7 @@ class Technology(models.Model):
         return df.to_html(classes="table table-striped table-condensed")
 
 
-    #@lru_cache(maxsize=None)
+    #@lru_cache(maxsize=128)
     def previous_year(self):
         if self.pot.auctionyear.year == 2020:
             return None
@@ -82,23 +82,23 @@ class Technology(models.Model):
             previous_tech = Technology.objects.get(name = self.name, pot__auctionyear__scenario = self.pot.auctionyear.scenario, pot__auctionyear__year = self.pot.auctionyear.year-1)
             return previous_tech
 
-    #@lru_cache(maxsize=None)
+    #@lru_cache(maxsize=128)
     def this_year_gen(self):
         return self.max_deployment_cap * self.load_factor * 8.760 * 1000
 
-    #@lru_cache(maxsize=None)
+    #@lru_cache(maxsize=128)
     def previous_gen(self):
         res = 0 if self.pot.auctionyear.year == 2020 else self.previous_year().new_generation_available()
         return res
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=128)
     def new_generation_available(self):
         p = self.previous_gen()
         t = self.this_year_gen()
         res = p + t
         return res
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=128)
     def num_projects(self):
         if self.num_new_projects != None:
             if self.pot.auctionyear.year == 2020:
@@ -110,11 +110,11 @@ class Technology(models.Model):
             res = int(self.new_generation_available() / self.project_gen)
             return res
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=128)
     def projects_index(self):
         return [ self.name + str(i + 1) for i in range(self.num_projects()) ]
 
-    #@lru_cache(maxsize=None)
+    #@lru_cache(maxsize=128)
     def levelised_cost_distribution(self):
         if self.pot.auctionyear.scenario.tidal_levelised_cost_distribution == True and self.pot.auctionyear.year == 2025 and self.name == "TL":
             dist = Series(np.linspace(self.min_levelised_cost,150,self.num_projects()),name="levelised_cost", index=self.projects_index())
@@ -126,7 +126,7 @@ class Technology(models.Model):
             dist = Series(data,name="levelised_cost", index=self.projects_index())
         return dist
 
-    #@lru_cache(maxsize=None)
+    #@lru_cache(maxsize=128)
     def projects(self):
 
         data = self.levelised_cost_distribution()

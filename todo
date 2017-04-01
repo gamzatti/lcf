@@ -1,8 +1,8 @@
 speed:
-  *optimise access/display of results
-  *optimise accumulation of results (cum_owed_v)
-  *optimise creation of new scenario/bulk insert of data
+  *optimise accumulation of results (cum_owed_v) - at least by storing things in the db to start, can optimise the logic later.
+  optimise creation of new scenario/bulk insert of data
   investigate hosting elsewhere
+  make two periods independent (diverge from Excel)
 
 input page:
   *improve interface, eg hide technology inputs initially with jquery, add individual fields?, disallow editing of year and technology, disable editing when technologies are turned off, get rid of decimals, maybe add choice options for prices? http://www.yergler.net/blog/2009/09/27/nested-formsets-with-django/ http://www.yergler.net/blog/2013/09/03/nested-formsets-redux/
@@ -47,6 +47,8 @@ refactor:
     think about whether context can be made smaller, using template tags instead? https://www.webforefront.com/django/setupdjangocontextprocessors.html http://djangobook.com/advanced-templates/
   think about rounding without losing data (though I think it's really only TL where this is a big problem)
 
+to ask Jon:
+  
 
 
 lower priority:

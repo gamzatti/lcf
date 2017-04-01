@@ -548,3 +548,56 @@ class SpeedUp(TestCase):
                 context["".join([meth,"_chart",str(period_num)])] = chart[meth][period_num]
                 context["".join([meth,"_df",str(period_num)])] = df[meth][period_num]
         print(sum(timer))
+
+
+    def test_speed_up_cum_owed(self):
+        clear_all()
+        s = Scenario.objects.get(pk=281)
+        auctionyears = AuctionYear.objects.filter(scenario=s,year__range=[2020,2030]).order_by('-year')
+        pots = Pot.objects.filter(auctionyear__in = auctionyears)
+
+        p3 = pots.get(auctionyear__year = 2023,name="M")
+        p4 = pots.get(auctionyear__year = 2024,name="M")
+        p5 = pots.get(auctionyear__year = 2025,name="M")
+
+
+        res3 = p3.cum_will_pay_v("wp")
+        t0 = time.time() * 1000
+        res3[2023]
+        res3[2024]
+        res3[2025]
+        t1 = time.time() * 1000
+
+        res4 = p4.cum_will_pay_v("wp")
+        res4[2024]
+        res4[2025]
+
+        res5 = p5.cum_will_pay_v("wp")
+        res5[2025]
+
+        # t0 = time.time() * 1000
+        #
+        # p3.owed_v("wp",p3)
+        # p4.owed_v("wp",p3)
+        # p4.owed_v("wp",p4)
+        # p5.owed_v("wp",p3)
+        # p5.owed_v("wp",p4)
+        # p5.owed_v("wp",p5)
+        # t1 = time.time() * 1000
+        # print('owed v',t1-t0)
+
+        #print(p3.cum_will_pay_v("wp"))
+
+        #print(p.owed_v("wp",p))
+
+        # t0 = time.time() * 1000
+        # for a in auctionyears:
+        #     a.cum_owed_v("wp")
+        # t1 = time.time() * 1000
+        # print(t1-t0)
+        #
+        # t2 = time.time() * 1000
+        # for a in auctionyears:
+        #     a.cum_owed_v("gas")
+        # t3 = time.time() * 1000
+        # print(t3-t2)

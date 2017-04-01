@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory, formset_factory
 from .forms import ScenarioForm, PricesForm, TechnologyStringForm
 from .models import Scenario, AuctionYear, Pot, Technology
-
+import time
 
 from django.http import HttpResponse
 import pandas as pd
@@ -82,6 +82,7 @@ def scenario_delete(request, pk):
 
 
 def scenario_detail(request, pk=None):
+    t0 = time.time() * 1000
     if pk == None:
         scenario = Scenario.objects.all().order_by("-date")[0]
     else:
@@ -96,6 +97,7 @@ def scenario_detail(request, pk=None):
                }
     meth_list_long = ["cumulative_costs","cum_awarded_gen_by_pot","awarded_cost_by_tech","gen_by_tech","cap_by_tech"]
     meth_list = ["cumulative_costs","cum_awarded_gen_by_pot","gen_by_tech"]
+    t1 = time.time() * 1000
     for meth in meth_list:
         chart[meth] = {}
         df[meth] = {}
@@ -111,7 +113,8 @@ def scenario_detail(request, pk=None):
             df[meth][period_num] = results['df'].to_html(classes="table table-striped table-condensed") # slowest line; consider saving in db
             context["".join([meth,"_chart",str(period_num)])] = chart[meth][period_num]
             context["".join([meth,"_df",str(period_num)])] = df[meth][period_num]
-
+    t2 = time.time() * 1000
+    print(t2-t1,t1-t0)
     return render(request, 'lcf/scenario_detail.html', context)
 
 def scenario_download(request,pk):
