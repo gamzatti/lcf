@@ -87,6 +87,9 @@ def scenario_detail(request, pk=None):
         scenario = Scenario.objects.all().order_by("-date")[0]
     else:
         scenario = get_object_or_404(Scenario,pk=pk)
+    for p in Pot.objects.filter(auctionyear__scenario=scenario):
+        p.run_auction()
+
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     scenarios = Scenario.objects.all()
     chart = {}
