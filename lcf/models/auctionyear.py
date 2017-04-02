@@ -121,7 +121,7 @@ class AuctionYear(models.Model):
     #@lru_cache(maxsize=128)
     def active_pots(self):
         active_names = [ pot.name for pot in self.pot_set.all() if pot.tech_set().count() > 0 ]
-        return self.pot_set.filter(name__in=active_names)
+        return self.pot_set.filter(name__in=active_names).order_by("name")
 
 
     #summary methods
