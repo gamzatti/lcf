@@ -43,6 +43,6 @@ $(document).ready(function(){
     });
 
 
-    document.getElementById("id_all_excel_quirks").onclick = function(){toggle(this)}
+//    document.getElementById("id_all_excel_quirks").onclick = function(){toggle(this)}
 
 });

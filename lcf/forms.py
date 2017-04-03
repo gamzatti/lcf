@@ -4,11 +4,22 @@ from django.forms import Textarea
 
 
 class ScenarioForm(forms.ModelForm):
-    all_excel_quirks = forms.BooleanField(required=False, label="Include/exclude all Excel quirks")
+    #all_excel_quirks = forms.BooleanField(required=False, label="Include/exclude all Excel quirks")
+    WP_CHOICES = (("new", "2017 Emissions data"),
+                  ("excel", "Excel version"),
+                  ("other", "Other"),
+                  )
+    GAS_CHOICES = (("excel", "Excel version"),
+                  ("other", "Other"),
+                  )
+    wholesale_prices = forms.ChoiceField(widget=forms.Select, choices=WP_CHOICES)
+    wholesale_prices_other = forms.CharField(max_length=400, label="If other, please list", required=False)
+    gas_prices = forms.ChoiceField(widget=forms.Select, choices=GAS_CHOICES)
+    gas_prices_other = forms.CharField(max_length=400, label="If other, please list", required=False)
 
     class Meta:
         model = Scenario
-        fields = ('name', 'description', 'budget', 'budget2', 'percent_emerging','start_year1','end_year1','excel_2020_gen_error', 'excel_sp_error','excel_nw_carry_error', 'tidal_levelised_cost_distribution')
+        fields = ('name', 'description', 'budget', 'budget2', 'percent_emerging','excel_quirks')
         widgets = {
           'description': Textarea(attrs={'rows':2, 'cols':20}),
         }
@@ -18,7 +29,7 @@ class PricesForm(forms.Form):
     gas_prices = forms.CharField(max_length=400)
 
 class UploadFileForm(forms.Form):
-    title = forms.CharField(max_length=200)
+    #title = forms.CharField(max_length=200)
     file = forms.FileField()
 
 class TechnologyStringForm(forms.Form):

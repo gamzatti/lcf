@@ -67,7 +67,7 @@ class AuctionYear(models.Model):
             return self._unspent
         else:
             nw_carry = 0
-            if self.scenario.excel_nw_carry_error:
+            if self.scenario.excel_nw_carry_error == True or self.scenario.excel_quirks == True:
                 nw_carry =  self.awarded_from("FIT")
             self._unspent = self.budget() - self.awarded_from("auction") + nw_carry
             return self._unspent

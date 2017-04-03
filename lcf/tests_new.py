@@ -601,3 +601,23 @@ class SpeedUp(TestCase):
         #     a.cum_owed_v("gas")
         # t3 = time.time() * 1000
         # print(t3-t2)
+
+class UploadTests(TestCase):
+
+    fixtures = ['tests/new/data.json']
+
+    def test_json_store(self):
+        s = Scenario.objects.get(pk=281)
+        s.clear_all()
+        auctionyears = AuctionYear.objects.filter(scenario=s,year__range=[2020,2030]).order_by('-year')
+        pots = Pot.objects.filter(auctionyear__in = auctionyears)
+        p1 = pots.get(auctionyear__year=2021,name="E")
+        df = p1.run_auction()
+        p1.run_auction.cache_clear()
+        p1_again = pots.get(auctionyear__year=2021,name="E")
+        df_again = p1_again.run_auction()
+        print(df.dtypes,df_again.dtypes)
+        assert_frame_equal(df, df_again)
+
+    def test_upload(self):
+        

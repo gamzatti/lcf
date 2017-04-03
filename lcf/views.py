@@ -81,20 +81,42 @@ def upload(request):
     scenario = Scenario.objects.all().order_by("-date")[0]
     if request.method == "POST":
         print("posting")
-        form = UploadFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            handle_uploaded_file(request.FILES['file'])
+        upload_form = UploadFileForm(request.POST, request.FILES)
+        scenario_form = ScenarioForm(request.POST)
 
+        if upload_form.is_valid() and scenario_form.is_valid():
+            s = scenario_form.save()
+            new_wp = [38.5, 41.8, 44.2, 49.8, 54.6, 56.2, 53.5, 57.0, 54.5, 52.2, 55.8]
+            excel_wp = [48.5400340402009, 54.285722954952, 58.4749297906221, 60.1487865144807, 64.9687482891174, 67.2664653151834, 68.6947628422952, 69.2053146319398, 66.3856598431318, 65.5255963446292, 65.5781764014488]
+            wp_dict = {"new": new_wp, "excel": excel_wp, "other": None}
+            wholesale_prices = wp_dict[scenario_form.cleaned_data['wholesale_prices']]
+            if wholesale_prices == None:
+                wholesale_prices = [float(w) for w in list(filter(None, re.split("[, \-!?:\t]+",scenario_form.cleaned_data['wholesale_prices_other'])))]
+            excel_gas = [85.0, 87.0, 89.0, 91.0, 93.0, 95.0, 95.0, 95.0, 95.0, 95.0, 95.0]
+            gas_dict = {"excel": excel_gas, "other": None}
+            gas_prices = gas_dict[scenario_form.cleaned_data['gas_prices']]
+            if gas_prices == None:
+                gas_prices = [float(g) for g in list(filter(None, re.split("[, \-!?:\t]+",scenario_form.cleaned_data['gas_prices_other'])))]
+            for i, y in enumerate(range(2020,scenario.end_year2+1)):
+                a = AuctionYear.objects.create(year=y, scenario=s, gas_price=gas_prices[i], wholesale_price=wholesale_prices[i])
+                for p in ['E', 'M', 'SN', 'FIT']:
+                    Pot.objects.create(auctionyear=a,name=p)
+
+            file = request.FILES['file']
+            handle_uploaded_file(file,s)
+            recent_pk = Scenario.objects.all().order_by("-date")[0].pk
             return redirect('scenario_detail', pk=recent_pk)
         else:
             print(form.errors)
     else:
         print("GETTING ")
-        form = UploadFileForm()
+        scenario_form = ScenarioForm()
+        upload_form = UploadFileForm()
     context = {'scenario': scenario,
                'scenarios': scenarios,
+               'scenario_form': scenario_form,
                'recent_pk': recent_pk,
-               'form' : form,
+               'upload_form' : upload_form,
                }
     return render(request, 'lcf/upload.html', context)
 

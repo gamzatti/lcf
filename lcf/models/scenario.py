@@ -24,10 +24,12 @@ class Scenario(models.Model):
     end_year1 = models.IntegerField(default=2025)
     start_year2 = models.IntegerField(default=2026)
     end_year2 = models.IntegerField(default=2030)
-    excel_sp_error = models.BooleanField(default=True, verbose_name="Include the Excel error in the emerging pot strike price?")
+    excel_sp_error = models.BooleanField(default=False, verbose_name="Include the Excel error in the emerging pot strike price?")
     tidal_levelised_cost_distribution = models.BooleanField(default=False)
-    excel_2020_gen_error = models.BooleanField(default=True, verbose_name="Include the Excel error that counts cumulative generation from 2020 for auction and negotiations (but not FIT)")
-    excel_nw_carry_error = models.BooleanField(default=True, verbose_name="Include the Excel error that carries NWFIT into next year, even though it's been spent")
+    excel_2020_gen_error = models.BooleanField(default=False, verbose_name="Include the Excel error that counts cumulative generation from 2020 for auction and negotiations (but not FIT)")
+    excel_nw_carry_error = models.BooleanField(default=False, verbose_name="Include the Excel error that carries NWFIT into next year, even though it's been spent")
+    excel_quirks = models.BooleanField(default=True, verbose_name="Include all Excel quirks")
+
 
     def __str__(self):
         return self.name

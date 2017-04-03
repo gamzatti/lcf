@@ -153,9 +153,12 @@ class Pot(models.Model):
         #print('called', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
         if self.auction_has_run == True:
             print('decoding json')
-            return pd.read_json(self.auction_results)
+            column_order = ['levelised_cost', 'gen', 'technology', 'strike_price', 'affordable', 'pot', 'listed_year', 'previously_funded', 'eligible', 'difference', 'cost', 'attempted_cum_cost', 'funded_this_year', 'attempted_project_gen', 'attempted_cum_gen']
+            df = pd.read_json(self.auction_results).sort_values(['strike_price', 'levelised_cost']).reindex(columns=column_order)
+            df.gen, df.attempted_project_gen, df.attempted_cum_gen = df.gen.astype(float), df.attempted_project_gen.astype(float), df.attempted_cum_gen.astype(float)
+            return df
         else:
-            #print('running auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
+            print('running auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
             gen = 0
             cost = 0
             budget = self.budget() ##slow
@@ -248,7 +251,7 @@ class Pot(models.Model):
         for t in Technology.objects.filter(pot=self):
             gen = t.awarded_gen
             strike_price = t.strike_price
-            if self.auctionyear.scenario.excel_sp_error == True:
+            if self.auctionyear.scenario.excel_sp_error == True or self.auctionyear.scenario.excel_quirks == True:
                 if (self.name == "E") or (self.name == "SN"):
                     try:
                         strike_price = Technology.objects.get(name=t.name,pot=future_pot).strike_price
@@ -275,7 +278,7 @@ class Pot(models.Model):
             for t in Technology.objects.filter(pot=self):
                 gen = t.awarded_gen
                 strike_price = t.strike_price
-                if self.auctionyear.scenario.excel_sp_error == True:
+                if self.auctionyear.scenario.excel_sp_error == True or self.auctionyear.scenario.excel_quirks == True:
                     if (self.name == "E") or (self.name == "SN"):
                         try:
                             strike_price = Technology.objects.get(name=t.name,pot=future_pot).strike_price
@@ -299,7 +302,7 @@ class Pot(models.Model):
         for t in previous_pot.tech_set().all():
             gen = t.awarded_gen
             strike_price = t.strike_price
-            if self.auctionyear.scenario.excel_sp_error == True:
+            if self.auctionyear.scenario.excel_sp_error == True or self.auctionyear.scenario.excel_quirks == True:
                 #next 5 lines account for Angela's error
                 if (self.name == "E") or (self.name == "SN"):
                     try:
@@ -328,7 +331,8 @@ class Pot(models.Model):
 
     def cum_awarded_gen(self):
         extra2020 = 0
-        if self.auctionyear.scenario.excel_2020_gen_error and self.name != "FIT" and self.period_num() == 1:
+        excel = self.auctionyear.scenario.excel_2020_gen_error or self.auctionyear.scenario.excel_quirks == True
+        if excel == True and self.name != "FIT" and self.period_num() == 1:
             pot2020 = self.auctionyear.scenario.auctionyear_set.get(year=2020).active_pots().get(name=self.name)
             #pot2020 = Pot.objects.get(auctionyear__scenario=self.auctionyear.scenario,auctionyear__year=2020,name=self.name) #which is faster?
             extra2020 = pot2020.awarded_gen()

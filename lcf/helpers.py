@@ -9,70 +9,70 @@ import csv
 import io
 from django.conf import settings
 
-def handle_uploaded_file2(file):
+# def handle_uploaded_file2(file):
+#     t0 = time.time()
+#     csv_file = file
+#     decoded_file = csv_file.read().decode('utf-8')
+#     io_string = io.StringIO(decoded_file)
+#     s = Scenario.objects.create(name="test")
+#     for row in csv.DictReader(io_string, quotechar='|'):
+#         kwargs = {}
+#         pot_name = row['pot']
+#         year = int(row['year'])
+#         a,created = AuctionYear.objects.get_or_create(year = year, scenario = s)
+#         p,created = Pot.objects.get_or_create(name=pot_name, auctionyear = a)
+#         kwargs['pot'] = p
+#         kwargs['name'] = row['name']
+#         kwargs['min_levelised_cost'] = float(row['min LCOE'])
+#         kwargs['max_levelised_cost'] = float(row['max LCOE'])
+#         kwargs['strike_price'] = float(row['strike price'])
+#         kwargs['load_factor'] = float(row['load factor'])
+#         kwargs['max_deployment_cap'] = float(row['max GW pa'])
+#         kwargs['num_new_projects'] = int(row['number of new projects']) if row['number of new projects'] != "" else None
+#         kwargs['project_gen'] = float(row['project size GWh'])
+#         t = Technology.objects.create_technology(**kwargs)
+#         t.save()
+#     t1 = time.time()
+#     total = t1-t0
+#     print("csv.DictReader",total) #6.880906581878662
+#
+# def handle_uploaded_file3(file):
+#     t0 =time.time()
+#     data = pd.read_csv(file)
+#     df = DataFrame(data)
+#     s = Scenario.objects.create(name="test")
+#     for index, row in df.iterrows():
+#         kwargs = {}
+#         pot_name = row['pot']
+#         year = int(row['year'])
+#         a,created = AuctionYear.objects.get_or_create(year = year, scenario = s)
+#         p,created = Pot.objects.get_or_create(name=pot_name, auctionyear = a)
+#         kwargs['pot'] = p
+#         kwargs['name'] = row['name']
+#         kwargs['min_levelised_cost'] = float(row['min LCOE'])
+#         kwargs['max_levelised_cost'] = float(row['max LCOE'])
+#         kwargs['strike_price'] = float(row['strike price'])
+#         kwargs['load_factor'] = float(row['load factor'])
+#         kwargs['max_deployment_cap'] = float(row['max GW pa'])
+#         kwargs['num_new_projects'] = int(row['number of new projects']) if pd.notnull(row['number of new projects']) else None
+#         kwargs['project_gen'] = float(row['project size GWh'])
+#         t = Technology.objects.create_technology(**kwargs)
+#         t.save()
+#     t1 = time.time()
+#     total = t1-t0
+#     print("pandas",total) #6.874750375747681
+
+def handle_uploaded_file(file,s):
     t0 = time.time()
-    csv_file = file
-    decoded_file = csv_file.read().decode('utf-8')
-    io_string = io.StringIO(decoded_file)
-    s = Scenario.objects.create(name="test")
-    for row in csv.DictReader(io_string, quotechar='|'):
-        kwargs = {}
-        pot_name = row['pot']
-        year = int(row['year'])
-        a,created = AuctionYear.objects.get_or_create(year = year, scenario = s)
-        p,created = Pot.objects.get_or_create(name=pot_name, auctionyear = a)
-        kwargs['pot'] = p
-        kwargs['name'] = row['name']
-        kwargs['min_levelised_cost'] = float(row['min LCOE'])
-        kwargs['max_levelised_cost'] = float(row['max LCOE'])
-        kwargs['strike_price'] = float(row['strike price'])
-        kwargs['load_factor'] = float(row['load factor'])
-        kwargs['max_deployment_cap'] = float(row['max GW pa'])
-        kwargs['num_new_projects'] = int(row['number of new projects']) if row['number of new projects'] != "" else None
-        kwargs['project_gen'] = float(row['project size GWh'])
-        t = Technology.objects.create_technology(**kwargs)
-        t.save()
-    t1 = time.time()
-    total = t1-t0
-    print("csv.DictReader",total) #6.880906581878662
-
-def handle_uploaded_file3(file):
-    t0 =time.time()
     data = pd.read_csv(file)
     df = DataFrame(data)
-    s = Scenario.objects.create(name="test")
-    for index, row in df.iterrows():
-        kwargs = {}
-        pot_name = row['pot']
-        year = int(row['year'])
-        a,created = AuctionYear.objects.get_or_create(year = year, scenario = s)
-        p,created = Pot.objects.get_or_create(name=pot_name, auctionyear = a)
-        kwargs['pot'] = p
-        kwargs['name'] = row['name']
-        kwargs['min_levelised_cost'] = float(row['min LCOE'])
-        kwargs['max_levelised_cost'] = float(row['max LCOE'])
-        kwargs['strike_price'] = float(row['strike price'])
-        kwargs['load_factor'] = float(row['load factor'])
-        kwargs['max_deployment_cap'] = float(row['max GW pa'])
-        kwargs['num_new_projects'] = int(row['number of new projects']) if pd.notnull(row['number of new projects']) else None
-        kwargs['project_gen'] = float(row['project size GWh'])
-        t = Technology.objects.create_technology(**kwargs)
-        t.save()
-    t1 = time.time()
-    total = t1-t0
-    print("pandas",total) #6.874750375747681
-
-def handle_uploaded_file(file):
-    t0 =time.time()
-    data = pd.read_csv(file)
-    df = DataFrame(data)
-    s = Scenario.objects.create(name="test")
+    print("creating technology objects")
     for row_id, row in enumerate(df.values):
         kwargs = {}
         pot_name = row[0]
         year = int(row[2])
-        a,created = AuctionYear.objects.get_or_create(year = year, scenario = s)
-        p,created = Pot.objects.get_or_create(name=pot_name, auctionyear = a)
+        a = AuctionYear.objects.get(year = year, scenario = s)
+        p = Pot.objects.get(name=pot_name, auctionyear = a)
         kwargs['pot'] = p
         kwargs['name'] = row[1]
         kwargs['min_levelised_cost'] = float(row[4])
