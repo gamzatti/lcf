@@ -17,6 +17,10 @@ class PricesForm(forms.Form):
     wholesale_prices = forms.CharField(max_length=400)
     gas_prices = forms.CharField(max_length=400)
 
+class UploadFileForm(forms.Form):
+    title = forms.CharField(max_length=200)
+    file = forms.FileField()
+
 class TechnologyStringForm(forms.Form):
     POT_CHOICES = (
             ('E', 'Emerging'),
