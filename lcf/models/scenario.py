@@ -6,6 +6,7 @@ from pandas import DataFrame, Series
 from functools import lru_cache
 import datetime
 import time
+from django_pandas.io import read_frame
 
 from .auctionyear import AuctionYear
 from .pot import Pot
@@ -90,6 +91,58 @@ class Scenario(models.Model):
         return {'df': df, 'options': options}
 
 
+
+    def tech_pivot_table(self,period_num,column):
+        auctionyears = self.period(period_num)
+        qs = Technology.objects.filter(pot__auctionyear__in = auctionyears)
+        df = read_frame(qs, fieldnames=['pot__auctionyear__year','pot__name','name',column])
+        df.columns = ['year','pot','name',Technology._meta.get_field(column).verbose_name]
+
+        dfsum = df.groupby(['year','pot'],as_index=False).sum()
+        dfsum['name']='_Subtotal'
+
+        dfsum_outer = df.groupby(['year'],as_index=False).sum()
+        dfsum_outer['name']='Total'
+        dfsum_outer['pot']='Total'
+
+
+        result = dfsum.append(df)
+        result = dfsum_outer.append(result)
+        result = result.set_index(['year','pot','name']).sort_index()
+        result = result.unstack(0)
+        return result
+
+    def pot_pivot_table(self,period_num,column):
+        auctionyears = self.period(period_num)
+        qs = Pot.objects.filter(auctionyear__in = auctionyears)
+        for p in qs:
+            p.cum_awarded_gen()
+            p.cum_owed_v("wp")
+        df = read_frame(qs, fieldnames=['auctionyear__year','name',column])
+        df.columns = ['year','pot',Pot._meta.get_field(column).verbose_name]
+
+        dfsum_outer = df.groupby(['year'],as_index=False).sum()
+        dfsum_outer['pot']='Total'
+
+
+        result = dfsum_outer.append(df)
+        result = result.set_index(['year','pot']).sort_index()
+        result = result.unstack(0)
+        if column == "cum_owed_v_wp":
+            result = result/1000
+        return result
+
+
+    # def pot_pivot_table_with_manager(self,period_num,column):
+    #     auctionyears = self.period(period_num)
+    #     qs = Pot.objects.filter(auctionyear__in = auctionyears)
+    #     #df = qs.to_dataframe(fieldnames=['auctionyear__year','name',column])
+    #     #df.columns = ['year','pot',Pot._meta.get_field(column).verbose_name]
+    #     pivot = qs.to_pivot_table(values="cum_awarded_gen_result",rows=['name'], cols=["auctionyear"])
+    #
+    #     return pivot
+
+
     @lru_cache(maxsize=128)
     def gen_by_tech(self,period_num):
         auctionyears = self.period(period_num)
@@ -167,11 +220,35 @@ class Scenario(models.Model):
 
 
     def df_to_html(self,df):
+        def highlight_total(s):
+            '''
+            highlight the maximum in a Series yellow.
+            '''
+            #is_subtotal = result == result.xs(' Subtotal',level='name',drop_level=False)
+
+            is_max = s == s.max()
+            return ['font-weight: bold;' if v else '' for v in is_max]
         #html = df.style.format('<input style="width:120px;" name="df" value="{}" />').render()
-        html = df.style.render()
+        #df = df.round(2)
+        html = df.style.apply(highlight_total).render()
         html = html.replace('<table id=', '<table class="table table-striped table-condensed" id=')
         return html
 
+    def pivot_to_html(self,df):
+        def highlight_total(s):
+            '''
+            highlight the maximum in a Series yellow.
+            '''
+            #is_subtotal = result == result.xs(' Subtotal',level='name',drop_level=False)
+
+            is_max = s == s.max()
+            return ['font-weight: bold;' if v else '' for v in is_max]
+        #html = df.style.format('<input style="width:120px;" name="df" value="{}" />').render()
+        #df = df.round(2)
+        html = df.style.format("{:.2f}").apply(highlight_total).render()
+        html = html.replace('<table id=', '<table class="table table-striped table-condensed" id=')
+        html = html.replace('_Subtotal','Subtotal')
+        return html
 
     #inputs
 
@@ -219,7 +296,8 @@ class Scenario(models.Model):
                 p.auction_results = None
                 p.cum_owed_v_wp = None
                 p.cum_owed_v_gas = None
-                cum_owed_v_absolute = None
+                p.cum_owed_v_absolute = None
+                p.cum_awarded_gen_result = None
                 p.previously_funded_projects_results = None
                 p.save()
                 for t in Technology.objects.filter(pot=p):

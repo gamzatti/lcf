@@ -619,5 +619,33 @@ class UploadTests(TestCase):
         print(df.dtypes,df_again.dtypes)
         assert_frame_equal(df, df_again)
 
-    def test_upload(self):
-        
+class Pivot(TestCase):
+    fixtures = ['tests/new/data.json']
+
+    def test_gen_by_tech_pivot(self):
+        s = Scenario.objects.get(pk=281)
+        #print(s.gen_by_tech_pivot(1))
+        for p in Pot.objects.filter(auctionyear__scenario=s):
+            p.auction_has_run = False
+            p.save()
+        for p in Pot.objects.filter(auctionyear__scenario=s):
+            p.run_auction()
+        for p in Pot.objects.filter(auctionyear__scenario=s):
+            print(p.cum_awarded_gen())
+
+        print(s.pot_pivot_table(1,'cum_awarded_gen_result'))
+
+    # def test_pot_pivot_table_with_manager(self):
+    #     s = Scenario.objects.get(pk=281)
+    #     auctionyears = AuctionYear.objects.filter(scenario=s,year__range=[2020,2030]).order_by('-year')
+    #     pots = Pot.objects.filter(auctionyear__in = auctionyears)
+    #
+    #     for p in pots:
+    #         p.auction_has_run = False
+    #         p.save()
+    #     for p in pots:
+    #         p.run_auction()
+    #     for p in pots:
+    #         print(p.cum_awarded_gen())
+    #
+    #     print(s.pot_pivot_table_with_manager(1,'cum_awarded_gen_result'))

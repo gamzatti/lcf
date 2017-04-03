@@ -40,7 +40,7 @@
     <p>{{ scenario.description }}</p>
 {% endif %}
 <p>created {{ scenario.date }}</p>
-<p>period: <strong>{{ scenario.start_year1 }} to {{ scenario.end_year1 }}</strong></p>
+<!--<p>period: <strong>{{ scenario.start_year1 }} to {{ scenario.end_year1 }}</strong></p>-->
 <p>budget period 1: <strong>£{{ scenario.budget }}bn</strong></p>
 <p>budget period 2: <strong>£{% if scenario.budget2 != None %}{{ scenario.budget2 }}{% else %}{{ scenario.budget }}{% endif %}bn</strong></p>
 
@@ -50,33 +50,41 @@
 <a href="{% url 'scenario_download' pk=scenario.pk %}"><div class="btn btn-primary">Download CSV</div></a>
 
 
-<h2 class="sub-header">Accounting cost</h2>
+<h2 class="sub-header">Summary</h2>
 <div class="graph">
     {{ cumulative_costs_chart1.as_html }}
     {{ cumulative_costs_df1 | safe }}
     {{ cumulative_costs_chart2.as_html }}
     {{ cumulative_costs_df2 | safe }}
 </div>
+
+<h2 class="sub-header">Breakdown of accounting cost</h2>
+<div>
+    {{ pot_cum_owed_v_wp_pivot | safe }}
+</div>
 <h2 class="sub-header">Cumulative new generation</h2>
 <div class="graph">
     {{ cum_awarded_gen_by_pot_chart1.as_html }}
-    {{ cum_awarded_gen_by_pot_df1 | safe }}
+    {{ pot_cum_awarded_gen_pivot| safe }}
+<!--    {{ cum_awarded_gen_by_pot_df1 | safe }}-->
     {{ cum_awarded_gen_by_pot_chart2.as_html }}
     {{ cum_awarded_gen_by_pot_df2 | safe }}
+
 </div>
 
-<h2 class="sub-header">Cost each year of new generation awarded</h2>
+<!--<h2 class="sub-header">Cost each year of new generation awarded</h2>
 <div class="graph">
     {{ awarded_cost_by_tech_chart1.as_html }}
     {{ awarded_cost_by_tech_df1 | safe }}
     {{ awarded_cost_by_tech_chart2.as_html }}
     {{ awarded_cost_by_tech_df2 | safe }}
-</div>
+</div>-->
 
 <h2 class="sub-header">Generation by technology</h2>
 <div class="graph">
     {{ gen_by_tech_chart1.as_html }}
-    {{ gen_by_tech_df1 | safe }}
+    {{ tech_gen_pivot | safe }}
+<!--    {{ gen_by_tech_df1 | safe }} -->
     {{ gen_by_tech_chart2.as_html }}
     {{ gen_by_tech_df2 | safe }}
 </div>

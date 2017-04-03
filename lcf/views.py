@@ -4,6 +4,7 @@ from .forms import ScenarioForm, PricesForm, TechnologyStringForm, UploadFileFor
 from .models import Scenario, AuctionYear, Pot, Technology
 import time
 from .helpers import handle_uploaded_file
+from django_pandas.io import read_frame
 
 from django.http import HttpResponse
 import pandas as pd
@@ -134,7 +135,7 @@ def scenario_detail(request, pk=None):
     else:
         scenario = get_object_or_404(Scenario,pk=pk)
     for p in Pot.objects.filter(auctionyear__scenario=scenario):
-        p.run_auction()
+        p.run_auction() # may be making it slow. put elsewhere?
 
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     scenarios = Scenario.objects.all()
@@ -145,14 +146,19 @@ def scenario_detail(request, pk=None):
                'recent_pk': recent_pk
                }
     meth_list_long = ["cumulative_costs","cum_awarded_gen_by_pot","awarded_cost_by_tech","gen_by_tech","cap_by_tech"]
-    meth_list = ["cumulative_costs","cum_awarded_gen_by_pot","gen_by_tech"]
+    meth_list = ["cumulative_costs","cum_awarded_gen_by_pot","gen_by_tech", 'cap_by_tech']
     t1 = time.time() * 1000
+
+    context['tech_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'awarded_gen'))
+    context['pot_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.pot_pivot_table(1,'cum_owed_v_wp'))
+    context['pot_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.pot_pivot_table(1,'cum_awarded_gen_result'))
+
     for meth in meth_list:
         chart[meth] = {}
         df[meth] = {}
         for period_num in [1,2]:
             results = scenario.get_or_make_chart_data(meth,period_num)
-            data =results['data']
+            data = results['data']
             data_source = SimpleDataSource(data=data)
             options = results['options']
             if meth == "cumulative_costs" or meth == "cum_awarded_gen_by_pot":
@@ -175,6 +181,24 @@ def scenario_download(request,pk):
     response['Content-Disposition'] = 'attachment; filename="data.csv"'
 
     writer = csv.writer(response)
+
+    auctionyears = scenario.period(1)
+    qs_techs = Technology.objects.filter(pot__auctionyear__in = auctionyears)
+    df_techs = read_frame(qs_techs, fieldnames=['pot__auctionyear__year','pot__name','name','awarded_gen', 'awarded_cost'])
+    qs_pots = Pot.objects.filter(auctionyear__in = auctionyears)
+    df_pots = read_frame(qs_pots, fieldnames=['auctionyear__year','name','cum_awarded_gen_result', 'cum_owed_v_wp', 'cum_owed_v_gas'])
+    tech_col_names = list(df_techs.columns)
+    pot_col_names = list(df_pots.columns)
+    tech_data = df_techs.values.tolist()
+    pot_data = df_pots.values.tolist()
+
+    writer.writerow([scenario.name])
+    writer.writerow(['Budget', scenario.budget])
+    writer.writerow(['Percent in emerging pot', scenario.percent_emerging])
+
+    writer.writerow([""])
+    writer.writerow(["Summary tables"])
+
     df_list = [
                ('Cumulative costs (£bn) (2021-2025)', scenario.cumulative_costs(1)['df']),
                ('Cumulative costs (£bn) (2026-2030)', scenario.cumulative_costs(2)['df']),
@@ -186,14 +210,7 @@ def scenario_download(request,pk):
                ('Generation (TWh) (2026-2030)', scenario.gen_by_tech(2)['df']),
                ('Capacity (GW) (2021-2025)', scenario.cap_by_tech(1)['df']),
                ('Capacity (GW) (2026-2030)', scenario.cap_by_tech(2)['df']),
-               ('Inputs - Prices (£/MWh)', scenario.prices_input()),
-               ('Inputs - Technology data', scenario.techs_input()),
                ]
-
-    writer.writerow([scenario.name])
-    writer.writerow(['Budget', scenario.budget])
-    writer.writerow(['Percent in emerging pot', scenario.percent_emerging])
-    writer.writerow([''])
 
     for df_pair in df_list:
         title = [df_pair[0]]
@@ -206,5 +223,44 @@ def scenario_download(request,pk):
             row.extend(df_pair[1].iloc[i])
             writer.writerow(row)
         writer.writerow([])
+
+    writer.writerow([""])
+    writer.writerow(["Inputs"])
+
+    inputs = [
+               ('Prices (£/MWh)', scenario.prices_input()),
+               ('Technology data', scenario.techs_input()),
+               ]
+
+    for df_pair in inputs:
+        title = [df_pair[0]]
+        writer.writerow(title)
+        headers = ['']
+        headers.extend(df_pair[1].columns)
+        writer.writerow(headers)
+        for i in range(len(df_pair[1].index)):
+            row = [df_pair[1].index[i]]
+            row.extend(df_pair[1].iloc[i])
+            writer.writerow(row)
+        writer.writerow([])
+
+    writer.writerow([''])
+    writer.writerow(['Raw output'])
+    writer.writerow(['Technology'])
+    writer.writerow(tech_col_names)
+    writer.writerows(tech_data)
+    writer.writerow([""])
+    writer.writerow(["Pot"])
+    writer.writerow(pot_col_names)
+    writer.writerows(pot_data)
+
+
+    return response
+
+def template(request):
+    print("downloading template")
+    file = open('lcf/template.csv')
+    response = HttpResponse(file, content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="template.csv"'
 
     return response

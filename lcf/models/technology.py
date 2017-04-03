@@ -25,6 +25,7 @@ class Technology(models.Model):
             ('TS', 'Tidal stream'),
             ('WA', 'Wave'),
             ('PVLS', 'Solar PV'),
+            ('NW', 'Negawatts')
     )
     name = models.CharField(max_length=4, choices=TECHNOLOGY_CHOICES, default='OFW')
     pot = models.ForeignKey('lcf.pot', default='E')
@@ -35,7 +36,7 @@ class Technology(models.Model):
     project_gen = models.FloatField(default=100, verbose_name="Average project generation") #"Average project pa (GWh)"
     max_deployment_cap = models.FloatField(null=True, blank=True)
     included = models.BooleanField(default=True)
-    awarded_gen = models.FloatField(null=True, blank=True)
+    awarded_gen = models.FloatField(null=True, blank=True, verbose_name="Generation awarded each year (TWh)")
     awarded_cost = models.FloatField(default=0)
     num_new_projects = models.IntegerField(null=True, blank=True)
     objects = TechnologyManager()

@@ -8,6 +8,7 @@ import datetime
 import inspect
 import time
 from .technology import Technology
+from django_pandas.managers import DataFrameManager
 
 class Pot(models.Model):
     POT_CHOICES = (
@@ -24,10 +25,12 @@ class Pot(models.Model):
     awarded_gen_result = models.FloatField(null=True, blank=True)
     auction_results = models.TextField(null=True,blank=True)
     auction_budget_result = models.FloatField(null=True, blank=True)
-    cum_owed_v_wp = models.FloatField(blank=True, null=True)
+    cum_owed_v_wp = models.FloatField(verbose_name="Accounting cost (£bn)",blank=True, null=True)
     cum_owed_v_gas = models.FloatField(blank=True, null=True)
     cum_owed_v_absolute = models.FloatField(blank=True, null=True)
     previously_funded_projects_results = models.TextField(null=True,blank=True)
+    cum_awarded_gen_result = models.FloatField(verbose_name="Cumulative generation (TWh)",blank=True, null=True)
+    objects = DataFrameManager()
 
     def __str__(self):
         return str((self.auctionyear, self.name))
@@ -321,19 +324,27 @@ class Pot(models.Model):
     def cum_owed_v(self,comparison):
         attr_name = "_".join(["cum_owed_v",comparison])
         if getattr(self,attr_name,None) == None:
+            print('setting attr')
             #print("calculating",self.name)
             res = sum([self.owed_v(comparison, pot) for pot in self.cum_pots()])
             setattr(self,attr_name,res)
             self.save()
+        else:
+            print('retrieving from database')
+            print(getattr(self,attr_name))
         return getattr(self,attr_name)
 
 
 
     def cum_awarded_gen(self):
-        extra2020 = 0
-        excel = self.auctionyear.scenario.excel_2020_gen_error or self.auctionyear.scenario.excel_quirks == True
-        if excel == True and self.name != "FIT" and self.period_num() == 1:
-            pot2020 = self.auctionyear.scenario.auctionyear_set.get(year=2020).active_pots().get(name=self.name)
-            #pot2020 = Pot.objects.get(auctionyear__scenario=self.auctionyear.scenario,auctionyear__year=2020,name=self.name) #which is faster?
-            extra2020 = pot2020.awarded_gen()
-        return sum([pot.awarded_gen() for pot in self.cum_pots()]) + extra2020
+        if self.cum_awarded_gen_result == None:
+            extra2020 = 0
+            excel = self.auctionyear.scenario.excel_2020_gen_error or self.auctionyear.scenario.excel_quirks == True
+            if excel == True and self.name != "FIT" and self.period_num() == 1:
+                pot2020 = self.auctionyear.scenario.auctionyear_set.get(year=2020).active_pots().get(name=self.name)
+                #pot2020 = Pot.objects.get(auctionyear__scenario=self.auctionyear.scenario,auctionyear__year=2020,name=self.name) #which is faster?
+                extra2020 = pot2020.awarded_gen()
+            res = sum([pot.awarded_gen() for pot in self.cum_pots()]) + extra2020
+            self.cum_awarded_gen_result = res
+            self.save()
+        return self.cum_awarded_gen_result
