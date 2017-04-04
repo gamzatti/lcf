@@ -136,17 +136,17 @@ def scenario_detail(request, pk=None):
         scenario = get_object_or_404(Scenario,pk=pk)
 
 
-    print("please don't fucking cache me!")
-    scenario.clear_all()
-    for p in Pot.objects.filter(auctionyear__scenario=scenario):
+    print("don't cache me !")
+    #scenario.clear_all()
+    for p in Pot.objects.filter(auctionyear__scenario=scenario).order_by("auctionyear__year"):
         p.run_auction() # may be making it slow. put elsewhere?
 
-    for t in Technology.objects.filter(pot__auctionyear__scenario=scenario, pot__name="E"):
-        print(t.pot.auctionyear.year, t.name, t.cum_owed_v_wp)
+    # for t in Technology.objects.filter(pot__auctionyear__scenario=scenario, pot__name="E"):
+    #     print(t.pot.auctionyear.year, t.name, t.cum_owed_v_wp)
 
-    for p in Pot.objects.filter(auctionyear__scenario=scenario):
-        p.cum_owed_v("wp")
-        print(p.auctionyear.year, p.name, p.cum_owed_v_wp)
+    # for p in Pot.objects.filter(auctionyear__scenario=scenario):
+    #     p.cum_owed_v("wp")
+    #     print(p.auctionyear.year, p.name, p.cum_owed_v_wp)
 
 
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
@@ -157,9 +157,9 @@ def scenario_detail(request, pk=None):
                'scenarios': scenarios,
                'recent_pk': recent_pk
                }
-    meth_list_long = ["cumulative_costs","cum_awarded_gen_by_pot","awarded_cost_by_tech","gen_by_tech","cap_by_tech"]
-    meth_list = ["cumulative_costs","cum_awarded_gen_by_pot","gen_by_tech", 'cap_by_tech']
-    t1 = time.time() * 1000
+    # meth_list_long = ["cumulative_costs","cum_awarded_gen_by_pot","awarded_cost_by_tech","gen_by_tech","cap_by_tech"]
+    # meth_list = ["cumulative_costs","cum_awarded_gen_by_pot","gen_by_tech", 'cap_by_tech']
+    # t1 = time.time() * 1000
 
     context['tech_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'awarded_gen'))
     context['tech_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_wp'))
@@ -173,23 +173,23 @@ def scenario_detail(request, pk=None):
     # context['pot_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.pot_pivot_table(1,'cum_owed_v_wp'))
     # context['pot_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.pot_pivot_table(1,'cum_awarded_gen_result'))
 
-    for meth in meth_list:
-        chart[meth] = {}
-        df[meth] = {}
-        for period_num in [1,2]:
-            results = scenario.get_or_make_chart_data(meth,period_num)
-            data = results['data']
-            data_source = SimpleDataSource(data=data)
-            options = results['options']
-            if meth == "cumulative_costs" or meth == "cum_awarded_gen_by_pot":
-                chart[meth][period_num] = LineChart(data_source, options=options, height=400, width="100%")
-            else:
-                chart[meth][period_num] = ColumnChart(data_source, options=options, height=400, width="100%")
-            df[meth][period_num] = results['df'].to_html(classes="table table-striped table-condensed") # slowest line; consider saving in db
-            context["".join([meth,"_chart",str(period_num)])] = chart[meth][period_num]
-            context["".join([meth,"_df",str(period_num)])] = df[meth][period_num]
-    t2 = time.time() * 1000
-    print(t2-t1,t1-t0)
+    # for meth in meth_list:
+    #     chart[meth] = {}
+    #     df[meth] = {}
+    #     for period_num in [1,2]:
+    #         results = scenario.get_or_make_chart_data(meth,period_num)
+    #         data = results['data']
+    #         data_source = SimpleDataSource(data=data)
+    #         options = results['options']
+    #         if meth == "cumulative_costs" or meth == "cum_awarded_gen_by_pot":
+    #             chart[meth][period_num] = LineChart(data_source, options=options, height=400, width="100%")
+    #         else:
+    #             chart[meth][period_num] = ColumnChart(data_source, options=options, height=400, width="100%")
+    #         df[meth][period_num] = results['df'].to_html(classes="table table-striped table-condensed") # slowest line; consider saving in db
+    #         context["".join([meth,"_chart",str(period_num)])] = chart[meth][period_num]
+    #         context["".join([meth,"_df",str(period_num)])] = df[meth][period_num]
+    # t2 = time.time() * 1000
+    # print(t2-t1,t1-t0)
     return render(request, 'lcf/scenario_detail.html', context)
 
 def scenario_download(request,pk):
@@ -204,45 +204,46 @@ def scenario_download(request,pk):
 
     auctionyears = scenario.period(1)
     qs_techs = Technology.objects.filter(pot__auctionyear__in = auctionyears)
-    df_techs = read_frame(qs_techs, fieldnames=['pot__auctionyear__year','pot__name','name','awarded_gen', 'awarded_cost'])
-    qs_pots = Pot.objects.filter(auctionyear__in = auctionyears)
-    df_pots = read_frame(qs_pots, fieldnames=['auctionyear__year','name','cum_awarded_gen_result', 'cum_owed_v_wp', 'cum_owed_v_gas'])
-    tech_col_names = list(df_techs.columns)
-    pot_col_names = list(df_pots.columns)
+    df_techs = read_frame(qs_techs, fieldnames=['pot__auctionyear__year','pot__name','name','awarded_gen', 'awarded_cost', 'cum_awarded_gen', 'cum_owed_v_gas', 'cum_owed_v_wp', 'cum_owed_v_absolute'])
     tech_data = df_techs.values.tolist()
-    pot_data = df_pots.values.tolist()
+    tech_col_names = list(df_techs.columns)
+
+    # df_pots = read_frame(qs_pots, fieldnames=['auctionyear__year','name','cum_awarded_gen_result', 'cum_owed_v_wp', 'cum_owed_v_gas'])
+    # qs_pots = Pot.objects.filter(auctionyear__in = auctionyears)
+    # pot_data = df_pots.values.tolist()
+    # pot_col_names = list(df_pots.columns)
 
     writer.writerow([scenario.name])
     writer.writerow(['Budget', scenario.budget])
     writer.writerow(['Percent in emerging pot', scenario.percent_emerging])
 
     writer.writerow([""])
-    writer.writerow(["Summary tables"])
+    # writer.writerow(["Summary tables"])
 
-    df_list = [
-               ('Cumulative costs (£bn) (2021-2025)', scenario.cumulative_costs(1)['df']),
-               ('Cumulative costs (£bn) (2026-2030)', scenario.cumulative_costs(2)['df']),
-               ('Cumulative generation (TWh) (2021-2025)', scenario.cum_awarded_gen_by_pot(1)['df']),
-               ('Cumulative generation (TWh) (2026-2030)', scenario.cum_awarded_gen_by_pot(2)['df']),
-               ('Cost of new generation awarded (£m) (2021-2025)', scenario.awarded_cost_by_tech(1)['df']),
-               ('Cost of new generation awarded (£m) (2026-2030)', scenario.awarded_cost_by_tech(2)['df']),
-               ('Generation (TWh) (2021-2025)', scenario.gen_by_tech(1)['df']),
-               ('Generation (TWh) (2026-2030)', scenario.gen_by_tech(2)['df']),
-               ('Capacity (GW) (2021-2025)', scenario.cap_by_tech(1)['df']),
-               ('Capacity (GW) (2026-2030)', scenario.cap_by_tech(2)['df']),
-               ]
+    # df_list = [
+    #            ('Cumulative costs (£bn) (2021-2025)', scenario.cumulative_costs(1)['df']),
+    #            ('Cumulative costs (£bn) (2026-2030)', scenario.cumulative_costs(2)['df']),
+    #            ('Cumulative generation (TWh) (2021-2025)', scenario.cum_awarded_gen_by_pot(1)['df']),
+    #            ('Cumulative generation (TWh) (2026-2030)', scenario.cum_awarded_gen_by_pot(2)['df']),
+    #            ('Cost of new generation awarded (£m) (2021-2025)', scenario.awarded_cost_by_tech(1)['df']),
+    #            ('Cost of new generation awarded (£m) (2026-2030)', scenario.awarded_cost_by_tech(2)['df']),
+    #            ('Generation (TWh) (2021-2025)', scenario.gen_by_tech(1)['df']),
+    #            ('Generation (TWh) (2026-2030)', scenario.gen_by_tech(2)['df']),
+    #            ('Capacity (GW) (2021-2025)', scenario.cap_by_tech(1)['df']),
+    #            ('Capacity (GW) (2026-2030)', scenario.cap_by_tech(2)['df']),
+    #            ]
 
-    for df_pair in df_list:
-        title = [df_pair[0]]
-        writer.writerow(title)
-        headers = ['']
-        headers.extend(df_pair[1].columns)
-        writer.writerow(headers)
-        for i in range(len(df_pair[1].index)):
-            row = [df_pair[1].index[i]]
-            row.extend(df_pair[1].iloc[i])
-            writer.writerow(row)
-        writer.writerow([])
+    # for df_pair in df_list:
+    #     title = [df_pair[0]]
+    #     writer.writerow(title)
+    #     headers = ['']
+    #     headers.extend(df_pair[1].columns)
+    #     writer.writerow(headers)
+    #     for i in range(len(df_pair[1].index)):
+    #         row = [df_pair[1].index[i]]
+    #         row.extend(df_pair[1].iloc[i])
+    #         writer.writerow(row)
+        # writer.writerow([])
 
     writer.writerow([""])
     writer.writerow(["Inputs"])
@@ -269,10 +270,10 @@ def scenario_download(request,pk):
     writer.writerow(['Technology'])
     writer.writerow(tech_col_names)
     writer.writerows(tech_data)
-    writer.writerow([""])
-    writer.writerow(["Pot"])
-    writer.writerow(pot_col_names)
-    writer.writerows(pot_data)
+    # writer.writerow([""])
+    # writer.writerow(["Pot"])
+    # writer.writerow(pot_col_names)
+    # writer.writerows(pot_data)
 
 
     return response

@@ -60,22 +60,22 @@ class Pot(models.Model):
 
     def period_num(self):
         return self.period_pots_calc()['num']
-
-    def cum_pots(self):
-        if self.auctionyear.year == 2020:
-            return [self]
-        else:
-            start_year = self.auctionyear.scenario.start_year1 if self.auctionyear.year <= self.auctionyear.scenario.end_year1 else self.auctionyear.scenario.start_year2
-            cum_pots = Pot.objects.filter(auctionyear__scenario=self.auctionyear.scenario, name=self.name, auctionyear__year__range=(start_year, self.auctionyear.year)).order_by("auctionyear__year")
-            return cum_pots
-
-    def cum_future_pots(self):
-        if self.auctionyear.year == 2020:
-            return [self]
-        else:
-            end_year = self.auctionyear.scenario.end_year1 if self.auctionyear.year <= self.auctionyear.scenario.end_year1 else self.auctionyear.scenario.end_year2
-            cum_future_pots = Pot.objects.filter(auctionyear__scenario=self.auctionyear.scenario, name=self.name, auctionyear__year__range=(self.auctionyear.year, end_year)).order_by("auctionyear__year")
-            return cum_future_pots
+    #
+    # def cum_pots(self):
+    #     if self.auctionyear.year == 2020:
+    #         return [self]
+    #     else:
+    #         start_year = self.auctionyear.scenario.start_year1 if self.auctionyear.year <= self.auctionyear.scenario.end_year1 else self.auctionyear.scenario.start_year2
+    #         cum_pots = Pot.objects.filter(auctionyear__scenario=self.auctionyear.scenario, name=self.name, auctionyear__year__range=(start_year, self.auctionyear.year)).order_by("auctionyear__year")
+    #         return cum_pots
+    #
+    # def cum_future_pots(self):
+    #     if self.auctionyear.year == 2020:
+    #         return [self]
+    #     else:
+    #         end_year = self.auctionyear.scenario.end_year1 if self.auctionyear.year <= self.auctionyear.scenario.end_year1 else self.auctionyear.scenario.end_year2
+    #         cum_future_pots = Pot.objects.filter(auctionyear__scenario=self.auctionyear.scenario, name=self.name, auctionyear__year__range=(self.auctionyear.year, end_year)).order_by("auctionyear__year")
+    #         return cum_future_pots
 
 
 
@@ -179,16 +179,6 @@ class Pot(models.Model):
             projects['attempted_cum_gen'] = np.cumsum(projects.attempted_project_gen)
 
 
-            #to move:
-            # successful_projects = projects[(projects.funded_this_year == True)]
-            # grouped = successful_projects.groupby('technology')
-            # t = Technology.objects.all().order_by('max_levelised_cost')[0]
-            # print('before',t.awarded_gen)
-            # grouped.agg({'attempted_project_gen': lambda x: setattr(t,'awarded_gen',np.sum(x)/1000),
-            #                     'cost': np.sum})
-            # print('after',t.awarded_gen)
-            #
-
 
             self.update_db(projects)
             #if self.auctionyear.year == 2020:
@@ -247,8 +237,11 @@ class Pot(models.Model):
         self.save(update_fields=['auction_has_run', 'awarded_cost_result', 'awarded_gen_result', 'auction_results'])
     #def will_pay_df(self):
     #    projects = self.run_auction()
+    #
+    # #summary methods
 
-    #summary methods
+
+
     #@lru_cache(maxsize=128)
     def awarded_cost(self):
         if self.awarded_cost_result != None:
@@ -258,72 +251,72 @@ class Pot(models.Model):
             res = self.awarded_cost_result
         return res
 
-
-    #@lru_cache(maxsize=128)
-    def awarded_gen(self):
-        if self.awarded_gen_result:
-            res = self.awarded_gen_result
-            return res
-        else:
-            if self.auction_has_run == False:
-                self.run_auction()
-            res = self.awarded_gen_result
-            return res
-
-
-    @lru_cache(maxsize=128)
-    def owed_v(self, comparison, previous_pot):
-        #print("calling for", self.name, self.auctionyear.year, previous_pot, comparison)
-        di = {"gas": self.auctionyear.gas_price, "wp": self.auctionyear.wholesale_price, "absolute": 0}
-        compare = di[comparison]
-        if self.name == "FIT":
-            compare = 0
-        owed = 0
-        if previous_pot.auction_has_run == False:
-            previous_pot.run_auction()
-        for t in previous_pot.tech_set().all():
-            gen = t.awarded_gen
-            strike_price = t.strike_price
-            if self.auctionyear.scenario.excel_sp_error == True or self.auctionyear.scenario.excel_quirks == True:
-                #next 5 lines account for Angela's error
-                if (self.name == "E") or (self.name == "SN"):
-                    try:
-                        strike_price = Technology.objects.get(name=t.name,pot=self).strike_price
-                        #strike_price = self.auctionyear.active_pots().get(name=self.name).tech_set().get(name=t.name).strike_price
-                    except:
-                        break
-            difference = strike_price - compare
-            tech_owed = gen * difference
-
-            owed += tech_owed
-        return owed
-
-    #accumulating methods
-    @lru_cache(maxsize=128)
-    def cum_owed_v(self,comparison):
-        attr_name = "_".join(["cum_owed_v",comparison])
-        if getattr(self,attr_name,None) == None:
-            print('setting attr')
-            #print("calculating",self.name)
-            res = sum([self.owed_v(comparison, pot) for pot in self.cum_pots()])
-            setattr(self,attr_name,res)
-            self.save()
-        else:
-            print('retrieving from database')
-            print(getattr(self,attr_name))
-        return getattr(self,attr_name)
-
-
-
-    def cum_awarded_gen(self):
-        if self.cum_awarded_gen_result == None:
-            extra2020 = 0
-            excel = self.auctionyear.scenario.excel_2020_gen_error or self.auctionyear.scenario.excel_quirks == True
-            if excel == True and self.name != "FIT" and self.period_num() == 1:
-                pot2020 = self.auctionyear.scenario.auctionyear_set.get(year=2020).active_pots().get(name=self.name)
-                #pot2020 = Pot.objects.get(auctionyear__scenario=self.auctionyear.scenario,auctionyear__year=2020,name=self.name) #which is faster?
-                extra2020 = pot2020.awarded_gen()
-            res = sum([pot.awarded_gen() for pot in self.cum_pots()]) + extra2020
-            self.cum_awarded_gen_result = res
-            self.save()
-        return self.cum_awarded_gen_result
+    #
+    # #@lru_cache(maxsize=128)
+    # def awarded_gen(self):
+    #     if self.awarded_gen_result:
+    #         res = self.awarded_gen_result
+    #         return res
+    #     else:
+    #         if self.auction_has_run == False:
+    #             self.run_auction()
+    #         res = self.awarded_gen_result
+    #         return res
+    #
+    #
+    # @lru_cache(maxsize=128)
+    # def owed_v(self, comparison, previous_pot):
+    #     #print("calling for", self.name, self.auctionyear.year, previous_pot, comparison)
+    #     di = {"gas": self.auctionyear.gas_price, "wp": self.auctionyear.wholesale_price, "absolute": 0}
+    #     compare = di[comparison]
+    #     if self.name == "FIT":
+    #         compare = 0
+    #     owed = 0
+    #     if previous_pot.auction_has_run == False:
+    #         previous_pot.run_auction()
+    #     for t in previous_pot.tech_set().all():
+    #         gen = t.awarded_gen
+    #         strike_price = t.strike_price
+    #         if self.auctionyear.scenario.excel_sp_error == True or self.auctionyear.scenario.excel_quirks == True:
+    #             #next 5 lines account for Angela's error
+    #             if (self.name == "E") or (self.name == "SN"):
+    #                 try:
+    #                     strike_price = Technology.objects.get(name=t.name,pot=self).strike_price
+    #                     #strike_price = self.auctionyear.active_pots().get(name=self.name).tech_set().get(name=t.name).strike_price
+    #                 except:
+    #                     break
+    #         difference = strike_price - compare
+    #         tech_owed = gen * difference
+    #
+    #         owed += tech_owed
+    #     return owed
+    #
+    # #accumulating methods
+    # @lru_cache(maxsize=128)
+    # def cum_owed_v(self,comparison):
+    #     attr_name = "_".join(["cum_owed_v",comparison])
+    #     if getattr(self,attr_name,None) == None:
+    #         print('setting attr')
+    #         #print("calculating",self.name)
+    #         res = sum([self.owed_v(comparison, pot) for pot in self.cum_pots()])
+    #         setattr(self,attr_name,res)
+    #         self.save()
+    #     else:
+    #         print('retrieving from database')
+    #         print(getattr(self,attr_name))
+    #     return getattr(self,attr_name)
+    #
+    #
+    #
+    # def cum_awarded_gen(self):
+    #     if self.cum_awarded_gen_result == None:
+    #         extra2020 = 0
+    #         excel = self.auctionyear.scenario.excel_2020_gen_error or self.auctionyear.scenario.excel_quirks == True
+    #         if excel == True and self.name != "FIT" and self.period_num() == 1:
+    #             pot2020 = self.auctionyear.scenario.auctionyear_set.get(year=2020).active_pots().get(name=self.name)
+    #             #pot2020 = Pot.objects.get(auctionyear__scenario=self.auctionyear.scenario,auctionyear__year=2020,name=self.name) #which is faster?
+    #             extra2020 = pot2020.awarded_gen()
+    #         res = sum([pot.awarded_gen() for pot in self.cum_pots()]) + extra2020
+    #         self.cum_awarded_gen_result = res
+    #         self.save()
+    #     return self.cum_awarded_gen_result

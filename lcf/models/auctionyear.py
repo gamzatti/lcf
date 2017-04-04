@@ -90,7 +90,7 @@ class AuctionYear(models.Model):
             return previous_year.unspent()
 
     #helper methods
-
+    #
     def period(self):
         return self.period_calc()['years']
 
@@ -111,19 +111,19 @@ class AuctionYear(models.Model):
         return {'num': num, 'years': years}
 
     #@lru_cache(maxsize=128)
-    def cum_years(self):
-        if self.year == 2020:
-            return [self]
-        else:
-            start_year = self.scenario.start_year1 if self.year <= self.scenario.end_year1 else self.scenario.start_year2
-            return self.scenario.auctionyear_set.filter(year__range=(start_year,self.year)).order_by('year')
+    # def cum_years(self):
+    #     if self.year == 2020:
+    #         return [self]
+    #     else:
+    #         start_year = self.scenario.start_year1 if self.year <= self.scenario.end_year1 else self.scenario.start_year2
+    #         return self.scenario.auctionyear_set.filter(year__range=(start_year,self.year)).order_by('year')
 
     #@lru_cache(maxsize=128)
     def active_pots(self):
         active_names = [ pot.name for pot in self.pot_set.all() if pot.tech_set().count() > 0 ]
         return self.pot_set.filter(name__in=active_names).order_by("name")
 
-
+    #
     #summary methods
     #@lru_cache(maxsize=128)
     def awarded_from(self,pot):
@@ -140,50 +140,50 @@ class AuctionYear(models.Model):
         elif pot == "total":
             res = sum([self.awarded_from("FIT"),self.awarded_from("SN"),self.awarded_from("auction")])
             return res
-
-
-
-
-    #@lru_cache(maxsize=128)
-    def awarded_gen(self):
-        return sum(pot.awarded_gen() for pot in self.active_pots().all())
-
-
-    @lru_cache(maxsize=128)
-    def owed_v(self, comparison, previous_year):
-        return sum([pot.owed_v(comparison, previous_year.active_pots().get(name=pot.name)) for pot in self.active_pots() ])
-
-    #@lru_cache(maxsize=128)
-    def nw_owed(self,previous_year):
-        if self.active_pots().filter(name="FIT").exists():
-            # pot = self.active_pots().get(name="FIT")
-            # previous_fpot = previous_year.active_pots().get(name="FIT")
-            # return pot.owed_v("absolute", previous_fpot)
-            pot = Pot.objects.get(auctionyear=self,name="FIT")
-            previous_pot = Pot.objects.get(auctionyear = previous_year, name="FIT")
-            return pot.owed_v("absolute",previous_pot)
-        else:
-            return 0
-
-
-    #accumulating methods
-    #@lru_cache(maxsize=128)
-    def cum_awarded_gen(self):
-        return sum([pot.cum_awarded_gen() for pot in self.active_pots()])
-
-    @lru_cache(maxsize=128)
-    def cum_owed_v(self, comparison):
-        if self.year == 2020:
-            return self.owed_v(comparison, self)
-        else:
-            return sum([pot.cum_owed_v(comparison) for pot in self.active_pots()])
-
-    #@lru_cache(maxsize=128)
-    def innovation_premium(self):
-        return self.cum_owed_v("gas") - self.cum_nw_owed()
-
-    def cum_nw_owed(self):
-        if self.year == 2020:
-            return self.nw_owed(self)
-        else:
-            return self.active_pots().get(name="FIT").cum_owed_v("absolute")
+    #
+    #
+    #
+    #
+    # #@lru_cache(maxsize=128)
+    # def awarded_gen(self):
+    #     return sum(pot.awarded_gen() for pot in self.active_pots().all())
+    #
+    #
+    # @lru_cache(maxsize=128)
+    # def owed_v(self, comparison, previous_year):
+    #     return sum([pot.owed_v(comparison, previous_year.active_pots().get(name=pot.name)) for pot in self.active_pots() ])
+    #
+    # #@lru_cache(maxsize=128)
+    # def nw_owed(self,previous_year):
+    #     if self.active_pots().filter(name="FIT").exists():
+    #         # pot = self.active_pots().get(name="FIT")
+    #         # previous_fpot = previous_year.active_pots().get(name="FIT")
+    #         # return pot.owed_v("absolute", previous_fpot)
+    #         pot = Pot.objects.get(auctionyear=self,name="FIT")
+    #         previous_pot = Pot.objects.get(auctionyear = previous_year, name="FIT")
+    #         return pot.owed_v("absolute",previous_pot)
+    #     else:
+    #         return 0
+    #
+    #
+    # #accumulating methods
+    # #@lru_cache(maxsize=128)
+    # def cum_awarded_gen(self):
+    #     return sum([pot.cum_awarded_gen() for pot in self.active_pots()])
+    #
+    # @lru_cache(maxsize=128)
+    # def cum_owed_v(self, comparison):
+    #     if self.year == 2020:
+    #         return self.owed_v(comparison, self)
+    #     else:
+    #         return sum([pot.cum_owed_v(comparison) for pot in self.active_pots()])
+    #
+    # #@lru_cache(maxsize=128)
+    # def innovation_premium(self):
+    #     return self.cum_owed_v("gas") - self.cum_nw_owed()
+    #
+    # def cum_nw_owed(self):
+    #     if self.year == 2020:
+    #         return self.nw_owed(self)
+    #     else:
+    #         return self.active_pots().get(name="FIT").cum_owed_v("absolute")

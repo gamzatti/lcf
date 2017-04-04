@@ -51,18 +51,18 @@
 
 
 <h2 class="sub-header">Summary</h2>
-<div class="graph">
+<!-- <div class="graph"> -->
     <!-- {{ cumulative_costs_chart1.as_html }} -->
-    {{ cumulative_costs_df1 | safe }}
+    <!-- {{ cumulative_costs_df1 | safe }} -->
     {{ tech_cum_owed_v_wp_pivot | safe }}
     {{ tech_cum_owed_v_gas_pivot | safe }}
     {{ tech_cum_owed_v_absolute_pivot | safe }}
     <!-- {{ cumulative_costs_chart2.as_html }} -->
-    {{ cumulative_costs_df2 | safe }}
+    <!-- {{ cumulative_costs_df2 | safe }} -->
     {{ tech_cum_owed_v_wp_pivot2 | safe }}
     {{ tech_cum_owed_v_gas_pivot2 | safe }}
     {{ tech_cum_owed_v_absolute_pivot2 | safe }}
-</div>
+<!-- </div> -->
 
 <!-- <h2 class="sub-header">Breakdown by technology</h2>
 <div> -->
@@ -70,18 +70,18 @@
 <!-- </div> -->
 
 
-<!-- <h2 class="sub-header">Cumulative new generation</h2>
-<div class="graph">
-    {{ cum_awarded_gen_by_pot_chart1.as_html }}
-    {{ pot_cum_awarded_gen_pivot| safe }}
-    {{ tech_cum_awarded_gen_pivot | safe }} -->
+<h2 class="sub-header">Cumulative new generation</h2>
+<!-- <div class="graph">
+    {{ cum_awarded_gen_by_pot_chart1.as_html }} -->
+    <!-- {{ pot_cum_awarded_gen_pivot| safe }} -->
+    {{ tech_cum_awarded_gen_pivot | safe }}
 
 <!--    {{ cum_awarded_gen_by_pot_df1 | safe }}-->
     <!-- {{ cum_awarded_gen_by_pot_chart2.as_html }}
-    {{ cum_awarded_gen_by_pot_df2 | safe }}
+    {{ cum_awarded_gen_by_pot_df2 | safe }} -->
     {{ tech_cum_awarded_gen_pivot2 | safe }}
 
-</div> -->
+<!-- </div> -->
 
 <!--<h2 class="sub-header">Cost each year of new generation awarded</h2>
 <div class="graph">
@@ -91,10 +91,10 @@
     {{ awarded_cost_by_tech_df2 | safe }}
 </div>-->
 
-<!-- <h2 class="sub-header">Generation by technology</h2>
-<div class="graph">
-    {{ gen_by_tech_chart1.as_html }}
-    {{ tech_gen_pivot | safe }} -->
+<h2 class="sub-header">Generation by technology</h2>
+<!-- <div class="graph">
+    {{ gen_by_tech_chart1.as_html }} -->
+    {{ tech_gen_pivot | safe }}
 <!--    {{ gen_by_tech_df1 | safe }} -->
     <!-- {{ gen_by_tech_chart2.as_html }}
     {{ gen_by_tech_df2 | safe }}
@@ -117,40 +117,3 @@
   {% endfor %}-->
 </div>
 {% endblock %}
-
-
-<!--
-
-
-
-
-
-
-   {% for a in scenario.auctionyear_set.all %}
-        {% if a.year != 2020 %}
-            <hr>
-            <h2>Year: {{ a.year }}</h2>
-            <p>Budget: £{{ a.budget }}m</p>
-            <p>Awarded: £{{ a.awarded }}m</p>
-            <!--<p>Awarded generation: {{ a.awarded_gen }}GWh</p>-->
-            <!--<p>Paid: £{{ a.paid }}m</p>
-            <p>Unspent: {{ a.unspent }}</p>
-            <p>Previous year unspent: {{ a.previous_year_unspent }}</p>
-            <!--<p>Starting budget: {{ a.starting_budget}}</p>-->
-            <!--{% for p in a.pot_set.all %}
-                    <h3>Pot: {{ p.name }}</h3>
-                    <p>Budget: £{{ p.budget }}m</p>
-                <!--{% if p.name == "E" or p.name == "M" %}-->
-                    <!--<p>Cost: £{{ p.cost }}m</p>
-                    <p>Generation: {{ p.gen }}TWh</p>
-                    <p>{{p.summary_gen_by_tech.to_html | safe}} </p>
-                    <p>unspent: £{{ p.unspent }}m</p>
-                    <!--<p>Projects: {{ p.projects.to_html | safe }}</p>-->
-<!--                    {% for t in p.technology_set.all %}
-                        <h4>{{ t.name }}:</h4>
-                        {{ t.num_projects }}-->
-                    <!--{% endfor %}
-                <!--{% endif %}-->
-            <!--{% endfor %}
-        {% endif %}
-    {% endfor %}-->

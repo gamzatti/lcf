@@ -401,3 +401,14 @@ Auctionyear old method:
                 will_pay_by_year[future_pot.auctionyear.year] += gen * difference
                 #will_pay += will_pay_by_year[future_pot.auctionyear.year]
         return will_pay_by_year
+
+
+#to move:
+# successful_projects = projects[(projects.funded_this_year == True)]
+# grouped = successful_projects.groupby('technology')
+# t = Technology.objects.all().order_by('max_levelised_cost')[0]
+# print('before',t.awarded_gen)
+# grouped.agg({'attempted_project_gen': lambda x: setattr(t,'awarded_gen',np.sum(x)/1000),
+#                     'cost': np.sum})
+# print('after',t.awarded_gen)
+#
