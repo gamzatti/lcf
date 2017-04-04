@@ -136,7 +136,7 @@ def scenario_detail(request, pk=None):
         scenario = get_object_or_404(Scenario,pk=pk)
 
 
-    print("please don't cache me!")
+    print("please don't fucking cache me!")
     scenario.clear_all()
     for p in Pot.objects.filter(auctionyear__scenario=scenario):
         p.run_auction() # may be making it slow. put elsewhere?
@@ -163,10 +163,15 @@ def scenario_detail(request, pk=None):
 
     context['tech_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'awarded_gen'))
     context['tech_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_wp'))
+    context['tech_cum_owed_v_wp_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_wp'))
     context['tech_cum_owed_v_gas_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_gas'))
+    context['tech_cum_owed_v_gas_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_gas'))
+    context['tech_cum_owed_v_absolute_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_absolute'))
+    context['tech_cum_owed_v_absolute_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_absolute'))
     context['tech_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_awarded_gen'))
-    context['pot_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.pot_pivot_table(1,'cum_owed_v_wp'))
-    context['pot_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.pot_pivot_table(1,'cum_awarded_gen_result'))
+    context['tech_cum_awarded_gen_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_awarded_gen'))
+    # context['pot_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.pot_pivot_table(1,'cum_owed_v_wp'))
+    # context['pot_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.pot_pivot_table(1,'cum_awarded_gen_result'))
 
     for meth in meth_list:
         chart[meth] = {}

@@ -110,7 +110,7 @@ class Scenario(models.Model):
         result = dfsum_outer.append(result)
         result = result.set_index(['year','pot','name']).sort_index()
         result = result.unstack(0)
-        if column == "cum_owed_v_wp" or column == "cum_owed_v_gas":
+        if column == "cum_owed_v_wp" or column == "cum_owed_v_gas" or column == "cum_owed_v_absolute":
             result = result/1000
         return result
 
@@ -130,7 +130,7 @@ class Scenario(models.Model):
         result = dfsum_outer.append(df)
         result = result.set_index(['year','pot']).sort_index()
         result = result.unstack(0)
-        if column == "cum_owed_v_wp" or column == "cum_owed_v_gas":
+        if column == "cum_owed_v_wp" or column == "cum_owed_v_gas" or column == "cum_owed_v_absolute":
             result = result/1000
         return result
 
@@ -305,6 +305,7 @@ class Scenario(models.Model):
                     t.awarded_cost = 0
                     t.cum_owed_v_wp = 0
                     t.cum_owed_v_gas = 0
+                    t.cum_owed_v_absolute = 0
                     t.cum_awarded_gen = 0
                     t.save()
                 p.save()

@@ -209,7 +209,12 @@ class Pot(models.Model):
             t.awarded_gen = t_awarded_gen
             t_awarded_cost = sum(t_projects.cost)
             t.awarded_cost = t_awarded_cost
-            t.save(update_fields=['awarded_cost', 'awarded_gen'])
+            if self.auctionyear.year == self.auctionyear.scenario.start_year2:
+                t.cum_owed_v_wp = 0
+                t.cum_owed_v_gas = 0
+                t.cum_owed_v_absolute = 0
+                t.cum_awarded_gen = 0
+            t.save()
 
 
             for future_t in t.cum_future_techs():
@@ -225,10 +230,12 @@ class Pot(models.Model):
                     gas = future_t.pot.auctionyear.gas_price
                 future_owed_v_wp = t_awarded_gen * (strike_price - wp)
                 future_owed_v_gas = t_awarded_gen * (strike_price - gas)
+                future_owed_v_absolute = t_awarded_gen * strike_price
 
                 #print("technology {} year {} owes year {}: {}".format(t.name, t.pot.auctionyear.year, future_t.pot.auctionyear.year,future_owed_v_wp))
                 future_t.cum_owed_v_wp = F('cum_owed_v_wp') + future_owed_v_wp
                 future_t.cum_owed_v_gas = F('cum_owed_v_gas') + future_owed_v_gas
+                future_t.cum_owed_v_absolute = F('cum_owed_v_absolute') + future_owed_v_absolute
                 future_t.cum_awarded_gen = F('cum_awarded_gen') + t_awarded_gen ## need to deal with excel_2020_gen_error
 
                 future_t.save()

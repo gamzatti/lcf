@@ -42,6 +42,7 @@ class Technology(models.Model):
     num_new_projects = models.IntegerField(null=True, blank=True)
     cum_owed_v_wp = models.FloatField(default=0, verbose_name="Accounting cost (£bn)")
     cum_owed_v_gas = models.FloatField(default=0, verbose_name="Cost v gas (£bn)")
+    cum_owed_v_absolute = models.FloatField(default=0, verbose_name="Absolute cost (£bn)")
     cum_awarded_gen = models.FloatField(default=0, verbose_name="Cumulative new generation (TWh)")
     objects = TechnologyManager()
 
