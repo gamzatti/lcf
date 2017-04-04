@@ -134,8 +134,20 @@ def scenario_detail(request, pk=None):
         scenario = Scenario.objects.all().order_by("-date")[0]
     else:
         scenario = get_object_or_404(Scenario,pk=pk)
+
+
+    print("please don't cache me!")
+    scenario.clear_all()
     for p in Pot.objects.filter(auctionyear__scenario=scenario):
         p.run_auction() # may be making it slow. put elsewhere?
+
+    for t in Technology.objects.filter(pot__auctionyear__scenario=scenario, pot__name="E"):
+        print(t.pot.auctionyear.year, t.name, t.cum_owed_v_wp)
+
+    for p in Pot.objects.filter(auctionyear__scenario=scenario):
+        p.cum_owed_v("wp")
+        print(p.auctionyear.year, p.name, p.cum_owed_v_wp)
+
 
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     scenarios = Scenario.objects.all()
@@ -150,6 +162,9 @@ def scenario_detail(request, pk=None):
     t1 = time.time() * 1000
 
     context['tech_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'awarded_gen'))
+    context['tech_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_wp'))
+    context['tech_cum_owed_v_gas_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_gas'))
+    context['tech_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_awarded_gen'))
     context['pot_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.pot_pivot_table(1,'cum_owed_v_wp'))
     context['pot_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.pot_pivot_table(1,'cum_awarded_gen_result'))
 

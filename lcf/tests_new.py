@@ -649,3 +649,32 @@ class Pivot(TestCase):
     #         print(p.cum_awarded_gen())
     #
     #     print(s.pot_pivot_table_with_manager(1,'cum_awarded_gen_result'))
+
+class CumT(TestCase):
+    fixtures = ['tests/new/data.json']
+
+    def test_cum_future_techs(self):
+        s = Scenario.objects.get(pk=281)
+        s.clear_all()
+        techs = Technology.objects.filter(pot__auctionyear__scenario = s, pot__auctionyear__year=2028)
+        t = techs.get(name="OFW")
+        self.assertQuerysetEqual(t.cum_future_techs(), ["<Technology: (<AuctionYear: 2028>, 'E', 'OFW')>",
+                                                          "<Technology: (<AuctionYear: 2029>, 'E', 'OFW')>",
+                                                          "<Technology: (<AuctionYear: 2030>, 'E', 'OFW')>"])
+
+        techs = Technology.objects.filter(pot__auctionyear__scenario = s, pot__auctionyear__year=2022)
+        t = techs.get(name="OFW")
+        self.assertQuerysetEqual(t.cum_future_techs(), ["<Technology: (<AuctionYear: 2022>, 'E', 'OFW')>",
+                                                          "<Technology: (<AuctionYear: 2023>, 'E', 'OFW')>",
+                                                          "<Technology: (<AuctionYear: 2024>, 'E', 'OFW')>",
+                                                          "<Technology: (<AuctionYear: 2025>, 'E', 'OFW')>"])
+
+        self.assertEqual(t.awarded_cost,0)
+        self.assertEqual(t.cum_owed_v_wp, 0)
+        pots = Pot.objects.filter(auctionyear__scenario = s, auctionyear__year__range=(2020,2022))
+        for p in pots:
+            p.run_auction()
+        time.sleep(3)
+        self.assertEqual(p.auction_has_run,True)
+        self.assertEqual(t.awarded_cost, 473.366720639997)
+        self.assertEqual(t.cum_owed_v_wp, 473.366720639997)

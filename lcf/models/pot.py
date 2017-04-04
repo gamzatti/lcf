@@ -9,6 +9,7 @@ import inspect
 import time
 from .technology import Technology
 from django_pandas.managers import DataFrameManager
+from django.db.models import F
 
 class Pot(models.Model):
     POT_CHOICES = (
@@ -202,20 +203,41 @@ class Pot(models.Model):
     def update_db(self,projects):
         #print("updating db", self.name, self.auctionyear.year)
         successful_projects = projects[(projects.funded_this_year == True)]
-        for tech in self.tech_set().all():
-            tech_projects = successful_projects[successful_projects.technology == tech.name]
-            #print(tech_projects)
-            tech.awarded_gen = tech_projects.attempted_project_gen.sum()/1000 if pd.notnull(tech_projects.attempted_project_gen.sum()) else 0
-            tech.awarded_cost = sum(tech_projects.cost)
-            #print(tech.awarded_gen)
-            #print(tech.awarded_cost)
-            tech.save(update_fields=['awarded_cost', 'awarded_gen'])
+        for t in self.tech_set().all():
+            t_projects = successful_projects[successful_projects.technology == t.name]
+            t_awarded_gen = t_projects.attempted_project_gen.sum()/1000 if pd.notnull(t_projects.attempted_project_gen.sum()) else 0
+            t.awarded_gen = t_awarded_gen
+            t_awarded_cost = sum(t_projects.cost)
+            t.awarded_cost = t_awarded_cost
+            t.save(update_fields=['awarded_cost', 'awarded_gen'])
+
+
+            for future_t in t.cum_future_techs():
+                if (self.auctionyear.scenario.excel_sp_error == True or self.auctionyear.scenario.excel_quirks == True) and (self.name == "E" or self.name == "SN"):
+                    strike_price = future_t.strike_price
+                else:
+                    strike_price = t.strike_price
+                if t.name == "NW":
+                    wp = 0
+                    gas = 0
+                else:
+                    wp = future_t.pot.auctionyear.wholesale_price
+                    gas = future_t.pot.auctionyear.gas_price
+                future_owed_v_wp = t_awarded_gen * (strike_price - wp)
+                future_owed_v_gas = t_awarded_gen * (strike_price - gas)
+
+                #print("technology {} year {} owes year {}: {}".format(t.name, t.pot.auctionyear.year, future_t.pot.auctionyear.year,future_owed_v_wp))
+                future_t.cum_owed_v_wp = F('cum_owed_v_wp') + future_owed_v_wp
+                future_t.cum_owed_v_gas = F('cum_owed_v_gas') + future_owed_v_gas
+                future_t.cum_awarded_gen = F('cum_awarded_gen') + t_awarded_gen ## need to deal with excel_2020_gen_error
+
+                future_t.save()
+
         self.awarded_cost_result = sum(successful_projects.cost)
         self.awarded_gen_result = sum(successful_projects.attempted_project_gen)/1000
         self.auction_has_run = True
         self.auction_results = projects.to_json()
         self.save(update_fields=['auction_has_run', 'awarded_cost_result', 'awarded_gen_result', 'auction_results'])
-
     #def will_pay_df(self):
     #    projects = self.run_auction()
 
@@ -241,56 +263,6 @@ class Pot(models.Model):
             res = self.awarded_gen_result
             return res
 
-    @lru_cache(maxsize=128)
-    def will_pay_v(self, comparison, future_pot):
-        if self.name == "FIT":
-            comparison = "absolute"
-        di = {"gas": future_pot.auctionyear.gas_price, "wp": future_pot.auctionyear.wholesale_price, "absolute": 0}
-        compare = di[comparison]
-        will_pay = 0
-        will_pay_tech = {}
-        if self.auction_has_run == False:
-            self.run_auction()
-        for t in Technology.objects.filter(pot=self):
-            gen = t.awarded_gen
-            strike_price = t.strike_price
-            if self.auctionyear.scenario.excel_sp_error == True or self.auctionyear.scenario.excel_quirks == True:
-                if (self.name == "E") or (self.name == "SN"):
-                    try:
-                        strike_price = Technology.objects.get(name=t.name,pot=future_pot).strike_price
-                    except:
-                        break
-            difference = strike_price - compare
-            will_pay_tech[t.name] = gen * difference
-            will_pay += will_pay_tech[t.name]
-        return {'total': will_pay, 'by_tech': will_pay_tech }
-
-    @lru_cache(maxsize=128)
-    def cum_will_pay_v(self, comparison):
-        if self.name == "FIT":
-            comparison = "absolute"
-        will_pay = 0
-        will_pay_by_year = { p.auctionyear.year : 0 for p in self.cum_future_pots()}
-        if self.auction_has_run == False:
-            self.run_auction()
-
-        for future_pot in self.cum_future_pots():
-            di = {"gas": future_pot.auctionyear.gas_price, "wp": future_pot.auctionyear.wholesale_price, "absolute": 0}
-            compare = di[comparison]
-
-            for t in Technology.objects.filter(pot=self):
-                gen = t.awarded_gen
-                strike_price = t.strike_price
-                if self.auctionyear.scenario.excel_sp_error == True or self.auctionyear.scenario.excel_quirks == True:
-                    if (self.name == "E") or (self.name == "SN"):
-                        try:
-                            strike_price = Technology.objects.get(name=t.name,pot=future_pot).strike_price
-                        except:
-                            break
-                difference = strike_price - compare
-                will_pay_by_year[future_pot.auctionyear.year] += gen * difference
-                #will_pay += will_pay_by_year[future_pot.auctionyear.year]
-        return will_pay_by_year
 
     @lru_cache(maxsize=128)
     def owed_v(self, comparison, previous_pot):

@@ -348,3 +348,56 @@ Auctionyear old method:
     # def cum_nw_owed(self):
     #     print('calling cum_nw_owed')
     #     return sum([self.nw_owed(pot) for pot in self.cum_pots()])
+
+
+# experimental pot methods
+    @lru_cache(maxsize=128)
+    def will_pay_v(self, comparison, future_pot):
+        if self.name == "FIT":
+            comparison = "absolute"
+        di = {"gas": future_pot.auctionyear.gas_price, "wp": future_pot.auctionyear.wholesale_price, "absolute": 0}
+        compare = di[comparison]
+        will_pay = 0
+        will_pay_tech = {}
+        if self.auction_has_run == False:
+            self.run_auction()
+        for t in Technology.objects.filter(pot=self):
+            gen = t.awarded_gen
+            strike_price = t.strike_price
+            if self.auctionyear.scenario.excel_sp_error == True or self.auctionyear.scenario.excel_quirks == True:
+                if (self.name == "E") or (self.name == "SN"):
+                    try:
+                        strike_price = Technology.objects.get(name=t.name,pot=future_pot).strike_price
+                    except:
+                        break
+            difference = strike_price - compare
+            will_pay_tech[t.name] = gen * difference
+            will_pay += will_pay_tech[t.name]
+        return {'total': will_pay, 'by_tech': will_pay_tech }
+
+    @lru_cache(maxsize=128)
+    def cum_will_pay_v(self, comparison):
+        if self.name == "FIT":
+            comparison = "absolute"
+        will_pay = 0
+        will_pay_by_year = { p.auctionyear.year : 0 for p in self.cum_future_pots()}
+        if self.auction_has_run == False:
+            self.run_auction()
+
+        for future_pot in self.cum_future_pots():
+            di = {"gas": future_pot.auctionyear.gas_price, "wp": future_pot.auctionyear.wholesale_price, "absolute": 0}
+            compare = di[comparison]
+
+            for t in Technology.objects.filter(pot=self):
+                gen = t.awarded_gen
+                strike_price = t.strike_price
+                if self.auctionyear.scenario.excel_sp_error == True or self.auctionyear.scenario.excel_quirks == True:
+                    if (self.name == "E") or (self.name == "SN"):
+                        try:
+                            strike_price = Technology.objects.get(name=t.name,pot=future_pot).strike_price
+                        except:
+                            break
+                difference = strike_price - compare
+                will_pay_by_year[future_pot.auctionyear.year] += gen * difference
+                #will_pay += will_pay_by_year[future_pot.auctionyear.year]
+        return will_pay_by_year

@@ -110,6 +110,8 @@ class Scenario(models.Model):
         result = dfsum_outer.append(result)
         result = result.set_index(['year','pot','name']).sort_index()
         result = result.unstack(0)
+        if column == "cum_owed_v_wp" or column == "cum_owed_v_gas":
+            result = result/1000
         return result
 
     def pot_pivot_table(self,period_num,column):
@@ -128,7 +130,7 @@ class Scenario(models.Model):
         result = dfsum_outer.append(df)
         result = result.set_index(['year','pot']).sort_index()
         result = result.unstack(0)
-        if column == "cum_owed_v_wp":
+        if column == "cum_owed_v_wp" or column == "cum_owed_v_gas":
             result = result/1000
         return result
 
@@ -287,7 +289,6 @@ class Scenario(models.Model):
     def clear_all(self):
         for a in AuctionYear.objects.filter(scenario = self):
             a.budget_result = None
-            a.save()
             for p in Pot.objects.filter(auctionyear = a):
                 p.auction_has_run = False
                 p.budget_result = None
@@ -299,7 +300,12 @@ class Scenario(models.Model):
                 p.cum_owed_v_absolute = None
                 p.cum_awarded_gen_result = None
                 p.previously_funded_projects_results = None
-                p.save()
                 for t in Technology.objects.filter(pot=p):
                     t.awarded_gen = None
                     t.awarded_cost = 0
+                    t.cum_owed_v_wp = 0
+                    t.cum_owed_v_gas = 0
+                    t.cum_awarded_gen = 0
+                    t.save()
+                p.save()
+            a.save()

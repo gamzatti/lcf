@@ -16,6 +16,7 @@ class TechnologyManager(models.Manager):
             print("You must specify either num_new_projects or max_deployment_cap")
         return t
 
+
 class Technology(models.Model):
     TECHNOLOGY_CHOICES = (
             ('OFW', 'Offshore wind'),
@@ -39,6 +40,9 @@ class Technology(models.Model):
     awarded_gen = models.FloatField(null=True, blank=True, verbose_name="Generation awarded each year (TWh)")
     awarded_cost = models.FloatField(default=0)
     num_new_projects = models.IntegerField(null=True, blank=True)
+    cum_owed_v_wp = models.FloatField(default=0, verbose_name="Accounting cost (£bn)")
+    cum_owed_v_gas = models.FloatField(default=0, verbose_name="Cost v gas (£bn)")
+    cum_awarded_gen = models.FloatField(default=0, verbose_name="Cumulative new generation (TWh)")
     objects = TechnologyManager()
 
     def __init__(self, *args, **kwargs):
@@ -147,3 +151,11 @@ class Technology(models.Model):
         project_cap = self.project_gen / self.load_factor / 8760 # for tidal = 2200 / 0.22 / 8760 = 1.14155251141553
         self.max_deployment_cap = self.num_new_projects * project_cap # need to check that it's right to put num_new_projects rather than num_projects
         self.save()
+
+    def cum_future_techs(self):
+        if self.pot.auctionyear.year == 2020:
+            return [self]
+        else:
+            end_year = self.pot.auctionyear.scenario.end_year1 if self.pot.auctionyear.year <= self.pot.auctionyear.scenario.end_year1 else self.pot.auctionyear.scenario.end_year2
+            cum_future_techs = Technology.objects.filter(pot__auctionyear__scenario=self.pot.auctionyear.scenario, name=self.name, pot__auctionyear__year__range=(self.pot.auctionyear.year, end_year)).order_by("pot__auctionyear__year")
+            return cum_future_techs
