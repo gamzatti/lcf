@@ -19,44 +19,72 @@ class Scenario(models.Model):
     budget = models.FloatField(default=3.3, verbose_name="Budget period 1 (£bn)")
     budget2 = models.FloatField(blank=True, null=True, verbose_name="Budget period 2 (£bn) - leave blank to use same as period 1")
     percent_emerging = models.FloatField(default=0.6)
-    rank_by_levelised_cost = models.BooleanField(default=True)
     set_strike_price =  models.BooleanField(default=False, verbose_name="Generate strike price ourselves?")
     start_year1 = models.IntegerField(default=2021)
     end_year1 = models.IntegerField(default=2025)
     start_year2 = models.IntegerField(default=2026)
     end_year2 = models.IntegerField(default=2030)
     excel_sp_error = models.BooleanField(default=False, verbose_name="Include the Excel error in the emerging pot strike price?")
-    tidal_levelised_cost_distribution = models.BooleanField(default=False)
+    tidal_levelised_cost_distribution = models.BooleanField(default=True)
     excel_2020_gen_error = models.BooleanField(default=False, verbose_name="Include the Excel error that counts cumulative generation from 2020 for auction and negotiations (but not FIT)")
     excel_nw_carry_error = models.BooleanField(default=False, verbose_name="Include the Excel error that carries NWFIT into next year, even though it's been spent")
     excel_quirks = models.BooleanField(default=True, verbose_name="Include all Excel quirks")
-
+    results = models.TextField(null=True,blank=True)
 
     def __str__(self):
         return self.name
 
     def __init__(self, *args, **kwargs):
         super(Scenario, self).__init__(*args, **kwargs)
-        self._cumulative_costs1 = None
-        self._cumulative_costs2 = None
-        self._cum_awarded_gen_by_pot1 = None
-        self._cum_awarded_gen_by_pot2 = None
-        self._awarded_cost_by_tech1 = None
-        self._awarded_cost_by_tech2 = None
-        self._gen_by_tech1 = None
-        self._gen_by_tech2 = None
-        self._cap_by_tech1 = None
-        self._cap_by_tech2 = None
-
-
+        self.auctionyear_dict = { auctionyear.year : auctionyear for auctionyear in self.auctionyear_set.all() }
+        self.flat_tech_dict = { t.name + str(t.pot.auctionyear.year) : t for a in self.auctionyear_dict.values() for p in a.pot_dict.values() for t in p.technology_dict.values() }
     #chart methods
 
     def period(self, num):
         if num == 1:
-            ran = (self.start_year1, self.end_year1)
+            ran = range(self.start_year1, self.end_year1+1)
         elif num == 2:
-            ran = (self.start_year2, self.end_year2)
-        return self.auctionyear_set.filter(year__range=ran).order_by("year")
+            ran = range(self.start_year2, self.end_year2+1)
+        #return self.auctionyear_set.filter(year__range=ran).order_by("year")
+        return [ auctionyear for auctionyear in self.auctionyear_dict.values() if auctionyear.year in ran ]
+
+
+    def get_results(self):
+        columns = ['year',
+                   'pot',
+                   'name',
+                   'awarded_gen',
+                   'awarded_cost',
+                   'cum_awarded_gen',
+                   'cum_owed_v_gas',
+                   'cum_owed_v_wp',
+                   'cum_owed_v_absolute']
+        if self.results == None:
+            print('getting results')
+            for a in self.auctionyear_dict.values():
+                for p in a.pot_dict.values():
+                    p.run_auction()
+            results = DataFrame([ [t.pot.auctionyear.year,
+                        t.pot.get_name_display(),
+                        t.get_name_display(),
+                        t.awarded_gen,
+                        t.awarded_cost,
+                        t.cum_awarded_gen,
+                        t.cum_owed_v_gas,
+                        t.cum_owed_v_wp,
+                        t.cum_owed_v_absolute]
+                        for t in self.flat_tech_dict.values() ],
+                        columns = columns)
+            results = results.sort_values(['year','pot','name'])
+            results.index = range(0,len(results.index))
+            self.results = results.to_json()
+            self.save()
+            return results
+        else:
+            print('retrieving from db')
+            results = pd.read_json(self.results).reindex(columns=columns).sort_index()
+            return results
+
 
     # @lru_cache(maxsize=128)
     # def cumulative_costs(self, period_num):
@@ -92,20 +120,25 @@ class Scenario(models.Model):
     #
 
 
-    def tech_pivot_table(self,period_num,column):
-        auctionyears = self.period(period_num)
-        qs = Technology.objects.filter(pot__auctionyear__in = auctionyears)
-        df = read_frame(qs, fieldnames=['pot__auctionyear__year','pot__name','name',column])
-        df.columns = ['year','pot','name',Technology._meta.get_field(column).verbose_name]
+    # otherwise, manually assemble the dataframe
+    # @lru_cache(maxsize=128)
+    def tech_pivot_table(self,period_num,column,title=None):
+        self.get_results()
+        print('building pivot table')
+        # auctionyears = self.period(period_num)
+        #techs = { t.name + str(t.pot.auctionyear.year) : t for a in auctionyears for p in a.pot_dict.values() for t in p.technology_dict.values() }
+        df = self.get_results()
+        df = df[['year','pot','name',column]]
+        auctionyear_years = [auctionyear.year for auctionyear in self.period(period_num)]
+        df = df.loc[df.year.isin(auctionyear_years)]
 
+
+#        df = DataFrame([[t.pot.auctionyear.year, t.pot.get_name_display(), t.get_name_display(), getattr(t,column)] for t in techs.values()],columns=['year','pot','name',column])
         dfsum = df.groupby(['year','pot'],as_index=False).sum()
         dfsum['name']='_Subtotal'
-
         dfsum_outer = df.groupby(['year'],as_index=False).sum()
         dfsum_outer['name']='Total'
         dfsum_outer['pot']='Total'
-
-
         result = dfsum.append(df)
         result = dfsum_outer.append(result)
         result = result.set_index(['year','pot','name']).sort_index()
@@ -114,36 +147,25 @@ class Scenario(models.Model):
             result = result/1000
         return result
 
-    # def pot_pivot_table(self,period_num,column):
-    #     auctionyears = self.period(period_num)
-    #     qs = Pot.objects.filter(auctionyear__in = auctionyears)
-    #     for p in qs:
-    #         p.cum_awarded_gen()
-    #         p.cum_owed_v("wp")
-    #     df = read_frame(qs, fieldnames=['auctionyear__year','name',column])
-    #     df.columns = ['year','pot',Pot._meta.get_field(column).verbose_name]
-    #
+
+    # could happen at the very end, after the objects are in the db?
+    # def tech_pivot_table_using_db(self,period_num,column):
+    #     auctionyears = self.period(period_num).values()
+    #     qs = Technology.objects.filter(pot__auctionyear__in = auctionyears)
+    #     df = read_frame(qs, fieldnames=['pot__auctionyear__year','pot__name','name',column])
+    #     df.columns = ['year','pot','name',Technology._meta.get_field(column).verbose_name]
+    #     dfsum = df.groupby(['year','pot'],as_index=False).sum()
+    #     dfsum['name']='_Subtotal'
     #     dfsum_outer = df.groupby(['year'],as_index=False).sum()
+    #     dfsum_outer['name']='Total'
     #     dfsum_outer['pot']='Total'
-    #
-    #
-    #     result = dfsum_outer.append(df)
-    #     result = result.set_index(['year','pot']).sort_index()
+    #     result = dfsum.append(df)
+    #     result = dfsum_outer.append(result)
+    #     result = result.set_index(['year','pot','name']).sort_index()
     #     result = result.unstack(0)
     #     if column == "cum_owed_v_wp" or column == "cum_owed_v_gas" or column == "cum_owed_v_absolute":
     #         result = result/1000
     #     return result
-
-
-    # def pot_pivot_table_with_manager(self,period_num,column):
-    #     auctionyears = self.period(period_num)
-    #     qs = Pot.objects.filter(auctionyear__in = auctionyears)
-    #     #df = qs.to_dataframe(fieldnames=['auctionyear__year','name',column])
-    #     #df.columns = ['year','pot',Pot._meta.get_field(column).verbose_name]
-    #     pivot = qs.to_pivot_table(values="cum_awarded_gen_result",rows=['name'], cols=["auctionyear"])
-    #
-    #     return pivot
-
 
     # @lru_cache(maxsize=128)
     # def gen_by_tech(self,period_num):
@@ -214,13 +236,15 @@ class Scenario(models.Model):
     #     t_names = [t.name for t in techs]
     #     return t_names, initial_technologies
 
-
+    #calling fields.df() is querying the database
+    # @lru_cache(maxsize=128)
     def techs_df(self):
-        techs = pd.concat([t.fields_df() for a in self.auctionyear_set.all() for p in a.active_pots().all() for t in p.technology_set.all() ])
+        techs = pd.concat([t.fields_df() for t in self.flat_tech_dict.values() ])
         techs = techs.set_index('id')
         return techs
 
 
+    # @lru_cache(maxsize=128)
     def df_to_html(self,df):
         def highlight_total(s):
             '''
@@ -232,10 +256,12 @@ class Scenario(models.Model):
             return ['font-weight: bold;' if v else '' for v in is_max]
         #html = df.style.format('<input style="width:120px;" name="df" value="{}" />').render()
         #df = df.round(2)
-        html = df.style.apply(highlight_total).render()
+        #html = df.style.apply(highlight_total).render()
+        html = df.style.render()
         html = html.replace('<table id=', '<table class="table table-striped table-condensed" id=')
         return html
 
+    # @lru_cache(maxsize=128)
     def pivot_to_html(self,df):
         def highlight_total(s):
             '''
@@ -254,6 +280,7 @@ class Scenario(models.Model):
 
     #inputs
 
+    # @lru_cache(maxsize=128)
     def techs_input(self):
         df = self.techs_df().sort_values(["pot_name", "name", "listed_year"]).drop('pot', axis=1)
         df.set_index(["pot_name", 'name','listed_year'],drop=False, inplace=True)
@@ -263,6 +290,7 @@ class Scenario(models.Model):
         return df
 
 
+    # @lru_cache(maxsize=128)
     def prices_input(self):
         return DataFrame(
                     {
@@ -271,12 +299,14 @@ class Scenario(models.Model):
                     }, index=[a.year for a in self.auctionyear_set.all()]).T
 
 
+    # @lru_cache(maxsize=128)
     def techs_input_html(self):
         df = self.techs_input()
         df.set_index(["pot", 'name','year'],inplace=True)
         return self.df_to_html(df)
 
 
+    # @lru_cache(maxsize=128)
     def prices_input_html(self):
         df = self.prices_input()
         return self.df_to_html(df)
@@ -286,27 +316,27 @@ class Scenario(models.Model):
 #         dfs = [t.fields_df_html() for a in self.auctionyear_set.all() for p in a.active_pots().all() for t in p.technology_set.all() ]
 #         return dfs
 
-    def clear_all(self):
-        for a in AuctionYear.objects.filter(scenario = self):
-            a.budget_result = None
-            for p in Pot.objects.filter(auctionyear = a):
-                p.auction_has_run = False
-                p.budget_result = None
-                p.awarded_cost_result = None
-                p.awarded_gen_result = None
-                p.auction_results = None
-                p.cum_owed_v_wp = None
-                p.cum_owed_v_gas = None
-                p.cum_owed_v_absolute = None
-                p.cum_awarded_gen_result = None
-                p.previously_funded_projects_results = None
-                for t in Technology.objects.filter(pot=p):
-                    t.awarded_gen = None
-                    t.awarded_cost = 0
-                    t.cum_owed_v_wp = 0
-                    t.cum_owed_v_gas = 0
-                    t.cum_owed_v_absolute = 0
-                    t.cum_awarded_gen = 0
-                    t.save()
-                p.save()
-            a.save()
+    # def clear_all(self):
+    #     for a in AuctionYear.objects.filter(scenario = self):
+    #         a.budget_result = None
+    #         for p in Pot.objects.filter(auctionyear = a):
+    #             p.auction_has_run = False
+    #             p.budget_result = None
+    #             p.awarded_cost_result = None
+    #             p.awarded_gen_result = None
+    #             p.auction_results = None
+    #             p.cum_owed_v_wp = None
+    #             p.cum_owed_v_gas = None
+    #             p.cum_owed_v_absolute = None
+    #             p.cum_awarded_gen_result = None
+    #             p.previously_funded_projects_results = None
+    #             for t in Technology.objects.filter(pot=p):
+    #                 t.awarded_gen = None
+    #                 t.awarded_cost = 0
+    #                 t.cum_owed_v_wp = 0
+    #                 t.cum_owed_v_gas = 0
+    #                 t.cum_owed_v_absolute = 0
+    #                 t.cum_awarded_gen = 0
+    #                 t.save()
+    #             p.save()
+    #         a.save()

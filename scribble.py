@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from pandas import DataFrame, Series
 from lcf.models import Scenario, AuctionYear, Pot, Technology
+s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
 
 from django.test.utils import setup_test_environment
 setup_test_environment()
@@ -412,3 +413,5 @@ Auctionyear old method:
 #                     'cost': np.sum})
 # print('after',t.awarded_gen)
 #
+
+<a class="new" href="{% url 'scenario_new' pk=s.pk %}"><span title="new scenario" class="glyphicon glyphicon-plus"></span> Save as</a>

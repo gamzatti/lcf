@@ -43,7 +43,9 @@
 <!--<p>period: <strong>{{ scenario.start_year1 }} to {{ scenario.end_year1 }}</strong></p>-->
 <p>budget period 1: <strong>£{{ scenario.budget }}bn</strong></p>
 <p>budget period 2: <strong>£{% if scenario.budget2 != None %}{{ scenario.budget2 }}{% else %}{{ scenario.budget }}{% endif %}bn</strong></p>
-
+<p>Excel quirks? <strong> {% if scenario.excel_quirks == True %} True {% else %} False {% endif %}
+<!-- <p>Excel gen? <strong> {% if scenario.excel_quirks == True %} True {% else %} False {% endif %}
+<p>Excel quirks? <strong> {% if scenario.excel_quirks == True %} True {% else %} False {% endif %} -->
 <p>percent in emerging pot: <strong>{{ scenario.percent_emerging }}</strong></p>
 
 
@@ -95,6 +97,8 @@
 <!-- <div class="graph">
     {{ gen_by_tech_chart1.as_html }} -->
     {{ tech_gen_pivot | safe }}
+    {{ tech_gen_pivot2 | safe }}
+
 <!--    {{ gen_by_tech_df1 | safe }} -->
     <!-- {{ gen_by_tech_chart2.as_html }}
     {{ gen_by_tech_df2 | safe }}

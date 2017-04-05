@@ -5,8 +5,8 @@ from django.forms import Textarea
 
 class ScenarioForm(forms.ModelForm):
     #all_excel_quirks = forms.BooleanField(required=False, label="Include/exclude all Excel quirks")
-    WP_CHOICES = (("new", "2017 Emissions data"),
-                  ("excel", "Excel version"),
+    WP_CHOICES = (("excel", "Excel version"),
+                  ("new", "2017 Emissions data"),
                   ("other", "Other"),
                   )
     GAS_CHOICES = (("excel", "Excel version"),
@@ -19,7 +19,7 @@ class ScenarioForm(forms.ModelForm):
 
     class Meta:
         model = Scenario
-        fields = ('name', 'description', 'budget', 'budget2', 'percent_emerging','excel_quirks')
+        fields = ('name', 'description', 'budget', 'budget2', 'percent_emerging','excel_quirks', 'end_year1')
         widgets = {
           'description': Textarea(attrs={'rows':2, 'cols':20}),
         }

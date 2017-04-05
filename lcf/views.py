@@ -14,6 +14,7 @@ import re
 import csv
 from graphos.sources.simple import SimpleDataSource
 from graphos.renderers.gchart import LineChart, ColumnChart
+from django.db import connection
 
 def scenario_new(request,pk):
     scenarios = Scenario.objects.all()
@@ -102,6 +103,7 @@ def upload(request):
                 a = AuctionYear.objects.create(year=y, scenario=s, gas_price=gas_prices[i], wholesale_price=wholesale_prices[i])
                 for p in ['E', 'M', 'SN', 'FIT']:
                     Pot.objects.create(auctionyear=a,name=p)
+            #s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=s.pk)
 
             file = request.FILES['file']
             handle_uploaded_file(file,s)
@@ -127,27 +129,20 @@ def scenario_delete(request, pk):
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     return redirect('scenario_detail', pk=recent_pk)
 
+from django.views.decorators.cache import never_cache
 
+@never_cache
 def scenario_detail(request, pk=None):
-    t0 = time.time() * 1000
-    if pk == None:
-        scenario = Scenario.objects.all().order_by("-date")[0]
-    else:
-        scenario = get_object_or_404(Scenario,pk=pk)
-
-
-    print("don't cache me !")
-    #scenario.clear_all()
-    for p in Pot.objects.filter(auctionyear__scenario=scenario).order_by("auctionyear__year"):
-        p.run_auction() # may be making it slow. put elsewhere?
-
-    # for t in Technology.objects.filter(pot__auctionyear__scenario=scenario, pot__name="E"):
-    #     print(t.pot.auctionyear.year, t.name, t.cum_owed_v_wp)
-
-    # for p in Pot.objects.filter(auctionyear__scenario=scenario):
-    #     p.cum_owed_v("wp")
-    #     print(p.auctionyear.year, p.name, p.cum_owed_v_wp)
-
+    # if pk == None:
+    #     scenario = Scenario.objects.all().order_by("-date")[0]
+    # else:
+    #scenario = get_object_or_404(Scenario,pk=pk)
+    #print("without prefetching")
+    scenario = Scenario.objects.prefetch_related('auctionyear_set__pot_set__technology_set').get(id=pk)
+    print('instantiating a scenario object with prefetched attributes')
+    print(scenario.name)
+    print("[lease sss don't cache me!")
+    scenario.get_results()
 
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     scenarios = Scenario.objects.all()
@@ -161,15 +156,16 @@ def scenario_detail(request, pk=None):
     # meth_list = ["cumulative_costs","cum_awarded_gen_by_pot","gen_by_tech", 'cap_by_tech']
     # t1 = time.time() * 1000
 
-    context['tech_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'awarded_gen'))
-    context['tech_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_wp'))
-    context['tech_cum_owed_v_wp_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_wp'))
-    context['tech_cum_owed_v_gas_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_gas'))
-    context['tech_cum_owed_v_gas_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_gas'))
-    context['tech_cum_owed_v_absolute_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_absolute'))
-    context['tech_cum_owed_v_absolute_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_absolute'))
-    context['tech_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_awarded_gen'))
-    context['tech_cum_awarded_gen_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_awarded_gen'))
+    context['tech_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'awarded_gen', 'Generation awarded each year LCF 1'))
+    context['tech_gen_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'awarded_gen', 'Generation awarded each year LCF 2'))
+    context['tech_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_wp','Accounting cost LCF 1'))
+    context['tech_cum_owed_v_wp_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_wp','Accounting cost LCF 2'))
+    context['tech_cum_owed_v_gas_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_gas', 'Cost v gas LCF 1'))
+    context['tech_cum_owed_v_gas_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_gas', 'Cost v gas LCF 2'))
+    context['tech_cum_owed_v_absolute_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_absolute', 'Absolute cost LCF 1'))
+    context['tech_cum_owed_v_absolute_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_absolute', 'Absolute cost LCF 2'))
+    context['tech_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_awarded_gen', 'Cumulative new generation LCF 1'))
+    context['tech_cum_awarded_gen_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_awarded_gen', 'Cumulative new generation LCF 2'))
     # context['pot_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.pot_pivot_table(1,'cum_owed_v_wp'))
     # context['pot_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.pot_pivot_table(1,'cum_awarded_gen_result'))
 
@@ -190,6 +186,10 @@ def scenario_detail(request, pk=None):
     #         context["".join([meth,"_df",str(period_num)])] = df[meth][period_num]
     # t2 = time.time() * 1000
     # print(t2-t1,t1-t0)
+    #print(connection.queries)
+    #for query in connection.queries:
+    #    print('\n',query)
+    print('rendering request')
     return render(request, 'lcf/scenario_detail.html', context)
 
 def scenario_download(request,pk):
@@ -203,8 +203,9 @@ def scenario_download(request,pk):
     writer = csv.writer(response)
 
     auctionyears = scenario.period(1)
-    qs_techs = Technology.objects.filter(pot__auctionyear__in = auctionyears)
-    df_techs = read_frame(qs_techs, fieldnames=['pot__auctionyear__year','pot__name','name','awarded_gen', 'awarded_cost', 'cum_awarded_gen', 'cum_owed_v_gas', 'cum_owed_v_wp', 'cum_owed_v_absolute'])
+    #qs_techs = Technology.objects.filter(pot__auctionyear__in = auctionyears)
+    #df_techs = read_frame(qs_techs, fieldnames=['pot__auctionyear__year','pot__name','name','awarded_gen', 'awarded_cost', 'cum_awarded_gen', 'cum_owed_v_gas', 'cum_owed_v_wp', 'cum_owed_v_absolute'])
+    df_techs = scenario.get_results()
     tech_data = df_techs.values.tolist()
     tech_col_names = list(df_techs.columns)
 

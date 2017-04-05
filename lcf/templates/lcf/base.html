@@ -44,9 +44,9 @@
                 <ul class="nav nav-sidebar">
                   {% for s in scenarios %}
                       {% if scenario.pk == s.pk %}
-                          <li class="active"><a href="{% url 'scenario_detail' pk=s.pk %}">{{ s.name }}</a><a class="del" href="{% url 'scenario_delete' pk=s.pk %}"><span title="delete scenario" class="glyphicon glyphicon-remove"></span> Delete</a><a class="new" href="{% url 'scenario_new' pk=s.pk %}"><span title="new scenario" class="glyphicon glyphicon-plus"></span> Save as</a></li>
+                          <li class="active"><a href="{% url 'scenario_detail' pk=s.pk %}">{{ s.name }}</a><a class="del" href="{% url 'scenario_delete' pk=s.pk %}"><span title="delete scenario" class="glyphicon glyphicon-remove"></span> Delete</a></li>
                       {% else %}
-                          <li><a href="{% url 'scenario_detail' pk=s.pk %}">{{ s.name }}</a><a class="del" href="{% url 'scenario_delete' pk=s.pk %}"><span title="delete scenario" class="glyphicon glyphicon-remove"></span> Delete</a><a class="new" href="{% url 'scenario_new' pk=s.pk %}"><span title="new scenario" class="glyphicon glyphicon-plus"></span> Save as</a></li>
+                          <li><a href="{% url 'scenario_detail' pk=s.pk %}">{{ s.name }}</a><a class="del" href="{% url 'scenario_delete' pk=s.pk %}"><span title="delete scenario" class="glyphicon glyphicon-remove"></span> Delete</a></li>
                       {% endif %}
                   {% endfor %}
                 </ul>

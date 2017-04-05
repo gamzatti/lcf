@@ -15,10 +15,6 @@ class AuctionYear(models.Model):
     year = models.IntegerField(default=2020)
     wholesale_price = models.FloatField(default=53)
     gas_price = models.FloatField(default=85)
-    budget_result = models.FloatField(blank=True, null=True)
-    # cum_owed_v_wp = models.FloatField(blank=True, null=True)
-    # cum_owed_v_gas = models.FloatField(blank=True, null=True)
-    # cum_owed_v_absolute = models.FloatField(blank=True, null=True)
 
 
     def __str__(self):
@@ -29,6 +25,11 @@ class AuctionYear(models.Model):
         #self._budget = None
         self._unspent = None
         self._previous_year_unspent = None
+        self.budget_result = None
+        # self.cum_owed_v_wp = None
+        # self.cum_owed_v_gas = None
+        # self.cum_owed_v_absolute = None
+        self.pot_dict = { pot.name : pot for pot in self.pot_set.all() }
 
 
     #budget methods
@@ -48,18 +49,14 @@ class AuctionYear(models.Model):
     #@lru_cache(maxsize=128)
     def budget(self):
         if self.budget_result:
-            res = self.budget_result
-            return res
+            return self.budget_result
         else:
             sb = self.starting_budget() #slower than necessary but not that big a deal
             pyu = self.previous_year_unspent()
             afsn = self.awarded_from("SN")
             affit = self.awarded_from("FIT")
             self.budget_result = sb + pyu - afsn - affit
-            res = self.budget_result
-            self.save()
-
-        return res
+            return self.budget_result
 
     #@lru_cache(maxsize=128)
     def unspent(self):
@@ -76,7 +73,7 @@ class AuctionYear(models.Model):
     def previous_year(self):
         if self.year == 2020:
             return None
-        return self.scenario.auctionyear_set.get(year=self.year-1)
+        return self.scenario.auctionyear_dict[self.year-1]
 
     #@lru_cache(maxsize=128)
     def previous_year_unspent(self):
@@ -110,6 +107,15 @@ class AuctionYear(models.Model):
                 years = self.scenario.period(2)
         return {'num': num, 'years': years}
 
+    def cum_future_years(self):
+        if self.year == 2020:
+            return [self]
+        else:
+            return [a for a in self.period() if a.year >= self.year ]
+
+
+
+
     #@lru_cache(maxsize=128)
     # def cum_years(self):
     #     if self.year == 2020:
@@ -128,14 +134,14 @@ class AuctionYear(models.Model):
     #@lru_cache(maxsize=128)
     def awarded_from(self,pot):
         if pot == "FIT" or pot == "SN":
-            if self.active_pots().filter(name=pot).exists():
-                p = Pot.objects.get(name=pot,auctionyear=self)
-                res = p.awarded_cost()
-                return res
-            else:
-                return 0
+            #if self.active_pots().filter(name=pot).exists():
+            p = self.pot_dict[pot]
+            res = p.awarded_cost()
+            return res
+        #else:
+            #    return 0
         elif pot == "auction":
-            res = sum([pot.awarded_cost() for pot in self.active_pots() if pot.name == "E" or pot.name == "M"])
+            res = self.pot_dict["E"].awarded_cost() + self.pot_dict["M"].awarded_cost()
             return res
         elif pot == "total":
             res = sum([self.awarded_from("FIT"),self.awarded_from("SN"),self.awarded_from("auction")])

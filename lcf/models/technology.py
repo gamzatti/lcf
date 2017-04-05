@@ -7,15 +7,15 @@ from functools import lru_cache
 import datetime
 import time
 
-class TechnologyManager(models.Manager):
-    def create_technology(self, **kwargs):
-        t = self.create(**kwargs)
-        if t.num_new_projects != None:
-            t.fill_in_max_deployment_cap()
-        elif t.max_deployment_cap == None:
-            print("You must specify either num_new_projects or max_deployment_cap")
-        return t
-
+# class TechnologyManager(models.Manager):
+#     def create_technology(self, **kwargs):
+#         t = self.create(**kwargs)
+#         if t.num_new_projects != None:
+#             t.fill_in_max_deployment_cap()
+#         elif t.max_deployment_cap == None:
+#             print("You must specify either num_new_projects or max_deployment_cap")
+#         return t
+#
 
 class Technology(models.Model):
     TECHNOLOGY_CHOICES = (
@@ -37,17 +37,20 @@ class Technology(models.Model):
     project_gen = models.FloatField(default=100, verbose_name="Average project generation") #"Average project pa (GWh)"
     max_deployment_cap = models.FloatField(null=True, blank=True)
     included = models.BooleanField(default=True)
-    awarded_gen = models.FloatField(null=True, blank=True, verbose_name="Generation awarded each year (TWh)")
-    awarded_cost = models.FloatField(default=0)
-    num_new_projects = models.IntegerField(null=True, blank=True)
-    cum_owed_v_wp = models.FloatField(default=0, verbose_name="Accounting cost (£bn)")
-    cum_owed_v_gas = models.FloatField(default=0, verbose_name="Cost v gas (£bn)")
-    cum_owed_v_absolute = models.FloatField(default=0, verbose_name="Absolute cost (£bn)")
-    cum_awarded_gen = models.FloatField(default=0, verbose_name="Cumulative new generation (TWh)")
-    objects = TechnologyManager()
+    num_new_projects = models.FloatField(null=True,blank=True)
+
+    # objects = TechnologyManager()
 
     def __init__(self, *args, **kwargs):
         super(Technology, self).__init__(*args, **kwargs)
+        #print('new tech!, name:',self.name)
+        self.awarded_gen = 0
+        self.awarded_cost = 0
+        self.cum_owed_v_wp = 0
+        self.cum_owed_v_gas = 0
+        self.cum_owed_v_absolute = 0
+        self.cum_awarded_gen = 0
+        self._max_deployment_cap = self.max_deployment_cap if self.num_new_projects == None else self.num_new_projects * self.project_gen / self.load_factor / 8760
 
 
     def __str__(self):
@@ -57,8 +60,8 @@ class Technology(models.Model):
     #@lru_cache(maxsize=128)
     def get_field_values(self):
         fields = [f.name for f in Technology._meta.get_fields()]
-        fields.remove('awarded_gen')
-        fields.remove('awarded_cost')
+        # fields.remove('awarded_gen')
+        # fields.remove('awarded_cost')
         values = [getattr(self, f, None) for f in fields]
         di = dict(zip(fields,values))
         return di
@@ -85,12 +88,12 @@ class Technology(models.Model):
         if self.pot.auctionyear.year == 2020:
             return None
         else:
-            previous_tech = Technology.objects.get(name = self.name, pot__auctionyear__scenario = self.pot.auctionyear.scenario, pot__auctionyear__year = self.pot.auctionyear.year-1)
+            previous_tech = self.pot.previous_year().technology_dict[self.name]
             return previous_tech
 
     #@lru_cache(maxsize=128)
     def this_year_gen(self):
-        return self.max_deployment_cap * self.load_factor * 8.760 * 1000
+        return self._max_deployment_cap * self.load_factor * 8.760 * 1000
 
     #@lru_cache(maxsize=128)
     def previous_gen(self):
@@ -108,9 +111,9 @@ class Technology(models.Model):
     def num_projects(self):
         if self.num_new_projects != None:
             if self.pot.auctionyear.year == 2020:
-                return self.num_new_projects
+                return int(self.num_new_projects)
             else:
-                res = self.num_new_projects + self.previous_year().num_projects()
+                res = int(self.num_new_projects) + self.previous_year().num_projects()
                 return res
         else:
             res = int(self.new_generation_available() / self.project_gen)
@@ -118,10 +121,16 @@ class Technology(models.Model):
 
     @lru_cache(maxsize=128)
     def projects_index(self):
-        return [ self.name + str(i + 1) for i in range(self.num_projects()) ]
+        if self.num_projects() == 0:
+            return []
+        else:
+            #print(self.num_projects())
+            return [ self.name + str(i + 1) for i in range(self.num_projects()) ]
 
     #@lru_cache(maxsize=128)
     def levelised_cost_distribution(self):
+        if self.num_projects == 0:
+            return Series()
         if self.pot.auctionyear.scenario.tidal_levelised_cost_distribution == True and self.pot.auctionyear.year == 2025 and self.name == "TL":
             dist = Series(np.linspace(self.min_levelised_cost,150,self.num_projects()),name="levelised_cost", index=self.projects_index())
         else:
@@ -134,29 +143,33 @@ class Technology(models.Model):
 
     #@lru_cache(maxsize=128)
     def projects(self):
+        # if self.num_new_projects != None:
+        #     self.fill_in_max_deployment_cap()
+        # elif self.max_deployment_cap == None:
+        #     print("You must specify either num_new_projects or max_deployment_cap")
+        if self.num_projects == 0:
+            return DataFrame()
+        else:
+            data = self.levelised_cost_distribution()
+            index = self.projects_index()
+            projects = DataFrame(data=data, index=index)
+            #projects['gen'] = self.new_generation_available()
+            projects['gen'] = self.project_gen
+            projects['technology'] = self.name
+            projects['strike_price'] = self.strike_price
+            #projects['clearing_price'] = np.nan
+            projects['affordable'] = projects.levelised_cost <= projects.strike_price
+            projects['pot'] = self.pot.name
+            projects['listed_year'] = self.pot.auctionyear.year
+            return projects
+    #
+    # def fill_in_max_deployment_cap(self):
+    #     project_cap = self.project_gen / self.load_factor / 8760 # for tidal = 2200 / 0.22 / 8760 = 1.14155251141553
+    #     self._max_deployment_cap = self.num_new_projects * project_cap # need to check that it's right to put num_new_projects rather than num_projects
 
-        data = self.levelised_cost_distribution()
-        index = self.projects_index()
-        projects = DataFrame(data=data, index=index)
-        #projects['gen'] = self.new_generation_available()
-        projects['gen'] = self.project_gen
-        projects['technology'] = self.name
-        projects['strike_price'] = self.strike_price
-        #projects['clearing_price'] = np.nan
-        projects['affordable'] = projects.levelised_cost <= projects.strike_price
-        projects['pot'] = self.pot.name
-        projects['listed_year'] = self.pot.auctionyear.year
-        return projects
-
-    def fill_in_max_deployment_cap(self):
-        project_cap = self.project_gen / self.load_factor / 8760 # for tidal = 2200 / 0.22 / 8760 = 1.14155251141553
-        self.max_deployment_cap = self.num_new_projects * project_cap # need to check that it's right to put num_new_projects rather than num_projects
-        self.save()
 
     def cum_future_techs(self):
         if self.pot.auctionyear.year == 2020:
             return [self]
         else:
-            end_year = self.pot.auctionyear.scenario.end_year1 if self.pot.auctionyear.year <= self.pot.auctionyear.scenario.end_year1 else self.pot.auctionyear.scenario.end_year2
-            cum_future_techs = Technology.objects.filter(pot__auctionyear__scenario=self.pot.auctionyear.scenario, name=self.name, pot__auctionyear__year__range=(self.pot.auctionyear.year, end_year)).order_by("pot__auctionyear__year")
-            return cum_future_techs
+            return [ p.technology_dict[self.name] for p in self.pot.cum_future_pots() ]

@@ -13,6 +13,7 @@ import math
 
 
 
+
 def clear_all():
     for p in Pot.objects.all():
         p.auction_has_run = False
@@ -678,3 +679,69 @@ class CumT(TestCase):
         self.assertEqual(p.auction_has_run,True)
         self.assertEqual(t.awarded_cost, 473.366720639997)
         self.assertEqual(t.cum_owed_v_wp, 473.366720639997)
+
+class Prefetch(TestCase):
+    fixtures = ['tests/new/data2.json']
+
+    def test_get_scenario(self):
+        # s = Scenario.objects.get(id=281)
+        # self.assertNotEqual(id(s.auctionyear_set.all()),id(s.auctionyear_set.all()))
+        s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
+        self.assertEqual(id(s.auctionyear_set.all()),id(s.auctionyear_set.all()))
+        self.assertEqual(s.auctionyear_set.all()[3], s.auctionyear_set.all()[3])
+        self.assertEqual(id(s.auctionyear_dict[2021]), id(s.auctionyear_dict[2021]))
+        a = s.auctionyear_dict[2021]
+        pot_dict = a.pot_dict
+        pot_dict2 = a.pot_dict
+        self.assertEqual(id(pot_dict),id(pot_dict2))
+        p = a.pot_dict['E']
+        t = p.technology_dict['OFW']
+        t2 = s.auctionyear_dict[2021].pot_dict['E'].technology_dict['OFW']
+        self.assertEqual(id(t),id(t2))
+        self.assertEqual(id(t.pot),id(t2.pot))
+        self.assertEqual(id(t.pot.auctionyear.scenario.auctionyear_dict[2025]),id(t2.pot.auctionyear.scenario.auctionyear_dict[2025]))
+        #print(s.period(2))
+        #resp = self.client.get(reverse('scenario_detail',kwargs={'pk': 281}))
+        flat_t_dict = { t.name + str(t.pot.auctionyear.year) : t for a in s.auctionyear_dict.values() for p in a.pot_dict.values() for t in p.technology_dict.values() }
+        flat_t_dict2 = { t.name + str(t.pot.auctionyear.year) : t for a in s.auctionyear_dict.values() for p in a.pot_dict.values() for t in p.technology_dict.values() }
+        #print(s.flat_tech_dict)
+        self.assertEqual(id(flat_t_dict['OFW2022']),id(s.flat_tech_dict['OFW2022']))
+        #print(s.df_to_html(s.techs_df()))
+        #print(s.pivot_to_html(s.tech_pivot_table(2,'min_levelised_cost')))
+        #print(s.techs_input())
+        #print(s.prices_input())
+        #print(s.techs_input_html())
+
+    def test_auctionyear(self):
+        s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
+        # a = s.auctionyear_dict[2021]
+        # a.foo = 400
+        # a_again = s.auctionyear_dict[2021]
+        # self.assertEqual(a.foo,a_again.foo)
+        #for y in range(2020,2031):
+        for y in [2030,2029,2028,2027,2026, 2025, 2024, 2023, 2022, 2021, 2020]:
+            a = s.auctionyear_dict[y]
+            for n in ['E', 'M', 'SN', 'FIT']:
+                p = a.pot_dict[n]
+                p.run_auction()
+        print(s.tech_pivot_table(1,'cum_awarded_gen'))
+        # p = a_again.pot_dict["E"]
+        # print(p.cum_owed_v_gas)
+
+    def test_get_results(self):
+        s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
+        s.get_results()
+        print(s.tech_pivot_table(1,'cum_awarded_gen'))
+
+class Recheck(TestCase):
+    fixtures = ['tests/new/data2.json']
+
+    def test_json(self):
+#        s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
+        s = Scenario.objects.all().get(pk=281)
+        print(s.get_results())
+#        t = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
+        t = Scenario.objects.all().get(pk=281)
+        print(t.get_results())
+        assert_frame_equal(s.get_results(),t.get_results())
+        print(s.tech_pivot_table(1,'cum_awarded_gen'))

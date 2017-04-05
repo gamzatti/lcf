@@ -1,4 +1,5 @@
-from django.conf.urls import url
+from django.conf.urls import include, url
+from django.conf import settings
 from . import views
 
 urlpatterns = [
@@ -12,3 +13,9 @@ urlpatterns = [
     url('', views.scenario_detail, name='scenario_detail'),
 
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns

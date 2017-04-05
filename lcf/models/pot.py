@@ -7,6 +7,7 @@ from functools import lru_cache
 import datetime
 import inspect
 import time
+import timeit
 from .technology import Technology
 from django_pandas.managers import DataFrameManager
 from django.db.models import F
@@ -20,17 +21,6 @@ class Pot(models.Model):
     )
     auctionyear = models.ForeignKey('lcf.auctionyear', default=232)
     name = models.CharField(max_length=3, choices=POT_CHOICES, default='E')
-    auction_has_run = models.BooleanField(default=False)
-    budget_result = models.FloatField(null=True, blank=True)
-    awarded_cost_result = models.FloatField(null=True, blank=True)
-    awarded_gen_result = models.FloatField(null=True, blank=True)
-    auction_results = models.TextField(null=True,blank=True)
-    auction_budget_result = models.FloatField(null=True, blank=True)
-    cum_owed_v_wp = models.FloatField(verbose_name="Accounting cost (£bn)",blank=True, null=True)
-    cum_owed_v_gas = models.FloatField(blank=True, null=True)
-    cum_owed_v_absolute = models.FloatField(blank=True, null=True)
-    previously_funded_projects_results = models.TextField(null=True,blank=True)
-    cum_awarded_gen_result = models.FloatField(verbose_name="Cumulative generation (TWh)",blank=True, null=True)
     objects = DataFrameManager()
 
     def __str__(self):
@@ -39,11 +29,25 @@ class Pot(models.Model):
     def __init__(self, *args, **kwargs):
         super(Pot, self).__init__(*args, **kwargs)
         self._percent = None
+        self.awarded_gen = 0
+        self.auction_has_run = False
+        self.budget_result = None
+        self.awarded_cost_result = None
+        self.awarded_gen_result = None
+        self.auction_results = None
+        self.auction_budget_result = None
+        self.cum_owed_v_wp = None
+        self.cum_owed_v_gas = None
+        self.cum_owed_v_absolute = None
+        self.previously_funded_projects_results = None
+        self.cum_awarded_gen_result = None
+        self.technology_dict = { t.name : t for t in self.technology_set.all() }
 
 
     #helper methods
     def tech_set(self):
-        return self.technology_set.filter(included=True)
+        #return self.technology_set.filter(included=True)
+        return [ t for t in self.technology_dict.values() if t.included == True ]
 
     def period_pots_calc(self):
         if self.auctionyear.year == 2020:
@@ -52,7 +56,7 @@ class Pot(models.Model):
         else:
             years = self.auctionyear.period()
             num = self.auctionyear.period_num()
-            pots = Pot.objects.filter(name=self.name, auctionyear__in=years).order_by("auctionyear__year")
+            pots = [a.pot_dict[self.name] for a in years]
         return {'num': num, 'pots': pots}
 
     def period_pots(self):
@@ -76,6 +80,15 @@ class Pot(models.Model):
     #         end_year = self.auctionyear.scenario.end_year1 if self.auctionyear.year <= self.auctionyear.scenario.end_year1 else self.auctionyear.scenario.end_year2
     #         cum_future_pots = Pot.objects.filter(auctionyear__scenario=self.auctionyear.scenario, name=self.name, auctionyear__year__range=(self.auctionyear.year, end_year)).order_by("auctionyear__year")
     #         return cum_future_pots
+
+
+
+    def cum_future_pots(self):
+        if self.auctionyear.year == 2020:
+            return [self]
+        else:
+            return [p for p in self.period_pots() if p.auctionyear.year >= self.auctionyear.year ]
+
 
 
 
@@ -103,7 +116,6 @@ class Pot(models.Model):
             elif self.name == "SN" or self.name == "FIT":
                 result = np.nan
             self.budget_result = result
-            self.save()
             return result
 
     #@lru_cache(maxsize=128)
@@ -112,13 +124,13 @@ class Pot(models.Model):
             return self.auction_budget_result
         else:
             self.auction_budget_result = self.auctionyear.budget()
-            self.save()
             if self.name == "E":
-                sister_pot = Pot.objects.get(auctionyear=self.auctionyear,name="M")
+                #sister_pot = Pot.objects.get(auctionyear=self.auctionyear,name="M")
+                sister_pot = self.auctionyear.pot_dict["M"]
             elif self.name == "M":
-                sister_pot = Pot.objects.get(auctionyear=self.auctionyear,name="M")
+                #sister_pot = Pot.objects.get(auctionyear=self.auctionyear,name="M")
+                sister_pot = self.auctionyear.pot_dict["M"] # should be E surely?
             sister_pot.auction_budget_result = self.auctionyear.budget()
-            sister_pot.save()
             return self.auction_budget_result
 
 
@@ -134,7 +146,8 @@ class Pot(models.Model):
 
     #auction methods
     def previous_year(self):
-        return self.auctionyear.scenario.auctionyear_set.get(year = self.auctionyear.year - 1).active_pots().get(name=self.name)
+        return self.auctionyear.scenario.auctionyear_dict[self.auctionyear.year-1].pot_dict[self.name]
+#        return self.auctionyear.scenario.auctionyear_set.get(year = self.auctionyear.year - 1).active_pots().get(name=self.name)
 
     @lru_cache(maxsize=128)
     def previously_funded_projects(self):
@@ -155,7 +168,12 @@ class Pot(models.Model):
     @lru_cache(maxsize=128)
     def run_auction(self):
         #print('called', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
-        if self.auction_has_run == True:
+        if len(self.technology_dict) == 0:
+            self.awarded_cost_result = 0
+            self.awarded_gen_result = 0
+            self.auction_has_run = "n/a"
+            # self.auction_results = DataFrame().to_json()
+        elif self.auction_has_run == True:
             print('decoding json')
             column_order = ['levelised_cost', 'gen', 'technology', 'strike_price', 'affordable', 'pot', 'listed_year', 'previously_funded', 'eligible', 'difference', 'cost', 'attempted_cum_cost', 'funded_this_year', 'attempted_project_gen', 'attempted_cum_gen']
             df = pd.read_json(self.auction_results).sort_values(['strike_price', 'levelised_cost']).reindex(columns=column_order)
@@ -180,33 +198,33 @@ class Pot(models.Model):
 
 
 
-            self.update_db(projects)
+            self.update_variables(projects)
             #if self.auctionyear.year == 2020:
             #    print(projects)
+
             return projects
 
     def concat_projects(self):
-        res = pd.concat([t.projects() for t in self.tech_set().all()]) ##slow
+        res = pd.concat([t.projects() for t in self.technology_dict.values()]) ##slow
         return res
 
 
-    def update_db(self,projects):
+    def update_variables(self,projects):
         #print("updating db", self.name, self.auctionyear.year)
         successful_projects = projects[(projects.funded_this_year == True)]
-        for t in self.tech_set().all():
+        for t in self.technology_dict.values():
             t_projects = successful_projects[successful_projects.technology == t.name]
-            t_awarded_gen = t_projects.attempted_project_gen.sum()/1000 if pd.notnull(t_projects.attempted_project_gen.sum()) else 0
-            t.awarded_gen = t_awarded_gen
-            t_awarded_cost = sum(t_projects.cost)
-            t.awarded_cost = t_awarded_cost
+            t.awarded_gen = t_projects.attempted_project_gen.sum()/1000 if pd.notnull(t_projects.attempted_project_gen.sum()) else 0
+            t.awarded_cost = sum(t_projects.cost)
             if self.auctionyear.year == self.auctionyear.scenario.start_year2:
                 t.cum_owed_v_wp = 0
                 t.cum_owed_v_gas = 0
                 t.cum_owed_v_absolute = 0
                 t.cum_awarded_gen = 0
-            t.save()
-
-
+            # if (self.auctionyear.scenario.excel_2020_gen_error == True or self.auctionyear.scenario.excel_quirks == True) and self.auctionyear.year == 2020:
+            #     print("adding in 2020 gen")
+            #     t.cum_awarded_gen = t.awarded_gen
+            #     print(t.cum_awarded_gen) f
             for future_t in t.cum_future_techs():
                 if (self.auctionyear.scenario.excel_sp_error == True or self.auctionyear.scenario.excel_quirks == True) and (self.name == "E" or self.name == "SN"):
                     strike_price = future_t.strike_price
@@ -218,23 +236,21 @@ class Pot(models.Model):
                 else:
                     wp = future_t.pot.auctionyear.wholesale_price
                     gas = future_t.pot.auctionyear.gas_price
-                future_owed_v_wp = t_awarded_gen * (strike_price - wp)
-                future_owed_v_gas = t_awarded_gen * (strike_price - gas)
-                future_owed_v_absolute = t_awarded_gen * strike_price
 
-                #print("technology {} year {} owes year {}: {}".format(t.name, t.pot.auctionyear.year, future_t.pot.auctionyear.year,future_owed_v_wp))
-                future_t.cum_owed_v_wp = F('cum_owed_v_wp') + future_owed_v_wp
-                future_t.cum_owed_v_gas = F('cum_owed_v_gas') + future_owed_v_gas
-                future_t.cum_owed_v_absolute = F('cum_owed_v_absolute') + future_owed_v_absolute
-                future_t.cum_awarded_gen = F('cum_awarded_gen') + t_awarded_gen ## need to deal with excel_2020_gen_error
-
-                future_t.save()
-
+                future_t.cum_owed_v_wp += t.awarded_gen * (strike_price - wp)
+                future_t.cum_owed_v_gas += t.awarded_gen * (strike_price - gas)
+                future_t.cum_owed_v_absolute += t.awarded_gen * strike_price
+                future_t.cum_awarded_gen += t.awarded_gen ## need to deal with excel_2020_gen_error
+                if (self.auctionyear.scenario.excel_2020_gen_error == True or self.auctionyear.scenario.excel_quirks == True) and self.auctionyear.year == self.auctionyear.scenario.start_year1 and t.pot.name != "FIT":
+                    t2020 = self.auctionyear.scenario.auctionyear_dict[2020].pot_dict[t.pot.name].technology_dict[t.name]
+                    future_t.cum_awarded_gen += t2020.awarded_gen
         self.awarded_cost_result = sum(successful_projects.cost)
         self.awarded_gen_result = sum(successful_projects.attempted_project_gen)/1000
+        #self._awarded_gen = sum(successful_projects.attempted_project_gen)/1000
         self.auction_has_run = True
         self.auction_results = projects.to_json()
-        self.save(update_fields=['auction_has_run', 'awarded_cost_result', 'awarded_gen_result', 'auction_results'])
+        #print(self.auction_has_run)
+
     #def will_pay_df(self):
     #    projects = self.run_auction()
     #
