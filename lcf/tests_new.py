@@ -745,3 +745,4 @@ class Recheck(TestCase):
         print(t.get_results())
         assert_frame_equal(s.get_results(),t.get_results())
         print(s.tech_pivot_table(1,'cum_awarded_gen'))
+        

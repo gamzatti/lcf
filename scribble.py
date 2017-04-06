@@ -415,3 +415,390 @@ Auctionyear old method:
 #
 
 <a class="new" href="{% url 'scenario_new' pk=s.pk %}"><span title="new scenario" class="glyphicon glyphicon-plus"></span> Save as</a>
+
+<!--<li><a class="new" href="{% url 'scenario_new' pk=scenario.pk %}"><span title="new scenario" class="glyphicon glyphicon-plus"></span> New scenario based on current</a></li>-->
+
+# def scenario_new(request,pk):
+#     scenarios = Scenario.objects.all()
+#     scenario_original = get_object_or_404(Scenario, pk=pk)
+#     queryset = Technology.objects.filter(pot__auctionyear__scenario=scenario_original)
+#     techs = Technology.objects.filter(pot__auctionyear=scenario_original.auctionyear_set.all()[0])
+#     num_techs = techs.count()
+#     TechnologyStringFormSet = formset_factory(TechnologyStringForm, extra=0, max_num=10)
+#     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
+#
+#     if request.method == "POST":
+#         scenario_form = ScenarioForm(request.POST)
+#         prices_form = PricesForm(request.POST)
+#         string_formset = TechnologyStringFormSet(request.POST)
+#
+#         if string_formset.is_valid() and scenario_form.is_valid() and prices_form.is_valid():
+#             scenario_new = scenario_form.save()
+#             wholesale_prices = [float(w) for w in list(filter(None, re.split("[, \-!?:\t]+",prices_form.cleaned_data['wholesale_prices'])))]
+#             gas_prices = [float(g) for g in list(filter(None, re.split("[, \-!?:\t]+",prices_form.cleaned_data['gas_prices'])))]
+#             for i, y in enumerate(range(2020,scenario_new.end_year2+1)):
+#                 a = AuctionYear.objects.create(year=y, scenario=scenario_new, gas_price=gas_prices[i], wholesale_price=wholesale_prices[i])
+#                 for p in [p.name for p in scenario_original.auctionyear_set.all()[0].pot_set.all()]:
+#                 #for p in ['E', 'M', 'SN', 'FIT']:
+#                     Pot.objects.create(auctionyear=a,name=p)
+#             q = Pot.objects.filter(auctionyear__scenario=scenario_new)
+#
+#             for form in string_formset:
+#                 fields = [f.name for f in Technology._meta.get_fields() if f.name not in ["pot", "id", "name", "included", "awarded_gen", "awarded_cost"]]
+#                 field_data = { field : [float(s) for s in list(filter(None, re.split("[, \-!?:\t]+",form.cleaned_data[field])))] for field in fields  }
+#                 for i, a in enumerate(AuctionYear.objects.filter(scenario=scenario_new)):
+#                     kwargs = { field : field_data[field][i] if field_data[field] != [] else None for field in field_data }
+#                     kwargs['name'] = form.cleaned_data['name']
+#                     kwargs['included'] = form.cleaned_data['included']
+#                     kwargs['pot'] = q.filter(auctionyear=a).get(name=form.cleaned_data['pot'])
+#                     Technology.objects.create_technology(**kwargs)
+#             return redirect('scenario_detail', pk=scenario_new.pk)
+#         else:
+#             print(string_formset.errors)
+#             print(scenario_form.errors)
+#             print(prices_form.errors)
+#     print('rendering scenario form')
+#     scenario_form = ScenarioForm(instance=scenario_original)
+#     print('finding initial prices')
+#     initial_prices = {'gas_prices': str([a.gas_price for a in scenario_original.auctionyear_set.all()]).strip('[]'), 'wholesale_prices': str([a.wholesale_price for a in scenario_original.auctionyear_set.all() ]).strip('[]')}
+#     print('rendering pries form')
+#     prices_form = PricesForm(initial=initial_prices)
+#     print('finding technology data')
+#     names = scenario_original.technology_form_helper()[0]
+#     print('rendering technology form')
+#     technology_form_helper = scenario_original.technology_form_helper()[1]
+#     string_formset = TechnologyStringFormSet(initial=technology_form_helper)
+#     print('assembling context')
+#     context = {'scenario': scenario_original,
+#                'scenarios': scenarios,
+#                'scenario_form': scenario_form,
+#                'prices_form': prices_form,
+#                'string_formset': string_formset,
+#                'names': names,
+#                'recent_pk': recent_pk}
+#     return render(request, 'lcf/scenario_new.html', context)
+
+#From Scenario
+# #if I separate inputs by technology for display on detail page. needs to be grouped by technology rather than just be individual dfs for all years.
+#     def tech_df_list(self):
+#         dfs = [t.fields_df_html() for a in self.auctionyear_set.all() for p in a.active_pots().all() for t in p.technology_set.all() ]
+#         return dfs
+
+    # def clear_all(self):
+    #     for a in AuctionYear.objects.filter(scenario = self):
+    #         a.budget_result = None
+    #         for p in Pot.objects.filter(auctionyear = a):
+    #             p.auction_has_run = False
+    #             p.budget_result = None
+    #             p.awarded_cost_result = None
+    #             p.awarded_gen_result = None
+    #             p.auction_results = None
+    #             p.cum_owed_v_wp = None
+    #             p.cum_owed_v_gas = None
+    #             p.cum_owed_v_absolute = None
+    #             p.cum_awarded_gen_result = None
+    #             p.previously_funded_projects_results = None
+    #             for t in Technology.objects.filter(pot=p):
+    #                 t.awarded_gen = None
+    #                 t.awarded_cost = 0
+    #                 t.cum_owed_v_wp = 0
+    #                 t.cum_owed_v_gas = 0
+    #                 t.cum_owed_v_absolute = 0
+    #                 t.cum_awarded_gen = 0
+    #                 t.save()
+    #             p.save()
+    #         a.save()
+
+
+    # @lru_cache(maxsize=128)
+    # def cumulative_costs(self, period_num):
+    #     index = ['Accounting cost', 'Cost v gas', 'Innovation premium', 'Absolute cost']
+    #     auctionyears = self.period(period_num)
+    #     columns = [str(a.year) for a in auctionyears]
+    #     accounting_costs = [round(a.cum_owed_v("wp")/1000,3) for a in auctionyears]
+    #     cost_v_gas = [round(a.cum_owed_v("gas")/1000,3) for a in auctionyears]
+    #     innovation_premium = [round(a.innovation_premium()/1000,3) for a in auctionyears]
+    #     absolute_cost = [round(a.cum_owed_v("absolute")/1000,3) for a in auctionyears]
+    #     df = DataFrame([accounting_costs, cost_v_gas, innovation_premium, absolute_cost], index=index, columns=columns)
+    #     options = {'title': None, 'vAxis': {'title': '£bn'}}
+    #     return {'df': df, 'options': options}
+    #
+    # @lru_cache(maxsize=128)
+    # def cum_awarded_gen_by_pot(self,period_num):
+    #     auctionyears = self.period(period_num)
+    #     index = [pot.name for pot in auctionyears[0].active_pots()]
+    #     data = { str(a.year) : [round(p.cum_awarded_gen(),2) for p in a.active_pots()] for a in auctionyears }
+    #     df = DataFrame(data=data, index=index)
+    #     options = {'vAxis': {'title': 'TWh'}, 'title': None}
+    #     return {'df': df, 'options': options}
+    #
+    #
+    # @lru_cache(maxsize=128)
+    # def awarded_cost_by_tech(self,period_num):
+    #     auctionyears = self.period(period_num)
+    #     index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
+    #     data = { str(a.year) : [round(t.awarded_cost,2) for p in a.active_pots() for t in p.tech_set().order_by("name")] for a in auctionyears }
+    #     df = DataFrame(data=data, index=index)
+    #     options = {'vAxis': {'title': '£m'}, 'title': None}
+    #     return {'df': df, 'options': options}
+    #
+
+
+    # otherwise, manually assemble the dataframe
+
+Graph methods:
+    # could happen at the very end, after the objects are in the db?
+    # def tech_pivot_table_using_db(self,period_num,column):
+    #     auctionyears = self.period(period_num).values()
+    #     qs = Technology.objects.filter(pot__auctionyear__in = auctionyears)
+    #     df = read_frame(qs, fieldnames=['pot__auctionyear__year','pot__name','name',column])
+    #     df.columns = ['year','pot','name',Technology._meta.get_field(column).verbose_name]
+    #     dfsum = df.groupby(['year','pot'],as_index=False).sum()
+    #     dfsum['name']='_Subtotal'
+    #     dfsum_outer = df.groupby(['year'],as_index=False).sum()
+    #     dfsum_outer['name']='Total'
+    #     dfsum_outer['pot']='Total'
+    #     result = dfsum.append(df)
+    #     result = dfsum_outer.append(result)
+    #     result = result.set_index(['year','pot','name']).sort_index()
+    #     result = result.unstack(0)
+    #     if column == "cum_owed_v_wp" or column == "cum_owed_v_gas" or column == "cum_owed_v_absolute":
+    #         result = result/1000
+    #     return result
+
+    # @lru_cache(maxsize=128)
+    # def gen_by_tech(self,period_num):
+    #     auctionyears = self.period(period_num)
+    #     index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
+    #     data = { str(a.year) : [round(t.awarded_gen,2) for p in a.active_pots() for t in p.tech_set().order_by("name")] for a in auctionyears }
+    #     df = DataFrame(data=data, index=index)
+    #     options = {'vAxis': {'title': 'TWh'}, 'title': None}
+    #     return {'df': df, 'options': options}
+    #
+    #
+    # @lru_cache(maxsize=128)
+    # def cap_by_tech(self,period_num):
+    #     auctionyears = self.period(period_num)
+    #     index = [t.name for pot in auctionyears[0].active_pots() for t in pot.tech_set().order_by("name")]
+    #     data = { str(a.year) : [round(t.awarded_gen/8.760/t.load_factor,2) for p in a.active_pots() for t in p.tech_set().order_by("name")] for a in auctionyears }
+    #     df = DataFrame(data=data, index=index)
+    #     options = {'vAxis': {'title': 'GW'}, 'title': None}
+    #     return {'df': df, 'options': options}
+
+    #helper methods
+    #
+    # def df_to_chart_data(self,df):
+    #     chart_data = df['df'].copy()
+    #     chart_data['index_column'] = chart_data.index
+    #     chart_data.loc['years_row'] = chart_data.columns
+    #     chart_data = chart_data.reindex(index = ['years_row']+list(chart_data.index)[:-1], columns = ['index_column'] +list(chart_data.columns)[:-1])
+    #     chart_data = chart_data.T.values.tolist()
+    #     return {'data': chart_data, 'df': df['df'], 'options': df['options']}
+    #
+    # def get_or_make_chart_data(self, method, period_num):
+    #     attr_name = ("").join(["_",method,str(period_num)])
+    #     if self.__getattribute__(attr_name) == None:
+    #         methods = globals()['Scenario']
+    #         meth = getattr(methods,method)
+    #         df = meth(self, period_num)
+    #         chart_data = self.df_to_chart_data(df)
+    #         self.__setattr__(attr_name, chart_data)
+    #         return self.__getattribute__(attr_name)
+    #     elif self.__getattribute__(attr_name) != None:
+    #         return self.__getattribute__(attr_name)
+
+    # @lru_cache(maxsize=128)
+    # def technology_form_helper(self):
+    #     techs = [t for p in self.auctionyear_set.all()[0].pot_set.all() for t in p.technology_set.all() ]
+    #     t_form_data = { t.name : {} for t in techs}
+    #     for t in techs:
+    #         #creating subset is the slow bit. speed up by directly accessing database?
+    #         subset = self.techs_df()[self.techs_df().name == t.name]
+    #         for field, value in techs[0].get_field_values().items():
+    #             if field == "id":
+    #                 pass
+    #             elif field == "name":
+    #                 t_form_data[t.name][field] = t.name
+    #             elif field == "included":
+    #                 t_form_data[t.name][field] = t.included
+    #             elif field == "pot":
+    #                 t_form_data[t.name][field] = t.pot.name
+    #             else:
+    #                 if value == None:
+    #                     t_form_data[t.name][field] = ""
+    #                 else:
+    #                     li = list(subset[field])
+    #                     #li = ['{:.2f}'.format(x) for x in li]
+    #                     t_form_data[t.name][field] = str(li).strip('[]').replace("'",'')
+    #
+    #     initial_technologies = list(t_form_data.values())
+    #     t_names = [t.name for t in techs]
+    #     return t_names, initial_technologies
+
+    #calling fields.df() is querying the database
+    # @lru_cache(maxsize=128)
+
+
+from auctionyear:
+
+
+    #@lru_cache(maxsize=128)
+    # def cum_years(self):
+    #     if self.year == 2020:
+    #         return [self]
+    #     else:
+    #         start_year = self.scenario.start_year1 if self.year <= self.scenario.end_year1 else self.scenario.start_year2
+    #         return self.scenario.auctionyear_set.filter(year__range=(start_year,self.year)).order_by('year')
+    #
+    #
+    #
+    #
+    # #@lru_cache(maxsize=128)
+    # def awarded_gen(self):
+    #     return sum(pot.awarded_gen() for pot in self.active_pots().all())
+    #
+    #
+    # @lru_cache(maxsize=128)
+    # def owed_v(self, comparison, previous_year):
+    #     return sum([pot.owed_v(comparison, previous_year.active_pots().get(name=pot.name)) for pot in self.active_pots() ])
+    #
+    # #@lru_cache(maxsize=128)
+    # def nw_owed(self,previous_year):
+    #     if self.active_pots().filter(name="FIT").exists():
+    #         # pot = self.active_pots().get(name="FIT")
+    #         # previous_fpot = previous_year.active_pots().get(name="FIT")
+    #         # return pot.owed_v("absolute", previous_fpot)
+    #         pot = Pot.objects.get(auctionyear=self,name="FIT")
+    #         previous_pot = Pot.objects.get(auctionyear = previous_year, name="FIT")
+    #         return pot.owed_v("absolute",previous_pot)
+    #     else:
+    #         return 0
+    #
+    #
+    # #accumulating methods
+    # #@lru_cache(maxsize=128)
+    # def cum_awarded_gen(self):
+    #     return sum([pot.cum_awarded_gen() for pot in self.active_pots()])
+    #
+    # @lru_cache(maxsize=128)
+    # def cum_owed_v(self, comparison):
+    #     if self.year == 2020:
+    #         return self.owed_v(comparison, self)
+    #     else:
+    #         return sum([pot.cum_owed_v(comparison) for pot in self.active_pots()])
+    #
+    # #@lru_cache(maxsize=128)
+    # def innovation_premium(self):
+    #     return self.cum_owed_v("gas") - self.cum_nw_owed()
+    #
+    # def cum_nw_owed(self):
+    #     if self.year == 2020:
+    #         return self.nw_owed(self)
+    #     else:
+    #         return self.active_pots().get(name="FIT").cum_owed_v("absolute")
+
+from Pot:
+
+
+    #
+    # def cum_pots(self):
+    #     if self.auctionyear.year == 2020:
+    #         return [self]
+    #     else:
+    #         start_year = self.auctionyear.scenario.start_year1 if self.auctionyear.year <= self.auctionyear.scenario.end_year1 else self.auctionyear.scenario.start_year2
+    #         cum_pots = Pot.objects.filter(auctionyear__scenario=self.auctionyear.scenario, name=self.name, auctionyear__year__range=(start_year, self.auctionyear.year)).order_by("auctionyear__year")
+    #         return cum_pots
+    #
+    # def cum_future_pots(self):
+    #     if self.auctionyear.year == 2020:
+    #         return [self]
+    #     else:
+    #         end_year = self.auctionyear.scenario.end_year1 if self.auctionyear.year <= self.auctionyear.scenario.end_year1 else self.auctionyear.scenario.end_year2
+    #         cum_future_pots = Pot.objects.filter(auctionyear__scenario=self.auctionyear.scenario, name=self.name, auctionyear__year__range=(self.auctionyear.year, end_year)).order_by("auctionyear__year")
+    #         return cum_future_pots
+
+
+    #
+    # #@lru_cache(maxsize=128)
+    # def awarded_gen(self):
+    #     if self.awarded_gen_result:
+    #         res = self.awarded_gen_result
+    #         return res
+    #     else:
+    #         if self.auction_has_run == False:
+    #             self.run_auction()
+    #         res = self.awarded_gen_result
+    #         return res
+    #
+    #
+    # @lru_cache(maxsize=128)
+    # def owed_v(self, comparison, previous_pot):
+    #     #print("calling for", self.name, self.auctionyear.year, previous_pot, comparison)
+    #     di = {"gas": self.auctionyear.gas_price, "wp": self.auctionyear.wholesale_price, "absolute": 0}
+    #     compare = di[comparison]
+    #     if self.name == "FIT":
+    #         compare = 0
+    #     owed = 0
+    #     if previous_pot.auction_has_run == False:
+    #         previous_pot.run_auction()
+    #     for t in previous_pot.tech_set().all():
+    #         gen = t.awarded_gen
+    #         strike_price = t.strike_price
+    #         if self.auctionyear.scenario.excel_sp_error == True or self.auctionyear.scenario.excel_quirks == True:
+    #             #next 5 lines account for Angela's error
+    #             if (self.name == "E") or (self.name == "SN"):
+    #                 try:
+    #                     strike_price = Technology.objects.get(name=t.name,pot=self).strike_price
+    #                     #strike_price = self.auctionyear.active_pots().get(name=self.name).tech_set().get(name=t.name).strike_price
+    #                 except:
+    #                     break
+    #         difference = strike_price - compare
+    #         tech_owed = gen * difference
+    #
+    #         owed += tech_owed
+    #     return owed
+    #
+    # #accumulating methods
+    # @lru_cache(maxsize=128)
+    # def cum_owed_v(self,comparison):
+    #     attr_name = "_".join(["cum_owed_v",comparison])
+    #     if getattr(self,attr_name,None) == None:
+    #         print('setting attr')
+    #         #print("calculating",self.name)
+    #         res = sum([self.owed_v(comparison, pot) for pot in self.cum_pots()])
+    #         setattr(self,attr_name,res)
+    #         self.save()
+    #     else:
+    #         print('retrieving from database')
+    #         print(getattr(self,attr_name))
+    #     return getattr(self,attr_name)
+    #
+    #
+    #
+    # def cum_awarded_gen(self):
+    #     if self.cum_awarded_gen_result == None:
+    #         extra2020 = 0
+    #         excel = self.auctionyear.scenario.excel_2020_gen_error or self.auctionyear.scenario.excel_quirks == True
+    #         if excel == True and self.name != "FIT" and self.period_num() == 1:
+    #             pot2020 = self.auctionyear.scenario.auctionyear_set.get(year=2020).active_pots().get(name=self.name)
+    #             #pot2020 = Pot.objects.get(auctionyear__scenario=self.auctionyear.scenario,auctionyear__year=2020,name=self.name) #which is faster?
+    #             extra2020 = pot2020.awarded_gen()
+    #         res = sum([pot.awarded_gen() for pot in self.cum_pots()]) + extra2020
+    #         self.cum_awarded_gen_result = res
+    #         self.save()
+    #     return self.cum_awarded_gen_result
+    #def will_pay_df(self):
+    #    projects = self.run_auction()
+    #
+    # #summary methods
+
+from Technology
+# class TechnologyManager(models.Manager):
+#     def create_technology(self, **kwargs):
+#         t = self.create(**kwargs)
+#         if t.num_new_projects != None:
+#             t.fill_in_max_deployment_cap()
+#         elif t.max_deployment_cap == None:
+#             print("You must specify either num_new_projects or max_deployment_cap")
+#         return t
+#

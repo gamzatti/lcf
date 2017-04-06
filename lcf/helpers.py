@@ -1,5 +1,5 @@
 from django.forms import modelformset_factory, formset_factory
-from .forms import ScenarioForm, PricesForm, TechnologyStringForm, UploadFileForm
+from .forms import ScenarioForm, PricesForm, UploadFileForm
 from .models import Scenario, AuctionYear, Pot, Technology
 import time
 import pandas as pd
@@ -61,39 +61,39 @@ from django.conf import settings
 #     t1 = time.time()
 #     total = t1-t0
 #     print("pandas",total) #6.874750375747681
-
-def handle_uploaded_file2(file,s):
-    t0 = time.time()
-    data = pd.read_csv(file)
-    df = DataFrame(data)
-    print("creating technology objects")
-
-    for row_id, row in enumerate(df.values):
-        kwargs = {}
-        pot_name = row[0]
-        year = int(row[2])
-        a = AuctionYear.objects.get(year = year, scenario = s)
-        #print(a)
-        p = Pot.objects.get(name=pot_name, auctionyear = a)
-        #p = s.auctionyear_dict[year].pot_dict[pot_name]
-        #print(p)
-        kwargs['pot'] = p
-        kwargs['name'] = row[1]
-        kwargs['min_levelised_cost'] = float(row[4])
-        kwargs['max_levelised_cost'] = float(row[5])
-        kwargs['strike_price'] = float(row[6])
-        kwargs['load_factor'] = float(row[7])
-        kwargs['max_deployment_cap'] = float(row[8])
-        kwargs['num_new_projects'] = int(row[9]) if pd.notnull(row[9]) else None
-        kwargs['project_gen'] = float(row[10])
-        t = Technology.objects.create(**kwargs)
-        #t.save()
-        print(t.id)
-    t1 = time.time()
-    total = t1-t0
-    print("numpy",total) #6.731263160705566
-
-
+#
+# def handle_uploaded_file2(file,s):
+#     t0 = time.time()
+#     data = pd.read_csv(file)
+#     df = DataFrame(data)
+#     print("creating technology objects")
+#
+#     for row_id, row in enumerate(df.values):
+#         kwargs = {}
+#         pot_name = row[0]
+#         year = int(row[2])
+#         a = AuctionYear.objects.get(year = year, scenario = s)
+#         #print(a)
+#         p = Pot.objects.get(name=pot_name, auctionyear = a)
+#         #p = s.auctionyear_dict[year].pot_dict[pot_name]
+#         #print(p)
+#         kwargs['pot'] = p
+#         kwargs['name'] = row[1]
+#         kwargs['min_levelised_cost'] = float(row[4])
+#         kwargs['max_levelised_cost'] = float(row[5])
+#         kwargs['strike_price'] = float(row[6])
+#         kwargs['load_factor'] = float(row[7])
+#         kwargs['max_deployment_cap'] = float(row[8])
+#         kwargs['num_new_projects'] = int(row[9]) if pd.notnull(row[9]) else None
+#         kwargs['project_gen'] = float(row[10])
+#         t = Technology.objects.create(**kwargs)
+#         #t.save()
+#         print(t.id)
+#     t1 = time.time()
+#     total = t1-t0
+#     print("numpy",total) #6.731263160705566
+#
+#
 
 
 def handle_uploaded_file(file,s):
@@ -112,6 +112,7 @@ def handle_uploaded_file(file,s):
             name = row.tech_name,
             pot = p,
             #pot = s.auctionyear_dict[int(row.listed_year)].pot_dict[row.pot_name],
+            included = row.included,
             min_levelised_cost = row.min_levelised_cost,
             max_levelised_cost = row.max_levelised_cost,
             strike_price = row.strike_price,
