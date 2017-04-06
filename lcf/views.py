@@ -96,10 +96,10 @@ def scenario_detail(request, pk=None):
     # meth_list = ["cumulative_costs","cum_awarded_gen_by_pot","gen_by_tech", 'cap_by_tech']
     # t1 = time.time() * 1000
 
-    context['tech_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'awarded_cap', 'Capacity awarded each year LCF 1 (GW)'))
-    context['tech_gen_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'awarded_cap', 'Capacity awarded each year LCF 2 (GW)'))
-    context['tech_cap_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'awarded_gen', 'Generation awarded each year LCF 1 (TWh)'))
-    context['tech_cap_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'awarded_gen', 'Generation awarded each year LCF 2 (TWh)'))
+    context['tech_cap_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'awarded_cap', 'Capacity awarded each year LCF 1 (GW)'))
+    context['tech_cap_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'awarded_cap', 'Capacity awarded each year LCF 2 (GW)'))
+    context['tech_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'awarded_gen', 'Generation awarded each year LCF 1 (TWh)'))
+    context['tech_gen_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'awarded_gen', 'Generation awarded each year LCF 2 (TWh)'))
     context['tech_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_wp','Accounting cost LCF 1 (£bn)'))
     context['tech_cum_owed_v_wp_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_wp','Accounting cost LCF 2 (£bn)'))
     context['tech_cum_owed_v_gas_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_gas', 'Cost v gas LCF 1 (£bn)'))

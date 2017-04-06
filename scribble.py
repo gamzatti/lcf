@@ -802,3 +802,73 @@ from Technology
 #             print("You must specify either num_new_projects or max_deployment_cap")
 #         return t
 #
+From template:
+
+<h2 class="sub-header">Summary</h2>
+<!-- <div class="graph"> -->
+    <!-- {{ cumulative_costs_chart1.as_html }} -->
+    <!-- {{ cumulative_costs_df1 | safe }} -->
+    {{ tech_cum_owed_v_wp_pivot | safe }}
+    {{ tech_cum_owed_v_gas_pivot | safe }}
+    {{ tech_cum_owed_v_absolute_pivot | safe }}
+    <!-- {{ cumulative_costs_chart2.as_html }} -->
+    <!-- {{ cumulative_costs_df2 | safe }} -->
+    {{ tech_cum_owed_v_wp_pivot2 | safe }}
+    {{ tech_cum_owed_v_gas_pivot2 | safe }}
+    {{ tech_cum_owed_v_absolute_pivot2 | safe }}
+<!-- </div> -->
+
+<!-- <h2 class="sub-header">Breakdown by technology</h2>
+<div> -->
+<!--    {{ pot_cum_owed_v_wp_pivot | safe }}-->
+<!-- </div> -->
+
+
+<h2 class="sub-header">Cumulative new generation</h2>
+<!-- <div class="graph">
+    {{ cum_awarded_gen_by_pot_chart1.as_html }} -->
+    <!-- {{ pot_cum_awarded_gen_pivot| safe }} -->
+    {{ tech_cum_awarded_gen_pivot | safe }}
+
+<!--    {{ cum_awarded_gen_by_pot_df1 | safe }}-->
+    <!-- {{ cum_awarded_gen_by_pot_chart2.as_html }}
+    {{ cum_awarded_gen_by_pot_df2 | safe }} -->
+    {{ tech_cum_awarded_gen_pivot2 | safe }}
+
+<!-- </div> -->
+
+<!--<h2 class="sub-header">Cost each year of new generation awarded</h2>
+<div class="graph">
+    {{ awarded_cost_by_tech_chart1.as_html }}
+    {{ awarded_cost_by_tech_df1 | safe }}
+    {{ awarded_cost_by_tech_chart2.as_html }}
+    {{ awarded_cost_by_tech_df2 | safe }}
+</div>-->
+
+<h2 class="sub-header">Generation by technology</h2>
+<!-- <div class="graph">
+    {{ gen_by_tech_chart1.as_html }} -->
+    {{ tech_gen_pivot | safe }}
+    {{ tech_gen_pivot2 | safe }}
+
+<!--    {{ gen_by_tech_df1 | safe }} -->
+    <!-- {{ gen_by_tech_chart2.as_html }}
+    {{ gen_by_tech_df2 | safe }}
+</div> -->
+
+<!-- <h2 class="sub-header">Capacity by technology</h2>
+<div class="graph">
+    {{ cap_by_tech_chart1.as_html }}
+    {{ cap_by_tech_df1 | safe }}
+    {{ cap_by_tech_chart2.as_html }}
+    {{ cap_by_tech_df2 | safe }}
+</div> -->
+
+<div class="hide-button btn btn-primary">Show/hide inputs</div>
+<div class="to-hide">
+  {{ scenario.techs_input_html | safe }}
+  {{ scenario.prices_input_html | safe }}
+  <!-- {% for tech_df in scenario.tech_df_list %}
+    {{ tech_df1 | safe }}
+  {% endfor %}-->
+</div>
