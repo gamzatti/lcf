@@ -73,9 +73,8 @@ from django.views.decorators.cache import never_cache
 
 @never_cache
 def scenario_detail(request, pk=None):
-    # if pk == None:
-    #     scenario = Scenario.objects.all().order_by("-date")[0]
-    # else:
+    if pk == None:
+        pk = Scenario.objects.all().order_by("-date")[0].pk
     #scenario = get_object_or_404(Scenario,pk=pk)
     #print("without prefetching")
     scenario = Scenario.objects.prefetch_related('auctionyear_set__pot_set__technology_set').get(id=pk)
