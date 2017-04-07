@@ -1,0 +1,17 @@
+
+{% extends 'lcf/base.html' %}
+
+{% block title %}
+    {{ policy.name }} -
+{% endblock %}
+
+{% block content %}
+<h1 class="page-header">{{ policy.name }}</h1>
+{{ effects | safe }}
+<p>Scenarios this policy is currently applied to:</p>
+<ul>
+    {% for s in policy.scenario_set.all %}
+        <li><a href="{% url 'scenario_detail' pk=s.pk %}">{{s.name}}</a></li>
+    {%endfor%}
+</ul>
+{% endblock %}

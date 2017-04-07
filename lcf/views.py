@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory, formset_factory
-from .forms import ScenarioForm, PricesForm, UploadFileForm
-from .models import Scenario, AuctionYear, Pot, Technology
+from .forms import ScenarioForm, PricesForm, UploadFileForm, PolicyForm
+from .models import Scenario, AuctionYear, Pot, Technology, Policy
 import time
-from .helpers import handle_uploaded_file
+from .helpers import handle_uploaded_file, handle_policy_file
 from django_pandas.io import read_frame
 
 from django.http import HttpResponse
@@ -56,12 +56,66 @@ def upload(request):
         scenario_form = ScenarioForm()
         upload_form = UploadFileForm()
     context = {'scenario': scenario,
+               'policies': Policy.objects.all(),
                'scenarios': scenarios,
                'scenario_form': scenario_form,
                'recent_pk': recent_pk,
                'upload_form' : upload_form,
                }
     return render(request, 'lcf/upload.html', context)
+
+def policy_new(request):
+    print("don't cache me")
+    scenarios = Scenario.objects.all()
+    recent_pk = Scenario.objects.all().order_by("-date")[0].pk
+    scenario = Scenario.objects.all().order_by("-date")[0]
+    if request.method == "POST":
+        policy_form = PolicyForm(request.POST)
+        upload_form = UploadFileForm(request.POST, request.FILES)
+        print("posting")
+        if policy_form.is_valid() and upload_form.is_valid():
+            print('forms are valid')
+            pl = policy_form.save()
+            file = request.FILES['file']
+            handle_policy_file(file,pl)
+
+            return redirect('policy_detail', pk=pl.pk)
+        else:
+            print(policy_form.errors)
+            print(upload_form.errors)
+
+    else:
+        print("GETTING policy form")
+        policy_form = PolicyForm()
+        upload_form = UploadFileForm()
+
+    context = {'scenario': scenario,
+               'scenarios': scenarios,
+               'policies': Policy.objects.all(),
+               'policy_form': policy_form,
+               'recent_pk': recent_pk,
+               'upload_form' : upload_form,
+               }
+    return render(request, 'lcf/policy_new.html', context)
+
+def policy_detail(request,pk):
+    scenarios = Scenario.objects.all()
+    recent_pk = Scenario.objects.all().order_by("-date")[0].pk
+    scenario = Scenario.objects.all().order_by("-date")[0]
+    policy = Policy.objects.get(pk=pk)
+    effects = pd.read_json(policy.effects)
+    effects = effects.set_index(['tech_name','listed_year'])
+    effects = effects.style.format("{:.0%}").render()
+    effects = effects.replace('<table id=', '<table class="table table-striped table-condensed" id=')
+
+    context = {'scenario': scenario,
+               'scenarios': scenarios,
+               'policies': Policy.objects.all(),
+               'effects': effects,
+               'policy': policy,
+               'recent_pk': recent_pk,
+               }
+    return render(request, 'lcf/policy_detail.html', context)
 
 def scenario_delete(request, pk):
     scenario = get_object_or_404(Scenario, pk=pk)
@@ -71,13 +125,12 @@ def scenario_delete(request, pk):
 
 from django.views.decorators.cache import never_cache
 
-@never_cache
 def scenario_detail(request, pk=None):
     if pk == None:
         pk = Scenario.objects.all().order_by("-date")[0].pk
     #scenario = get_object_or_404(Scenario,pk=pk)
     #print("without prefetching")
-    scenario = Scenario.objects.prefetch_related('auctionyear_set__pot_set__technology_set').get(id=pk)
+    scenario = Scenario.objects.prefetch_related('auctionyear_set__pot_set__technology_set', 'policies').get(id=pk)
     print('instantiating a scenario object with prefetched attributes')
     print(scenario.name)
     print("[lease sss don't c a che me!")
@@ -88,6 +141,7 @@ def scenario_detail(request, pk=None):
     chart = {}
     df = {}
     context = {'scenario': scenario,
+               'policies': Policy.objects.all(),
                'scenarios': scenarios,
                'recent_pk': recent_pk
                }
@@ -221,8 +275,14 @@ def scenario_download(request,pk):
     # writer.writerow(["Pot"])
     # writer.writerow(pot_col_names)
     # writer.writerows(pot_data)
+    return response
 
-
+def policy_template(request):
+    print("downloading policy template")
+    file = open('lcf/policy_template_no_sources_no_prices.csv')
+    response = HttpResponse(file, content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="policy_template.csv"'
+    file.close()
     return response
 
 def template(request):
@@ -230,5 +290,5 @@ def template(request):
     file = open('lcf/template.csv')
     response = HttpResponse(file, content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="template.csv"'
-
+    file.close()
     return response

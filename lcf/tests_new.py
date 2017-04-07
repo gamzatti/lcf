@@ -7,8 +7,8 @@ from django.forms import modelformset_factory, formset_factory
 import time
 from django.core.urlresolvers import reverse
 
-from .models import Scenario, AuctionYear, Pot, Technology
-from .forms import ScenarioForm, PricesForm, TechnologyStringForm
+from .models import Scenario, AuctionYear, Pot, Technology, Policy
+from .forms import ScenarioForm, PricesForm, PolicyForm
 import math
 
 
@@ -745,4 +745,19 @@ class Recheck(TestCase):
         print(t.get_results())
         assert_frame_equal(s.get_results(),t.get_results())
         print(s.tech_pivot_table(1,'cum_awarded_gen'))
-        
+
+class PolicyTests(TestCase):
+    fixtures = ['tests/new/data2.json']
+    def test_policy_new_view(self):
+        initial_policy_count = Policy.objects.count()
+        resp = self.client.get(reverse('policy_new'))
+        self.assertEqual(resp.status_code, 200)
+        post_data = {'name': 'test name',
+                     'description': 'test description',
+                     'file': open('lcf/template.csv'),
+                     }
+        post_resp = self.client.post(reverse('policy_new'),post_data)
+
+        self.assertEqual(post_resp.status_code,200)
+        new_policy_count = Policy.objects.count()
+        self.assertEqual(new_policy_count,initial_policy_count+1)

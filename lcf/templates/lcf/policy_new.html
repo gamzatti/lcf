@@ -1,0 +1,18 @@
+
+{% extends 'lcf/base.html' %}
+
+{% block title %}
+    {{ scenario.name }} -
+{% endblock %}
+
+{% block content %}
+<h1 class="page-header">New policy</h1>
+<form method="POST" class="post-form" enctype="multipart/form-data">{% csrf_token %}
+    {{ policy_form }}
+    {{ upload_form }}
+    <button type="submit" class="save btn btn-primary">Submit</button>
+</form>
+
+<a href="{% url 'policy_template' %}"><div class="btn btn-info">Download template?</div></a>
+
+{% endblock %}

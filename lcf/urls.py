@@ -4,6 +4,9 @@ from . import views
 
 urlpatterns = [
     url('upload/', views.upload, name='upload'),
+    url('policy/new/', views.policy_new, name='policy_new'),
+    url(r'^policy/(?P<pk>\d+)/$', views.policy_detail, name='policy_detail'),
+    url('policy/template/', views.policy_template, name='policy_template'),
     url('template/', views.template, name='template'),
     url(r'^scenario/(?P<pk>\d+)/$', views.scenario_detail, name='scenario_detail'),
 #    url(r'^scenario/(?P<pk>\d+)/new/$', views.scenario_new, name='scenario_new'),

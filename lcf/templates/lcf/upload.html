@@ -1,12 +1,12 @@
 {% extends 'lcf/base.html' %}
 {% block content %}
 
-<h1>New scenario from CSV</h1>
+<h1 class="page-header">New scenario from CSV</h1>
 <form method="POST" class="post-form" enctype="multipart/form-data">{% csrf_token %}
     {{ scenario_form }}
     <h3>Technology prices</h3>
     {{ upload_form }}
-    <button type="submit" class="save btn btn-primary">Save</button>
+    <button type="submit" class="save btn btn-primary">Submit</button>
 </form>
 <a href="{% url 'template' %}"><div class="btn btn-info">Download template?</div></a>
 <h2>Notes</h2>

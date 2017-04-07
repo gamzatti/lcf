@@ -51,7 +51,21 @@
                   {% endfor %}
                 </ul>
                 <ul class="nav nav-sidebar">
-                    <li><a href="{% url 'upload' %}"><div class="btn btn-primary">Upload CSV</div></a></li>
+                    <li><a href="{% url 'upload' %}"><div class="btn btn-primary">New scenario</div></a></li>
+                  </ul>
+                  <h1>Policies</h1>
+                  <ul class="nav nav-sidebar">
+                    {% for pl in policies %}
+                    {% if policy.pk == pl.pk %}
+                        <li class="active"><a href="{% url 'policy_detail' pk=pl.pk %}">{{ pl.name }}</a></li>
+                    {% else %}
+                        <li><a href="{% url 'policy_detail' pk=pl.pk %}">{{ pl.name }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                  </ul>
+                  <ul class="nav nav-sidebar">
+                    <li><a href="{% url 'policy_new' %}"><div class="btn btn-primary">New policy</div></a></li>
                     <!--<li class="active"><a href="#">Nav item 1 <span class="sr-only">(current)</span></a></li>-->
                 </ul>
 

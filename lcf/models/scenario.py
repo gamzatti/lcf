@@ -11,6 +11,7 @@ from django_pandas.io import read_frame
 from .auctionyear import AuctionYear
 from .pot import Pot
 from .technology import Technology
+from .policy import Policy
 
 class Scenario(models.Model):
     name = models.CharField(max_length=200)
@@ -30,6 +31,7 @@ class Scenario(models.Model):
     excel_nw_carry_error = models.BooleanField(default=False, verbose_name="Include the Excel error that carries NWFIT into next year, even though it's been spent")
     excel_quirks = models.BooleanField(default=True, verbose_name="Include all Excel quirks")
     results = models.TextField(null=True,blank=True)
+    policies = models.ManyToManyField(Policy)
 
     def __str__(self):
         return self.name
@@ -48,8 +50,13 @@ class Scenario(models.Model):
         #return self.auctionyear_set.filter(year__range=ran).order_by("year")
         return [ auctionyear for auctionyear in self.auctionyear_dict.values() if auctionyear.year in ran ]
 
+    def apply_policies(self):
+        for pl in self.policies.all():
+            effects = pd.read_json(pl.effects)
+            print(effects)
 
     def get_results(self):
+        self.apply_policies()
         columns = ['year',
                    'pot',
                    'name',
@@ -135,17 +142,6 @@ class Scenario(models.Model):
 
     # @lru_cache(maxsize=128)
     def df_to_html(self,df):
-        def highlight_total(s):
-            '''
-            highlight the maximum in a Series yellow.
-            '''
-            #is_subtotal = result == result.xs(' Subtotal',level='name',drop_level=False)
-
-            is_max = s == s.max()
-            return ['font-weight: bold;' if v else '' for v in is_max]
-        #html = df.style.format('<input style="width:120px;" name="df" value="{}" />').render()
-        #df = df.round(2)
-        #html = df.style.apply(highlight_total).render()
         html = df.style.render()
         html = html.replace('<table id=', '<table class="table table-striped table-condensed" id=')
         return html
