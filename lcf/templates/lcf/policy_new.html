@@ -14,5 +14,14 @@
 </form>
 
 <a href="{% url 'policy_template' %}"><div class="btn btn-info">Download template?</div></a>
+<h2>Notes</h2>
+<ul>
+    <li>These changes are all relative changes, percentages will be multiplied by the main values. So if OFW min_levelised_cost (uploaded on the new scenario page) in 2020 is £100 and a policy is applied to it with min_levelised_cost_change in 2020 of 0.9, the resulting price will be £90</li>
+    <li>Multiple policies applied to the same scenario will be chained together, so applying three policies that all multiply offshore wind min_levelised_cost by 0.9 will in total multiply the existing cost by 0.729</li>
+    <li>Three values are required, 2020, 2025 and 2030; the remaining values are filled in linearly</li>
+    <li>Columns can be in any order but keep rows in order at the moment as it's not yet idiotproof</li>
+    <li>You can list as many technologies as you like. At the moment you need at least one technology and at least one of its parameters must be filled - I'll change this. (You can fill it with a 1 to illustrate no change)</li>
+    <li>Similarly, at the moment, both wholesale_prices and gas_prices need to be filled in, so fill with a 1 to illustrate no change until I fix this</li>
+</ul>
 
 {% endblock %}

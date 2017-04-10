@@ -152,13 +152,13 @@ class Pot(models.Model):
             self.auction_has_run = "n/a"
             # self.auction_results = DataFrame().to_json()
         elif self.auction_has_run == True:
-            print('decoding json')
+            # print('decoding json')
             column_order = ['levelised_cost', 'gen', 'technology', 'strike_price', 'affordable', 'pot', 'listed_year', 'previously_funded', 'eligible', 'difference', 'cost', 'attempted_cum_cost', 'funded_this_year', 'attempted_project_gen', 'attempted_cum_gen']
             df = pd.read_json(self.auction_results).sort_values(['strike_price', 'levelised_cost']).reindex(columns=column_order)
             df.gen, df.attempted_project_gen, df.attempted_cum_gen = df.gen.astype(float), df.attempted_project_gen.astype(float), df.attempted_cum_gen.astype(float)
             return df
         else:
-            print('running auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
+            # print('running auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
             gen = 0
             cost = 0
             budget = self.budget() ##slow
@@ -178,7 +178,7 @@ class Pot(models.Model):
 
     def concat_projects(self):
         res = pd.concat([t.projects() for t in self.active_technology_dict.values() ])
-        print(res)
+        #print(res)
         return res
 
 

@@ -50,13 +50,13 @@ class Scenario(models.Model):
         #return self.auctionyear_set.filter(year__range=ran).order_by("year")
         return [ auctionyear for auctionyear in self.auctionyear_dict.values() if auctionyear.year in ran ]
 
-    def apply_policies(self):
-        for pl in self.policies.all():
-            effects = pd.read_json(pl.effects)
-            print(effects)
+    # def apply_policies(self):
+    #     for pl in self.policies.all():
+    #         effects = pd.read_json(pl.effects)
+    #         print(effects)
 
     def get_results(self):
-        self.apply_policies()
+        # self.apply_policies()
         columns = ['year',
                    'pot',
                    'name',
@@ -68,7 +68,7 @@ class Scenario(models.Model):
                    'cum_owed_v_wp',
                    'cum_owed_v_absolute']
         if self.results == None:
-            print('getting results')
+            # print('getting results')
             for a in self.auctionyear_dict.values():
                 for p in a.pot_dict.values():
                     p.run_auction()
@@ -90,14 +90,14 @@ class Scenario(models.Model):
             self.save()
             return results
         else:
-            print('retrieving from db')
+            # print('retrieving from db')
             results = pd.read_json(self.results).reindex(columns=columns).sort_index()
             return results
 
     # @lru_cache(maxsize=128)
     def tech_pivot_table(self,period_num,column,title=None):
         self.get_results()
-        print('building pivot table')
+        # print('building pivot table')
         # auctionyears = self.period(period_num)
         #techs = { t.name + str(t.pot.auctionyear.year) : t for a in auctionyears for p in a.pot_dict.values() for t in p.technology_dict.values() }
         df = self.get_results()

@@ -9,7 +9,8 @@
 <h1 class="page-header">{{ policy.name }}</h1>
 <p>{{ policy.description }}</p>
 <div>
-    {{ effects | safe }}
+    {{ techs_effects | safe }}
+    {{ prices_effects | safe }}
 </div>
 <p>Scenarios this policy is currently applied to:</p>
 <ul>

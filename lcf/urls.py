@@ -3,7 +3,7 @@ from django.conf import settings
 from . import views
 
 urlpatterns = [
-    url('upload/', views.upload, name='upload'),
+    url('scenario/new/', views.scenario_new, name='scenario_new'),
     url('policy/new/', views.policy_new, name='policy_new'),
     url(r'^policy/(?P<pk>\d+)/$', views.policy_detail, name='policy_detail'),
     url(r'^policy/(?P<pk>\d+)/delete/$', views.policy_delete, name='policy_delete'),

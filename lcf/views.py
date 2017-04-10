@@ -3,7 +3,7 @@ from django.forms import modelformset_factory, formset_factory
 from .forms import ScenarioForm, PricesForm, UploadFileForm, PolicyForm
 from .models import Scenario, AuctionYear, Pot, Technology, Policy
 import time
-from .helpers import create_technology_objects, update_tech_with_policies, save_policy_to_db
+from .helpers import save_policy_to_db, get_prices, update_prices_with_policies, create_auctionyear_and_pot_objects, update_tech_with_policies, create_technology_objects
 from django_pandas.io import read_frame
 
 from django.http import HttpResponse
@@ -17,7 +17,7 @@ import csv
 from django.db import connection
 
 
-def upload(request):
+def scenario_new(request):
     scenarios = Scenario.objects.all()
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     scenario = Scenario.objects.all().order_by("-date")[0]
@@ -28,31 +28,18 @@ def upload(request):
 
         if upload_form.is_valid() and scenario_form.is_valid():
             s = scenario_form.save()
-            new_wp = [38.5, 41.8, 44.2, 49.8, 54.6, 56.2, 53.5, 57.0, 54.5, 52.2, 55.8]
-            excel_wp = [48.5400340402009, 54.285722954952, 58.4749297906221, 60.1487865144807, 64.9687482891174, 67.2664653151834, 68.6947628422952, 69.2053146319398, 66.3856598431318, 65.5255963446292, 65.5781764014488]
-            wp_dict = {"new": new_wp, "excel": excel_wp, "other": None}
-            wholesale_prices = wp_dict[scenario_form.cleaned_data['wholesale_prices']]
-            if wholesale_prices == None:
-                wholesale_prices = [float(w) for w in list(filter(None, re.split("[, \-!?:\t]+",scenario_form.cleaned_data['wholesale_prices_other'])))]
-            excel_gas = [85.0, 87.0, 89.0, 91.0, 93.0, 95.0, 95.0, 95.0, 95.0, 95.0, 95.0]
-            gas_dict = {"excel": excel_gas, "other": None}
-            gas_prices = gas_dict[scenario_form.cleaned_data['gas_prices']]
-            if gas_prices == None:
-                gas_prices = [float(g) for g in list(filter(None, re.split("[, \-!?:\t]+",scenario_form.cleaned_data['gas_prices_other'])))]
-            for i, y in enumerate(range(2020,scenario.end_year2+1)):
-                a = AuctionYear.objects.create(year=y, scenario=s, gas_price=gas_prices[i], wholesale_price=wholesale_prices[i])
-                for p in ['E', 'M', 'SN', 'FIT']:
-                    Pot.objects.create(auctionyear=a,name=p)
-            #s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=s.pk)
-
-            tech_df = pd.read_csv(request.FILES['file'])
+            prices_df = get_prices(s, scenario_form)
             policy_dfs = [ pl.df() for pl in s.policies.all() ]
-            df = update_tech_with_policies(tech_df,policy_dfs)
-            create_technology_objects(df,s)
+            updated_prices_df = update_prices_with_policies(prices_df, policy_dfs)
+            create_auctionyear_and_pot_objects(updated_prices_df,s)
+            tech_df = pd.read_csv(request.FILES['file'])
+            updated_tech_df = update_tech_with_policies(tech_df,policy_dfs)
+            create_technology_objects(updated_tech_df,s)
             recent_pk = Scenario.objects.all().order_by("-date")[0].pk
             return redirect('scenario_detail', pk=recent_pk)
         else:
-            print(form.errors)
+            print(scenario_form.errors)
+            print(upload_form.errors)
     else:
         print("GETTING ")
         scenario_form = ScenarioForm()
@@ -64,7 +51,7 @@ def upload(request):
                'recent_pk': recent_pk,
                'upload_form' : upload_form,
                }
-    return render(request, 'lcf/upload.html', context)
+    return render(request, 'lcf/scenario_new.html', context)
 
 def policy_new(request):
     print("don't cache me")
@@ -105,12 +92,14 @@ def policy_detail(request,pk):
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     scenario = Scenario.objects.all().order_by("-date")[0]
     policy = Policy.objects.get(pk=pk)
-    effects = policy.df_for_display()
+    price_effects = policy.df_prices_for_display()
+    techs_effects = policy.df_techs_for_display()
 
     context = {'scenario': scenario,
                'scenarios': scenarios,
                'policies': Policy.objects.all(),
-               'effects': effects,
+               'prices_effects': price_effects,
+               'techs_effects': techs_effects,
                'policy': policy,
                'recent_pk': recent_pk,
                }
@@ -196,66 +185,25 @@ def scenario_download(request,pk):
     print("downloading")
     scenario = get_object_or_404(Scenario,pk=pk)
     scenarios = Scenario.objects.all()
-
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="data.csv"'
-
     writer = csv.writer(response)
-
     auctionyears = scenario.period(1)
-    #qs_techs = Technology.objects.filter(pot__auctionyear__in = auctionyears)
-    #df_techs = read_frame(qs_techs, fieldnames=['pot__auctionyear__year','pot__name','name','awarded_gen', 'awarded_cost', 'cum_awarded_gen', 'cum_owed_v_gas', 'cum_owed_v_wp', 'cum_owed_v_absolute'])
     df_techs = scenario.get_results()
     tech_data = df_techs.values.tolist()
     tech_col_names = list(df_techs.columns)
-
-    # df_pots = read_frame(qs_pots, fieldnames=['auctionyear__year','name','cum_awarded_gen_result', 'cum_owed_v_wp', 'cum_owed_v_gas'])
-    # qs_pots = Pot.objects.filter(auctionyear__in = auctionyears)
-    # pot_data = df_pots.values.tolist()
-    # pot_col_names = list(df_pots.columns)
-
     writer.writerow(["............Scenario details............"])
     writer.writerow(['Name', scenario.name])
     writer.writerow(['Description', scenario.description])
     writer.writerow(['Budget', scenario.budget])
     writer.writerow(['Percent in emerging pot', scenario.percent_emerging])
-
     writer.writerow([""])
-    # writer.writerow(["Summary tables"])
-
-    # df_list = [
-    #            ('Cumulative costs (£bn) (2021-2025)', scenario.cumulative_costs(1)['df']),
-    #            ('Cumulative costs (£bn) (2026-2030)', scenario.cumulative_costs(2)['df']),
-    #            ('Cumulative generation (TWh) (2021-2025)', scenario.cum_awarded_gen_by_pot(1)['df']),
-    #            ('Cumulative generation (TWh) (2026-2030)', scenario.cum_awarded_gen_by_pot(2)['df']),
-    #            ('Cost of new generation awarded (£m) (2021-2025)', scenario.awarded_cost_by_tech(1)['df']),
-    #            ('Cost of new generation awarded (£m) (2026-2030)', scenario.awarded_cost_by_tech(2)['df']),
-    #            ('Generation (TWh) (2021-2025)', scenario.gen_by_tech(1)['df']),
-    #            ('Generation (TWh) (2026-2030)', scenario.gen_by_tech(2)['df']),
-    #            ('Capacity (GW) (2021-2025)', scenario.cap_by_tech(1)['df']),
-    #            ('Capacity (GW) (2026-2030)', scenario.cap_by_tech(2)['df']),
-    #            ]
-
-    # for df_pair in df_list:
-    #     title = [df_pair[0]]
-    #     writer.writerow(title)
-    #     headers = ['']
-    #     headers.extend(df_pair[1].columns)
-    #     writer.writerow(headers)
-    #     for i in range(len(df_pair[1].index)):
-    #         row = [df_pair[1].index[i]]
-    #         row.extend(df_pair[1].iloc[i])
-    #         writer.writerow(row)
-        # writer.writerow([])
-
     writer.writerow([""])
     writer.writerow(["............Inputs to model, after policies have been applied..........."])
-
     inputs = [
                ('Prices (£/MWh)', scenario.prices_input()),
                ('Technology data', scenario.techs_input()),
                ]
-
     for df_pair in inputs:
         title = [df_pair[0]]
         writer.writerow(title)
@@ -272,10 +220,7 @@ def scenario_download(request,pk):
                 row = row[1:]
             writer.writerow(row)
         writer.writerow([])
-
     writer.writerow(["............Policies............"])
-
-
     for pl in scenario.policies.all():
         writer.writerow([pl.name])
         writer.writerow([pl.description])
@@ -284,23 +229,18 @@ def scenario_download(request,pk):
         writer.writerow(policy_column_names)
         writer.writerows(df.values.tolist())
         writer.writerow([''])
-
-    #writer.writerow([''])
+    writer.writerow([''])
     writer.writerow(['............Raw output............'])
     writer.writerow(['Technology'])
     writer.writerow(tech_col_names)
     writer.writerows(tech_data)
-    # writer.writerow([""])
-    # writer.writerow(["Pot"])
-    # writer.writerow(pot_col_names)
-    # writer.writerows(pot_data)
     return response
 
 def policy_template(request):
     print("downloading policy template")
-    file = open('lcf/policy_template_no_sources_no_prices.csv')
+    file = open('lcf/policy_template_with_prices.csv')
     response = HttpResponse(file, content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="policy_template.csv"'
+    response['Content-Disposition'] = 'attachment; filename="policy_template_with_prices.csv"'
     file.close()
     return response
 

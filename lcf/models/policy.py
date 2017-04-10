@@ -21,23 +21,52 @@ class Policy(models.Model):
         return self.name
 
     def df(self):
-        print(pd.read_json(self.effects))
-        columns = ["tech_name", "listed_year", "min_levelised_cost_change", "max_levelised_cost_change", "strike_price_change", "load_factor_change", "max_deployment_cap_change", "num_new_projects_change", "project_gen_change"]
-        return pd.read_json(self.effects).reindex(columns=columns)
+        columns = ["tech_name", "listed_year", "min_levelised_cost_change", "max_levelised_cost_change", "strike_price_change", "load_factor_change", "max_deployment_cap_change", "num_new_projects_change", "project_gen_change", "price_change"]
+        df = pd.read_json(self.effects).reindex(columns=columns)
+        return df
 
     def df_for_display(self):
-        effects = pd.read_json(self.effects)
-        columns = ["tech_name", "listed_year", "min_levelised_cost_change", "max_levelised_cost_change", "strike_price_change", "load_factor_change", "max_deployment_cap_change", "num_new_projects_change", "project_gen_change"]
-        effects = effects.reindex(columns=columns)
+        effects = self.df()
         effects = effects.dropna(axis=1,how="all")
         effects = effects.set_index(['tech_name','listed_year'])
         effects = effects.style.format("{:.0%}").render()
         effects = effects.replace('<table id=', '<table class="table table-striped table-condensed" id=')
         return effects
 
+
+    def df_techs_for_display(self):
+        effects = self.df_techs()
+        effects = effects.dropna(axis=1,how="all")
+        effects = effects.set_index(['tech_name','listed_year'])
+        effects = effects.dropna(axis=0,how="all")
+        effects = effects.style.format("{:.0%}").render()
+        effects = effects.replace('<table id=', '<table class="table table-striped table-condensed" id=')
+        return effects
+
+    def df_prices_for_display(self):
+        effects = self.df_prices()
+        effects = effects.dropna(axis=1,how="all")
+
+        effects = effects.set_index(['tech_name','listed_year'])
+        effects = effects.dropna(axis=0,how="all")
+        effects = effects.unstack(0)
+        effects.columns = effects.columns.get_level_values(1)
+        effects = effects.style.format("{:.0%}").render()
+        effects = effects.replace('<table id=', '<table class="table table-striped table-condensed" id=')
+        return effects
+
+
     def df_for_download(self):
-        effects = pd.read_json(self.effects)
-        columns = ["tech_name", "listed_year", "min_levelised_cost_change", "max_levelised_cost_change", "strike_price_change", "load_factor_change", "max_deployment_cap_change", "num_new_projects_change", "project_gen_change"]
-        effects = effects.reindex(columns=columns)
+        effects = self.df()
         effects = effects.dropna(axis=1,how="all")
         return effects
+
+    def df_techs(self):
+        columns = ["tech_name", "listed_year", "min_levelised_cost_change", "max_levelised_cost_change", "strike_price_change", "load_factor_change", "max_deployment_cap_change", "num_new_projects_change", "project_gen_change"]
+        df = pd.read_json(self.effects).reindex(columns=columns)
+        return df
+
+    def df_prices(self):
+        columns = ["tech_name", "listed_year", "price_change"]
+        df = pd.read_json(self.effects).reindex(columns=columns)
+        return df

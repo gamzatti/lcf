@@ -1,0 +1,16 @@
+tech_name,listed_year,min_levelised_cost_change,max_levelised_cost_change,strike_price_change,load_factor_change,max_deployment_cap_change,num_new_projects_change,project_gen_change,price_change
+OFW,2020,0.95,0.95,0.95,1.05,,,,
+OFW,2025,0.95,0.95,0.95,1.05,,,,
+OFW,2030,0.95,0.95,0.95,1.05,,,,
+ONW,2020,0.95,0.95,0.95,1.05,,,,
+ONW,2025,0.95,0.95,0.95,1.05,,,,
+ONW,2030,0.95,0.95,0.95,1.05,,,,
+PVLS,2020,0.95,0.95,0.95,1.05,,,,
+PVLS,2025,0.95,0.95,0.95,1.05,,,,
+PVLS,2030,0.95,0.95,0.95,1.05,,,,
+wholesale_prices,2020,,,,,,,,1
+wholesale_prices,2025,,,,,,,,1
+wholesale_prices,2030,,,,,,,,1
+gas_prices,2020,,,,,,,,1
+gas_prices,2025,,,,,,,,1
+gas_prices,2030,,,,,,,,1

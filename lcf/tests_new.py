@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 
 from .models import Scenario, AuctionYear, Pot, Technology, Policy
 from .forms import ScenarioForm, PricesForm, PolicyForm
+from .helpers import save_policy_to_db, get_prices, update_prices_with_policies, create_auctionyear_and_pot_objects, update_tech_with_policies, create_technology_objects
 import math
 
 
@@ -761,3 +762,20 @@ class PolicyTests(TestCase):
         self.assertEqual(post_resp.status_code,200)
         new_policy_count = Policy.objects.count()
         self.assertEqual(new_policy_count,initial_policy_count+1)
+
+    def test_prices_policies(self):
+        resp = self.client.get(reverse('scenario_new'))
+        post_data = {'name': 'test name',
+                     'description': 'test description',
+                     'percent_emerging': 0.5,
+                     'budget': 2,
+                     'excel_quirks': 'on',
+                     'start_year1': 2020,
+                     'end_year1': 2022,
+                     'wholesale_prices': "excel",
+                     'gas_prices': "excel",
+                     'file': open('lcf/template.csv'),
+                     }
+        post_resp = self.client.post(reverse('scenario_new'),post_data)
+
+        self.assertEqual(post_resp.status_code,200)

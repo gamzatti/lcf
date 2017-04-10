@@ -1009,4 +1009,38 @@ From template:
 #     total = t1-t0
 #     print("numpy",total) #6.731263160705566
 #
-#
+#    #qs_techs = Technology.objects.filter(pot__auctionyear__in = auctionyears)
+    #df_techs = read_frame(qs_techs, fieldnames=['pot__auctionyear__year','pot__name','name','awarded_gen', 'awarded_cost', 'cum_awarded_gen', 'cum_owed_v_gas', 'cum_owed_v_wp', 'cum_owed_v_absolute'])
+
+    # df_pots = read_frame(qs_pots, fieldnames=['auctionyear__year','name','cum_awarded_gen_result', 'cum_owed_v_wp', 'cum_owed_v_gas'])
+    # qs_pots = Pot.objects.filter(auctionyear__in = auctionyears)
+    # pot_data = df_pots.values.tolist()
+    # pot_col_names = list(df_pots.columns)
+
+
+    # writer.writerow(["Summary tables"])
+
+    # df_list = [
+    #            ('Cumulative costs (£bn) (2021-2025)', scenario.cumulative_costs(1)['df']),
+    #            ('Cumulative costs (£bn) (2026-2030)', scenario.cumulative_costs(2)['df']),
+    #            ('Cumulative generation (TWh) (2021-2025)', scenario.cum_awarded_gen_by_pot(1)['df']),
+    #            ('Cumulative generation (TWh) (2026-2030)', scenario.cum_awarded_gen_by_pot(2)['df']),
+    #            ('Cost of new generation awarded (£m) (2021-2025)', scenario.awarded_cost_by_tech(1)['df']),
+    #            ('Cost of new generation awarded (£m) (2026-2030)', scenario.awarded_cost_by_tech(2)['df']),
+    #            ('Generation (TWh) (2021-2025)', scenario.gen_by_tech(1)['df']),
+    #            ('Generation (TWh) (2026-2030)', scenario.gen_by_tech(2)['df']),
+    #            ('Capacity (GW) (2021-2025)', scenario.cap_by_tech(1)['df']),
+    #            ('Capacity (GW) (2026-2030)', scenario.cap_by_tech(2)['df']),
+    #            ]
+
+    # for df_pair in df_list:
+    #     title = [df_pair[0]]
+    #     writer.writerow(title)
+    #     headers = ['']
+    #     headers.extend(df_pair[1].columns)
+    #     writer.writerow(headers)
+    #     for i in range(len(df_pair[1].index)):
+    #         row = [df_pair[1].index[i]]
+    #         row.extend(df_pair[1].iloc[i])
+    #         writer.writerow(row)
+        # writer.writerow([])
