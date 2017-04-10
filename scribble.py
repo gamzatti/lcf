@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 from pandas import DataFrame, Series
+from functools import reduce
+
 from lcf.models import Scenario, AuctionYear, Pot, Technology, Policy
 s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
 

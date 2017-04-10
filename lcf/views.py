@@ -46,8 +46,8 @@ def upload(request):
             #s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=s.pk)
 
             tech_df = pd.read_csv(request.FILES['file'])
-            policy_df = s.policies.all()[0].df()
-            df = update_tech_with_policies(tech_df,policy_df)
+            policy_dfs = [ pl.df() for pl in s.policies.all() ]
+            df = update_tech_with_policies(tech_df,policy_dfs)
             create_technology_objects(df,s)
             recent_pk = Scenario.objects.all().order_by("-date")[0].pk
             return redirect('scenario_detail', pk=recent_pk)

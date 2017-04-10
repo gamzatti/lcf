@@ -8,6 +8,7 @@ from pandas import DataFrame, Series
 import csv
 import io
 from django.conf import settings
+from functools import reduce
 
 
 def create_technology_objects(df,s):
@@ -46,8 +47,8 @@ def save_policy_to_db(file,pl):
     pl.save()
 
 def update_tech_with_policies(tech_df,policy_dfs):
-    #tech_df = DataFrame(pd.read_csv("lcf/template.csv"))
-    #policy_df = DataFrame(pd.read_csv("lcf/policy_template_no_sources_no_prices.csv"))
+    tech_df = DataFrame(pd.read_csv("lcf/template.csv"))
+    policy_df = DataFrame(pd.read_csv("lcf/policy_template_no_sources_no_prices.csv"))
 
     tech_df.set_index(['tech_name','listed_year'], inplace=True)
     tech_df = tech_df[tech_df.included == True]
@@ -56,13 +57,17 @@ def update_tech_with_policies(tech_df,policy_dfs):
     pots = tech_df.pot_name
     tech_df = tech_df.drop('pot_name',axis=1)
 
-    policy_df.set_index(['tech_name','listed_year'], inplace=True)
-    policy_techs = list(policy_df.index.levels[0])
-    index = [(t, y) for t in policy_techs for y in range(2020,2031) ]
-    interpolated = policy_df.reindex(index=index).interpolate()
-    interpolated = interpolated.reindex(index=tech_df.index).fillna(1)
-    interpolated.columns = tech_df.columns
-    updated_tech_df = interpolated * tech_df
+    dfs = []
+    for policy_df in policy_dfs:
+        policy_df.set_index(['tech_name','listed_year'], inplace=True)
+        policy_techs = list(policy_df.index.levels[0])
+        index = [(t, y) for t in policy_techs for y in range(2020,2031) ]
+        interpolated = policy_df.reindex(index=index).interpolate()
+        interpolated = interpolated.reindex(index=tech_df.index).fillna(1)
+        interpolated.columns = tech_df.columns
+        dfs.append(interpolated)
+
+    updated_tech_df = reduce((lambda x, y : x * y), dfs) * tech_df
 
     updated_tech_df['pot_name'] = pots
     updated_tech_df['included'] = included
