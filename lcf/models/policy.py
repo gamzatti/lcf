@@ -34,3 +34,10 @@ class Policy(models.Model):
         effects = effects.style.format("{:.0%}").render()
         effects = effects.replace('<table id=', '<table class="table table-striped table-condensed" id=')
         return effects
+
+    def df_for_download(self):
+        effects = pd.read_json(self.effects)
+        columns = ["tech_name", "listed_year", "min_levelised_cost_change", "max_levelised_cost_change", "strike_price_change", "load_factor_change", "max_deployment_cap_change", "num_new_projects_change", "project_gen_change"]
+        effects = effects.reindex(columns=columns)
+        effects = effects.dropna(axis=1,how="all")
+        return effects

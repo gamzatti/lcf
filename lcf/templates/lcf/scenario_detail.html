@@ -60,30 +60,45 @@
 <hr>
 
 
-<h2 class="sub-header">Summary</h2>
-    {{ tech_cum_owed_v_wp_pivot | safe }}
-    {{ tech_cum_owed_v_gas_pivot | safe }}
-    {{ tech_cum_owed_v_absolute_pivot | safe }}
+<h3 class="sub-header">Accounting cost <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-up hide-button0"></span></a></h3>
+    <div class="to-hide0">
+        {{ tech_cum_owed_v_wp_pivot | safe }}
+        {{ tech_cum_owed_v_wp_pivot2 | safe }}
+    </div>
 
-    {{ tech_cum_owed_v_wp_pivot2 | safe }}
-    {{ tech_cum_owed_v_gas_pivot2 | safe }}
-    {{ tech_cum_owed_v_absolute_pivot2 | safe }}
+<h3 class="sub-header">Comparison to gas <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button1"></span></a></h3>
+    <div class="to-hide1">
+        {{ tech_cum_owed_v_gas_pivot | safe }}
+        {{ tech_cum_owed_v_gas_pivot2 | safe }}
+    </div>
 
-<h2 class="sub-header">Cumulative new generation</h2>
-    {{ tech_cum_awarded_gen_pivot | safe }}
-    {{ tech_cum_awarded_gen_pivot2 | safe }}
+<h3 class="sub-header">Absolute cost <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button2"></span></a></h3>
+    <div class="to-hide2">
+        {{ tech_cum_owed_v_absolute_pivot | safe }}
+        {{ tech_cum_owed_v_absolute_pivot2 | safe }}
+    </div>
+<h3 class="sub-header">Cumulative new generation <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button3"></span></a></h3>
+    <div class="to-hide3">
 
-<h2 class="sub-header">Generation by technology</h2>
-    {{ tech_gen_pivot | safe }}
-    {{ tech_gen_pivot2 | safe }}
+        {{ tech_cum_awarded_gen_pivot | safe }}
+        {{ tech_cum_awarded_gen_pivot2 | safe }}
+    </div>
 
-<h2 class="sub-header">Capacity by technology</h2>
-    {{ tech_cap_pivot | safe }}
-    {{ tech_cap_pivot2 | safe }}
+<h3 class="sub-header">Generation by technology <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button4"></span></a></h3>
+    <div class="to-hide4">
+        {{ tech_gen_pivot | safe }}
+        {{ tech_gen_pivot2 | safe }}
+    </div>
 
-<div class="hide-button btn btn-primary">Show/hide inputs</div>
-<div class="to-hide">
-  {{ scenario.techs_input_html | safe }}
-  {{ scenario.prices_input_html | safe }}
-</div>
+<h3 class="sub-header">Capacity by technology <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button5"></span></a></h3>
+    <div class="to-hide5">
+        {{ tech_cap_pivot | safe }}
+        {{ tech_cap_pivot2 | safe }}
+    </div>
+
+<h3 class="sub-header">Inputs <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button6"></span></a></h3>
+    <div class="to-hide6">
+        {{ scenario.techs_input_html | safe }}
+        {{ scenario.prices_input_html | safe }}
+    </div>
 {% endblock %}

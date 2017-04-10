@@ -1,4 +1,4 @@
-//function toggleEditable() {
+  //function toggleEditable() {
 //    if ( element.prop('disabled', true)) {
 //        element.prop('disabled', false);
 //    }
@@ -27,6 +27,14 @@ function toggle(source) {
   }
 }
 
+function toggleIcon(glyph) {
+    if (glyph.hasClass("glyphicon-chevron-down")) {
+      glyph.removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
+    }
+    else if (glyph.hasClass("glyphicon-chevron-up")) {
+      glyph.removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
+    }
+}
 
 $(document).ready(function(){
     //$( "div.btn-primary" ).click(function(){$(this).html("changed");});
@@ -38,11 +46,40 @@ $(document).ready(function(){
     //});
 
 
-    $(".hide-button").click(function(){
-      $(".to-hide").slideToggle();
+    $(".hide-button0").click(function(){
+      $(".to-hide0").slideToggle();
+      toggleIcon($(this));
     });
 
+    $(".hide-button1").click(function(){
+      $(".to-hide1").slideToggle();
+      toggleIcon($(this));
+    });
 
+    $(".hide-button2").click(function(){
+      $(".to-hide2").slideToggle();
+      toggleIcon($(this));
+    });
+
+    $(".hide-button3").click(function(){
+      $(".to-hide3").slideToggle();
+      toggleIcon($(this));
+    });
+
+    $(".hide-button4").click(function(){
+      $(".to-hide4").slideToggle();
+      toggleIcon($(this));
+    });
+
+    $(".hide-button5").click(function(){
+      $(".to-hide5").slideToggle();
+      toggleIcon($(this));
+    });
+
+    $(".hide-button6").click(function(){
+      $(".to-hide6").slideToggle();
+      toggleIcon($(this));
+    });
 //    document.getElementById("id_all_excel_quirks").onclick = function(){toggle(this)}
 
 });

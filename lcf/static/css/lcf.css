@@ -1,5 +1,10 @@
-.to-hide {
+.to-hide1, .to-hide2, .to-hide3, .to-hide4, .to-hide5, .to-hide6  {
   display: none;
+}
+
+h2 span {
+  font-size: 14px;
+  font-family:  "Nimbus Sans L", sans-serif;
 }
 
 .glyphicon-remove {

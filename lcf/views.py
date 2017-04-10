@@ -214,7 +214,9 @@ def scenario_download(request,pk):
     # pot_data = df_pots.values.tolist()
     # pot_col_names = list(df_pots.columns)
 
-    writer.writerow([scenario.name])
+    writer.writerow(["............Scenario details............"])
+    writer.writerow(['Name', scenario.name])
+    writer.writerow(['Description', scenario.description])
     writer.writerow(['Budget', scenario.budget])
     writer.writerow(['Percent in emerging pot', scenario.percent_emerging])
 
@@ -247,7 +249,7 @@ def scenario_download(request,pk):
         # writer.writerow([])
 
     writer.writerow([""])
-    writer.writerow(["Inputs"])
+    writer.writerow(["............Inputs to model, after policies have been applied..........."])
 
     inputs = [
                ('Prices (£/MWh)', scenario.prices_input()),
@@ -271,8 +273,20 @@ def scenario_download(request,pk):
             writer.writerow(row)
         writer.writerow([])
 
-    writer.writerow([''])
-    writer.writerow(['Raw output'])
+    writer.writerow(["............Policies............"])
+
+
+    for pl in scenario.policies.all():
+        writer.writerow([pl.name])
+        writer.writerow([pl.description])
+        df = pl.df_for_download()
+        policy_column_names = list(df.columns)
+        writer.writerow(policy_column_names)
+        writer.writerows(df.values.tolist())
+        writer.writerow([''])
+
+    #writer.writerow([''])
+    writer.writerow(['............Raw output............'])
     writer.writerow(['Technology'])
     writer.writerow(tech_col_names)
     writer.writerows(tech_data)
