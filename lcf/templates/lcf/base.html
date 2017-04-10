@@ -57,9 +57,9 @@
                   <ul class="nav nav-sidebar">
                     {% for pl in policies %}
                     {% if policy.pk == pl.pk %}
-                        <li class="active"><a href="{% url 'policy_detail' pk=pl.pk %}">{{ pl.name }}</a></li>
+                        <li class="active"><a href="{% url 'policy_detail' pk=pl.pk %}">{{ pl.name }}</a><a class="del" href="{% url 'policy_delete' pk=pl.pk %}"><span title="delete policy" class="glyphicon glyphicon-remove"></span> Delete</a></li>
                     {% else %}
-                        <li><a href="{% url 'policy_detail' pk=pl.pk %}">{{ pl.name }}</a></li>
+                        <li><a href="{% url 'policy_detail' pk=pl.pk %}">{{ pl.name }}</a><a class="del" href="{% url 'policy_delete' pk=pl.pk %}"><span title="delete policy" class="glyphicon glyphicon-remove"></span> Delete</a></li>
                     {% endif %}
                 {% endfor %}
 

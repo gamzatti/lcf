@@ -19,3 +19,18 @@ class Policy(models.Model):
 
     def __str__(self):
         return self.name
+
+    def df(self):
+        print(pd.read_json(self.effects))
+        columns = ["tech_name", "listed_year", "min_levelised_cost_change", "max_levelised_cost_change", "strike_price_change", "load_factor_change", "max_deployment_cap_change", "num_new_projects_change", "project_gen_change"]
+        return pd.read_json(self.effects).reindex(columns=columns)
+
+    def df_for_display(self):
+        effects = pd.read_json(self.effects)
+        columns = ["tech_name", "listed_year", "min_levelised_cost_change", "max_levelised_cost_change", "strike_price_change", "load_factor_change", "max_deployment_cap_change", "num_new_projects_change", "project_gen_change"]
+        effects = effects.reindex(columns=columns)
+        effects = effects.dropna(axis=1,how="all")
+        effects = effects.set_index(['tech_name','listed_year'])
+        effects = effects.style.format("{:.0%}").render()
+        effects = effects.replace('<table id=', '<table class="table table-striped table-condensed" id=')
+        return effects

@@ -3,7 +3,7 @@ from django.forms import modelformset_factory, formset_factory
 from .forms import ScenarioForm, PricesForm, UploadFileForm, PolicyForm
 from .models import Scenario, AuctionYear, Pot, Technology, Policy
 import time
-from .helpers import handle_uploaded_file, handle_policy_file
+from .helpers import create_technology_objects, update_tech_with_policies, save_policy_to_db
 from django_pandas.io import read_frame
 
 from django.http import HttpResponse
@@ -45,8 +45,10 @@ def upload(request):
                     Pot.objects.create(auctionyear=a,name=p)
             #s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=s.pk)
 
-            file = request.FILES['file']
-            handle_uploaded_file(file,s)
+            tech_df = pd.read_csv(request.FILES['file'])
+            policy_df = s.policies.all()[0].df()
+            df = update_tech_with_policies(tech_df,policy_df)
+            create_technology_objects(df,s)
             recent_pk = Scenario.objects.all().order_by("-date")[0].pk
             return redirect('scenario_detail', pk=recent_pk)
         else:
@@ -77,7 +79,7 @@ def policy_new(request):
             print('forms are valid')
             pl = policy_form.save()
             file = request.FILES['file']
-            handle_policy_file(file,pl)
+            save_policy_to_db(file,pl)
 
             return redirect('policy_detail', pk=pl.pk)
         else:
@@ -103,10 +105,7 @@ def policy_detail(request,pk):
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     scenario = Scenario.objects.all().order_by("-date")[0]
     policy = Policy.objects.get(pk=pk)
-    effects = pd.read_json(policy.effects)
-    effects = effects.set_index(['tech_name','listed_year'])
-    effects = effects.style.format("{:.0%}").render()
-    effects = effects.replace('<table id=', '<table class="table table-striped table-condensed" id=')
+    effects = policy.df_for_display()
 
     context = {'scenario': scenario,
                'scenarios': scenarios,
@@ -120,6 +119,12 @@ def policy_detail(request,pk):
 def scenario_delete(request, pk):
     scenario = get_object_or_404(Scenario, pk=pk)
     scenario.delete()
+    recent_pk = Scenario.objects.all().order_by("-date")[0].pk
+    return redirect('scenario_detail', pk=recent_pk)
+
+def policy_delete(request, pk):
+    policy = get_object_or_404(Policy, pk=pk)
+    policy.delete()
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     return redirect('scenario_detail', pk=recent_pk)
 
