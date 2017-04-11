@@ -158,7 +158,7 @@ class Pot(models.Model):
             df.gen, df.attempted_project_gen, df.attempted_cum_gen = df.gen.astype(float), df.attempted_project_gen.astype(float), df.attempted_cum_gen.astype(float)
             return df
         else:
-            # print('running auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
+            print('running auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
             gen = 0
             cost = 0
             budget = self.budget() ##slow

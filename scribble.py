@@ -1044,3 +1044,25 @@ From template:
     #         row.extend(df_pair[1].iloc[i])
     #         writer.writerow(row)
         # writer.writerow([])
+
+
+    # for meth in meth_list:
+    #     chart[meth] = {}
+    #     df[meth] = {}
+    #     for period_num in [1,2]:
+    #         results = scenario.get_or_make_chart_data(meth,period_num)
+    #         data = results['data']
+    #         data_source = SimpleDataSource(data=data)
+    #         options = results['options']
+    #         if meth == "cumulative_costs" or meth == "cum_awarded_gen_by_pot":
+    #             chart[meth][period_num] = LineChart(data_source, options=options, height=400, width="100%")
+    #         else:
+    #             chart[meth][period_num] = ColumnChart(data_source, options=options, height=400, width="100%")
+    #         df[meth][period_num] = results['df'].to_html(classes="table table-striped table-condensed") # slowest line; consider saving in db
+    #         context["".join([meth,"_chart",str(period_num)])] = chart[meth][period_num]
+    #         context["".join([meth,"_df",str(period_num)])] = df[meth][period_num]
+    # t2 = time.time() * 1000
+    # print(t2-t1,t1-t0)
+    #print(connection.queries)
+    #for query in connection.queries:
+    #    print('\n',query)

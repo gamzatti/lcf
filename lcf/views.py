@@ -67,7 +67,6 @@ def policy_new(request):
             pl = policy_form.save()
             file = request.FILES['file']
             save_policy_to_db(file,pl)
-
             return redirect('policy_detail', pk=pl.pk)
         else:
             print(policy_form.errors)
@@ -117,8 +116,6 @@ def policy_delete(request, pk):
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     return redirect('scenario_detail', pk=recent_pk)
 
-from django.views.decorators.cache import never_cache
-
 def scenario_detail(request, pk=None):
     if pk == None:
         pk = Scenario.objects.all().order_by("-date")[0].pk
@@ -139,24 +136,19 @@ def scenario_detail(request, pk=None):
                'scenarios': scenarios,
                'recent_pk': recent_pk
                }
-    # meth_list_long = ["cumulative_costs","cum_awarded_gen_by_pot","awarded_cost_by_tech","gen_by_tech","cap_by_tech"]
-    # meth_list = ["cumulative_costs","cum_awarded_gen_by_pot","gen_by_tech", 'cap_by_tech']
-    # t1 = time.time() * 1000
 
-    context['tech_cap_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'awarded_cap', 'Capacity awarded each year LCF 1 (GW)'))
-    context['tech_cap_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'awarded_cap', 'Capacity awarded each year LCF 2 (GW)'))
-    context['tech_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'awarded_gen', 'Generation awarded each year LCF 1 (TWh)'))
-    context['tech_gen_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'awarded_gen', 'Generation awarded each year LCF 2 (TWh)'))
-    context['tech_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_wp','Accounting cost LCF 1 (£bn)'))
-    context['tech_cum_owed_v_wp_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_wp','Accounting cost LCF 2 (£bn)'))
-    context['tech_cum_owed_v_gas_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_gas', 'Cost v gas LCF 1 (£bn)'))
-    context['tech_cum_owed_v_gas_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_gas', 'Cost v gas LCF 2 (£bn)'))
-    context['tech_cum_owed_v_absolute_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_absolute', 'Absolute cost LCF 1 (£bn)'))
-    context['tech_cum_owed_v_absolute_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_absolute', 'Absolute cost LCF 2 (£bn)'))
-    context['tech_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_awarded_gen', 'Cumulative new generation LCF 1 (TWh)'))
-    context['tech_cum_awarded_gen_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_awarded_gen', 'Cumulative new generation LCF 2 (TWh)'))
-    # context['pot_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.pot_pivot_table(1,'cum_owed_v_wp'))
-    # context['pot_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.pot_pivot_table(1,'cum_awarded_gen_result'))
+    context['tech_cap_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'awarded_cap', 'Capacity awarded each year LCF2 (GW)'))
+    context['tech_cap_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'awarded_cap', 'Capacity awarded each year post-2025 (GW)'))
+    context['tech_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'awarded_gen', 'Generation awarded each year LCF2 (TWh)'))
+    context['tech_gen_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'awarded_gen', 'Generation awarded each year post-2025 (TWh)'))
+    context['tech_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_wp','Accounting cost LCF2 (£bn)'))
+    context['tech_cum_owed_v_wp_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_wp','Accounting cost post-2025 (£bn)'))
+    context['tech_cum_owed_v_gas_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_gas', 'Cost v gas LCF2 (£bn)'))
+    context['tech_cum_owed_v_gas_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_gas', 'Cost v gas post-2025 (£bn)'))
+    context['tech_cum_owed_v_absolute_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_absolute', 'Absolute cost LCF2 (£bn)'))
+    context['tech_cum_owed_v_absolute_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_absolute', 'Absolute cost post-2025 (£bn)'))
+    context['tech_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_awarded_gen', 'Cumulative new generation LCF2 (TWh)'))
+    context['tech_cum_awarded_gen_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_awarded_gen', 'Cumulative new generation post-2025 (TWh)'))
 
 
     for column in ["awarded_cap", "cum_awarded_gen"]:
@@ -165,26 +157,6 @@ def scenario_detail(request, pk=None):
         context["".join([column,"_chart"])] = ColumnChart(data_source, options=options)
 
 
-    # for meth in meth_list:
-    #     chart[meth] = {}
-    #     df[meth] = {}
-    #     for period_num in [1,2]:
-    #         results = scenario.get_or_make_chart_data(meth,period_num)
-    #         data = results['data']
-    #         data_source = SimpleDataSource(data=data)
-    #         options = results['options']
-    #         if meth == "cumulative_costs" or meth == "cum_awarded_gen_by_pot":
-    #             chart[meth][period_num] = LineChart(data_source, options=options, height=400, width="100%")
-    #         else:
-    #             chart[meth][period_num] = ColumnChart(data_source, options=options, height=400, width="100%")
-    #         df[meth][period_num] = results['df'].to_html(classes="table table-striped table-condensed") # slowest line; consider saving in db
-    #         context["".join([meth,"_chart",str(period_num)])] = chart[meth][period_num]
-    #         context["".join([meth,"_df",str(period_num)])] = df[meth][period_num]
-    # t2 = time.time() * 1000
-    # print(t2-t1,t1-t0)
-    #print(connection.queries)
-    #for query in connection.queries:
-    #    print('\n',query)
     print('rendering request')
     return render(request, 'lcf/scenario_detail.html', context)
 

@@ -50,11 +50,6 @@ class Scenario(models.Model):
         #return self.auctionyear_set.filter(year__range=ran).order_by("year")
         return [ auctionyear for auctionyear in self.auctionyear_dict.values() if auctionyear.year in ran ]
 
-    # def apply_policies(self):
-    #     for pl in self.policies.all():
-    #         effects = pd.read_json(pl.effects)
-    #         print(effects)
-
     def get_results(self):
         # self.apply_policies()
         columns = ['year',
