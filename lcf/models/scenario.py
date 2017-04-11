@@ -31,7 +31,7 @@ class Scenario(models.Model):
     excel_nw_carry_error = models.BooleanField(default=False, verbose_name="Include the Excel error that carries NWFIT into next year, even though it's been spent")
     excel_quirks = models.BooleanField(default=True, verbose_name="Include all Excel quirks")
     results = models.TextField(null=True,blank=True)
-    policies = models.ManyToManyField(Policy)
+    policies = models.ManyToManyField(Policy, blank=True)
 
     def __str__(self):
         return self.name
@@ -94,9 +94,30 @@ class Scenario(models.Model):
             results = pd.read_json(self.results).reindex(columns=columns).sort_index()
             return results
 
+    def df_to_chart_data(self,column):
+        df = self.get_results()
+        df = df[['year','pot','name',column]]
+        df = df.set_index(['year','pot','name']).sort_index()
+        df = df.unstack(0)
+        df.columns = df.columns.get_level_values(1)
+        df.index = df.index.get_level_values(1)
+        df = df.reset_index()
+        df.loc['years_row'] = df.columns.astype('str')
+        df = df.reindex(index = ['years_row']+list(df.index)[:-1])
+        chart_data = df.T.values.tolist()
+        units = {
+                'awarded_cap': 'GW',
+                'awarded_gen': 'TWh',
+                'cum_owed_v_gas': '£bn',
+                'cum_owed_v_wp': '£bn',
+                'cum_owed_v_absolute': '£bn',
+                'cum_awarded_gen': 'TWh',
+                }
+        options = {'title': None, 'vAxis': {'title': units[column]}, 'width':1000, 'height':400}
+        return {'chart_data': chart_data, 'options': options}
+
     # @lru_cache(maxsize=128)
     def tech_pivot_table(self,period_num,column,title=None):
-        self.get_results()
         # print('building pivot table')
         # auctionyears = self.period(period_num)
         #techs = { t.name + str(t.pot.auctionyear.year) : t for a in auctionyears for p in a.pot_dict.values() for t in p.technology_dict.values() }

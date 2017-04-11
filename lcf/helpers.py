@@ -47,6 +47,8 @@ def save_policy_to_db(file,pl):
     pl.save()
 
 def update_tech_with_policies(tech_df,policy_dfs):
+    if len(policy_dfs) == 0:
+        return tech_df
     #tech_df = DataFrame(pd.read_csv("lcf/template.csv"))
     #policy_df = DataFrame(pd.read_csv("lcf/policy_template_no_sources_no_prices.csv"))
     #policy_df = DataFrame(pd.read_csv("lcf/policy_template_with_prices.csv"))
@@ -89,6 +91,8 @@ def get_prices(s, scenario_form):
     return prices_df
 
 def update_prices_with_policies(prices_df,policy_dfs):
+    if len(policy_dfs) == 0:
+        return prices_df
     dfs = []
     for policy_df in policy_dfs:
         policy_df = policy_df[policy_df.tech_name.isin(['wholesale_prices','gas_prices']) ]

@@ -779,3 +779,10 @@ class PolicyTests(TestCase):
         post_resp = self.client.post(reverse('scenario_new'),post_data)
 
         self.assertEqual(post_resp.status_code,200)
+
+class TestCum(TestCase):
+    fixtures = ['tests/new/data2.json']
+
+    def test_cum_gen(self):
+        s = Scenario.objects.all().get(pk=281)
+        print(s.get_results())

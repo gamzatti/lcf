@@ -12,8 +12,8 @@ import numpy as np
 from pandas import DataFrame, Series
 import re
 import csv
-# from graphos.sources.simple import SimpleDataSource
-# from graphos.renderers.gchart import LineChart, ColumnChart
+from graphos.sources.simple import SimpleDataSource
+from graphos.renderers.gchart import LineChart, ColumnChart
 from django.db import connection
 
 
@@ -157,6 +157,13 @@ def scenario_detail(request, pk=None):
     context['tech_cum_awarded_gen_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_awarded_gen', 'Cumulative new generation LCF 2 (TWh)'))
     # context['pot_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.pot_pivot_table(1,'cum_owed_v_wp'))
     # context['pot_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.pot_pivot_table(1,'cum_awarded_gen_result'))
+
+
+    for column in ["awarded_cap", "cum_awarded_gen"]:
+        chart_data, options = scenario.df_to_chart_data(column)['chart_data'], scenario.df_to_chart_data(column)['options']
+        data_source = SimpleDataSource(data=chart_data)
+        context["".join([column,"_chart"])] = ColumnChart(data_source, options=options)
+
 
     # for meth in meth_list:
     #     chart[meth] = {}

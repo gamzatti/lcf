@@ -7,6 +7,16 @@ from functools import lru_cache
 import datetime
 import time
 
+# class TechnologyManager(models.Manager):
+#     def create_technology(self, **kwargs):
+#         t = self.create(**kwargs)
+#         if t.num_new_projects != None:
+#             t.fill_in_max_deployment_cap()
+#         elif t.max_deployment_cap == None:
+#             print("You must specify either num_new_projects or max_deployment_cap")
+#         return t
+#
+
 class Technology(models.Model):
     TECHNOLOGY_CHOICES = (
             ('OFW', 'Offshore wind'),
@@ -29,11 +39,12 @@ class Technology(models.Model):
     included = models.BooleanField(default=True)
     num_new_projects = models.FloatField(null=True,blank=True)
 
+    # objects = TechnologyManager()
+
     def __init__(self, *args, **kwargs):
         super(Technology, self).__init__(*args, **kwargs)
         #print('new tech!, name:',self.name)
         self.awarded_gen = 0
-        self.awarded_cap = 0
         self.awarded_cost = 0
         self.cum_owed_v_wp = 0
         self.cum_owed_v_gas = 0
@@ -132,6 +143,10 @@ class Technology(models.Model):
 
     #@lru_cache(maxsize=128)
     def projects(self):
+        # if self.num_new_projects != None:
+        #     self.fill_in_max_deployment_cap()
+        # elif self.max_deployment_cap == None:
+        #     print("You must specify either num_new_projects or max_deployment_cap")
         if self.num_projects == 0:
             return DataFrame()
         else:
@@ -147,6 +162,10 @@ class Technology(models.Model):
             projects['pot'] = self.pot.name
             projects['listed_year'] = self.pot.auctionyear.year
             return projects
+    #
+    # def fill_in_max_deployment_cap(self):
+    #     project_cap = self.project_gen / self.load_factor / 8760 # for tidal = 2200 / 0.22 / 8760 = 1.14155251141553
+    #     self._max_deployment_cap = self.num_new_projects * project_cap # need to check that it's right to put num_new_projects rather than num_projects
 
 
     def cum_future_techs(self):

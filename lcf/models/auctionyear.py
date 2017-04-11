@@ -113,6 +113,7 @@ class AuctionYear(models.Model):
         active_names = [ pot.name for pot in self.pot_set.all() if pot.tech_set().count() > 0 ]
         return self.pot_set.filter(name__in=active_names).order_by("name")
 
+
     #summary methods
     #@lru_cache(maxsize=128)
     def awarded_from(self,pot):
@@ -121,7 +122,8 @@ class AuctionYear(models.Model):
             p = self.pot_dict[pot]
             res = p.awarded_cost()
             return res
-
+        #else:
+            #    return 0
         elif pot == "auction":
             res = self.pot_dict["E"].awarded_cost() + self.pot_dict["M"].awarded_cost()
             return res

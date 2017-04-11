@@ -6,10 +6,10 @@
 {% endblock %}
 
 {% block content %}
-<!-- <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
     google.load("visualization", "1", {packages:["corechart"]});
-</script> -->
+</script>
 
 <h1 class="page-header">{{ scenario.name }}</h1>
 <!--
@@ -82,6 +82,7 @@
 
         {{ tech_cum_awarded_gen_pivot | safe }}
         {{ tech_cum_awarded_gen_pivot2 | safe }}
+        {{ cum_awarded_gen_chart.as_html }}
     </div>
 
 <h3 class="sub-header">Generation by technology <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button4"></span></a></h3>
@@ -94,6 +95,7 @@
     <div class="to-hide5">
         {{ tech_cap_pivot | safe }}
         {{ tech_cap_pivot2 | safe }}
+        {{ awarded_cap_chart.as_html }}
     </div>
 
 <h3 class="sub-header">Inputs <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button6"></span></a></h3>
