@@ -1,4 +1,4 @@
-pot_name,tech_name,listed_year,included,min_levelised_cost,max_levelised_cost,strike_price,load_factor,max_deployment_cap,num_new_projects,project_gen
+pot_name,tech_name,year,included,min_levelised_cost,max_levelised_cost,strike_price,load_factor,max_deployment_cap,num_new_projects,project_gen
 E,OFW,2020,True,71.3353908668731,103.034791021672,114.074615384615,0.42,1.9,,832
 E,OFW,2021,True,71.1099729102167,101.917093653251,112.136153846154,0.434,1.9,,832
 E,OFW,2022,True,70.8845549535604,100.79939628483,110.197692307692,0.448,1.9,,832

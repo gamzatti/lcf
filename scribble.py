@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 from pandas import DataFrame, Series
 from functools import reduce
+from lcf.dataframe_helpers import DataFrameHelpers
+
 
 from lcf.models import Scenario, AuctionYear, Pot, Technology, Policy
 s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=453)
@@ -1066,3 +1068,33 @@ From template:
     #print(connection.queries)
     #for query in connection.queries:
     #    print('\n',query)
+
+    # def df_for_display(self):
+    #     effects = self.df()
+    #     effects = effects.dropna(axis=1,how="all")
+    #     effects = effects.set_index(tech_policy_index)
+    #     effects = effects.style.format("{:.0%}").render()
+    #     effects = effects.replace('<table id=', '<table class="table table-striped table-condensed" id=')
+    #     return effects
+
+
+    # def df_techs_for_display(self):
+        # effects = self.df('techs')
+        # effects.columns = dfh.tech_policy_columns
+        # effects = effects.dropna(axis=1,how="all")
+        # effects = effects.set_index(dfh.tech_policy_index['titles'])
+        # effects = effects.dropna(axis=0,how="all")
+        # effects = effects.style.format("{:.0%}").render()
+        # effects = effects.replace('<table id=', '<table class="table table-striped table-condensed" id=')
+        # return effects
+
+    # def df_prices_for_display(self):
+        # effects = self.df('prices')
+        # effects = effects.dropna(axis=1,how="all")
+        # effects = effects.set_index(dfh.prices_policy_index)
+        # effects = effects.dropna(axis=0,how="all")
+        # effects = effects.unstack(0)
+        # effects.columns = dfh.prices_policy_columns
+        # effects = effects.style.format("{:.0%}").render()
+        # effects = effects.replace('<table id=', '<table class="table table-striped table-condensed" id=')
+        # return effects

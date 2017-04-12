@@ -7,6 +7,7 @@ from functools import lru_cache
 import datetime
 import time
 from django_pandas.io import read_frame
+import lcf.dataframe_helpers as dfh
 
 from .auctionyear import AuctionYear
 from .pot import Pot
@@ -40,33 +41,25 @@ class Scenario(models.Model):
         super(Scenario, self).__init__(*args, **kwargs)
         self.auctionyear_dict = { auctionyear.year : auctionyear for auctionyear in self.auctionyear_set.all() }
         self.flat_tech_dict = { t.name + str(t.pot.auctionyear.year) : t for a in self.auctionyear_dict.values() for p in a.pot_dict.values() for t in p.technology_dict.values() }
-    #chart methods
 
-    def period(self, num):
+    def period(self, num=None):
         if num == 1:
             ran = range(self.start_year1, self.end_year1+1)
         elif num == 2:
             ran = range(self.start_year2, self.end_year2+1)
-        #return self.auctionyear_set.filter(year__range=ran).order_by("year")
+        else:
+            ran = range(self.start_year1, self.end_year2+1)
         return [ auctionyear for auctionyear in self.auctionyear_dict.values() if auctionyear.year in ran ]
 
-    def get_results(self):
-        # self.apply_policies()
-        columns = ['year',
-                   'pot',
-                   'name',
-                   'awarded_gen',
-                   'awarded_cap',
-                   'awarded_cost',
-                   'cum_awarded_gen',
-                   'cum_owed_v_gas',
-                   'cum_owed_v_wp',
-                   'cum_owed_v_absolute']
+    def run_auctions(self):
+        for a in self.auctionyear_dict.values():
+            for p in a.pot_dict.values():
+                p.run_auction()
+
+    def get_results(self,column=None):
+        column_names = dfh.tech_results_keys
         if self.results == None:
-            # print('getting results')
-            for a in self.auctionyear_dict.values():
-                for p in a.pot_dict.values():
-                    p.run_auction()
+            self.run_auctions()
             results = DataFrame([ [t.pot.auctionyear.year,
                         t.pot.get_name_display(),
                         t.get_name_display(),
@@ -78,21 +71,22 @@ class Scenario(models.Model):
                         t.cum_owed_v_wp,
                         t.cum_owed_v_absolute]
                         for t in self.flat_tech_dict.values() ],
-                        columns = columns)
-            results = results.sort_values(['year','pot','name'])
+                        columns = column_names)
+            results = results.sort_values(dfh.tech_results_index['keys'])
             results.index = range(0,len(results.index))
             self.results = results.to_json()
             self.save()
-            return results
         else:
             # print('retrieving from db')
-            results = pd.read_json(self.results).reindex(columns=columns).sort_index()
-            return results
+            results = pd.read_json(self.results).reindex(columns=column_names).sort_index()
+        if column:
+            results = results[dfh.tech_results_index['keys']+[column]]
+        return results
+
 
     def df_to_chart_data(self,column):
-        df = self.get_results()
-        df = df[['year','pot','name',column]]
-        df = df.set_index(['year','pot','name']).sort_index()
+        df = self.get_results(column)
+        df = df.set_index(dfh.tech_results_index['keys']).sort_index()
         df = df.unstack(0)
         df.columns = df.columns.get_level_values(1)
         df.index = df.index.get_level_values(1)
@@ -100,66 +94,61 @@ class Scenario(models.Model):
         df.loc['years_row'] = df.columns.astype('str')
         df = df.reindex(index = ['years_row']+list(df.index)[:-1])
         chart_data = df.T.values.tolist()
-        units = {
-                'awarded_cap': 'GW',
-                'awarded_gen': 'TWh',
-                'cum_owed_v_gas': '£bn',
-                'cum_owed_v_wp': '£bn',
-                'cum_owed_v_absolute': '£bn',
-                'cum_awarded_gen': 'TWh',
-                }
-        options = {'title': None, 'vAxis': {'title': units[column]}, 'width':1000, 'height':400}
+        unit = dfh.abbrev[column]['unit']
+        options = {'title': None, 'vAxis': {'title': unit}, 'width':1000, 'height':400}
         return {'chart_data': chart_data, 'options': options}
 
     # @lru_cache(maxsize=128)
-    def tech_pivot_table(self,period_num,column,title=None):
+    def pivot(self,column,period_num=None):
         # print('building pivot table')
-        # auctionyears = self.period(period_num)
-        #techs = { t.name + str(t.pot.auctionyear.year) : t for a in auctionyears for p in a.pot_dict.values() for t in p.technology_dict.values() }
-        df = self.get_results()
-        df = df[['year','pot','name',column]]
-        if title:
-            df.columns = ['year','pot','name', title]
+        df = self.get_results(column)
+        df[column] /= 1000 if dfh.abbrev.loc['unit',column] == '£bn' else df[column]
+        title = dfh.abbrev.loc['title+unit',column]
+        df.columns = dfh.tech_results_index['keys'] + [title]
         auctionyear_years = [auctionyear.year for auctionyear in self.period(period_num)]
         df = df.loc[df.year.isin(auctionyear_years)]
 
-#        df = DataFrame([[t.pot.auctionyear.year, t.pot.get_name_display(), t.get_name_display(), getattr(t,column)] for t in techs.values()],columns=['year','pot','name',column])
-        dfsum = df.groupby(['year','pot'],as_index=False).sum()
+        dfsum = df.groupby(['year','pot_name'],as_index=False).sum()
         dfsum['name']='_Subtotal'
         dfsum_outer = df.groupby(['year'],as_index=False).sum()
         dfsum_outer['name']='Total'
-        dfsum_outer['pot']='Total'
+        dfsum_outer['pot_name']='Total'
         result = dfsum.append(df)
         result = dfsum_outer.append(result)
         if column == "cum_owed_v_gas":
-            ip_df = df[df.pot != 'Feed-in-tariff']
+            ip_df = df[df.pot_name != 'Feed-in-tariff']
             ip_df_sum_outer = ip_df.groupby(['year'],as_index=False).sum()
             ip_df_sum_outer['name'] = '__Innovation premium'
-            ip_df_sum_outer['pot'] = '__Innovation premium'
+            ip_df_sum_outer['pot_name'] = '__Innovation premium'
             result = ip_df_sum_outer.append(result)
-        result = result.set_index(['year','pot','name']).sort_index()
+        result = result.set_index(dfh.tech_results_index['keys']).sort_index()
         result = result.unstack(0)
-        if column == "cum_owed_v_wp" or column == "cum_owed_v_gas" or column == "cum_owed_v_absolute":
-            result = result/1000
-        if title:
-            result.index.names = ['Pot','Technology']
-            result.columns.names = ['', 'Year']
-            #result.columns.names = [title,'Year']
-            #result['column'] =
+        result.index.names = ['Pot','Technology']
+        result.columns.names = ['', 'Year']
         return result
 
 
 
-    def techs_df(self):
+
+
+    def techs_input(self):
         techs = pd.concat([t.fields_df() for t in self.flat_tech_dict.values() ])
         techs = techs.set_index('id')
-        return techs
+        df = techs.sort_values(dfh.tech_inputs_index['keys']).drop('pot', axis=1)
+        df = df.reindex(columns =dfh.tech_inputs_keys)
+        df.columns = dfh.tech_inputs_columns
+        df = round(df,2)
+        return df
 
+
+    def apply_table_classes(self, html):
+        html = html.replace('<table id=', '<table class="table table-striped table-condensed" id=')
+        return html
 
     # @lru_cache(maxsize=128)
     def df_to_html(self,df):
         html = df.style.render()
-        html = html.replace('<table id=', '<table class="table table-striped table-condensed" id=')
+        html = self.apply_table_classes(html)
         return html
 
     # @lru_cache(maxsize=128)
@@ -167,53 +156,32 @@ class Scenario(models.Model):
         def highlight_total(s):
             is_max = s == s.max()
             return ['font-weight: bold;' if v else '' for v in is_max]
-
         def highlight_subtotal(val):
-            #print(row)
-            #is_subtotal = [ row for ma in df.groupby(level=0).max() if row == ma ]
-            #print(is_subtotal)
             return 'font-weight: bold;'
-
-        #html = df.style.format('<input style="width:120px;" name="df" value="{}" />').render()
-        #df = df.round(2)
         html = df.style.format("{:.3f}").applymap(highlight_subtotal, subset = pd.IndexSlice[pd.IndexSlice[:,['_Subtotal','Total', '__Innovation premium']],:]).render()
-        #html = df.style.format("{:.2f}").apply(highlight_total).render()
-        html = html.replace('<table id=', '<table class="table table-striped table-condensed" id=')
+        html = self.apply_table_classes(html)
         html = html.replace('_Subtotal','Subtotal')
         html = html.replace('__Innovation', 'Innovation')
         return html
-
-    #inputs
-
-    # @lru_cache(maxsize=128)
-    def techs_input(self):
-        df = self.techs_df().sort_values(["pot_name", "name", "listed_year"]).drop('pot', axis=1)
-        #df.set_index(["pot_name", 'name','listed_year'], inplace=True)
-        #df.set_index(["pot_name", 'name','listed_year'],drop=False, inplace=True)
-        df = df.reindex(columns =["pot_name", "name", "listed_year", 'included', 'min_levelised_cost', 'max_levelised_cost', 'strike_price', 'load_factor', 'max_deployment_cap', 'num_new_projects', 'project_gen'])
-        #df.rename(columns={'pot_name': 'pot', 'listed_year': 'year'},inplace = True)
-        df.rename(columns={'pot_name': 'pot', 'listed_year': 'year', 'strike_price': 'strike price', 'load_factor': 'load factor', 'project_gen': 'project size GWh', 'num_new_projects': 'number of new projects','min_levelised_cost': 'min LCOE', 'max_levelised_cost': 'max LCOE', 'max_deployment_cap': 'max GW pa'},inplace=True)
-        df = round(df,2)
-        return df
 
 
     # @lru_cache(maxsize=128)
     def prices_input(self):
         return DataFrame(
-                    {
-                    'wholesale prices': [round(a.wholesale_price,2) for a in self.auctionyear_set.all() ],
-                    'gas prices': [round(a.gas_price,2) for a in self.auctionyear_set.all() ]
-                    }, index=[a.year for a in self.auctionyear_set.all()]).T
+                    [[round(a.wholesale_price,2) for a in self.auctionyear_set.all() ],
+                    [round(a.gas_price,2) for a in self.auctionyear_set.all() ]],
+                    columns=[a.year for a in self.auctionyear_set.all()])
 
 
     # @lru_cache(maxsize=128)
     def techs_input_html(self):
         df = self.techs_input()
-        df.set_index(["pot", 'name','year'],inplace=True)
+        df.set_index(dfh.tech_inputs_index['titles'],inplace=True)
         return self.df_to_html(df)
 
 
     # @lru_cache(maxsize=128)
     def prices_input_html(self):
         df = self.prices_input()
+        df.index = dfh.prices_columns
         return self.df_to_html(df)

@@ -1,4 +1,4 @@
-pot_name,tech_name,listed_year,included,min_levelised_cost,min_levelised_cost_note,max_levelised_cost,max_levelised_cost_note,strike_price,strike_price_note,load_factor,load_factor_note,max_deployment_cap,max_deployment_cap_note,num_new_projects,num_new_projects_note,project_gen,project_gen_note
+pot_name,tech_name,year,included,min_levelised_cost,min_levelised_cost_note,max_levelised_cost,max_levelised_cost_note,strike_price,strike_price_note,load_factor,load_factor_note,max_deployment_cap,max_deployment_cap_note,num_new_projects,num_new_projects_note,project_gen,project_gen_note
 E,OFW,2020,True,71.3353908668731,2,103.034791021672,2,114.074615384615,12,0.42,15,1.9,,,,832,
 E,OFW,2021,True,71.1099729102167,,101.917093653251,,112.136153846154,,0.434,,1.9,,,,832,
 E,OFW,2022,True,70.8845549535604,,100.79939628483,,110.197692307692,,0.448,,1.9,,,,832,

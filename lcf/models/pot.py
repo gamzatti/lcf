@@ -8,17 +8,12 @@ import datetime
 import inspect
 import time
 import timeit
+import lcf.dataframe_helpers as dfh
 from .technology import Technology
 #from django_pandas.managers import DataFrameManager
-from django.db.models import F
 
 class Pot(models.Model):
-    POT_CHOICES = (
-            ('SN', 'Separate negotiations'),
-            ('FIT', 'Feed-in-tariff'),
-            ('E', 'Emerging'),
-            ('M', 'Mature'),
-    )
+    POT_CHOICES = [ (k, v) for k, v in dfh.pot_choices.items() ]
     auctionyear = models.ForeignKey('lcf.auctionyear', default=232)
     name = models.CharField(max_length=3, choices=POT_CHOICES, default='E')
     #objects = DataFrameManager()

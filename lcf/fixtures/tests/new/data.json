@@ -9,7 +9,6 @@
         "budget": 3.3,
         "budget2": null,
         "percent_emerging": 0.6,
-        "rank_by_levelised_cost": true,
         "set_strike_price": false,
         "start_year1": 2021,
         "end_year1": 2025,
@@ -31,7 +30,6 @@
         "budget": 3.3,
         "budget2": null,
         "percent_emerging": 0.6,
-        "rank_by_levelised_cost": true,
         "set_strike_price": false,
         "start_year1": 2021,
         "end_year1": 2025,
@@ -53,7 +51,6 @@
         "budget": 6.6,
         "budget2": null,
         "percent_emerging": 0.6,
-        "rank_by_levelised_cost": true,
         "set_strike_price": false,
         "start_year1": 2021,
         "end_year1": 2030,
@@ -350,8 +347,7 @@
     "pk": 2648,
     "fields": {
         "auctionyear": 1453,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -359,8 +355,7 @@
     "pk": 2649,
     "fields": {
         "auctionyear": 1453,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -368,8 +363,7 @@
     "pk": 2650,
     "fields": {
         "auctionyear": 1453,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -377,8 +371,7 @@
     "pk": 2651,
     "fields": {
         "auctionyear": 1453,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -386,8 +379,7 @@
     "pk": 2652,
     "fields": {
         "auctionyear": 1454,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -395,8 +387,7 @@
     "pk": 2653,
     "fields": {
         "auctionyear": 1454,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -404,8 +395,7 @@
     "pk": 2654,
     "fields": {
         "auctionyear": 1454,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -413,8 +403,7 @@
     "pk": 2655,
     "fields": {
         "auctionyear": 1454,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -422,8 +411,7 @@
     "pk": 2656,
     "fields": {
         "auctionyear": 1455,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -431,8 +419,7 @@
     "pk": 2657,
     "fields": {
         "auctionyear": 1455,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -440,8 +427,7 @@
     "pk": 2658,
     "fields": {
         "auctionyear": 1455,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -449,8 +435,7 @@
     "pk": 2659,
     "fields": {
         "auctionyear": 1455,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -458,8 +443,7 @@
     "pk": 2660,
     "fields": {
         "auctionyear": 1456,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -467,8 +451,7 @@
     "pk": 2661,
     "fields": {
         "auctionyear": 1456,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -476,8 +459,7 @@
     "pk": 2662,
     "fields": {
         "auctionyear": 1456,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -485,8 +467,7 @@
     "pk": 2663,
     "fields": {
         "auctionyear": 1456,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -494,8 +475,7 @@
     "pk": 2664,
     "fields": {
         "auctionyear": 1457,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -503,8 +483,7 @@
     "pk": 2665,
     "fields": {
         "auctionyear": 1457,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -512,8 +491,7 @@
     "pk": 2666,
     "fields": {
         "auctionyear": 1457,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -521,8 +499,7 @@
     "pk": 2667,
     "fields": {
         "auctionyear": 1457,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -530,8 +507,7 @@
     "pk": 2668,
     "fields": {
         "auctionyear": 1458,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -539,8 +515,7 @@
     "pk": 2669,
     "fields": {
         "auctionyear": 1458,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -548,8 +523,7 @@
     "pk": 2670,
     "fields": {
         "auctionyear": 1458,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -557,8 +531,7 @@
     "pk": 2671,
     "fields": {
         "auctionyear": 1458,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -566,8 +539,7 @@
     "pk": 4804,
     "fields": {
         "auctionyear": 2077,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -575,8 +547,7 @@
     "pk": 4805,
     "fields": {
         "auctionyear": 2077,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -584,8 +555,7 @@
     "pk": 4806,
     "fields": {
         "auctionyear": 2077,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -593,8 +563,7 @@
     "pk": 4807,
     "fields": {
         "auctionyear": 2077,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -602,8 +571,7 @@
     "pk": 4808,
     "fields": {
         "auctionyear": 2078,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -611,8 +579,7 @@
     "pk": 4809,
     "fields": {
         "auctionyear": 2078,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -620,8 +587,7 @@
     "pk": 4810,
     "fields": {
         "auctionyear": 2078,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -629,8 +595,7 @@
     "pk": 4811,
     "fields": {
         "auctionyear": 2078,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -638,8 +603,7 @@
     "pk": 4812,
     "fields": {
         "auctionyear": 2079,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -647,8 +611,7 @@
     "pk": 4813,
     "fields": {
         "auctionyear": 2079,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -656,8 +619,7 @@
     "pk": 4814,
     "fields": {
         "auctionyear": 2079,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -665,8 +627,7 @@
     "pk": 4815,
     "fields": {
         "auctionyear": 2079,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -674,8 +635,7 @@
     "pk": 4816,
     "fields": {
         "auctionyear": 2080,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -683,8 +643,7 @@
     "pk": 4817,
     "fields": {
         "auctionyear": 2080,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -692,8 +651,7 @@
     "pk": 4818,
     "fields": {
         "auctionyear": 2080,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -701,8 +659,7 @@
     "pk": 4819,
     "fields": {
         "auctionyear": 2080,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -710,8 +667,7 @@
     "pk": 4820,
     "fields": {
         "auctionyear": 2081,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -719,8 +675,7 @@
     "pk": 4821,
     "fields": {
         "auctionyear": 2081,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -728,8 +683,7 @@
     "pk": 4822,
     "fields": {
         "auctionyear": 2081,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -737,8 +691,7 @@
     "pk": 4823,
     "fields": {
         "auctionyear": 2081,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -746,8 +699,7 @@
     "pk": 4824,
     "fields": {
         "auctionyear": 2082,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -755,8 +707,7 @@
     "pk": 4825,
     "fields": {
         "auctionyear": 2082,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -764,8 +715,7 @@
     "pk": 4826,
     "fields": {
         "auctionyear": 2082,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -773,8 +723,7 @@
     "pk": 4827,
     "fields": {
         "auctionyear": 2082,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -782,8 +731,7 @@
     "pk": 4828,
     "fields": {
         "auctionyear": 2083,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -791,8 +739,7 @@
     "pk": 4829,
     "fields": {
         "auctionyear": 2083,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -800,8 +747,7 @@
     "pk": 4830,
     "fields": {
         "auctionyear": 2083,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -809,8 +755,7 @@
     "pk": 4831,
     "fields": {
         "auctionyear": 2083,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -818,8 +763,7 @@
     "pk": 4832,
     "fields": {
         "auctionyear": 2084,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -827,8 +771,7 @@
     "pk": 4833,
     "fields": {
         "auctionyear": 2084,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -836,8 +779,7 @@
     "pk": 4834,
     "fields": {
         "auctionyear": 2084,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -845,8 +787,7 @@
     "pk": 4835,
     "fields": {
         "auctionyear": 2084,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -854,8 +795,7 @@
     "pk": 4836,
     "fields": {
         "auctionyear": 2085,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -863,8 +803,7 @@
     "pk": 4837,
     "fields": {
         "auctionyear": 2085,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -872,8 +811,7 @@
     "pk": 4838,
     "fields": {
         "auctionyear": 2085,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -881,8 +819,7 @@
     "pk": 4839,
     "fields": {
         "auctionyear": 2085,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -890,8 +827,7 @@
     "pk": 4840,
     "fields": {
         "auctionyear": 2086,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -899,8 +835,7 @@
     "pk": 4841,
     "fields": {
         "auctionyear": 2086,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -908,8 +843,7 @@
     "pk": 4842,
     "fields": {
         "auctionyear": 2086,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -917,8 +851,7 @@
     "pk": 4843,
     "fields": {
         "auctionyear": 2086,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -926,8 +859,7 @@
     "pk": 4844,
     "fields": {
         "auctionyear": 2087,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -935,8 +867,7 @@
     "pk": 4845,
     "fields": {
         "auctionyear": 2087,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -944,8 +875,7 @@
     "pk": 4846,
     "fields": {
         "auctionyear": 2087,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -953,8 +883,7 @@
     "pk": 4847,
     "fields": {
         "auctionyear": 2087,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -962,8 +891,7 @@
     "pk": 6476,
     "fields": {
         "auctionyear": 2495,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -971,8 +899,7 @@
     "pk": 6477,
     "fields": {
         "auctionyear": 2495,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -980,8 +907,7 @@
     "pk": 6478,
     "fields": {
         "auctionyear": 2495,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -989,8 +915,7 @@
     "pk": 6479,
     "fields": {
         "auctionyear": 2495,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -998,8 +923,7 @@
     "pk": 6480,
     "fields": {
         "auctionyear": 2496,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -1007,8 +931,7 @@
     "pk": 6481,
     "fields": {
         "auctionyear": 2496,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -1016,8 +939,7 @@
     "pk": 6482,
     "fields": {
         "auctionyear": 2496,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -1025,8 +947,7 @@
     "pk": 6483,
     "fields": {
         "auctionyear": 2496,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -1034,8 +955,7 @@
     "pk": 6484,
     "fields": {
         "auctionyear": 2497,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -1043,8 +963,7 @@
     "pk": 6485,
     "fields": {
         "auctionyear": 2497,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -1052,8 +971,7 @@
     "pk": 6486,
     "fields": {
         "auctionyear": 2497,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -1061,8 +979,7 @@
     "pk": 6487,
     "fields": {
         "auctionyear": 2497,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -1070,8 +987,7 @@
     "pk": 6488,
     "fields": {
         "auctionyear": 2498,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -1079,8 +995,7 @@
     "pk": 6489,
     "fields": {
         "auctionyear": 2498,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -1088,8 +1003,7 @@
     "pk": 6490,
     "fields": {
         "auctionyear": 2498,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -1097,8 +1011,7 @@
     "pk": 6491,
     "fields": {
         "auctionyear": 2498,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -1106,8 +1019,7 @@
     "pk": 6492,
     "fields": {
         "auctionyear": 2499,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -1115,8 +1027,7 @@
     "pk": 6493,
     "fields": {
         "auctionyear": 2499,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -1124,8 +1035,7 @@
     "pk": 6494,
     "fields": {
         "auctionyear": 2499,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -1133,8 +1043,7 @@
     "pk": 6495,
     "fields": {
         "auctionyear": 2499,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -1142,8 +1051,7 @@
     "pk": 6496,
     "fields": {
         "auctionyear": 2500,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -1151,8 +1059,7 @@
     "pk": 6497,
     "fields": {
         "auctionyear": 2500,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -1160,8 +1067,7 @@
     "pk": 6498,
     "fields": {
         "auctionyear": 2500,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -1169,8 +1075,7 @@
     "pk": 6499,
     "fields": {
         "auctionyear": 2500,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -1178,8 +1083,7 @@
     "pk": 6500,
     "fields": {
         "auctionyear": 2501,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -1187,8 +1091,7 @@
     "pk": 6501,
     "fields": {
         "auctionyear": 2501,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -1196,8 +1099,7 @@
     "pk": 6502,
     "fields": {
         "auctionyear": 2501,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -1205,8 +1107,7 @@
     "pk": 6503,
     "fields": {
         "auctionyear": 2501,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -1214,8 +1115,7 @@
     "pk": 6504,
     "fields": {
         "auctionyear": 2502,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -1223,8 +1123,7 @@
     "pk": 6505,
     "fields": {
         "auctionyear": 2502,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -1232,8 +1131,7 @@
     "pk": 6506,
     "fields": {
         "auctionyear": 2502,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -1241,8 +1139,7 @@
     "pk": 6507,
     "fields": {
         "auctionyear": 2502,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -1250,8 +1147,7 @@
     "pk": 6508,
     "fields": {
         "auctionyear": 2503,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -1259,8 +1155,7 @@
     "pk": 6509,
     "fields": {
         "auctionyear": 2503,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -1268,8 +1163,7 @@
     "pk": 6510,
     "fields": {
         "auctionyear": 2503,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -1277,8 +1171,7 @@
     "pk": 6511,
     "fields": {
         "auctionyear": 2503,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -1286,8 +1179,7 @@
     "pk": 6512,
     "fields": {
         "auctionyear": 2504,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -1295,8 +1187,7 @@
     "pk": 6513,
     "fields": {
         "auctionyear": 2504,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -1304,8 +1195,7 @@
     "pk": 6514,
     "fields": {
         "auctionyear": 2504,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -1313,8 +1203,7 @@
     "pk": 6515,
     "fields": {
         "auctionyear": 2504,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {
@@ -1322,8 +1211,7 @@
     "pk": 6516,
     "fields": {
         "auctionyear": 2505,
-        "name": "E",
-        "auction_has_run": true
+        "name": "E"
     }
 },
 {
@@ -1331,8 +1219,7 @@
     "pk": 6517,
     "fields": {
         "auctionyear": 2505,
-        "name": "M",
-        "auction_has_run": true
+        "name": "M"
     }
 },
 {
@@ -1340,8 +1227,7 @@
     "pk": 6518,
     "fields": {
         "auctionyear": 2505,
-        "name": "SN",
-        "auction_has_run": true
+        "name": "SN"
     }
 },
 {
@@ -1349,8 +1235,7 @@
     "pk": 6519,
     "fields": {
         "auctionyear": 2505,
-        "name": "FIT",
-        "auction_has_run": true
+        "name": "FIT"
     }
 },
 {

@@ -7,6 +7,7 @@ from functools import lru_cache
 import datetime
 import time
 
+import lcf.dataframe_helpers as dfh
 # class TechnologyManager(models.Manager):
 #     def create_technology(self, **kwargs):
 #         t = self.create(**kwargs)
@@ -18,16 +19,7 @@ import time
 #
 
 class Technology(models.Model):
-    TECHNOLOGY_CHOICES = (
-            ('OFW', 'Offshore wind'),
-            ('ONW', 'Onshore wind'),
-            ('NU', 'Nuclear'),
-            ('TL', 'Tidal lagoon'),
-            ('TS', 'Tidal stream'),
-            ('WA', 'Wave'),
-            ('PVLS', 'Solar PV'),
-            ('NW', 'Negawatts')
-    )
+    TECHNOLOGY_CHOICES = [ (k, v) for k, v in dfh.technology_choices.items() ]
     name = models.CharField(max_length=4, choices=TECHNOLOGY_CHOICES, default='OFW')
     pot = models.ForeignKey('lcf.pot', default='E')
     min_levelised_cost = models.FloatField(default=100)
@@ -70,7 +62,7 @@ class Technology(models.Model):
     #@lru_cache(maxsize=128)
     def fields_df(self):
         df = DataFrame([self.get_field_values()])
-        df['listed_year'] = self.pot.auctionyear.year
+        df['year'] = self.pot.auctionyear.year
         df['pot_name'] = self.pot.name
         return df
 

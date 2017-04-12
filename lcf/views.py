@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory, formset_factory
 from .forms import ScenarioForm, PricesForm, UploadFileForm, PolicyForm
+
 from .models import Scenario, AuctionYear, Pot, Technology, Policy
 import time
 from .helpers import save_policy_to_db, get_prices, update_prices_with_policies, create_auctionyear_and_pot_objects, update_tech_with_policies, create_technology_objects
+import lcf.dataframe_helpers as dfh
 from django_pandas.io import read_frame
 
 from django.http import HttpResponse
@@ -91,9 +93,9 @@ def policy_detail(request,pk):
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     scenario = Scenario.objects.all().order_by("-date")[0]
     policy = Policy.objects.get(pk=pk)
-    price_effects = policy.df_prices_for_display()
-    techs_effects = policy.df_techs_for_display()
-
+    price_effects = policy.df_for_display('prices')
+    techs_effects = policy.df_for_display('techs')
+    print('dont cache')
     context = {'scenario': scenario,
                'scenarios': scenarios,
                'policies': Policy.objects.all(),
@@ -136,19 +138,20 @@ def scenario_detail(request, pk=None):
                'scenarios': scenarios,
                'recent_pk': recent_pk
                }
-
-    context['tech_cap_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'awarded_cap', 'Capacity awarded each year LCF2 (GW)'))
-    context['tech_cap_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'awarded_cap', 'Capacity awarded each year post-2025 (GW)'))
-    context['tech_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'awarded_gen', 'Generation awarded each year LCF2 (TWh)'))
-    context['tech_gen_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'awarded_gen', 'Generation awarded each year post-2025 (TWh)'))
-    context['tech_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_wp','Accounting cost LCF2 (£bn)'))
-    context['tech_cum_owed_v_wp_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_wp','Accounting cost post-2025 (£bn)'))
-    context['tech_cum_owed_v_gas_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_gas', 'Cost v gas LCF2 (£bn)'))
-    context['tech_cum_owed_v_gas_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_gas', 'Cost v gas post-2025 (£bn)'))
-    context['tech_cum_owed_v_absolute_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_owed_v_absolute', 'Absolute cost LCF2 (£bn)'))
-    context['tech_cum_owed_v_absolute_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_owed_v_absolute', 'Absolute cost post-2025 (£bn)'))
-    context['tech_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.tech_pivot_table(1,'cum_awarded_gen', 'Cumulative new generation LCF2 (TWh)'))
-    context['tech_cum_awarded_gen_pivot2'] = scenario.pivot_to_html(scenario.tech_pivot_table(2,'cum_awarded_gen', 'Cumulative new generation post-2025 (TWh)'))
+    context['techs_input_html'] = scenario.techs_input_html()
+    context['prices_input_html'] = scenario.prices_input_html()
+    context['tech_cap_pivot'] = scenario.pivot_to_html(scenario.pivot('awarded_cap',1))
+    context['tech_cap_pivot2'] = scenario.pivot_to_html(scenario.pivot('awarded_cap',2))
+    context['tech_gen_pivot'] = scenario.pivot_to_html(scenario.pivot('awarded_gen',1))
+    context['tech_gen_pivot2'] = scenario.pivot_to_html(scenario.pivot('awarded_gen',2))
+    context['tech_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_wp',1))
+    context['tech_cum_owed_v_wp_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_wp',2))
+    context['tech_cum_owed_v_gas_pivot'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_gas',1))
+    context['tech_cum_owed_v_gas_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_gas',2))
+    context['tech_cum_owed_v_absolute_pivot'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_absolute',1))
+    context['tech_cum_owed_v_absolute_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_absolute',2))
+    context['tech_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.pivot('cum_awarded_gen',1))
+    context['tech_cum_awarded_gen_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_awarded_gen',2))
 
 
     for column in ["awarded_cap", "cum_awarded_gen"]:
@@ -170,7 +173,7 @@ def scenario_download(request,pk):
     auctionyears = scenario.period(1)
     df_techs = scenario.get_results()
     tech_data = df_techs.values.tolist()
-    tech_col_names = list(df_techs.columns)
+    tech_col_names = dfh.tech_results_columns
     writer.writerow(["............Scenario details............"])
     writer.writerow(['Name', scenario.name])
     writer.writerow(['Description', scenario.description])

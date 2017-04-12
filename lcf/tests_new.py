@@ -6,13 +6,12 @@ from pandas.util.testing import assert_frame_equal
 from django.forms import modelformset_factory, formset_factory
 import time
 from django.core.urlresolvers import reverse
+import lcf.dataframe_helpers as dhf
 
 from .models import Scenario, AuctionYear, Pot, Technology, Policy
 from .forms import ScenarioForm, PricesForm, PolicyForm
 from .helpers import save_policy_to_db, get_prices, update_prices_with_policies, create_auctionyear_and_pot_objects, update_tech_with_policies, create_technology_objects
 import math
-
-
 
 
 def clear_all():
@@ -29,7 +28,7 @@ def clear_all():
         a.save()
 
 class InputDisplayTests(TestCase):
-    fixtures = ['tests/new/data.json']
+    fixtures = ['tests/new/data2.json']
 
     def setUp(self):
         clear_all()
@@ -49,7 +48,7 @@ class InputDisplayTests(TestCase):
         self.assertEqual(val, 58.47)
 
 class PeriodTests(TestCase):
-    fixtures = ['tests/new/data.json']
+    fixtures = ['tests/new/data2.json']
 
     def setUp(self):
         clear_all()
@@ -197,7 +196,7 @@ class PeriodTests(TestCase):
 
 
 class ExcelQuirkTests(TestCase):
-    fixtures = ['tests/new/data.json']
+    fixtures = ['tests/new/data2.json']
 
     def setUp(self):
         clear_all()
@@ -295,7 +294,7 @@ class ExcelQuirkTests(TestCase):
 
 
 class ExcelCompareTests(TestCase):
-    fixtures = ['tests/new/data.json']
+    fixtures = ['tests/new/data2.json']
 
     def setUp(self):
         clear_all()
@@ -321,7 +320,7 @@ class ExcelCompareTests(TestCase):
         t_set = Technology.objects.filter(name="TL", pot__auctionyear__scenario=s)
 
 class TestViews(TestCase):
-    fixtures = ['tests/new/data.json']
+    fixtures = ['tests/new/data2.json']
 
     def setUp(self):
         clear_all()
@@ -405,7 +404,7 @@ class TestViews(TestCase):
 
 
 class FixedNumProjectsTests(TestCase):
-    fixtures = ['tests/new/data.json']
+    fixtures = ['tests/new/data2.json']
 
     def setUp(self):
         clear_all()
@@ -485,7 +484,7 @@ class FixedNumProjectsTests(TestCase):
         print(newest.max_deployment_cap)
 
 class SpeedUp(TestCase):
-    fixtures = ['tests/new/data.json']
+    fixtures = ['tests/new/data2.json']
 
     def setUp(self):
         clear_all()
@@ -606,7 +605,7 @@ class SpeedUp(TestCase):
 
 class UploadTests(TestCase):
 
-    fixtures = ['tests/new/data.json']
+    fixtures = ['tests/new/data2.json']
 
     def test_json_store(self):
         s = Scenario.objects.get(pk=281)
@@ -622,7 +621,7 @@ class UploadTests(TestCase):
         assert_frame_equal(df, df_again)
 
 class Pivot(TestCase):
-    fixtures = ['tests/new/data.json']
+    fixtures = ['tests/new/data2.json']
 
     def test_gen_by_tech_pivot(self):
         s = Scenario.objects.get(pk=281)
@@ -653,7 +652,7 @@ class Pivot(TestCase):
     #     print(s.pot_pivot_table_with_manager(1,'cum_awarded_gen_result'))
 
 class CumT(TestCase):
-    fixtures = ['tests/new/data.json']
+    fixtures = ['tests/new/data2.json']
 
     def test_cum_future_techs(self):
         s = Scenario.objects.get(pk=281)
@@ -685,9 +684,13 @@ class Prefetch(TestCase):
     fixtures = ['tests/new/data2.json']
 
     def test_get_scenario(self):
-        # s = Scenario.objects.get(id=281)
         # self.assertNotEqual(id(s.auctionyear_set.all()),id(s.auctionyear_set.all()))
+        s = Scenario.objects.get(id=281)
+        s.results = None
+        s.save()
         s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
+        s.get_results()
+
         self.assertEqual(id(s.auctionyear_set.all()),id(s.auctionyear_set.all()))
         self.assertEqual(s.auctionyear_set.all()[3], s.auctionyear_set.all()[3])
         self.assertEqual(id(s.auctionyear_dict[2021]), id(s.auctionyear_dict[2021]))
@@ -714,7 +717,11 @@ class Prefetch(TestCase):
         #print(s.techs_input_html())
 
     def test_auctionyear(self):
+        s = Scenario.objects.get(id=281)
+        s.results = None
+        s.save()
         s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
+        s.get_results()
         # a = s.auctionyear_dict[2021]
         # a.foo = 400
         # a_again = s.auctionyear_dict[2021]
@@ -730,6 +737,9 @@ class Prefetch(TestCase):
         # print(p.cum_owed_v_gas)
 
     def test_get_results(self):
+        s = Scenario.objects.get(id=281)
+        s.results = None
+        s.save()
         s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
         s.get_results()
         print(s.tech_pivot_table(1,'cum_awarded_gen'))
@@ -759,7 +769,7 @@ class PolicyTests(TestCase):
                      }
         post_resp = self.client.post(reverse('policy_new'),post_data)
 
-        self.assertEqual(post_resp.status_code,200)
+        self.assertEqual(post_resp.status_code,302)
         new_policy_count = Policy.objects.count()
         self.assertEqual(new_policy_count,initial_policy_count+1)
 
@@ -778,11 +788,19 @@ class PolicyTests(TestCase):
                      }
         post_resp = self.client.post(reverse('scenario_new'),post_data)
 
-        self.assertEqual(post_resp.status_code,200)
+        self.assertEqual(post_resp.status_code,302)
 
-class TestCum(TestCase):
+class TestSmallMethods(TestCase):
     fixtures = ['tests/new/data2.json']
 
-    def test_cum_gen(self):
-        s = Scenario.objects.all().get(pk=281)
-        print(s.get_results())
+    def test_pivot(self):
+        s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
+        results = s.get_results()
+        #print(results)
+        column = 'cum_owed_v_wp'
+        one_col = s.get_results(column)
+        #print(one_col)
+        pt = s.pivot(column,2)
+        print(pt)
+        cd = s.df_to_chart_data(column)
+        print(s.techs_input())
