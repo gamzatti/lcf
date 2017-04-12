@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from pandas import DataFrame, Series
 from functools import reduce
-from lcf.dataframe_helpers import DataFrameHelpers
+import lcf.dataframe_helpers as dfh
 
 
 from lcf.models import Scenario, AuctionYear, Pot, Technology, Policy

@@ -165,7 +165,14 @@ class Pot(models.Model):
             projects['difference'] = projects.strike_price if self.name == "FIT" else projects.strike_price - self.auctionyear.wholesale_price
             projects['cost'] = np.where(projects.eligible == True, projects.gen/1000 * projects.difference, 0)
             projects['attempted_cum_cost'] = np.cumsum(projects.cost)
-            projects['funded_this_year'] = (projects.eligible) if self.name == "SN" or self.name == "FIT" else (projects.eligible) & (projects.attempted_cum_cost < budget)
+            if self.name == "SN" or self.name == "FIT":
+                projects['funded_this_year'] = (projects.eligible)
+            elif self.name == "E" or self.name == "M":
+                if self.period_num() == 2 and self.auctionyear.scenario.subsidy_free_p2 == True:
+                    print('applying subsidy free restriction')
+                    projects['funded_this_year'] = (projects.eligible) & (projects.attempted_cum_cost < budget) & (projects.strike_price < self.auctionyear.gas_price)
+                else:
+                    projects['funded_this_year'] = (projects.eligible) & (projects.attempted_cum_cost < budget)
             projects['attempted_project_gen'] = np.where(projects.eligible == True, projects.gen, 0)
             projects['attempted_cum_gen'] = np.cumsum(projects.attempted_project_gen)
             self.update_variables(projects)

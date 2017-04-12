@@ -19,7 +19,7 @@ class ScenarioForm(forms.ModelForm):
 
     class Meta:
         model = Scenario
-        fields = ('name', 'description', 'budget', 'budget2', 'percent_emerging','excel_quirks', 'end_year1', 'policies')
+        fields = ('name', 'description', 'budget', 'budget2', 'percent_emerging','excel_quirks', 'end_year1', 'subsidy_free_p2', 'policies')
         widgets = {
           'description': Textarea(attrs={'rows':2, 'cols':20}),
           'policies': forms.CheckboxSelectMultiple()

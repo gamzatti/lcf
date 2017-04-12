@@ -65,7 +65,7 @@ abbrev = DataFrame([["Pot",
                  "Wholesale electricity price (£/MWh)",
                  "Capacity awarded each year (GW)",
                  "Generation awarded each year (TWh)",
-                 "Cost of generation awarded each year (£bn)"
+                 "Cost of generation awarded each year (£bn)",
                  "Accounting cost (£bn)",
                  "Cost v gas (£bn)",
                  "Absolute cost (£bn)",

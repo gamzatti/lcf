@@ -56,7 +56,7 @@ def scenario_new(request):
     return render(request, 'lcf/scenario_new.html', context)
 
 def policy_new(request):
-    print("don't cache me")
+    print("don't  cache me")
     scenarios = Scenario.objects.all()
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     scenario = Scenario.objects.all().order_by("-date")[0]

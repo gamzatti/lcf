@@ -26,6 +26,7 @@ class Scenario(models.Model):
     end_year1 = models.IntegerField(default=2025, verbose_name="End of LCF 1 period")
     start_year2 = models.IntegerField(default=2026)
     end_year2 = models.IntegerField(default=2030)
+    subsidy_free_p2 = models.BooleanField(default=False, verbose_name="Only subsidy-free CFDs for period two")
     excel_sp_error = models.BooleanField(default=False, verbose_name="Include the Excel error in the emerging pot strike price?")
     tidal_levelised_cost_distribution = models.BooleanField(default=True)
     excel_2020_gen_error = models.BooleanField(default=False, verbose_name="Include the Excel error that counts cumulative generation from 2020 for auction and negotiations (but not FIT)")
@@ -92,6 +93,7 @@ class Scenario(models.Model):
         df.index = df.index.get_level_values(1)
         df = df.reset_index()
         df.loc['years_row'] = df.columns.astype('str')
+        df = df.sort_values('name') # annoying?
         df = df.reindex(index = ['years_row']+list(df.index)[:-1])
         chart_data = df.T.values.tolist()
         unit = dfh.abbrev[column]['unit']
@@ -102,7 +104,7 @@ class Scenario(models.Model):
     def pivot(self,column,period_num=None):
         # print('building pivot table')
         df = self.get_results(column)
-        df[column] /= 1000 if dfh.abbrev.loc['unit',column] == '£bn' else df[column]
+        df[column] = df[column]/1000 if dfh.abbrev.loc['unit',column] == '£bn' else df[column]
         title = dfh.abbrev.loc['title+unit',column]
         df.columns = dfh.tech_results_index['keys'] + [title]
         auctionyear_years = [auctionyear.year for auctionyear in self.period(period_num)]
@@ -125,6 +127,7 @@ class Scenario(models.Model):
         result = result.unstack(0)
         result.index.names = ['Pot','Technology']
         result.columns.names = ['', 'Year']
+
         return result
 
 

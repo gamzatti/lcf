@@ -797,10 +797,7 @@ class TestSmallMethods(TestCase):
         s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
         results = s.get_results()
         #print(results)
-        column = 'cum_owed_v_wp'
-        one_col = s.get_results(column)
-        #print(one_col)
-        pt = s.pivot(column,2)
-        print(pt)
-        cd = s.df_to_chart_data(column)
-        print(s.techs_input())
+        column = 'cum_awarded_gen'
+        #one_col = s.get_results(column)
+        pt = s.pivot(column,1)
+        cd = s.df_to_chart_data('awarded_cap')
