@@ -45,6 +45,7 @@
 <p>budget period 1: <strong>£{{ scenario.budget }}bn</strong></p>
 <p>budget period 2: <strong>£{% if scenario.budget2 != None %}{{ scenario.budget2 }}{% else %}{{ scenario.budget }}{% endif %}bn</strong></p>
 <p>Excel quirks? <strong> {% if scenario.excel_quirks == True %} True {% else %} False {% endif %}</strong>
+<p>Subsidy-free CFDs in period 2? <strong> {% if scenario.subsidy_free_p2 == True %} True {% else %} False {% endif %}</strong>
 <!-- <p>Excel gen? <strong> {% if scenario.excel_quirks == True %} True {% else %} False {% endif %}
 <p>Excel quirks? <strong> {% if scenario.excel_quirks == True %} True {% else %} False {% endif %} -->
 <p>percent in emerging pot: <strong>{{ scenario.percent_emerging }}</strong></p>
