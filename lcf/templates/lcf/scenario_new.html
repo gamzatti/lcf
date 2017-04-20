@@ -2,10 +2,86 @@
 {% block content %}
 
 <h1 class="page-header">New scenario from CSV</h1>
-<form method="POST" class="post-form" enctype="multipart/form-data">{% csrf_token %}
-    {{ scenario_form }}
+<!-- <form method="POST" class="post-form" enctype="multipart/form-data">{% csrf_token %} -->
+    <!-- {{ scenario_form }} -->
+
+<form method="POST" class="form-horizontal" enctype="multipart/form-data">{% csrf_token %}
+    <h3>Scenario details</h3>
+    <div class="form-group">
+        <label for="{{ scenario_form.name.id_for_label }}" class="col-sm-3 control-label" >{{scenario_form.name.label}}</label>
+        <div class="col-sm-9" >{{ scenario_form.name }}</div>
+
+
+    </div>
+
+    <div class="form-group">
+        <label for="{{ scenario_form.description.id_for_label }}" class="col-sm-3 control-label">{{scenario_form.description.label}}</label>
+        <div class="col-sm-9">{{ scenario_form.description }}</div>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ scenario_form.budget.id_for_label }}" class="col-sm-3 control-label">{{scenario_form.budget.label}}</label>
+        <div class="col-sm-9">{{ scenario_form.budget }}</div>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ scenario_form.budget2.id_for_label }}" class="col-sm-3 control-label">{{scenario_form.budget2.label}}</label>
+        <div class="col-sm-9">{{ scenario_form.budget2 }}</div>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ scenario_form.percent_emerging.id_for_label }}" class="col-sm-3 control-label">{{scenario_form.percent_emerging.label}}</label>
+        <div class="col-sm-9">{{ scenario_form.percent_emerging }}</div>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ scenario_form.excel_quirks.id_for_label }}" class="col-sm-3 control-label">{{scenario_form.excel_quirks.label}}</label>
+        <div class="col-sm-9">{{ scenario_form.excel_quirks }}</div>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ scenario_form.end_year1.id_for_label }}" class="col-sm-3 control-label">{{scenario_form.end_year1.label}}</label>
+        <div class="col-sm-9">{{ scenario_form.end_year1 }}</div>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ scenario_form.subsidy_free_p2.id_for_label }}" class="col-sm-3 control-label">{{scenario_form.subsidy_free_p2.label}}</label>
+        <div class="col-sm-9">{{ scenario_form.subsidy_free_p2 }}</div>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ scenario_form.policies.id_for_label }}" class="col-sm-3 control-label">{{scenario_form.policies.label}}</label>
+        <div class="col-sm-9">{{ scenario_form.policies }}</div>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ scenario_form.wholesale_prices.id_for_label }}" class="col-sm-3 control-label">{{scenario_form.wholesale_prices.label}}</label>
+        <div class="col-sm-9">{{ scenario_form.wholesale_prices }}</div>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ scenario_form.wholesale_prices_other.id_for_label }}" class="col-sm-3 control-label">{{scenario_form.wholesale_prices_other.label}}</label>
+        <div class="col-sm-9">{{ scenario_form.wholesale_prices_other }}</div>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ scenario_form.gas_prices.id_for_label }}" class="col-sm-3 control-label">{{scenario_form.gas_prices.label}}</label>
+        <div class="col-sm-9">{{ scenario_form.gas_prices }}</div>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ scenario_form.gas_prices_other.id_for_label }}" class="col-sm-3 control-label">{{scenario_form.gas_prices_other.label}}</label>
+        <div class="col-sm-9">{{ scenario_form.gas_prices_other }}</div>
+    </div>
+
     <h3>Technology prices</h3>
-    {{ upload_form }}
+    <div class="form-group">
+        <label for="{{ upload_form.file.id_for_label }}" class="col-sm-3 control-label">{{upload_form.file.label}}</label>
+        <div class="col-sm-9">{{ upload_form.file }}</div>
+    </div>
+
+
+    <!-- {{ upload_form }} -->
     <button type="submit" class="save btn btn-primary">Submit</button>
 </form>
 <a href="{% url 'template' %}"><div class="btn btn-info">Download template?</div></a>

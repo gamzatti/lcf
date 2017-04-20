@@ -1098,3 +1098,38 @@ From template:
         # effects = effects.style.format("{:.0%}").render()
         # effects = effects.replace('<table id=', '<table class="table table-striped table-condensed" id=')
         # return effects
+form playing:
+<h1 class="page-header">New scenario from CSV</h1>
+<!-- <form method="POST" class="post-form" enctype="multipart/form-data">{% csrf_token %} -->
+    <!-- {{ scenario_form }} -->
+
+<form method="POST" class="form-horizontal" enctype="multipart/form-data">{% csrf_token %}
+    <div class="form-group">
+        <label for="{{ scenario_form.name.id_for_label }}" class="col-sm-2 control-label">Scenario name:</label>
+        <div class="col-sm-10">{{ scenario_form.name }}</div>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ scenario_form.description.id_for_label }}" class="col-sm-2 control-label">Description:</label>
+        <div class="col-sm-10">{{ scenario_form.description }}</div>
+    </div>
+</form>
+<form method="POST" class="inline-form" enctype="multipart/form-data">{% csrf_token %}
+      <div class="form-group">
+          <label for="{{ scenario_form.budget.id_for_label }}" class="col-sm-2 control-label">Budget period 1:</label>
+          <div class="col-sm-10">{{ scenario_form.budget }}</div>
+      </div>
+      <div class="form-group">
+          <label for="{{ scenario_form.budget2.id_for_label }}" class="col-sm-2 control-label">Budget period 2:</label>
+          <div class="col-sm-10">{{ scenario_form.budget2 }}</div>
+      </div>
+    </div>
+    <!-- 'name', 'description', 'budget', 'budget2', 'percent_emerging','excel_quirks', 'end_year1', 'subsidy_free_p2', 'policies') -->
+<form method="POST" class="form-horizontal" enctype="multipart/form-data">{% csrf_token %}
+
+    <h3>Technology prices</h3>
+    {{ upload_form }}
+    <button type="submit" class="save btn btn-primary">Submit</button>
+</form>
+https://getbootstrap.com/css/#forms
+https://docs.djangoproject.com/en/1.10/topics/forms/#form-rendering-options
