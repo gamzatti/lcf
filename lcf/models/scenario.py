@@ -35,6 +35,7 @@ class Scenario(models.Model):
     results = models.TextField(null=True,blank=True)
     policies = models.ManyToManyField(Policy, blank=True)
 
+
     def __str__(self):
         return self.name
 
