@@ -111,6 +111,12 @@ class Technology(models.Model):
             res = int(self.new_generation_available() / self.project_gen)
             return res
 
+
+    @lru_cache(maxsize=128)
+    def num_projects_not_cum(self):
+        return int(self.this_year_gen() / self.project_gen)
+
+
     @lru_cache(maxsize=128)
     def projects_index(self):
         if self.num_projects() == 0:

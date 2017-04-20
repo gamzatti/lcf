@@ -417,28 +417,28 @@ class FixedNumProjectsTests(TestCase):
         #if num projects not specified, must be calculated
         t = Technology.objects.create_technology(pot=p, name= "TL", max_deployment_cap = 1.14155251141553, load_factor = 0.22, project_gen=2200)
         self.assertEqual(round(t.this_year_gen()), 2200)
-        self.assertEqual(t.previous_year().num_projects(),1)
-        self.assertEqual(t.num_projects(),2)
+        self.assertEqual(t.previous_year().cum_num_projects(),1)
+        self.assertEqual(t.cum_num_projects(),2)
 
         #using different LF/cap:
         t = Technology.objects.create_technology(pot=p, name= "TL", max_deployment_cap = 1.00456621004566, load_factor = 0.25, project_gen=2200)
         self.assertEqual(round(t.this_year_gen()), 2200)
-        self.assertEqual(t.previous_year().num_projects(),1)
-        self.assertEqual(t.num_projects(),2)
+        self.assertEqual(t.previous_year().cum_num_projects(),1)
+        self.assertEqual(t.cum_num_projects(),2)
 
         #if num_new_projects is specified, this number should be used instead and max_deployment_cap should be backfilled
         t = Technology.objects.create_technology(pot=p, name= "TL", num_new_projects = 1, load_factor = 0.22, project_gen=2200)
         self.assertEqual(round(t.max_deployment_cap,5),round(1.14155251141553,5))
         self.assertEqual(round(t.this_year_gen()),2200)
-        self.assertEqual(t.previous_year().num_projects(),1)
-        self.assertEqual(t.num_projects(),2)
+        self.assertEqual(t.previous_year().cum_num_projects(),1)
+        self.assertEqual(t.cum_num_projects(),2)
 
         #if both are specified, use num projects
         t = Technology.objects.create_technology(pot=p, name= "TL", num_new_projects = 1, max_deployment_cap = 9999999999, load_factor = 0.22, project_gen=2200)
         self.assertEqual(round(t.max_deployment_cap,5),round(1.14155251141553,5))
         self.assertEqual(round(t.this_year_gen()),2200)
-        self.assertEqual(t.previous_year().num_projects(),1)
-        self.assertEqual(t.num_projects(),2)
+        self.assertEqual(t.previous_year().cum_num_projects(),1)
+        self.assertEqual(t.cum_num_projects(),2)
 
         #if not tidal:
         t = Technology.objects.create_technology(pot=p, name= "OFW", num_new_projects = 5, load_factor = 0.448, project_gen=832)
@@ -449,8 +449,8 @@ class FixedNumProjectsTests(TestCase):
         self.assertEqual(round(t.previous_year().new_generation_available(),2),round(14213.975999999999,2))
         self.assertEqual(t.previous_year().num_new_projects,None)
         self.assertEqual(t.previous_year().project_gen,832)
-        self.assertEqual(t.previous_year().num_projects(),17) # sketchy because I was getting 25 doing the same thing in the shell
-        self.assertEqual(t.num_projects(),22)
+        self.assertEqual(t.previous_year().cum_num_projects(),17) # sketchy because I was getting 25 doing the same thing in the shell
+        self.assertEqual(t.cum_num_projects(),22)
 
     def test_view(self):
         test_scenario = Scenario.objects.get(pk=281)

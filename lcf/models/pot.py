@@ -157,10 +157,16 @@ class Pot(models.Model):
             gen = 0
             cost = 0
             budget = self.budget() ##slow
-            previously_funded_projects = self.previously_funded_projects()
+            if self.auctionyear.scenario.excel_cum_project_distr == True:
+                previously_funded_projects = self.previously_funded_projects()
+            else:
+                previously_funded_projects = DataFrame()
             projects = self.concat_projects() #less slow
             projects.sort_values(['strike_price', 'levelised_cost'],inplace=True)
-            projects['previously_funded'] = np.where(projects.index.isin(previously_funded_projects.index),True,False)
+            if self.auctionyear.scenario.excel_cum_project_distr == True:
+                projects['previously_funded'] = np.where(projects.index.isin(previously_funded_projects.index),True,False)
+            else:
+                projects['previously_funded'] = False
             projects['eligible'] = (projects.previously_funded == False) & projects.affordable
             projects['difference'] = projects.strike_price if self.name == "FIT" else projects.strike_price - self.auctionyear.wholesale_price
             projects['cost'] = np.where(projects.eligible == True, projects.gen/1000 * projects.difference, 0)

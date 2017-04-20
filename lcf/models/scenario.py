@@ -34,6 +34,7 @@ class Scenario(models.Model):
     excel_quirks = models.BooleanField(default=True, verbose_name="Include all Excel quirks")
     results = models.TextField(null=True,blank=True)
     policies = models.ManyToManyField(Policy, blank=True)
+    excel_cum_project_distr = models.BooleanField(default=True, verbose_name="Include the Excel quirk that calculates number of projects cumulatively and then excludes previously successful ones (as opposed to just treating each year separately)")
 
 
     def __str__(self):
