@@ -110,7 +110,7 @@ class TestCumProj(TestCase):
         s.save()
         s.get_results()
         p = s.auctionyear_dict[2021].pot_dict['FIT']
-        print(p.awarded_cost_result)
+        self.assertEqual(p.awarded_cost_result, 89)
 
     def test_fit_cost_lumped_quirks(self):
         s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
@@ -122,7 +122,7 @@ class TestCumProj(TestCase):
         s.save()
         s.get_results()
         p = s.auctionyear_dict[2021].pot_dict['FIT']
-        print(p.awarded_cost_result)
+        self.assertEqual(p.awarded_cost_result, 89)
 
 
 class TestNonCumProj(TestCase):

@@ -158,18 +158,10 @@ class Pot(models.Model):
             gen = 0
             cost = 0
             budget = self.budget()
-            # if self.auctionyear.scenario.excel_cum_project_distr == True or self.auctionyear.scenario.excel_quirks == True:
-            #     previously_funded_projects = self.previously_funded_projects()
-            # else:
-            #     previously_funded_projects = DataFrame()
-            previously_funded_projects = self.previously_funded_projects() # moving out of above if clause
+            previously_funded_projects = self.previously_funded_projects()
             projects = self.concat_projects()
             projects.sort_values(['strike_price', 'levelised_cost'],inplace=True)
-            # if self.auctionyear.scenario.excel_cum_project_distr == True or self.auctionyear.scenario.excel_quirks == True:
-            #     projects['previously_funded'] = np.where(projects.index.isin(previously_funded_projects.index),True,False)
-            # else:
-            #     projects['previously_funded'] = False
-            projects['previously_funded'] = np.where(projects.index.isin(previously_funded_projects.index),True,False) # moving out of above if clause
+            projects['previously_funded'] = np.where(projects.index.isin(previously_funded_projects.index),True,False)
             projects['eligible'] = (projects.previously_funded == False) & projects.affordable
             projects['difference'] = projects.strike_price if self.name == "FIT" else projects.strike_price - self.auctionyear.wholesale_price
             projects['cost'] = np.where(projects.eligible == True, projects.gen/1000 * projects.difference, 0)
@@ -183,15 +175,9 @@ class Pot(models.Model):
                 else:
                     projects['funded_this_year'] = (projects.eligible) & (projects.attempted_cum_cost < budget)
 
-            if self.name == "FIT":
-                print(projects)
-
             projects['attempted_project_gen'] = np.where(projects.eligible == True, projects.gen, 0)
             projects['attempted_cum_gen'] = np.cumsum(projects.attempted_project_gen)
             self.update_variables(projects)
-            # if self.name == "E":
-            #     print(self.name, 'budget', budget)
-            #     print('num projects', len(projects))
             return projects
 
 
@@ -231,9 +217,6 @@ class Pot(models.Model):
             projects['attempted_project_gen'] = np.where(projects.eligible == True, projects.gen, 0)
             projects['attempted_cum_gen'] = np.cumsum(projects.attempted_project_gen)
             self.update_variables(projects)
-            # if self.name == "E":
-            #     print(self.name, 'budget', budget)
-            #     print('num projects', len(projects))
             return projects
 
     def concat_projects(self):
