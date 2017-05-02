@@ -29,6 +29,16 @@ from .helpers import save_policy_to_db, get_prices, update_prices_with_policies,
 # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_run_auction_budget
 # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_budget_period_2
 
+# python manage.py test lcf.tests3.TestCumProjSimple.test_unspent_high
+# python manage.py test lcf.tests3.TestCumProjSimple.test_unspent_normal
+# python manage.py test lcf.tests3.TestCumProjSimple.test_unspent_low
+# python manage.py test lcf.tests3.TestCumProjSimple.test_unspent_lower
+
+# python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_high
+# python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_normal
+# python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_low
+# python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_lower
+
 
 
 class TestCumProj(TestCase):
@@ -56,7 +66,7 @@ class TestCumProj(TestCase):
         s = Scenario.objects.all().get(pk=281)
         s.excel_cum_project_distr = True
         s.save()
-        e_list = [ s.auctionyear_dict[y].pot_dict['E'] for y in range(2020,2026)]
+        e_list = [ s.auctionyear_dict[y].pot_dict['E'] for y in range(2020,2031)]
         # p = s.auctionyear_dict[2027].pot_dict['E']
         for p in e_list:
             p.run_auction()
@@ -72,7 +82,6 @@ class TestCumProj(TestCase):
         s = Scenario.objects.all().get(pk=281)
         s.excel_cum_project_distr = True
         s.save()
-        # s.get_results()
         a1 = s.auctionyear_dict[2021]
         a6 = s.auctionyear_dict[2026]
         self.assertEqual(a1.budget_all(), a1.starting_budget())
@@ -86,6 +95,7 @@ class TestCumProj(TestCase):
         results = s.pivot('cum_owed_v_wp',1)
         # print(results)
         self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
+
 
 
 
@@ -148,17 +158,86 @@ class TestNonCumProj(TestCase):
 
     def test_non_cum_budget_period_2(self):
         s = Scenario.objects.all().get(pk=281)
-        # s.get_results()
         a1 = s.auctionyear_dict[2021]
         a6 = s.auctionyear_dict[2026]
         self.assertEqual(a1.budget_all(), a1.starting_budget())
         self.assertEqual(a6.budget_all(), a6.starting_budget())
 
-    # why do the first five years in the non-cum auction have such high unspent amounts? (may be to do with the projects - lack of available affordable projects in earlier years?
-        # why is this only a problem in the non-cum auction? shouldn't it be easier to find affordable projects when the cheaper projects haven't already been struck out?
-        # I think what is happening is that without previously unsuccessful projects bidding in, there aren't enough projects
-        # this means it's working correctly I guess, And that the amount in the budget could be started at less than 3.3
-        # I should test this properly somehow though)
 
-    # why is the budget for 2026 so high? shouldn't it reset to 660? (in both cum and non-cum auctions)
-        # From a brief peruse, it seems like it doesn't at any point reset the budget. Not in the defintion of a.previous_year, a.unspent, a.budget, a.starting_budget nor p.budget.
+
+
+class TestCumProjSimple(TestCase):
+    fixtures = ['tests/3/simple.json']
+
+    def test_unspent(self,budget,expected_cost_2025):
+        s = Scenario.objects.all().get(pk=586)
+        s.excel_cum_project_distr = True
+        s.budget = budget
+        s.save()
+        e_list = [ s.auctionyear_dict[y].pot_dict['E'] for y in range(2020,2026)]
+        for p in e_list:
+            p.run_auction() # note doesn't need to run 2020 auction because it needs only the previous year unspent not all the projects generated
+            # print(p.projects()[p.projects().eligible == True])
+            # print('year', p.auctionyear.year)
+            # print('budget', p.budget(), 'auctionyear_budget_all', p.auctionyear.budget_all(), 'starting auctionyear budget', p.auctionyear.starting_budget())
+            # print('spent', p.awarded_cost_result)
+            # print('unspent',p.unspent(), '\n\n')
+        results = s.pivot('cum_owed_v_wp',1)
+        print('scenario budget', s.budget)
+        print('accounting cost 2025', results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)])
+        self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],2),expected_cost_2025)
+
+
+    def test_unspent_high(self):
+        self.test_unspent(5, 1.42)
+        # constrained by (inaccurate) deployment
+
+    def test_unspent_normal(self):
+        self.test_unspent(2.9, 1.42)
+        # constrained by (inaccurate) deployment
+
+    def test_unspent_low(self):
+        self.test_unspent(1.8, 1.42)
+        # constrained by (inaccurate) deployment
+
+    def test_unspent_lower(self):
+        self.test_unspent(1.3, 1.05)
+        # constrained by budget
+
+
+class TestNonCumProjSimple(TestCase):
+    fixtures = ['tests/3/simple.json']
+
+    def test_non_cum_unspent(self,budget, expected_cost_2025):
+        s = Scenario.objects.all().get(pk=586)
+        s.budget = budget
+        s.save()
+        e_list = [ s.auctionyear_dict[y].pot_dict['E'] for y in range(2020,2026)]
+        for p in e_list:
+            p.non_cum_run_auction() # note doesn't need to run 2020 auction because it needs only the previous year unspent not all the projects generated
+            # print(p.projects()[p.projects().eligible == True])
+            # print('year', p.auctionyear.year)
+            # print('budget', p.budget(), 'auctionyear_budget_all', p.auctionyear.budget_all(), 'starting auctionyear budget', p.auctionyear.starting_budget())
+            # print('spent', p.awarded_cost_result)
+            # print('unspent',p.unspent(), '\n\n')
+        results = s.pivot('cum_owed_v_wp',1)
+        print('scenario budget', s.budget)
+        print('accounting cost 2025', results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)])
+        self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],2),expected_cost_2025)
+
+
+    def test_non_cum_unspent_high(self):
+        self.test_non_cum_unspent(5,1.33)
+        # constrained by deployment
+
+    def test_non_cum_unspent_normal(self):
+        self.test_non_cum_unspent(2.9,1.33)
+        # constrained by deployment
+
+    def test_non_cum_unspent_low(self):
+        self.test_non_cum_unspent(1.8,1.30)
+        # constrained by deployment 2022-2025, constrained by budget in 2021
+
+    def test_non_cum_unspent_lower(self):
+        self.test_non_cum_unspent(1.3, 1.05)
+        # constrained by budget

@@ -1,0 +1,666 @@
+[
+{
+    "model": "lcf.scenario",
+    "pk": 586,
+    "fields": {
+        "name": "simple",
+        "description": "",
+        "date": "2017-05-02T13:54:43.898Z",
+        "budget": 1.98,
+        "budget2": null,
+        "percent_emerging": 1,
+        "set_strike_price": false,
+        "start_year1": 2021,
+        "end_year1": 2025,
+        "start_year2": 2026,
+        "end_year2": 2030,
+        "subsidy_free_p2": false,
+        "excel_sp_error": false,
+        "tidal_levelised_cost_distribution": true,
+        "excel_2020_gen_error": false,
+        "excel_nw_carry_error": false,
+        "excel_quirks": true,
+        "results": null,
+        "excel_cum_project_distr": false,
+        "policies": []
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 6105,
+    "fields": {
+        "scenario": 586,
+        "year": 2020,
+        "wholesale_price": 48.5400340402009,
+        "gas_price": 85.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 6106,
+    "fields": {
+        "scenario": 586,
+        "year": 2021,
+        "wholesale_price": 54.285722954952,
+        "gas_price": 87.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 6107,
+    "fields": {
+        "scenario": 586,
+        "year": 2022,
+        "wholesale_price": 58.4749297906221,
+        "gas_price": 89.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 6108,
+    "fields": {
+        "scenario": 586,
+        "year": 2023,
+        "wholesale_price": 60.1487865144807,
+        "gas_price": 91.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 6109,
+    "fields": {
+        "scenario": 586,
+        "year": 2024,
+        "wholesale_price": 64.9687482891174,
+        "gas_price": 93.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 6110,
+    "fields": {
+        "scenario": 586,
+        "year": 2025,
+        "wholesale_price": 67.2664653151834,
+        "gas_price": 95.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 6111,
+    "fields": {
+        "scenario": 586,
+        "year": 2026,
+        "wholesale_price": 68.6947628422952,
+        "gas_price": 95.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 6112,
+    "fields": {
+        "scenario": 586,
+        "year": 2027,
+        "wholesale_price": 69.2053146319398,
+        "gas_price": 95.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 6113,
+    "fields": {
+        "scenario": 586,
+        "year": 2028,
+        "wholesale_price": 66.3856598431318,
+        "gas_price": 95.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 6114,
+    "fields": {
+        "scenario": 586,
+        "year": 2029,
+        "wholesale_price": 65.5255963446292,
+        "gas_price": 95.0
+    }
+},
+{
+    "model": "lcf.auctionyear",
+    "pk": 6115,
+    "fields": {
+        "scenario": 586,
+        "year": 2030,
+        "wholesale_price": 65.5781764014488,
+        "gas_price": 95.0
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17168,
+    "fields": {
+        "auctionyear": 6105,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17169,
+    "fields": {
+        "auctionyear": 6105,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17170,
+    "fields": {
+        "auctionyear": 6105,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17171,
+    "fields": {
+        "auctionyear": 6105,
+        "name": "FIT"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17172,
+    "fields": {
+        "auctionyear": 6106,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17173,
+    "fields": {
+        "auctionyear": 6106,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17174,
+    "fields": {
+        "auctionyear": 6106,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17175,
+    "fields": {
+        "auctionyear": 6106,
+        "name": "FIT"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17176,
+    "fields": {
+        "auctionyear": 6107,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17177,
+    "fields": {
+        "auctionyear": 6107,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17178,
+    "fields": {
+        "auctionyear": 6107,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17179,
+    "fields": {
+        "auctionyear": 6107,
+        "name": "FIT"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17180,
+    "fields": {
+        "auctionyear": 6108,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17181,
+    "fields": {
+        "auctionyear": 6108,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17182,
+    "fields": {
+        "auctionyear": 6108,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17183,
+    "fields": {
+        "auctionyear": 6108,
+        "name": "FIT"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17184,
+    "fields": {
+        "auctionyear": 6109,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17185,
+    "fields": {
+        "auctionyear": 6109,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17186,
+    "fields": {
+        "auctionyear": 6109,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17187,
+    "fields": {
+        "auctionyear": 6109,
+        "name": "FIT"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17188,
+    "fields": {
+        "auctionyear": 6110,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17189,
+    "fields": {
+        "auctionyear": 6110,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17190,
+    "fields": {
+        "auctionyear": 6110,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17191,
+    "fields": {
+        "auctionyear": 6110,
+        "name": "FIT"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17192,
+    "fields": {
+        "auctionyear": 6111,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17193,
+    "fields": {
+        "auctionyear": 6111,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17194,
+    "fields": {
+        "auctionyear": 6111,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17195,
+    "fields": {
+        "auctionyear": 6111,
+        "name": "FIT"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17196,
+    "fields": {
+        "auctionyear": 6112,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17197,
+    "fields": {
+        "auctionyear": 6112,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17198,
+    "fields": {
+        "auctionyear": 6112,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17199,
+    "fields": {
+        "auctionyear": 6112,
+        "name": "FIT"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17200,
+    "fields": {
+        "auctionyear": 6113,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17201,
+    "fields": {
+        "auctionyear": 6113,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17202,
+    "fields": {
+        "auctionyear": 6113,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17203,
+    "fields": {
+        "auctionyear": 6113,
+        "name": "FIT"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17204,
+    "fields": {
+        "auctionyear": 6114,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17205,
+    "fields": {
+        "auctionyear": 6114,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17206,
+    "fields": {
+        "auctionyear": 6114,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17207,
+    "fields": {
+        "auctionyear": 6114,
+        "name": "FIT"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17208,
+    "fields": {
+        "auctionyear": 6115,
+        "name": "E"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17209,
+    "fields": {
+        "auctionyear": 6115,
+        "name": "M"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17210,
+    "fields": {
+        "auctionyear": 6115,
+        "name": "SN"
+    }
+},
+{
+    "model": "lcf.pot",
+    "pk": 17211,
+    "fields": {
+        "auctionyear": 6115,
+        "name": "FIT"
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 26484,
+    "fields": {
+        "name": "OFW",
+        "pot": 17168,
+        "min_levelised_cost": 71.3353908668731,
+        "max_levelised_cost": 103.034791021672,
+        "strike_price": 114.074615384615,
+        "load_factor": 0.42,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9,
+        "included": true,
+        "num_new_projects": null
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 26485,
+    "fields": {
+        "name": "OFW",
+        "pot": 17172,
+        "min_levelised_cost": 71.1099729102167,
+        "max_levelised_cost": 101.917093653251,
+        "strike_price": 112.136153846154,
+        "load_factor": 0.434,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9,
+        "included": true,
+        "num_new_projects": null
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 26486,
+    "fields": {
+        "name": "OFW",
+        "pot": 17176,
+        "min_levelised_cost": 70.88455495356041,
+        "max_levelised_cost": 100.79939628483,
+        "strike_price": 110.197692307692,
+        "load_factor": 0.44799999999999995,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9,
+        "included": true,
+        "num_new_projects": null
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 26487,
+    "fields": {
+        "name": "OFW",
+        "pot": 17180,
+        "min_levelised_cost": 70.659136996904,
+        "max_levelised_cost": 99.6816989164087,
+        "strike_price": 108.259230769231,
+        "load_factor": 0.462,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9,
+        "included": true,
+        "num_new_projects": null
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 26488,
+    "fields": {
+        "name": "OFW",
+        "pot": 17184,
+        "min_levelised_cost": 70.43371904024771,
+        "max_levelised_cost": 98.5640015479876,
+        "strike_price": 106.320769230769,
+        "load_factor": 0.47600000000000003,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9,
+        "included": true,
+        "num_new_projects": null
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 26489,
+    "fields": {
+        "name": "OFW",
+        "pot": 17188,
+        "min_levelised_cost": 70.2083010835913,
+        "max_levelised_cost": 97.4463041795666,
+        "strike_price": 104.382307692308,
+        "load_factor": 0.49,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9,
+        "included": true,
+        "num_new_projects": null
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 26490,
+    "fields": {
+        "name": "OFW",
+        "pot": 17192,
+        "min_levelised_cost": 69.19560683210399,
+        "max_levelised_cost": 96.3265041921591,
+        "strike_price": 102.443846153846,
+        "load_factor": 0.49,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9,
+        "included": true,
+        "num_new_projects": null
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 26491,
+    "fields": {
+        "name": "OFW",
+        "pot": 17196,
+        "min_levelised_cost": 68.1829125806167,
+        "max_levelised_cost": 95.20670420475159,
+        "strike_price": 100.505384615385,
+        "load_factor": 0.49,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9,
+        "included": true,
+        "num_new_projects": null
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 26492,
+    "fields": {
+        "name": "OFW",
+        "pot": 17200,
+        "min_levelised_cost": 67.1702183291293,
+        "max_levelised_cost": 94.0869042173441,
+        "strike_price": 98.56692307692309,
+        "load_factor": 0.49,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9,
+        "included": true,
+        "num_new_projects": null
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 26493,
+    "fields": {
+        "name": "OFW",
+        "pot": 17204,
+        "min_levelised_cost": 66.15752407764201,
+        "max_levelised_cost": 92.9671042299366,
+        "strike_price": 96.6284615384615,
+        "load_factor": 0.49,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9,
+        "included": true,
+        "num_new_projects": null
+    }
+},
+{
+    "model": "lcf.technology",
+    "pk": 26494,
+    "fields": {
+        "name": "OFW",
+        "pot": 17208,
+        "min_levelised_cost": 65.1448298261547,
+        "max_levelised_cost": 91.84730424252899,
+        "strike_price": 94.69,
+        "load_factor": 0.49,
+        "project_gen": 832.0,
+        "max_deployment_cap": 1.9000000000000101,
+        "included": true,
+        "num_new_projects": null
+    }
+}
+]
