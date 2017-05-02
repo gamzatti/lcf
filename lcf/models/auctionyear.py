@@ -81,7 +81,7 @@ class AuctionYear(models.Model):
     def previous_year_unspent(self):
         if self._previous_year_unspent:
             return self._previous_year_unspent
-        elif self.year == 2020 or self.year == 2021:
+        elif self.year == 2020 or self.year == 2021 or self.year == self.scenario.start_year2:
             return 0
         else:
             previous_year = self.previous_year()

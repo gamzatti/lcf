@@ -18,6 +18,7 @@ from .helpers import save_policy_to_db, get_prices, update_prices_with_policies,
 # python manage.py test lcf.tests3.TestCumProj.test_run_auction
 # python manage.py test lcf.tests3.TestCumProj.test_run_auction_budget
 # python manage.py test lcf.tests3.TestCumProj.test_accounting_cost
+# python manage.py test lcf.tests3.TestCumProj.test_budget_period_2
 #
 # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_num_projects
 # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_levelised_cost_distribution
@@ -26,6 +27,9 @@ from .helpers import save_policy_to_db, get_prices, update_prices_with_policies,
 # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_concat_projects
 # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_run_auction_max_deployment_cap
 # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_run_auction_budget
+# python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_budget_period_2
+
+
 
 class TestCumProj(TestCase):
     fixtures = ['tests/3/data2.json'] # old TS gen, but with new 'false cum proj'
@@ -63,6 +67,16 @@ class TestCumProj(TestCase):
             # print('unspent',p.unspent(), '\n\n')
             self.assertTrue(p.awarded_cost_result < p.budget())
 
+
+    def test_budget_period_2(self):
+        s = Scenario.objects.all().get(pk=281)
+        s.excel_cum_project_distr = True
+        s.save()
+        # s.get_results()
+        a1 = s.auctionyear_dict[2021]
+        a6 = s.auctionyear_dict[2026]
+        self.assertEqual(a1.budget_all(), a1.starting_budget())
+        self.assertEqual(a6.budget_all(), a6.starting_budget())
 
 
     def test_accounting_cost(self):
@@ -132,6 +146,13 @@ class TestNonCumProj(TestCase):
             # print('unspent',p.unspent(), '\n\n')
             self.assertTrue(p.awarded_cost_result < p.budget())
 
+    def test_non_cum_budget_period_2(self):
+        s = Scenario.objects.all().get(pk=281)
+        # s.get_results()
+        a1 = s.auctionyear_dict[2021]
+        a6 = s.auctionyear_dict[2026]
+        self.assertEqual(a1.budget_all(), a1.starting_budget())
+        self.assertEqual(a6.budget_all(), a6.starting_budget())
 
     # why do the first five years in the non-cum auction have such high unspent amounts? (may be to do with the projects - lack of available affordable projects in earlier years?
         # why is this only a problem in the non-cum auction? shouldn't it be easier to find affordable projects when the cheaper projects haven't already been struck out?

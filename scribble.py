@@ -1133,17 +1133,3 @@ form playing:
 </form>
 https://getbootstrap.com/css/#forms
 https://docs.djangoproject.com/en/1.10/topics/forms/#form-rendering-options
-
-
-
-
-    def test_budget_period_2(self):
-        s = Scenario.objects.all().get(pk=281)
-        s.excel_cum_project_distr = True
-        s.save()
-
-    def test_non_cum_budget_period_2(self):
-        s = Scenario.objects.all().get(pk=281)
-# python manage.py test lcf.tests3.TestCumProj.test_budget_period_2
-
-# python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_budget_period_2
