@@ -55,9 +55,15 @@ class Scenario(models.Model):
         return [ auctionyear for auctionyear in self.auctionyear_dict.values() if auctionyear.year in ran ]
 
     def run_auctions(self):
-        for a in self.auctionyear_dict.values():
-            for p in a.pot_dict.values():
-                p.run_auction()
+        if self.excel_cum_project_distr == True:
+            for a in self.auctionyear_dict.values():
+                for p in a.pot_dict.values():
+                    p.run_auction()
+        else:
+            for a in self.auctionyear_dict.values():
+                for p in a.pot_dict.values():
+                    p.non_cum_run_auction()
+
 
     def get_results(self,column=None):
         column_names = dfh.tech_results_keys

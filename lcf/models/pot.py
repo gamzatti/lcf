@@ -141,6 +141,7 @@ class Pot(models.Model):
     @lru_cache(maxsize=128)
     def run_auction(self):
         #print('called', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
+
         if len(self.active_technology_dict) == 0:
             self.awarded_cost_result = 0
             self.awarded_gen_result = 0
@@ -153,15 +154,15 @@ class Pot(models.Model):
             df.gen, df.attempted_project_gen, df.attempted_cum_gen = df.gen.astype(float), df.attempted_project_gen.astype(float), df.attempted_cum_gen.astype(float)
             return df
         else:
-            print('running auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
+            # print('running auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
             gen = 0
             cost = 0
-            budget = self.budget() ##slow
+            budget = self.budget()
             if self.auctionyear.scenario.excel_cum_project_distr == True:
                 previously_funded_projects = self.previously_funded_projects()
             else:
                 previously_funded_projects = DataFrame()
-            projects = self.concat_projects() #less slow
+            projects = self.concat_projects()
             projects.sort_values(['strike_price', 'levelised_cost'],inplace=True)
             if self.auctionyear.scenario.excel_cum_project_distr == True:
                 projects['previously_funded'] = np.where(projects.index.isin(previously_funded_projects.index),True,False)
@@ -182,6 +183,51 @@ class Pot(models.Model):
             projects['attempted_project_gen'] = np.where(projects.eligible == True, projects.gen, 0)
             projects['attempted_cum_gen'] = np.cumsum(projects.attempted_project_gen)
             self.update_variables(projects)
+            # if self.name == "E":
+            #     print(self.name, 'budget', budget)
+            #     print('num projects', len(projects))
+            return projects
+
+
+    @lru_cache(maxsize=128)
+    def non_cum_run_auction(self):
+        #print('called', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
+        if len(self.active_technology_dict) == 0:
+            self.awarded_cost_result = 0
+            self.awarded_gen_result = 0
+            self.auction_has_run = "n/a"
+            # self.auction_results = DataFrame().to_json()
+        elif self.auction_has_run == True:
+            # print('decoding json')
+            column_order = ['levelised_cost', 'gen', 'technology', 'strike_price', 'affordable', 'pot', 'listed_year', 'eligible', 'difference', 'cost', 'attempted_cum_cost', 'funded_this_year', 'attempted_project_gen', 'attempted_cum_gen']
+            df = pd.read_json(self.auction_results).sort_values(['strike_price', 'levelised_cost']).reindex(columns=column_order)
+            df.gen, df.attempted_project_gen, df.attempted_cum_gen = df.gen.astype(float), df.attempted_project_gen.astype(float), df.attempted_cum_gen.astype(float)
+            return df
+        else:
+            # print('running non_cum auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
+            gen = 0
+            cost = 0
+            budget = self.budget()
+            projects = self.non_cum_concat_projects()
+            projects.sort_values(['strike_price', 'levelised_cost'],inplace=True)
+            projects['eligible'] = projects.affordable
+            projects['difference'] = projects.strike_price if self.name == "FIT" else projects.strike_price - self.auctionyear.wholesale_price
+            projects['cost'] = np.where(projects.eligible == True, projects.gen/1000 * projects.difference, 0)
+            projects['attempted_cum_cost'] = np.cumsum(projects.cost)
+            if self.name == "SN" or self.name == "FIT":
+                projects['funded_this_year'] = (projects.eligible)
+            elif self.name == "E" or self.name == "M":
+                if self.period_num() == 2 and self.auctionyear.scenario.subsidy_free_p2 == True:
+                    print('applying subsidy free restriction')
+                    projects['funded_this_year'] = (projects.eligible) & (projects.attempted_cum_cost < budget) & (projects.strike_price < self.auctionyear.gas_price)
+                else:
+                    projects['funded_this_year'] = (projects.eligible) & (projects.attempted_cum_cost < budget)
+            projects['attempted_project_gen'] = np.where(projects.eligible == True, projects.gen, 0)
+            projects['attempted_cum_gen'] = np.cumsum(projects.attempted_project_gen)
+            self.update_variables(projects)
+            # if self.name == "E":
+            #     print(self.name, 'budget', budget)
+            #     print('num projects', len(projects))
             return projects
 
     def concat_projects(self):
@@ -189,6 +235,10 @@ class Pot(models.Model):
         #print(res)
         return res
 
+    def non_cum_concat_projects(self):
+        res = pd.concat([t.non_cum_projects() for t in self.active_technology_dict.values() ])
+        #print(res)
+        return res
 
     def update_variables(self,projects):
         successful_projects = projects[(projects.funded_this_year == True)]
@@ -235,6 +285,10 @@ class Pot(models.Model):
         if self.awarded_cost_result != None:
             res = self.awarded_cost_result
         else:
-            self.run_auction()
-            res = self.awarded_cost_result
+            if self.auctionyear.scenario.excel_cum_project_distr == True:
+                self.run_auction()
+                res = self.awarded_cost_result
+            else:
+                self.non_cum_run_auction()
+                res = self.awarded_cost_result
         return res

@@ -113,8 +113,11 @@ class Technology(models.Model):
 
 
     @lru_cache(maxsize=128)
-    def num_projects_not_cum(self):
-        return int(self.this_year_gen() / self.project_gen)
+    def non_cum_num_projects(self):
+        if self.num_new_projects != None:
+            return int(self.num_new_projects)
+        else:
+            return int(self.this_year_gen() / self.project_gen)
 
 
     @lru_cache(maxsize=128)
@@ -122,8 +125,16 @@ class Technology(models.Model):
         if self.num_projects() == 0:
             return []
         else:
-            #print(self.num_projects())
+            # print(self.pot.auctionyear.year, self.name, self.num_projects())
             return [ self.name + str(i + 1) for i in range(self.num_projects()) ]
+
+    @lru_cache(maxsize=128)
+    def non_cum_projects_index(self):
+        if self.non_cum_num_projects() == 0:
+            return []
+        else:
+            # print(self.pot.auctionyear.year, self.name, self.non_cum_num_projects())
+            return [ str(self.pot.auctionyear.year) + "_" + self.name + str(i + 1) for i in range(self.non_cum_num_projects()) ]
 
     #@lru_cache(maxsize=128)
     def levelised_cost_distribution(self):
@@ -137,6 +148,19 @@ class Technology(models.Model):
             npr = self.num_projects()+2
             data = np.linspace(minlc,maxlc,npr)[1:-1]
             dist = Series(data,name="levelised_cost", index=self.projects_index())
+        return dist
+
+    def non_cum_levelised_cost_distribution(self):
+        if self.non_cum_num_projects == 0:
+            return Series()
+        if self.pot.auctionyear.scenario.tidal_levelised_cost_distribution == True and self.pot.auctionyear.year == 2025 and self.name == "TL":
+            dist = Series(np.linspace(self.min_levelised_cost,150,self.non_cum_num_projects()),name="levelised_cost", index=self.non_cum_projects_index())
+        else:
+            minlc = self.min_levelised_cost
+            maxlc = self.max_levelised_cost
+            npr = self.non_cum_num_projects()+2
+            data = np.linspace(minlc,maxlc,npr)[1:-1]
+            dist = Series(data,name="levelised_cost", index=self.non_cum_projects_index())
         return dist
 
     #@lru_cache(maxsize=128)
@@ -160,6 +184,28 @@ class Technology(models.Model):
             projects['pot'] = self.pot.name
             projects['listed_year'] = self.pot.auctionyear.year
             return projects
+
+    def non_cum_projects(self):
+        # if self.num_new_projects != None:
+        #     self.fill_in_max_deployment_cap()
+        # elif self.max_deployment_cap == None:
+        #     print("You must specify either num_new_projects or max_deployment_cap")
+        if self.non_cum_num_projects == 0:
+            return DataFrame()
+        else:
+            data = self.non_cum_levelised_cost_distribution()
+            index = self.non_cum_projects_index()
+            projects = DataFrame(data=data, index=index)
+            #projects['gen'] = self.new_generation_available()
+            projects['gen'] = self.project_gen
+            projects['technology'] = self.name
+            projects['strike_price'] = self.strike_price
+            #projects['clearing_price'] = np.nan
+            projects['affordable'] = projects.levelised_cost <= projects.strike_price
+            projects['pot'] = self.pot.name
+            projects['listed_year'] = self.pot.auctionyear.year
+            return projects
+
     #
     # def fill_in_max_deployment_cap(self):
     #     project_cap = self.project_gen / self.load_factor / 8760 # for tidal = 2200 / 0.22 / 8760 = 1.14155251141553

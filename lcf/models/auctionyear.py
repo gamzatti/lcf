@@ -43,7 +43,7 @@ class AuctionYear(models.Model):
 
 
     #@lru_cache(maxsize=128)
-    def budget(self):
+    def budget(self): #just budget for auction pots
         if self.budget_result:
             return self.budget_result
         else:
@@ -53,6 +53,12 @@ class AuctionYear(models.Model):
             affit = self.awarded_from("FIT")
             self.budget_result = sb + pyu - afsn - affit
             return self.budget_result
+
+    def budget_all(self): # budget for all pots - only used for testing
+        sb = self.starting_budget() #slower than necessary but not that big a deal
+        pyu = self.previous_year_unspent()
+        res =  sb + pyu
+        return res
 
     #@lru_cache(maxsize=128)
     def unspent(self):
