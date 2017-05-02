@@ -19,10 +19,10 @@ from .helpers import save_policy_to_db, get_prices, update_prices_with_policies,
 # python manage.py test lcf.tests3.TestCumProj.test_run_auction_budget
 # python manage.py test lcf.tests3.TestCumProj.test_accounting_cost
 # python manage.py test lcf.tests3.TestCumProj.test_budget_period_2
-
+#
 # python manage.py test lcf.tests3.TestCumProj.test_fit_cost_individual_quirks
 # python manage.py test lcf.tests3.TestCumProj.test_fit_cost_lumped_quirks
-
+#
 # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_num_projects
 # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_levelised_cost_distribution
 # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_projects_index
@@ -60,7 +60,7 @@ class TestCumProj(TestCase):
         s.excel_cum_project_distr = True
         s.save()
         p = s.auctionyear_dict[2022].pot_dict['E']
-        p.run_auction() # note doesn't need to run 2020 auction because it needs only the previous year unspent not all the projects generated
+        p.cum_run_auction() # note doesn't need to run 2020 auction because it needs only the previous year unspent not all the projects generated
         # print(p.projects())
         s.get_results()
         # print(s.pivot('awarded_cap',2))
@@ -72,7 +72,7 @@ class TestCumProj(TestCase):
         e_list = [ s.auctionyear_dict[y].pot_dict['E'] for y in range(2020,2031)]
         # p = s.auctionyear_dict[2027].pot_dict['E']
         for p in e_list:
-            p.run_auction()
+            p.cum_run_auction()
             # print(p.projects()[p.projects().eligible == True])
             # print('year', p.auctionyear.year)
             # print('budget', p.budget(), 'auctionyear_budget_all', p.auctionyear.budget_all())
@@ -130,18 +130,36 @@ class TestNonCumProj(TestCase):
 
     def test_non_cum_num_projects(self):
         s = Scenario.objects.all().get(pk=281)
+        s.excel_quirks = False
+        s.excel_cum_project_distr = False
+        s.excel_nw_carry_error = True
+        s.excel_sp_error = True
+        s.excel_2020_gen_error = True
+        s.save()
         #results = s.pivot('cum_owed_v_wp',1)
         ofw_list = [s.auctionyear_dict[i].pot_dict['E'].technology_dict['OFW'] for i in range(2020,2031) ]
         self.assertEqual([ofw.non_cum_num_projects() for ofw in ofw_list], [8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9])
 
     def test_non_cum_levelised_cost_distribution(self):
         s = Scenario.objects.all().get(pk=281)
+        s.excel_quirks = False
+        s.excel_cum_project_distr = False
+        s.excel_nw_carry_error = True
+        s.excel_sp_error = True
+        s.excel_2020_gen_error = True
+        s.save()
         #results = s.pivot('cum_owed_v_wp',1)
         ofw_list = [s.auctionyear_dict[i].pot_dict['E'].technology_dict['OFW'] for i in range(2020,2031) ]
         self.assertEqual([round(i) for i in ofw_list[1].non_cum_levelised_cost_distribution().values.tolist() ], [75, 78, 81, 85, 88, 92, 95, 98])
 
     def test_non_cum_projects_index(self):
         s = Scenario.objects.all().get(pk=281)
+        s.excel_quirks = False
+        s.excel_cum_project_distr = False
+        s.excel_nw_carry_error = True
+        s.excel_sp_error = True
+        s.excel_2020_gen_error = True
+        s.save()
         #results = s.pivot('cum_owed_v_wp',1)
         ofw_list = [s.auctionyear_dict[i].pot_dict['E'].technology_dict['OFW'] for i in range(2020,2031) ]
         ofw = ofw_list[1]
@@ -149,12 +167,24 @@ class TestNonCumProj(TestCase):
 
     def test_non_cum_projects(self):
         s = Scenario.objects.all().get(pk=281)
+        s.excel_quirks = False
+        s.excel_cum_project_distr = False
+        s.excel_nw_carry_error = True
+        s.excel_sp_error = True
+        s.excel_2020_gen_error = True
+        s.save()
         ofw_list = [s.auctionyear_dict[i].pot_dict['E'].technology_dict['OFW'] for i in range(2020,2031) ]
         ofw = ofw_list[1]
         self.assertEqual(ofw.non_cum_projects().levelised_cost[3], ofw.non_cum_levelised_cost_distribution()[3])
 
     def test_non_cum_concat_projects(self):
         s = Scenario.objects.all().get(pk=281)
+        s.excel_quirks = False
+        s.excel_cum_project_distr = False
+        s.excel_nw_carry_error = True
+        s.excel_sp_error = True
+        s.excel_2020_gen_error = True
+        s.save()
         p = s.auctionyear_dict[2026].pot_dict['E']
         tech_index = [item for t in p.technology_dict.values() for item in t.non_cum_projects_index() ]
         tech_costs = [item for t in p.technology_dict.values() for item in t.non_cum_levelised_cost_distribution().tolist() ]
@@ -163,8 +193,13 @@ class TestNonCumProj(TestCase):
 
     def test_non_cum_run_auction_max_deployment_cap(self):
         s = Scenario.objects.all().get(pk=281)
+        s.excel_quirks = False
+        s.excel_cum_project_distr = False
+        s.excel_nw_carry_error = True
+        s.excel_sp_error = True
+        s.excel_2020_gen_error = True
+        s.save()
         results = s.get_results()
-        print(results)
         ofw_max_deployment_caps = Series([ a.pot_dict['E'].technology_dict['OFW'].max_deployment_cap for a in s.auctionyear_dict.values() if a.year > 2020 ], index=range(2021,2031))
         ofw_caps = s.pivot('awarded_cap').loc[('Emerging', 'Offshore wind')]
         ofw_caps.index = range(2021,2031)
@@ -172,6 +207,12 @@ class TestNonCumProj(TestCase):
 
     def test_non_cum_run_auction_budget(self):
         s = Scenario.objects.all().get(pk=281)
+        s.excel_quirks = False
+        s.excel_cum_project_distr = False
+        s.excel_nw_carry_error = True
+        s.excel_sp_error = True
+        s.excel_2020_gen_error = True
+        s.save()
         e_list = [ s.auctionyear_dict[y].pot_dict['E'] for y in range(2020,2026)]
         # p = s.auctionyear_dict[2027].pot_dict['E']
         for p in e_list:
@@ -185,6 +226,12 @@ class TestNonCumProj(TestCase):
 
     def test_non_cum_budget_period_2(self):
         s = Scenario.objects.all().get(pk=281)
+        s.excel_quirks = False
+        s.excel_cum_project_distr = False
+        s.excel_nw_carry_error = True
+        s.excel_sp_error = True
+        s.excel_2020_gen_error = True
+        s.save()
         a1 = s.auctionyear_dict[2021]
         a6 = s.auctionyear_dict[2026]
         self.assertEqual(a1.budget_all(), a1.starting_budget())
@@ -203,7 +250,7 @@ class TestCumProjSimple(TestCase):
         s.save()
         e_list = [ s.auctionyear_dict[y].pot_dict['E'] for y in range(2020,2026)]
         for p in e_list:
-            p.run_auction() # note doesn't need to run 2020 auction because it needs only the previous year unspent not all the projects generated
+            p.cum_run_auction() # note doesn't need to run 2020 auction because it needs only the previous year unspent not all the projects generated
             # print(p.projects()[p.projects().eligible == True])
             # print('year', p.auctionyear.year)
             # print('budget', p.budget(), 'auctionyear_budget_all', p.auctionyear.budget_all(), 'starting auctionyear budget', p.auctionyear.starting_budget())
@@ -237,11 +284,16 @@ class TestNonCumProjSimple(TestCase):
 
     def test_non_cum_unspent(self,budget, expected_cost_2025):
         s = Scenario.objects.all().get(pk=586)
+        s.excel_quirks = False
+        s.excel_cum_project_distr = False
+        s.excel_nw_carry_error = True
+        s.excel_sp_error = True
+        s.excel_2020_gen_error = True
         s.budget = budget
         s.save()
         e_list = [ s.auctionyear_dict[y].pot_dict['E'] for y in range(2020,2026)]
         for p in e_list:
-            p.non_cum_run_auction() # note doesn't need to run 2020 auction because it needs only the previous year unspent not all the projects generated
+            p.run_relevant_auction() # note doesn't need to run 2020 auction because it needs only the previous year unspent not all the projects generated
             # print(p.projects()[p.projects().eligible == True])
             # print('year', p.auctionyear.year)
             # print('budget', p.budget(), 'auctionyear_budget_all', p.auctionyear.budget_all(), 'starting auctionyear budget', p.auctionyear.starting_budget())
