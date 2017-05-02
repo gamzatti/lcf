@@ -154,20 +154,22 @@ class Pot(models.Model):
             df.gen, df.attempted_project_gen, df.attempted_cum_gen = df.gen.astype(float), df.attempted_project_gen.astype(float), df.attempted_cum_gen.astype(float)
             return df
         else:
-            # print('running auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
+            print('running auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
             gen = 0
             cost = 0
             budget = self.budget()
-            if self.auctionyear.scenario.excel_cum_project_distr == True:
-                previously_funded_projects = self.previously_funded_projects()
-            else:
-                previously_funded_projects = DataFrame()
+            # if self.auctionyear.scenario.excel_cum_project_distr == True or self.auctionyear.scenario.excel_quirks == True:
+            #     previously_funded_projects = self.previously_funded_projects()
+            # else:
+            #     previously_funded_projects = DataFrame()
+            previously_funded_projects = self.previously_funded_projects() # moving out of above if clause
             projects = self.concat_projects()
             projects.sort_values(['strike_price', 'levelised_cost'],inplace=True)
-            if self.auctionyear.scenario.excel_cum_project_distr == True:
-                projects['previously_funded'] = np.where(projects.index.isin(previously_funded_projects.index),True,False)
-            else:
-                projects['previously_funded'] = False
+            # if self.auctionyear.scenario.excel_cum_project_distr == True or self.auctionyear.scenario.excel_quirks == True:
+            #     projects['previously_funded'] = np.where(projects.index.isin(previously_funded_projects.index),True,False)
+            # else:
+            #     projects['previously_funded'] = False
+            projects['previously_funded'] = np.where(projects.index.isin(previously_funded_projects.index),True,False) # moving out of above if clause
             projects['eligible'] = (projects.previously_funded == False) & projects.affordable
             projects['difference'] = projects.strike_price if self.name == "FIT" else projects.strike_price - self.auctionyear.wholesale_price
             projects['cost'] = np.where(projects.eligible == True, projects.gen/1000 * projects.difference, 0)
@@ -180,6 +182,10 @@ class Pot(models.Model):
                     projects['funded_this_year'] = (projects.eligible) & (projects.attempted_cum_cost < budget) & (projects.strike_price < self.auctionyear.gas_price)
                 else:
                     projects['funded_this_year'] = (projects.eligible) & (projects.attempted_cum_cost < budget)
+
+            if self.name == "FIT":
+                print(projects)
+
             projects['attempted_project_gen'] = np.where(projects.eligible == True, projects.gen, 0)
             projects['attempted_cum_gen'] = np.cumsum(projects.attempted_project_gen)
             self.update_variables(projects)
@@ -204,7 +210,7 @@ class Pot(models.Model):
             df.gen, df.attempted_project_gen, df.attempted_cum_gen = df.gen.astype(float), df.attempted_project_gen.astype(float), df.attempted_cum_gen.astype(float)
             return df
         else:
-            # print('running non_cum auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
+            print('running non_cum auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
             gen = 0
             cost = 0
             budget = self.budget()
@@ -232,12 +238,10 @@ class Pot(models.Model):
 
     def concat_projects(self):
         res = pd.concat([t.projects() for t in self.active_technology_dict.values() ])
-        #print(res)
         return res
 
     def non_cum_concat_projects(self):
         res = pd.concat([t.non_cum_projects() for t in self.active_technology_dict.values() ])
-        #print(res)
         return res
 
     def update_variables(self,projects):
@@ -285,7 +289,7 @@ class Pot(models.Model):
         if self.awarded_cost_result != None:
             res = self.awarded_cost_result
         else:
-            if self.auctionyear.scenario.excel_cum_project_distr == True:
+            if self.auctionyear.scenario.excel_cum_project_distr == True or self.auctionyear.scenario.excel_quirks == True:
                 self.run_auction()
                 res = self.awarded_cost_result
             else:

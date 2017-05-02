@@ -19,7 +19,10 @@ from .helpers import save_policy_to_db, get_prices, update_prices_with_policies,
 # python manage.py test lcf.tests3.TestCumProj.test_run_auction_budget
 # python manage.py test lcf.tests3.TestCumProj.test_accounting_cost
 # python manage.py test lcf.tests3.TestCumProj.test_budget_period_2
-#
+
+# python manage.py test lcf.tests3.TestCumProj.test_fit_cost_individual_quirks
+# python manage.py test lcf.tests3.TestCumProj.test_fit_cost_lumped_quirks
+
 # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_num_projects
 # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_levelised_cost_distribution
 # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_projects_index
@@ -28,12 +31,12 @@ from .helpers import save_policy_to_db, get_prices, update_prices_with_policies,
 # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_run_auction_max_deployment_cap
 # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_run_auction_budget
 # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_budget_period_2
-
+#
 # python manage.py test lcf.tests3.TestCumProjSimple.test_unspent_high
 # python manage.py test lcf.tests3.TestCumProjSimple.test_unspent_normal
 # python manage.py test lcf.tests3.TestCumProjSimple.test_unspent_low
 # python manage.py test lcf.tests3.TestCumProjSimple.test_unspent_lower
-
+#
 # python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_high
 # python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_normal
 # python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_low
@@ -60,7 +63,7 @@ class TestCumProj(TestCase):
         p.run_auction() # note doesn't need to run 2020 auction because it needs only the previous year unspent not all the projects generated
         # print(p.projects())
         s.get_results()
-        print(s.pivot('awarded_cap',2))
+        # print(s.pivot('awarded_cap',2))
 
     def test_run_auction_budget(self):
         s = Scenario.objects.all().get(pk=281)
@@ -97,6 +100,29 @@ class TestCumProj(TestCase):
         self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
 
 
+    def test_fit_cost_individual_quirks(self):
+        s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
+        s.excel_cum_project_distr = True
+        s.excel_nw_carry_error = True
+        s.excel_sp_error = True
+        s.excel_2020_gen_error = True
+        s.excel_quirks = False
+        s.save()
+        s.get_results()
+        p = s.auctionyear_dict[2021].pot_dict['FIT']
+        print(p.awarded_cost_result)
+
+    def test_fit_cost_lumped_quirks(self):
+        s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
+        s.excel_cum_project_distr = False
+        s.excel_nw_carry_error = False
+        s.excel_sp_error = False
+        s.excel_2020_gen_error = False
+        s.excel_quirks = True
+        s.save()
+        s.get_results()
+        p = s.auctionyear_dict[2021].pot_dict['FIT']
+        print(p.awarded_cost_result)
 
 
 class TestNonCumProj(TestCase):
@@ -137,7 +163,8 @@ class TestNonCumProj(TestCase):
 
     def test_non_cum_run_auction_max_deployment_cap(self):
         s = Scenario.objects.all().get(pk=281)
-        s.get_results()
+        results = s.get_results()
+        print(results)
         ofw_max_deployment_caps = Series([ a.pot_dict['E'].technology_dict['OFW'].max_deployment_cap for a in s.auctionyear_dict.values() if a.year > 2020 ], index=range(2021,2031))
         ofw_caps = s.pivot('awarded_cap').loc[('Emerging', 'Offshore wind')]
         ofw_caps.index = range(2021,2031)
@@ -183,8 +210,8 @@ class TestCumProjSimple(TestCase):
             # print('spent', p.awarded_cost_result)
             # print('unspent',p.unspent(), '\n\n')
         results = s.pivot('cum_owed_v_wp',1)
-        print('scenario budget', s.budget)
-        print('accounting cost 2025', results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)])
+        # print('scenario budget', s.budget)
+        # print('accounting cost 2025', results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)])
         self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],2),expected_cost_2025)
 
 
@@ -221,8 +248,8 @@ class TestNonCumProjSimple(TestCase):
             # print('spent', p.awarded_cost_result)
             # print('unspent',p.unspent(), '\n\n')
         results = s.pivot('cum_owed_v_wp',1)
-        print('scenario budget', s.budget)
-        print('accounting cost 2025', results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)])
+        # print('scenario budget', s.budget)
+        # print('accounting cost 2025', results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)])
         self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],2),expected_cost_2025)
 
 

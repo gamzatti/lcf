@@ -19,15 +19,18 @@ class ScenarioForm(forms.ModelForm):
 
     class Meta:
         model = Scenario
-        fields = ('name', 'description', 'budget', 'budget2', 'percent_emerging','excel_quirks', 'excel_cum_project_distr', 'end_year1', 'subsidy_free_p2', 'policies')
+        fields = ('name', 'description', 'budget', 'budget2', 'percent_emerging', 'excel_sp_error', 'excel_2020_gen_error', 'excel_nw_carry_error', 'excel_cum_project_distr', 'excel_quirks', 'end_year1', 'subsidy_free_p2', 'policies')
         widgets = {
           'name': forms.TextInput(attrs={'class': "col-sm-5"}),
           'description': Textarea(attrs={'rows':2, 'cols':40, 'class': "col-sm-5"}),
           'budget': forms.NumberInput(attrs={'class': "col-sm-5", 'step': 0.1}),
           'budget2': forms.NumberInput(attrs={'class': "col-sm-5", 'step': 0.1}),
           'percent_emerging': forms.NumberInput(attrs={'class': "col-sm-5", 'step': 0.1}),
-          'excel_quirks': forms.CheckboxInput(attrs={'class': "col-sm-5"}),
+          'excel_sp_error': forms.CheckboxInput(attrs={'class': "col-sm-5"}),
+          'excel_2020_gen_error': forms.CheckboxInput(attrs={'class': "col-sm-5"}),
+          'excel_nw_carry_error': forms.CheckboxInput(attrs={'class': "col-sm-5"}),
           'excel_cum_project_distr': forms.CheckboxInput(attrs={'class': "col-sm-5"}),
+          'excel_quirks': forms.CheckboxInput(attrs={'class': "col-sm-5"}),
           'end_year1': forms.NumberInput(attrs={'class': "col-sm-5"}),
           'subsidy_free_p2': forms.CheckboxInput(attrs={'class': "col-sm-5"}),
           'policies': forms.CheckboxSelectMultiple()

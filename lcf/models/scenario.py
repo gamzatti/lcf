@@ -31,10 +31,10 @@ class Scenario(models.Model):
     tidal_levelised_cost_distribution = models.BooleanField(default=True)
     excel_2020_gen_error = models.BooleanField(default=False, verbose_name="Include the Excel error that counts cumulative generation from 2020 for auction and negotiations (but not FIT)")
     excel_nw_carry_error = models.BooleanField(default=False, verbose_name="Include the Excel error that carries NWFIT into next year, even though it's been spent")
-    excel_quirks = models.BooleanField(default=True, verbose_name="Include all Excel quirks")
+    excel_quirks = models.BooleanField(default=True, verbose_name="Include all Excel quirks (if selected, overrides individual quirk settings)")
     results = models.TextField(null=True,blank=True)
     policies = models.ManyToManyField(Policy, blank=True)
-    excel_cum_project_distr = models.BooleanField(default=True, verbose_name="Include the Excel quirk that calculates number of projects cumulatively and then excludes previously successful ones (as opposed to just treating each year separately)")
+    excel_cum_project_distr = models.BooleanField(default=False, verbose_name="Include the Excel quirk that calculates number of projects cumulatively and then excludes previously successful ones (as opposed to just treating each year separately)")
 
 
     def __str__(self):
@@ -55,7 +55,7 @@ class Scenario(models.Model):
         return [ auctionyear for auctionyear in self.auctionyear_dict.values() if auctionyear.year in ran ]
 
     def run_auctions(self):
-        if self.excel_cum_project_distr == True:
+        if self.excel_cum_project_distr == True or self.excel_quirks == True:
             for a in self.auctionyear_dict.values():
                 for p in a.pot_dict.values():
                     p.run_auction()

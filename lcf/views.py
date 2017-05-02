@@ -21,6 +21,7 @@ from django.db import connection
 
 def scenario_new(request):
     scenarios = Scenario.objects.all()
+    print('d')
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     scenario = Scenario.objects.all().order_by("-date")[0]
     if request.method == "POST":
