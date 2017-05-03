@@ -12,12 +12,6 @@
     </div>
     {% endfor %}
 
-    <h3>Technology prices</h3>
-    <div class="form-group">
-        <label for="{{ upload_form.file.id_for_label }}" class="col-sm-3 control-label">{{upload_form.file.label}}</label>
-        <div class="col-sm-9">{{ upload_form.file }}</div>
-    </div>
-
     <button type="submit" class="save btn btn-primary">Submit</button>
 </form>
 <a href="{% url 'template' %}"><div class="btn btn-info">Download template?</div></a>

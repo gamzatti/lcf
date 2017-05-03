@@ -7,11 +7,21 @@
 
 {% block content %}
 <h1 class="page-header">New policy</h1>
-<form method="POST" class="post-form" enctype="multipart/form-data">{% csrf_token %}
-    {{ policy_form }}
-    {{ upload_form }}
+<form method="POST" class="form-horizontal" enctype="multipart/form-data">{% csrf_token %}
+    <!-- {{ policy_form.as_p }} -->
+    {% for field in policy_form %}
+    <div class="form-group">
+        <label for="{{ field.id_for_label }}" class="col-sm-3 control-label" >{{ field.label }}</label>
+        <div class="col-sm-9" >{{ field }}</div>
+    </div>
+    {% endfor %}
+
     <button type="submit" class="save btn btn-primary">Submit</button>
 </form>
+
+    <!-- {{ upload_form.as_p }}
+    <button type="submit" class="save btn btn-primary">Submit</button>
+</form> -->
 
 <a href="{% url 'policy_template' %}"><div class="btn btn-info">Download template?</div></a>
 <h2>Notes</h2>

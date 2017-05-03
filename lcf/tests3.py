@@ -337,3 +337,9 @@ class TestIP(TestCase):
         self.assertEqual(t.cum_owed_v_gas, (t.awarded_gen * (t.strike_price - p.auctionyear.gas_price)))
         pivot = s.pivot('cum_owed_v_gas',1)
         print(pivot)
+
+class TestPolicies(TestCase):
+    fixtures = ['tests/3/data2.json']
+
+    def test_policy_subtract(self):
+        pass

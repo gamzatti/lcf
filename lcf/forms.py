@@ -16,6 +16,7 @@ class ScenarioForm(forms.ModelForm):
     wholesale_prices_other = forms.CharField(widget=forms.TextInput(attrs={'class': "col-sm-5"}), max_length=400, label="If other, please list", required=False)
     gas_prices = forms.ChoiceField(widget=forms.Select(attrs={'class': "col-sm-5"}), choices=GAS_CHOICES)
     gas_prices_other = forms.CharField(widget=forms.TextInput(attrs={'class': "col-sm-5"}), max_length=400, label="If other, please list", required=False)
+    file = forms.FileField(label="Technology data")
 
     class Meta:
         model = Scenario
@@ -41,16 +42,18 @@ class PricesForm(forms.Form):
     wholesale_prices = forms.CharField(max_length=400)
     gas_prices = forms.CharField(max_length=400)
 
-class UploadFileForm(forms.Form):
-    #title = forms.CharField(max_length=200)
-    file = forms.FileField()
 
 class PolicyForm(forms.ModelForm):
+    file = forms.FileField(label="Cost changes")
+
     class Meta:
         model = Policy
         fields = ('name',
                   'description',
+                  'method',
         )
         widgets = {
-          'description': Textarea(attrs={'rows':2, 'cols':20}),
+          'name': forms.TextInput(attrs={'class': "col-sm-5"}),
+          'description': Textarea(attrs={'rows':2, 'cols':40, 'class': "col-sm-5"}),
+          'method': forms.RadioSelect(attrs={'class': "col-sm-5"}),
         }

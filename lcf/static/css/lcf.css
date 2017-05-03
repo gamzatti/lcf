@@ -82,6 +82,12 @@ form ul {
     padding:0px;
   }
 
+form ul#id_method li {
+  display:inline;
+
+}
+
+
 form ul li {
   /*display:inline-block;*/
 

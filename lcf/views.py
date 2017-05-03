@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory, formset_factory
-from .forms import ScenarioForm, PricesForm, UploadFileForm, PolicyForm
+from .forms import ScenarioForm, PricesForm, PolicyForm
 
 from .models import Scenario, AuctionYear, Pot, Technology, Policy
 import time
@@ -21,15 +21,12 @@ from django.db import connection
 
 def scenario_new(request):
     scenarios = Scenario.objects.all()
-    print('d')
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     scenario = Scenario.objects.all().order_by("-date")[0]
     if request.method == "POST":
         print("posting")
-        upload_form = UploadFileForm(request.POST, request.FILES)
-        scenario_form = ScenarioForm(request.POST)
-
-        if upload_form.is_valid() and scenario_form.is_valid():
+        scenario_form = ScenarioForm(request.POST, request.FILES)
+        if scenario_form.is_valid():
             s = scenario_form.save()
             prices_df = get_prices(s, scenario_form)
             policy_dfs = [ pl.df() for pl in s.policies.all() ]
@@ -42,17 +39,14 @@ def scenario_new(request):
             return redirect('scenario_detail', pk=recent_pk)
         else:
             print(scenario_form.errors)
-            print(upload_form.errors)
     else:
         print("GETTING ")
         scenario_form = ScenarioForm()
-        upload_form = UploadFileForm()
     context = {'scenario': scenario,
                'policies': Policy.objects.all(),
                'scenarios': scenarios,
                'scenario_form': scenario_form,
                'recent_pk': recent_pk,
-               'upload_form' : upload_form,
                }
     return render(request, 'lcf/scenario_new.html', context)
 
@@ -62,10 +56,9 @@ def policy_new(request):
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     scenario = Scenario.objects.all().order_by("-date")[0]
     if request.method == "POST":
-        policy_form = PolicyForm(request.POST)
-        upload_form = UploadFileForm(request.POST, request.FILES)
+        policy_form = PolicyForm(request.POST, request.FILES)
         print("posting")
-        if policy_form.is_valid() and upload_form.is_valid():
+        if policy_form.is_valid():
             print('forms are valid')
             pl = policy_form.save()
             file = request.FILES['file']
@@ -73,19 +66,16 @@ def policy_new(request):
             return redirect('policy_detail', pk=pl.pk)
         else:
             print(policy_form.errors)
-            print(upload_form.errors)
 
     else:
         print("GETTING policy form")
         policy_form = PolicyForm()
-        upload_form = UploadFileForm()
 
     context = {'scenario': scenario,
                'scenarios': scenarios,
                'policies': Policy.objects.all(),
                'policy_form': policy_form,
                'recent_pk': recent_pk,
-               'upload_form' : upload_form,
                }
     return render(request, 'lcf/policy_new.html', context)
 
@@ -122,8 +112,6 @@ def policy_delete(request, pk):
 def scenario_detail(request, pk=None):
     if pk == None:
         pk = Scenario.objects.all().order_by("-date")[0].pk
-    #scenario = get_object_or_404(Scenario,pk=pk)
-    #print("without prefetching")
     scenario = Scenario.objects.prefetch_related('auctionyear_set__pot_set__technology_set', 'policies').get(id=pk)
     print('instantiating a scenario object with prefetched attributes')
     print(scenario.name)

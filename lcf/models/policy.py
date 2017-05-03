@@ -16,6 +16,8 @@ class Policy(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     date = models.DateTimeField(default=timezone.now)
+    METHOD_CHOICES = [('MU', 'multiply'), ('SU', 'subtract')]
+    method = models.CharField(max_length=2, choices=METHOD_CHOICES, default='MU')
     effects = models.TextField(null=True, blank=True)
 
     def __str__(self):

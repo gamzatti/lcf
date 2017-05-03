@@ -1,5 +1,5 @@
 from django.forms import modelformset_factory, formset_factory
-from .forms import ScenarioForm, PricesForm, UploadFileForm
+from .forms import ScenarioForm, PricesForm
 from .models import Scenario, AuctionYear, Pot, Technology
 import time
 import pandas as pd
@@ -87,6 +87,7 @@ def get_prices(s, scenario_form):
     if gas_prices == None:
         gas_prices = [float(g) for g in list(filter(None, re.split("[, \-!?:\t]+",scenario_form.cleaned_data['gas_prices_other'])))]
     prices_df = DataFrame({'gas_prices': gas_prices, 'wholesale_prices': wholesale_prices},index=range(2020,2031))
+    #print(prices_df)
     return prices_df
 
 def update_prices_with_policies(prices_df,policy_dfs):
@@ -96,7 +97,7 @@ def update_prices_with_policies(prices_df,policy_dfs):
     for policy_df in policy_dfs:
         policy_df = policy_df[policy_df.tech_name.isin(dfh.prices_keys) ]
         policy_df = policy_df.reindex(columns=dfh.prices_policy_keys)
-        policy_df = policy_df.set_index(dfh.prices_policy_index).unstack(0)
+        policy_df = policy_df.set_index(dfh).unstack(0)
         policy_df = policy_df.reindex(index=prices_df.index)
         interpolated = policy_df.interpolate()
         interpolated.columns = interpolated.columns.get_level_values(1)
