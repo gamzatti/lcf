@@ -19,7 +19,7 @@ class ScenarioForm(forms.ModelForm):
 
     class Meta:
         model = Scenario
-        fields = ('name', 'description', 'budget', 'budget2', 'percent_emerging', 'excel_sp_error', 'excel_2020_gen_error', 'excel_nw_carry_error', 'excel_cum_project_distr', 'excel_quirks', 'end_year1', 'subsidy_free_p2', 'policies')
+        fields = ('name', 'description', 'budget', 'budget2', 'percent_emerging', 'excel_sp_error', 'excel_2020_gen_error', 'excel_nw_carry_error', 'excel_include_previous_unsuccessful_nuclear', 'excel_include_previous_unsuccessful_all', 'excel_quirks', 'end_year1', 'subsidy_free_p2', 'policies')
         widgets = {
           'name': forms.TextInput(attrs={'class': "col-sm-5"}),
           'description': Textarea(attrs={'rows':2, 'cols':40, 'class': "col-sm-5"}),
@@ -29,7 +29,8 @@ class ScenarioForm(forms.ModelForm):
           'excel_sp_error': forms.CheckboxInput(attrs={'class': "col-sm-5"}),
           'excel_2020_gen_error': forms.CheckboxInput(attrs={'class': "col-sm-5"}),
           'excel_nw_carry_error': forms.CheckboxInput(attrs={'class': "col-sm-5"}),
-          'excel_cum_project_distr': forms.CheckboxInput(attrs={'class': "col-sm-5"}),
+          'excel_include_previous_unsuccessful_all': forms.CheckboxInput(attrs={'class': "col-sm-5"}),
+          'excel_include_previous_unsuccessful_nuclear': forms.CheckboxInput(attrs={'class': "col-sm-5"}),
           'excel_quirks': forms.CheckboxInput(attrs={'class': "col-sm-5"}),
           'end_year1': forms.NumberInput(attrs={'class': "col-sm-5"}),
           'subsidy_free_p2': forms.CheckboxInput(attrs={'class': "col-sm-5"}),

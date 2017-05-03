@@ -50,14 +50,14 @@ class TestCumProj(TestCase):
 
     def test_num_projects(self):
         s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
-        s.excel_cum_project_distr = True
+        s.excel_include_previous_unsuccessful_all = True
         s.save()
         ofw_list = [s.auctionyear_dict[i].pot_dict['E'].technology_dict['OFW'] for i in range(2020,2031) ]
         self.assertEqual([ofw.num_projects() for ofw in ofw_list], [8, 17, 26, 35, 44, 54, 64, 74, 84, 93, 103])
 
     def test_run_auction(self):
         s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
-        s.excel_cum_project_distr = True
+        s.excel_include_previous_unsuccessful_all = True
         s.save()
         p = s.auctionyear_dict[2022].pot_dict['E']
         p.cum_run_auction() # note doesn't need to run 2020 auction because it needs only the previous year unspent not all the projects generated
@@ -67,7 +67,7 @@ class TestCumProj(TestCase):
 
     def test_run_auction_budget(self):
         s = Scenario.objects.all().get(pk=281)
-        s.excel_cum_project_distr = True
+        s.excel_include_previous_unsuccessful_all = True
         s.save()
         e_list = [ s.auctionyear_dict[y].pot_dict['E'] for y in range(2020,2031)]
         # p = s.auctionyear_dict[2027].pot_dict['E']
@@ -83,7 +83,7 @@ class TestCumProj(TestCase):
 
     def test_budget_period_2(self):
         s = Scenario.objects.all().get(pk=281)
-        s.excel_cum_project_distr = True
+        s.excel_include_previous_unsuccessful_all = True
         s.save()
         a1 = s.auctionyear_dict[2021]
         a6 = s.auctionyear_dict[2026]
@@ -93,7 +93,7 @@ class TestCumProj(TestCase):
 
     def test_accounting_cost(self):
         s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
-        s.excel_cum_project_distr = True
+        s.excel_include_previous_unsuccessful_all = True
         s.save()
         results = s.pivot('cum_owed_v_wp',1)
         # print(results)
@@ -102,7 +102,7 @@ class TestCumProj(TestCase):
 
     def test_fit_cost_individual_quirks(self):
         s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
-        s.excel_cum_project_distr = True
+        s.excel_include_previous_unsuccessful_all = True
         s.excel_nw_carry_error = True
         s.excel_sp_error = True
         s.excel_2020_gen_error = True
@@ -114,7 +114,7 @@ class TestCumProj(TestCase):
 
     def test_fit_cost_lumped_quirks(self):
         s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
-        s.excel_cum_project_distr = False
+        s.excel_include_previous_unsuccessful_all = False
         s.excel_nw_carry_error = False
         s.excel_sp_error = False
         s.excel_2020_gen_error = False
@@ -131,7 +131,7 @@ class TestNonCumProj(TestCase):
     def test_non_cum_num_projects(self):
         s = Scenario.objects.all().get(pk=281)
         s.excel_quirks = False
-        s.excel_cum_project_distr = False
+        s.excel_include_previous_unsuccessful_all = False
         s.excel_nw_carry_error = True
         s.excel_sp_error = True
         s.excel_2020_gen_error = True
@@ -143,7 +143,7 @@ class TestNonCumProj(TestCase):
     def test_non_cum_levelised_cost_distribution(self):
         s = Scenario.objects.all().get(pk=281)
         s.excel_quirks = False
-        s.excel_cum_project_distr = False
+        s.excel_include_previous_unsuccessful_all = False
         s.excel_nw_carry_error = True
         s.excel_sp_error = True
         s.excel_2020_gen_error = True
@@ -155,7 +155,7 @@ class TestNonCumProj(TestCase):
     def test_non_cum_projects_index(self):
         s = Scenario.objects.all().get(pk=281)
         s.excel_quirks = False
-        s.excel_cum_project_distr = False
+        s.excel_include_previous_unsuccessful_all = False
         s.excel_nw_carry_error = True
         s.excel_sp_error = True
         s.excel_2020_gen_error = True
@@ -168,7 +168,7 @@ class TestNonCumProj(TestCase):
     def test_non_cum_projects(self):
         s = Scenario.objects.all().get(pk=281)
         s.excel_quirks = False
-        s.excel_cum_project_distr = False
+        s.excel_include_previous_unsuccessful_all = False
         s.excel_nw_carry_error = True
         s.excel_sp_error = True
         s.excel_2020_gen_error = True
@@ -180,7 +180,7 @@ class TestNonCumProj(TestCase):
     def test_non_cum_concat_projects(self):
         s = Scenario.objects.all().get(pk=281)
         s.excel_quirks = False
-        s.excel_cum_project_distr = False
+        s.excel_include_previous_unsuccessful_all = False
         s.excel_nw_carry_error = True
         s.excel_sp_error = True
         s.excel_2020_gen_error = True
@@ -194,7 +194,7 @@ class TestNonCumProj(TestCase):
     def test_non_cum_run_auction_max_deployment_cap(self):
         s = Scenario.objects.all().get(pk=281)
         s.excel_quirks = False
-        s.excel_cum_project_distr = False
+        s.excel_include_previous_unsuccessful_all = False
         s.excel_nw_carry_error = True
         s.excel_sp_error = True
         s.excel_2020_gen_error = True
@@ -208,7 +208,7 @@ class TestNonCumProj(TestCase):
     def test_non_cum_run_auction_budget(self):
         s = Scenario.objects.all().get(pk=281)
         s.excel_quirks = False
-        s.excel_cum_project_distr = False
+        s.excel_include_previous_unsuccessful_all = False
         s.excel_nw_carry_error = True
         s.excel_sp_error = True
         s.excel_2020_gen_error = True
@@ -227,7 +227,7 @@ class TestNonCumProj(TestCase):
     def test_non_cum_budget_period_2(self):
         s = Scenario.objects.all().get(pk=281)
         s.excel_quirks = False
-        s.excel_cum_project_distr = False
+        s.excel_include_previous_unsuccessful_all = False
         s.excel_nw_carry_error = True
         s.excel_sp_error = True
         s.excel_2020_gen_error = True
@@ -245,7 +245,7 @@ class TestCumProjSimple(TestCase):
 
     def test_unspent(self,budget,expected_cost_2025):
         s = Scenario.objects.all().get(pk=586)
-        s.excel_cum_project_distr = True
+        s.excel_include_previous_unsuccessful_all = True
         s.budget = budget
         s.save()
         e_list = [ s.auctionyear_dict[y].pot_dict['E'] for y in range(2020,2026)]
@@ -285,7 +285,7 @@ class TestNonCumProjSimple(TestCase):
     def test_non_cum_unspent(self,budget, expected_cost_2025):
         s = Scenario.objects.all().get(pk=586)
         s.excel_quirks = False
-        s.excel_cum_project_distr = False
+        s.excel_include_previous_unsuccessful_all = False
         s.excel_nw_carry_error = True
         s.excel_sp_error = True
         s.excel_2020_gen_error = True

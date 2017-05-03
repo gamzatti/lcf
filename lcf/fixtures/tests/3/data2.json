@@ -37,7 +37,7 @@
         "end_year2": 2030,
         "excel_sp_error": true,
         "tidal_levelised_cost_distribution": true,
-        "excel_cum_project_distr": false,
+        "excel_include_previous_unsuccessful_all": false,
         "excel_2020_gen_error": true,
         "excel_nw_carry_error": true
     }

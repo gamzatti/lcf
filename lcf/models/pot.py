@@ -151,7 +151,7 @@ class Pot(models.Model):
             # print('decoding json')
             non_cum_column_order = ['levelised_cost', 'gen', 'technology', 'strike_price', 'affordable', 'pot', 'listed_year', 'eligible', 'difference', 'cost', 'attempted_cum_cost', 'funded_this_year', 'attempted_project_gen', 'attempted_cum_gen']
             cum_column_order = ['levelised_cost', 'gen', 'technology', 'strike_price', 'affordable', 'pot', 'listed_year', 'previously_funded', 'eligible', 'difference', 'cost', 'attempted_cum_cost', 'funded_this_year', 'attempted_project_gen', 'attempted_cum_gen']
-            if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_cum_project_distr == True:
+            if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_include_previous_unsuccessful_all == True or (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
                 column_order = cum_column_order
             else:
                 column_order = non_cum_column_order
@@ -160,7 +160,7 @@ class Pot(models.Model):
             return df
 
         else:
-            if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_cum_project_distr == True:
+            if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_include_previous_unsuccessful_all == True or (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
                 # print('running auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
                 return self.cum_run_auction()
             else:
@@ -273,10 +273,4 @@ class Pot(models.Model):
         else:
             self.run_relevant_auction()
             res = self.awarded_cost_result
-            # if self.auctionyear.scenario.excel_cum_project_distr == True or self.auctionyear.scenario.excel_quirks == True:
-            #     self.run_auction()
-            #     res = self.awarded_cost_result
-            # else:
-            #     self.non_cum_run_auction()
-            #     res = self.awarded_cost_result
         return res

@@ -21,7 +21,7 @@
         "excel_nw_carry_error": true,
         "excel_quirks": false,
         "results": null,
-        "excel_cum_project_distr": false,
+        "excel_include_previous_unsuccessful_all": false,
         "policies": []
     }
 },

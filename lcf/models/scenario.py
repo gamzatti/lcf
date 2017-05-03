@@ -27,14 +27,15 @@ class Scenario(models.Model):
     start_year2 = models.IntegerField(default=2026)
     end_year2 = models.IntegerField(default=2030)
     subsidy_free_p2 = models.BooleanField(default=False, verbose_name="Only subsidy-free CFDs for period 2")
-    excel_sp_error = models.BooleanField(default=False, verbose_name="Include the Excel error in the emerging pot strike price?")
     tidal_levelised_cost_distribution = models.BooleanField(default=True)
-    excel_2020_gen_error = models.BooleanField(default=False, verbose_name="Include the Excel error that counts cumulative generation from 2020 for auction and negotiations (but not FIT)")
-    excel_nw_carry_error = models.BooleanField(default=False, verbose_name="Include the Excel error that carries NWFIT into next year, even though it's been spent")
-    excel_quirks = models.BooleanField(default=True, verbose_name="Include all Excel quirks (if selected, overrides individual quirk settings)")
+    excel_sp_error = models.BooleanField(default=False, verbose_name="Excel quirk: use future strike price rather than year contract agreed")
+    excel_2020_gen_error = models.BooleanField(default=False, verbose_name="Excel quirk: count cumulative generation from 2020 for auction and negotiations (but not FIT)")
+    excel_nw_carry_error = models.BooleanField(default=False, verbose_name="Excel quirk: carry NWFIT into next year, even though it's been spent")
+    excel_include_previous_unsuccessful_nuclear = models.BooleanField(default=True, verbose_name="Excel quirk: allow previously unsuccessful nuclear projects to be considered in future years")
+    excel_include_previous_unsuccessful_all = models.BooleanField(default=False, verbose_name="Excel quirk: allow previously unsuccessful projects for all technologies to be considered in future years (overrides maximum deployment limit)")
+    excel_quirks = models.BooleanField(default=False, verbose_name="Include all Excel quirks (if selected, overrides individual quirk settings)")
     results = models.TextField(null=True,blank=True)
     policies = models.ManyToManyField(Policy, blank=True)
-    excel_cum_project_distr = models.BooleanField(default=False, verbose_name="Include the Excel quirk that calculates number of projects cumulatively and then excludes previously successful ones (as opposed to just treating each year separately)")
 
 
     def __str__(self):
@@ -55,14 +56,6 @@ class Scenario(models.Model):
         return [ auctionyear for auctionyear in self.auctionyear_dict.values() if auctionyear.year in ran ]
 
     def run_auctions(self):
-        # if self.excel_cum_project_distr == True or self.excel_quirks == True:
-        #     for a in self.auctionyear_dict.values():
-        #         for p in a.pot_dict.values():
-        #             p.run_auction()
-        # else:
-        #     for a in self.auctionyear_dict.values():
-        #         for p in a.pot_dict.values():
-        #             p.non_cum_run_auction()
         for a in self.auctionyear_dict.values():
             for p in a.pot_dict.values():
                 p.run_relevant_auction()
