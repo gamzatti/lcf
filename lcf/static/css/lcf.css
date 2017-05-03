@@ -232,3 +232,17 @@ body {
   display: inline-block;
   border-radius: 50%;
 }
+
+tr th.row_heading.level1 {
+    font-weight: normal;
+}
+
+tr th.level1.sub {
+    /*font-style: italic;*/
+    font-weight: bold;
+
+}
+
+tr th.level1.tot {
+    font-weight: bold;
+}

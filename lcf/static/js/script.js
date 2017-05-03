@@ -81,5 +81,8 @@ $(document).ready(function(){
       toggleIcon($(this));
     });
 //    document.getElementById("id_all_excel_quirks").onclick = function(){toggle(this)}
+    $('th:contains("Subtotal")').addClass('sub');
+    $('th:contains("Innovation premium (ignores negawatts)")').addClass('sub');
+    $('th:contains("Total")').addClass('tot');
 
 });

@@ -135,9 +135,9 @@ class Pot(models.Model):
             self.previously_funded_projects_results = previously_funded_projects.to_json()
         return previously_funded_projects
 
-    def projects(self):
-        return self.run_relevant_auction()
-
+    # def projects(self):
+    #     return self.run_relevant_auction()
+    #
 
     @lru_cache(maxsize=128)
     def run_relevant_auction(self):
@@ -240,16 +240,16 @@ class Pot(models.Model):
             #     t.cum_owed_v_absolute = 0
             #     t.cum_awarded_gen = 0
             for future_t in t.cum_future_techs():
-                if (self.auctionyear.scenario.excel_sp_error == True or self.auctionyear.scenario.excel_quirks == True) and (self.name == "E" or self.name == "SN"):
+                gas = future_t.pot.auctionyear.gas_price
+                if (self.auctionyear.scenario.excel_sp_error == True or self.auctionyear.scenario.excel_quirks == True) and (self.name == "E" or self.name == "SN" or self.name == "M"):
                     strike_price = future_t.strike_price
                 else:
                     strike_price = t.strike_price
                 if t.name == "NW":
                     wp = 0
-                    gas = 0
+                    # gas = 0
                 else:
                     wp = future_t.pot.auctionyear.wholesale_price
-                    gas = future_t.pot.auctionyear.gas_price
                 if self.auctionyear.year == self.auctionyear.scenario.start_year2:
                     tmid = self.auctionyear.scenario.auctionyear_dict[self.auctionyear.scenario.end_year1].pot_dict[t.pot.name].technology_dict[t.name]
                     future_t.cum_awarded_gen = tmid.cum_awarded_gen

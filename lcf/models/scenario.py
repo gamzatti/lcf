@@ -123,10 +123,12 @@ class Scenario(models.Model):
         result = dfsum.append(df)
         result = dfsum_outer.append(result)
         if column == "cum_owed_v_gas":
+            dfsum_outer['name']='Total'
+            dfsum_outer['pot_name']='Total'
             ip_df = df[df.pot_name != 'Feed-in-tariff']
             ip_df_sum_outer = ip_df.groupby(['year'],as_index=False).sum()
-            ip_df_sum_outer['name'] = '__Innovation premium'
-            ip_df_sum_outer['pot_name'] = '__Innovation premium'
+            ip_df_sum_outer['name'] = '__Innovation premium (ignores negawatts)'
+            ip_df_sum_outer['pot_name'] = '__Innovation premium (ignores negawatts)'
             result = ip_df_sum_outer.append(result)
         result = result.set_index(dfh.tech_results_index['keys']).sort_index()
         result = result.unstack(0)
@@ -166,7 +168,7 @@ class Scenario(models.Model):
             return ['font-weight: bold;' if v else '' for v in is_max]
         def highlight_subtotal(val):
             return 'font-weight: bold;'
-        html = df.style.format("{:.3f}").applymap(highlight_subtotal, subset = pd.IndexSlice[pd.IndexSlice[:,['_Subtotal','Total', '__Innovation premium']],:]).render()
+        html = df.style.format("{:.3f}").applymap(highlight_subtotal, subset = pd.IndexSlice[pd.IndexSlice[:,['_Subtotal','Total', '__Innovation premium (ignores negawatts)']],:]).render()
         html = self.apply_table_classes(html)
         html = html.replace('_Subtotal','Subtotal')
         html = html.replace('__Innovation', 'Innovation')

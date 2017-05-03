@@ -42,6 +42,7 @@ from .helpers import save_policy_to_db, get_prices, update_prices_with_policies,
 # python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_low
 # python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_lower
 
+# python manage.py test lcf.tests3.TestIP.test_nw_v_gas
 
 
 class TestCumProj(TestCase):
@@ -320,3 +321,19 @@ class TestNonCumProjSimple(TestCase):
     def test_non_cum_unspent_lower(self):
         self.test_non_cum_unspent(1.3, 1.05)
         # constrained by budget
+
+class TestIP(TestCase):
+    fixtures = ['tests/3/data2.json']
+
+    def test_nw_v_gas(self):
+        s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
+        s.excel_quirks = True
+        s.save()
+        p = s.auctionyear_dict[2021].pot_dict['FIT']
+
+        p.run_relevant_auction()
+        t = p.technology_dict['NW']
+        self.assertEqual(t.cum_owed_v_gas, (t.awarded_gen * t.strike_price) - (t.awarded_gen * p.auctionyear.gas_price))
+        self.assertEqual(t.cum_owed_v_gas, (t.awarded_gen * (t.strike_price - p.auctionyear.gas_price)))
+        pivot = s.pivot('cum_owed_v_gas',1)
+        print(pivot)
