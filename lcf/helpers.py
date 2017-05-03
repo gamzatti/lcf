@@ -40,11 +40,15 @@ def create_technology_objects(df,s):
     total = t1-t0
     print("iterrows",total)
 
-def save_policy_to_db(file,pl):
+# def save_policy_to_db(file,pl):
+def process_policy_form(policy_form):
+    pl = policy_form.save()
+    file = policy_form.cleaned_data['file']
     df = DataFrame(pd.read_csv(file))
     #df = df.dropna(axis=1,how="all")
     pl.effects = df.to_json()
     pl.save()
+    return pl
 
 def update_tech_with_policies(tech_df,policy_dfs):
     if len(policy_dfs) == 0:
@@ -113,3 +117,13 @@ def create_auctionyear_and_pot_objects(updated_prices_df,s):
         for p in ['E', 'M', 'SN', 'FIT']:
             Pot.objects.create(auctionyear=a,name=p)
     #s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=s.pk)
+
+def process_scenario_form(scenario_form):
+    s = scenario_form.save()
+    prices_df = get_prices(s, scenario_form)
+    policy_dfs = [ pl.df() for pl in s.policies.all() ]
+    updated_prices_df = update_prices_with_policies(prices_df, policy_dfs)
+    create_auctionyear_and_pot_objects(updated_prices_df,s)
+    tech_df = pd.read_csv(scenario_form.cleaned_data['file'])
+    updated_tech_df = update_tech_with_policies(tech_df,policy_dfs)
+    create_technology_objects(updated_tech_df,s)

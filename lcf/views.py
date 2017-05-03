@@ -4,7 +4,8 @@ from .forms import ScenarioForm, PricesForm, PolicyForm
 
 from .models import Scenario, AuctionYear, Pot, Technology, Policy
 import time
-from .helpers import save_policy_to_db, get_prices, update_prices_with_policies, create_auctionyear_and_pot_objects, update_tech_with_policies, create_technology_objects
+
+from .helpers import process_policy_form, process_scenario_form
 import lcf.dataframe_helpers as dfh
 from django_pandas.io import read_frame
 
@@ -27,14 +28,7 @@ def scenario_new(request):
         print("posting")
         scenario_form = ScenarioForm(request.POST, request.FILES)
         if scenario_form.is_valid():
-            s = scenario_form.save()
-            prices_df = get_prices(s, scenario_form)
-            policy_dfs = [ pl.df() for pl in s.policies.all() ]
-            updated_prices_df = update_prices_with_policies(prices_df, policy_dfs)
-            create_auctionyear_and_pot_objects(updated_prices_df,s)
-            tech_df = pd.read_csv(request.FILES['file'])
-            updated_tech_df = update_tech_with_policies(tech_df,policy_dfs)
-            create_technology_objects(updated_tech_df,s)
+            process_scenario_form(scenario_form)
             recent_pk = Scenario.objects.all().order_by("-date")[0].pk
             return redirect('scenario_detail', pk=recent_pk)
         else:
@@ -59,10 +53,7 @@ def policy_new(request):
         policy_form = PolicyForm(request.POST, request.FILES)
         print("posting")
         if policy_form.is_valid():
-            print('forms are valid')
-            pl = policy_form.save()
-            file = request.FILES['file']
-            save_policy_to_db(file,pl)
+            pl = process_policy_form(policy_form)
             return redirect('policy_detail', pk=pl.pk)
         else:
             print(policy_form.errors)
