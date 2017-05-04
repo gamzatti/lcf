@@ -50,33 +50,67 @@ def process_policy_form(policy_form):
     pl.save()
     return pl
 
-def update_tech_with_policies(tech_df,policy_dfs):
-    if len(policy_dfs) == 0:
+def update_tech_with_policies(tech_df,policies):
+    # if not policies.exists():
+    #     return tech_df
+    if len(policies) == 0:
         return tech_df
-    #tech_df = DataFrame(pd.read_csv("lcf/template.csv"))
-    #policy_df = DataFrame(pd.read_csv("lcf/policy_template_no_sources_no_prices.csv"))
-    #policy_df = DataFrame(pd.read_csv("lcf/policy_template_with_prices.csv"))
-    tech_df.set_index(dfh.prices_policy_index, inplace=True)
-    tech_df = tech_df[tech_df.included == True]
-    included = tech_df.included
-    tech_df = tech_df.drop('included',axis=1)
-    pots = tech_df.pot_name
-    tech_df = tech_df.drop('pot_name',axis=1)
-    dfs = []
-    for policy_df in policy_dfs:
-        policy_df = policy_df[-policy_df.tech_name.isin(dfh.prices_keys) ]
-        policy_df = policy_df.drop('price_change',axis=1)
-        policy_df.set_index(dfh.prices_policy_index, inplace=True)
-        policy_techs = list(policy_df.index.levels[0])
-        index = [(t, y) for t in policy_techs for y in range(2020,2031) ]
-        interpolated = policy_df.reindex(index=index).interpolate()
-        interpolated = interpolated.reindex(index=tech_df.index).fillna(1)
-        interpolated.columns = tech_df.columns
-        dfs.append(interpolated)
-    updated_tech_df = reduce((lambda x, y : x * y), dfs) * tech_df
-    updated_tech_df['pot_name'] = pots
-    updated_tech_df['included'] = included
-    return updated_tech_df
+    else:
+        tech_df.set_index(dfh.prices_policy_index, inplace=True)
+        tech_df = tech_df[tech_df.included == True]
+        included = tech_df.included
+        tech_df = tech_df.drop('included',axis=1)
+        pots = tech_df.pot_name
+        tech_df = tech_df.drop('pot_name',axis=1)
+        dfs = []
+        for policy in policies:
+            policy_df = policy.df()
+            # method = policy.method
+            policy_df = policy_df[-policy_df.tech_name.isin(dfh.prices_keys) ]
+            policy_df = policy_df.drop('price_change',axis=1)
+            policy_df.set_index(dfh.prices_policy_index, inplace=True)
+            policy_techs = list(policy_df.index.levels[0])
+            index = [(t, y) for t in policy_techs for y in range(2020,2031) ]
+            interpolated = policy_df.reindex(index=index).interpolate()
+            fillna = 1 if policies[0].method == 'MU' else 0
+            interpolated = interpolated.reindex(index=tech_df.index).fillna(fillna)
+            interpolated.columns = tech_df.columns
+            dfs.append(interpolated)
+        if policies[0].method == 'MU':
+            updated_tech_df = tech_df * reduce((lambda x, y : x * y), dfs)
+        elif policies[0].method == 'SU':
+            updated_tech_df = tech_df - reduce((lambda x, y : x + y), dfs)
+        updated_tech_df['pot_name'] = pots
+        updated_tech_df['included'] = included
+        return updated_tech_df
+
+# def update_tech_with_policies(tech_df,policy_dfs):
+#     if len(policy_dfs) == 0:
+#         return tech_df
+#     #tech_df = DataFrame(pd.read_csv("lcf/template.csv"))
+#     #policy_df = DataFrame(pd.read_csv("lcf/policy_template_no_sources_no_prices.csv"))
+#     #policy_df = DataFrame(pd.read_csv("lcf/policy_template_with_prices.csv"))
+#     tech_df.set_index(dfh.prices_policy_index, inplace=True)
+#     tech_df = tech_df[tech_df.included == True]
+#     included = tech_df.included
+#     tech_df = tech_df.drop('included',axis=1)
+#     pots = tech_df.pot_name
+#     tech_df = tech_df.drop('pot_name',axis=1)
+#     dfs = []
+#     for policy_df in policy_dfs:
+#         policy_df = policy_df[-policy_df.tech_name.isin(dfh.prices_keys) ]
+#         policy_df = policy_df.drop('price_change',axis=1)
+#         policy_df.set_index(dfh.prices_policy_index, inplace=True)
+#         policy_techs = list(policy_df.index.levels[0])
+#         index = [(t, y) for t in policy_techs for y in range(2020,2031) ]
+#         interpolated = policy_df.reindex(index=index).interpolate()
+#         interpolated = interpolated.reindex(index=tech_df.index).fillna(1)
+#         interpolated.columns = tech_df.columns
+#         dfs.append(interpolated)
+#     updated_tech_df = reduce((lambda x, y : x * y), dfs) * tech_df
+#     updated_tech_df['pot_name'] = pots
+#     updated_tech_df['included'] = included
+#     return updated_tech_df
 
 def get_prices(s, scenario_form):
     new_wp = [38.5, 41.8, 44.2, 49.8, 54.6, 56.2, 53.5, 57.0, 54.5, 52.2, 55.8]
@@ -101,7 +135,7 @@ def update_prices_with_policies(prices_df,policy_dfs):
     for policy_df in policy_dfs:
         policy_df = policy_df[policy_df.tech_name.isin(dfh.prices_keys) ]
         policy_df = policy_df.reindex(columns=dfh.prices_policy_keys)
-        policy_df = policy_df.set_index(dfh).unstack(0)
+        policy_df = policy_df.set_index(dfh.prices_policy_index).unstack(0)
         policy_df = policy_df.reindex(index=prices_df.index)
         interpolated = policy_df.interpolate()
         interpolated.columns = interpolated.columns.get_level_values(1)
@@ -121,9 +155,15 @@ def create_auctionyear_and_pot_objects(updated_prices_df,s):
 def process_scenario_form(scenario_form):
     s = scenario_form.save()
     prices_df = get_prices(s, scenario_form)
+
+    policies = s.policies.all()
     policy_dfs = [ pl.df() for pl in s.policies.all() ]
+
     updated_prices_df = update_prices_with_policies(prices_df, policy_dfs)
     create_auctionyear_and_pot_objects(updated_prices_df,s)
     tech_df = pd.read_csv(scenario_form.cleaned_data['file'])
-    updated_tech_df = update_tech_with_policies(tech_df,policy_dfs)
+
+    # updated_tech_df = update_tech_with_policies(tech_df,policy_dfs)
+    updated_tech_df = update_tech_with_policies(tech_df,policies)
+
     create_technology_objects(updated_tech_df,s)
