@@ -24,32 +24,24 @@ class Policy(models.Model):
         return self.name
 
     @lru_cache(maxsize=1024)
-    def df(self, subset=None):
-        if subset == "prices":
-            columns = dfh.prices_policy_keys
-        elif subset == "techs":
-            columns = dfh.tech_policy_keys
-        else:
-            columns = dfh.policy_keys
+    def df(self):
+        columns = dfh.tech_policy_keys_mu # not a mistake
         df = pd.read_json(self.effects).reindex(columns=columns)
         return df
 
 
-    def df_for_display(self,subset):
-        effects = self.df(subset)
-        if subset == 'techs':
-            effects.columns = dfh.tech_policy_columns
-            effects = effects.dropna(axis=1,how="all")
-            effects = effects.set_index(dfh.tech_policy_index['titles'])
-            effects = effects.dropna(axis=0,how="all")
-        elif subset == 'prices':
-            effects = self.df('prices')
-            effects = effects.dropna(axis=1,how="all")
-            effects = effects.set_index(dfh.prices_policy_index)
-            effects = effects.dropna(axis=0,how="all")
-            effects = effects.unstack(0)
-            effects.columns = dfh.prices_policy_columns
-        effects = effects.style.format("{:.0%}").render()
+    def df_for_display(self):
+        effects = self.df().copy()
+        print(effects)
+        print(dfh.tech_policy_columns)
+        effects.columns = dfh.tech_policy_columns[self.method]
+        effects = effects.dropna(axis=1,how="all")
+        effects = effects.set_index(dfh.tech_policy_index['titles'])
+        effects = effects.dropna(axis=0,how="all")
+        if self.method == "MU":
+            effects = effects.style.format("{:.0%}").render()
+        else:
+            effects = effects.style.format("-{:.2f}").render()
         effects = effects.replace('<table id=', '<table class="table table-striped table-condensed" id=')
         return effects
 

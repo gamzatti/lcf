@@ -27,6 +27,7 @@ def scenario_new(request):
     if request.method == "POST":
         print("posting")
         scenario_form = ScenarioForm(request.POST, request.FILES)
+        print(request.FILES)
         if scenario_form.is_valid():
             process_scenario_form(scenario_form)
             recent_pk = Scenario.objects.all().order_by("-date")[0].pk
@@ -75,13 +76,14 @@ def policy_detail(request,pk):
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     scenario = Scenario.objects.all().order_by("-date")[0]
     policy = Policy.objects.get(pk=pk)
-    price_effects = policy.df_for_display('prices')
-    techs_effects = policy.df_for_display('techs')
-    print('dont cache')
+    # price_effects = policy.df_for_display('prices')
+    # techs_effects = policy.df_for_display('techs')
+    techs_effects = policy.df_for_display()
+    print('dont cache me')
     context = {'scenario': scenario,
                'scenarios': scenarios,
                'policies': Policy.objects.all(),
-               'prices_effects': price_effects,
+            #    'prices_effects': price_effects,
                'techs_effects': techs_effects,
                'policy': policy,
                'recent_pk': recent_pk,

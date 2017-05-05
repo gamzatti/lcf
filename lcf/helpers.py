@@ -11,36 +11,6 @@ from django.conf import settings
 from functools import reduce
 import lcf.dataframe_helpers as dfh
 
-def create_technology_objects(df,s):
-    t0 = time.time()
-    print("creating technology objects")
-    df = df.reset_index()
-    for index, row in df.iterrows():
-        a = AuctionYear.objects.get(year = row.year, scenario = s)
-        #print(a)
-        p = Pot.objects.get(name=row.pot_name, auctionyear = a)
-        #p = s.auctionyear_dict[year].pot_dict[pot_name]
-        #print(p)
-        #print(row.name)
-        t = Technology.objects.create(
-            name = row.tech_name,
-            pot = p,
-            #pot = s.auctionyear_dict[int(row.year)].pot_dict[row.pot_name],
-            included = row.included,
-            min_levelised_cost = row.min_levelised_cost,
-            max_levelised_cost = row.max_levelised_cost,
-            strike_price = row.strike_price,
-            load_factor = row.load_factor,
-            max_deployment_cap = row.max_deployment_cap if pd.notnull(row.max_deployment_cap) else None,
-            num_new_projects = row.num_new_projects if pd.notnull(row.num_new_projects) else None,
-            project_gen = row.project_gen
-        )
-        #print(t.id)
-    t1 = time.time()
-    total = t1-t0
-    print("iterrows",total)
-
-# def save_policy_to_db(file,pl):
 def process_policy_form(policy_form):
     pl = policy_form.save()
     file = policy_form.cleaned_data['file']
@@ -49,68 +19,6 @@ def process_policy_form(policy_form):
     pl.effects = df.to_json()
     pl.save()
     return pl
-
-def update_tech_with_policies(tech_df,policies):
-    # if not policies.exists():
-    #     return tech_df
-    if len(policies) == 0:
-        return tech_df
-    else:
-        tech_df.set_index(dfh.prices_policy_index, inplace=True)
-        tech_df = tech_df[tech_df.included == True]
-        included = tech_df.included
-        tech_df = tech_df.drop('included',axis=1)
-        pots = tech_df.pot_name
-        tech_df = tech_df.drop('pot_name',axis=1)
-        dfs = []
-        for policy in policies:
-            policy_df = policy.df()
-            # method = policy.method
-            policy_df = policy_df[-policy_df.tech_name.isin(dfh.prices_keys) ]
-            policy_df = policy_df.drop('price_change',axis=1)
-            policy_df.set_index(dfh.prices_policy_index, inplace=True)
-            policy_techs = list(policy_df.index.levels[0])
-            index = [(t, y) for t in policy_techs for y in range(2020,2031) ]
-            interpolated = policy_df.reindex(index=index).interpolate()
-            fillna = 1 if policies[0].method == 'MU' else 0
-            interpolated = interpolated.reindex(index=tech_df.index).fillna(fillna)
-            interpolated.columns = tech_df.columns
-            dfs.append(interpolated)
-        if policies[0].method == 'MU':
-            updated_tech_df = tech_df * reduce((lambda x, y : x * y), dfs)
-        elif policies[0].method == 'SU':
-            updated_tech_df = tech_df - reduce((lambda x, y : x + y), dfs)
-        updated_tech_df['pot_name'] = pots
-        updated_tech_df['included'] = included
-        return updated_tech_df
-
-# def update_tech_with_policies(tech_df,policy_dfs):
-#     if len(policy_dfs) == 0:
-#         return tech_df
-#     #tech_df = DataFrame(pd.read_csv("lcf/template.csv"))
-#     #policy_df = DataFrame(pd.read_csv("lcf/policy_template_no_sources_no_prices.csv"))
-#     #policy_df = DataFrame(pd.read_csv("lcf/policy_template_with_prices.csv"))
-#     tech_df.set_index(dfh.prices_policy_index, inplace=True)
-#     tech_df = tech_df[tech_df.included == True]
-#     included = tech_df.included
-#     tech_df = tech_df.drop('included',axis=1)
-#     pots = tech_df.pot_name
-#     tech_df = tech_df.drop('pot_name',axis=1)
-#     dfs = []
-#     for policy_df in policy_dfs:
-#         policy_df = policy_df[-policy_df.tech_name.isin(dfh.prices_keys) ]
-#         policy_df = policy_df.drop('price_change',axis=1)
-#         policy_df.set_index(dfh.prices_policy_index, inplace=True)
-#         policy_techs = list(policy_df.index.levels[0])
-#         index = [(t, y) for t in policy_techs for y in range(2020,2031) ]
-#         interpolated = policy_df.reindex(index=index).interpolate()
-#         interpolated = interpolated.reindex(index=tech_df.index).fillna(1)
-#         interpolated.columns = tech_df.columns
-#         dfs.append(interpolated)
-#     updated_tech_df = reduce((lambda x, y : x * y), dfs) * tech_df
-#     updated_tech_df['pot_name'] = pots
-#     updated_tech_df['included'] = included
-#     return updated_tech_df
 
 def get_prices(s, scenario_form):
     new_wp = [38.5, 41.8, 44.2, 49.8, 54.6, 56.2, 53.5, 57.0, 54.5, 52.2, 55.8]
@@ -125,38 +33,74 @@ def get_prices(s, scenario_form):
     if gas_prices == None:
         gas_prices = [float(g) for g in list(filter(None, re.split("[, \-!?:\t]+",scenario_form.cleaned_data['gas_prices_other'])))]
     prices_df = DataFrame({'gas_prices': gas_prices, 'wholesale_prices': wholesale_prices},index=range(2020,2031))
-    #print(prices_df)
     return prices_df
 
-# def update_prices_with_policies(prices_df,policy_dfs):
-#     if len(policy_dfs) == 0:
-#         return prices_df
-#     dfs = []
-#     for policy_df in policy_dfs:
-#         policy_df = policy_df[policy_df.tech_name.isin(dfh.prices_keys) ]
-#         policy_df = policy_df.reindex(columns=dfh.prices_policy_keys)
-#         policy_df = policy_df.set_index(dfh.prices_policy_index).unstack(0)
-#         policy_df = policy_df.reindex(index=prices_df.index)
-#         interpolated = policy_df.interpolate()
-#         interpolated.columns = interpolated.columns.get_level_values(1)
-#         dfs.append(interpolated)
-#     updated_prices_df = reduce((lambda x, y : x * y), dfs) * prices_df
-#     return updated_prices_df
 
-def create_auctionyear_and_pot_objects(updated_prices_df,s):
-    gas_prices = updated_prices_df.gas_prices
-    wholesale_prices = updated_prices_df.wholesale_prices
+def create_auctionyear_and_pot_objects(prices_df,s):
+    gas_prices = prices_df.gas_prices
+    wholesale_prices = prices_df.wholesale_prices
     for i, y in enumerate(range(2020,s.end_year2+1)):
         a = AuctionYear.objects.create(year=y, scenario=s, gas_price=gas_prices[y], wholesale_price=wholesale_prices[y])
         for p in ['E', 'M', 'SN', 'FIT']:
             Pot.objects.create(auctionyear=a,name=p)
-    #s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=s.pk)
+
+
+def update_tech_with_policies(tech_df,policies):
+    if len(policies) == 0:
+        return tech_df
+    else:
+        tech_df.set_index(dfh.tech_policy_index['keys'], inplace=True)
+        tech_df = tech_df[tech_df.included == True]
+        included = tech_df.included
+        tech_df = tech_df.drop('included',axis=1)
+        pots = tech_df.pot_name
+        tech_df = tech_df.drop('pot_name',axis=1)
+        dfs = []
+        for policy in policies:
+            policy_df = policy.df().copy()
+            # method = policy.method
+            policy_df = policy_df.set_index(dfh.tech_policy_index['keys'])
+            policy_techs = list(policy_df.index.levels[0])
+            index = [(t, y) for t in policy_techs for y in range(2020,2031) ]
+            interpolated = policy_df.reindex(index=index).interpolate()
+            fillna = 1 if policies[0].method == 'MU' else 0
+            interpolated = interpolated.reindex(index=tech_df.index).fillna(fillna)
+            interpolated.columns = tech_df.columns
+            dfs.append(interpolated)
+        if policies[0].method == 'MU':
+            updated_tech_df = tech_df * reduce((lambda x, y : x * y), dfs)
+        elif policies[0].method == 'SU':
+            updated_tech_df = tech_df - reduce((lambda x, y : x + y), dfs)
+        #raise exception if policies have different methods
+        updated_tech_df['pot_name'] = pots
+        updated_tech_df['included'] = included
+        return updated_tech_df
+
+def create_technology_objects(df,s):
+    t0 = time.time()
+    print("creating technology objects")
+    df = df.reset_index()
+    for index, row in df.iterrows():
+        a = AuctionYear.objects.get(year = row.year, scenario = s)
+        p = Pot.objects.get(name=row.pot_name, auctionyear = a)
+        t = Technology.objects.create(
+            name = row.tech_name,
+            pot = p,
+            included = row.included,
+            min_levelised_cost = row.min_levelised_cost,
+            max_levelised_cost = row.max_levelised_cost,
+            strike_price = row.strike_price,
+            load_factor = row.load_factor,
+            max_deployment_cap = row.max_deployment_cap if pd.notnull(row.max_deployment_cap) else None,
+            num_new_projects = row.num_new_projects if pd.notnull(row.num_new_projects) else None,
+            project_gen = row.project_gen
+        )
 
 def process_scenario_form(scenario_form):
     s = scenario_form.save()
     prices_df = get_prices(s, scenario_form)
-    policies = s.policies.all()
     create_auctionyear_and_pot_objects(prices_df,s)
+    policies = s.policies.all()
     tech_df = pd.read_csv(scenario_form.cleaned_data['file'])
     updated_tech_df = update_tech_with_policies(tech_df,policies)
     create_technology_objects(updated_tech_df,s)

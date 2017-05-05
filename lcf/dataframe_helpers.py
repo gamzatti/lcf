@@ -47,8 +47,23 @@ abbrev = DataFrame([["Pot",
                   "% of original max new capacity",
                   "% of original number of new projects",
                   "% of original project size",
+                  "change in min LCOE",
+                  "change in max LCOE",
+                  "change in strike price",
+                  "change in load factor",
+                  "change in max new capacity",
+                  "change in number of new projects",
+                  "change in project size"
                  ],
-                ["","","","","","£/MWh", "£/MWh", "£/MWh", "%", "GW/year", "projects/year", "GWh", "£/MWh", "£/MWh", "GW", "TWh", "£bn","£bn", "£bn", "£bn", "TWh", "%", "%", "%", "%", "%", "%", "%", "%", "%"],
+                ["","","","","","£/MWh", "£/MWh", "£/MWh", "%", "GW/year", "projects/year", "GWh", "£/MWh", "£/MWh", "GW", "TWh", "£bn","£bn", "£bn", "£bn", "TWh", "%", "%", "%", "%", "%", "%", "%", "%", "%",
+                    "£/MWh",
+                    "£/MWh",
+                    "£/MWh",
+                    "%",
+                    "GW/year",
+                    "projects/year",
+                    "GWh",
+                ],
                 ["Pot",
                 "Technology",
                  "Technology",
@@ -78,7 +93,14 @@ abbrev = DataFrame([["Pot",
                   "% of original load factor (%)",
                   "% of original max new capacity (GW/year)",
                   "% of original number of new projects (projects/year)",
-                  "% of original project size (GWh)"
+                  "% of original project size (GWh)",
+                  "change in min LCOE (£/MWh)",
+                  "change in max LCOE (£/MWh)",
+                  "change in strike price (£/MWh)",
+                  "change in load factor (%)",
+                  "change in max new capacity (GW/year)",
+                  "change in number of new projects (projects/year)",
+                  "change in project size (GWh)"
                  ]
                 ],
                 columns = ["pot_name",
@@ -104,7 +126,8 @@ abbrev = DataFrame([["Pot",
                             "cum_awarded_gen",
                             "gas_prices_change",
                             "wholesale_prices_change",
-                            "min_levelised_cost_change", "max_levelised_cost_change", "strike_price_change", "load_factor_change", "max_deployment_cap_change", "num_new_projects_change", "project_gen_change"
+                            "min_levelised_cost_change", "max_levelised_cost_change", "strike_price_change", "load_factor_change", "max_deployment_cap_change", "num_new_projects_change", "project_gen_change",
+                            "min_levelised_cost_change_su", "max_levelised_cost_change_su", "strike_price_change_su", "load_factor_change_su", "max_deployment_cap_change_su", "num_new_projects_change_su", "project_gen_change_su",
 
                             ],
                 index=["title","unit", "title+unit"])
@@ -142,11 +165,7 @@ tech_inputs_index = {"titles": ["Pot", "Technology","Year"], "keys": ["pot_name"
 tech_results_index = {"titles": ["Year", "Pot", "Technology"], "keys": ["year", "pot_name", "name"]}
 
 tech_policy_index = {'titles': ['Technology', 'Year'], 'keys': ["tech_name","year"]}
-tech_policy_keys = ["tech_name", "year", "min_levelised_cost_change", "max_levelised_cost_change", "strike_price_change", "load_factor_change", "max_deployment_cap_change", "num_new_projects_change", "project_gen_change"]
-tech_policy_columns = [abbrev[column]['title'] for column in tech_policy_keys ]
-prices_policy_keys = ["tech_name", "year", "price_change"]
-prices_policy_index = ["tech_name","year"]
-prices_policy_col_keys = ["gas_prices_change","wholesale_prices_change"]
-prices_policy_columns = [abbrev[column]["title"] for column in prices_policy_col_keys]
+tech_policy_keys_mu = ["tech_name", "year", "min_levelised_cost_change", "max_levelised_cost_change", "strike_price_change", "load_factor_change", "max_deployment_cap_change", "num_new_projects_change", "project_gen_change"]
+tech_policy_keys_su = ["tech_name", "year", "min_levelised_cost_change_su", "max_levelised_cost_change_su", "strike_price_change_su", "load_factor_change_su", "max_deployment_cap_change_su", "num_new_projects_change_su", "project_gen_change_su"]
 
-policy_keys = ["tech_name", "year", "min_levelised_cost_change", "max_levelised_cost_change", "strike_price_change", "load_factor_change", "max_deployment_cap_change", "num_new_projects_change", "project_gen_change", "price_change"]
+tech_policy_columns = {'MU': [abbrev[column]['title'] for column in tech_policy_keys_mu ], 'SU': [abbrev[column]['title+unit'] for column in tech_policy_keys_su ] }
