@@ -13,7 +13,6 @@ import numpy.testing as npt
 import lcf.dataframe_helpers as dfh
 from .models import Scenario, AuctionYear, Pot, Technology, Policy
 from .forms import ScenarioForm, PricesForm, PolicyForm
-# from .helpers import process_policy_form, get_prices, update_prices_with_policies, create_auctionyear_and_pot_objects, update_tech_with_policies, create_technology_objects
 from .helpers import process_policy_form, process_scenario_form, get_prices, create_auctionyear_and_pot_objects, update_tech_with_policies, create_technology_objects
 
 # all tests have to be run individually!
@@ -66,14 +65,10 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.ViewsTests.test_scenario_new_view
 #
 # python manage.py test lcf.tests3.TestHelpers.test_process_scenario_form
-
-# python manage.py test lcf.tests3.TestPolicies.test_update_tech_with_one_policy_mu
-# python manage.py test lcf.tests3.TestPolicies.test_update_tech_with_multiple_policies_mu
-# python manage.py test lcf.tests3.TestPolicies.test_update_tech_with_one_policy_su
-# python manage.py test lcf.tests3.TestPolicies.test_update_tech_with_multiple_policies_su
-# python manage.py test lcf.tests3.TestPolicies.test_process_scenario_form_with_one_policy
-# python manage.py test lcf.tests3.TestPolicies.test_process_scenario_form_with_multiple_policies_mu
-
+#
+# python manage.py test lcf.tests3.TestPolicies.test_update_tech_with_policies
+# python manage.py test lcf.tests3.TestPolicies.test_process_scenario_form_with_policies
+#
 
 class ExcelQuirkTests(TestCase):
     fixtures = ['tests/new/data2.json']
@@ -642,51 +637,27 @@ class TestHelpers(TestCase):
 class TestPolicies(TestCase):
     fixtures = ['prod/data.json']
 
-    def test_update_tech_with_one_policy_mu(self):
-        effects = DataFrame(pd.read_csv("lcf/policy_template_with_prices.csv")).to_json()
-        pl = Policy.objects.create(name="test", effects=effects)
-        policies = [pl]
+    def update_tech_with_policies(self,method,n, expected_min_levelised_cost):
+        filename = {'MU': "lcf/policy_template_mu.csv", 'SU': "lcf/policy_template_su.csv"}
+        effects = DataFrame(pd.read_csv(filename[method])).to_json()
+        pl = Policy.objects.create(name="test", effects=effects, method=method)
+        policies = [pl] if n == 1 else [pl, pl]
         tech_df = DataFrame(pd.read_csv("lcf/template.csv"))
         res = update_tech_with_policies(tech_df,policies)
-        npt.assert_almost_equal(res.loc[('OFW', 2020), 'min_levelised_cost'], 71.335391 * 0.9, decimal=4)
+        npt.assert_almost_equal(res.loc[('OFW', 2020), 'min_levelised_cost'], expected_min_levelised_cost, decimal=4)
         npt.assert_almost_equal(res.loc[('OFW', 2020), 'max_deployment_cap'], 1.9, decimal=4)
 
-    def test_update_tech_with_multiple_policies_mu(self):
-        effects1 = DataFrame(pd.read_csv("lcf/policy_template_test1.csv")).to_json()
-        effects2 = DataFrame(pd.read_csv("lcf/policy_template_test1.csv")).to_json()
-        pl1 = Policy.objects.create(name="test", effects=effects1)
-        pl2 = Policy.objects.create(name="test", effects=effects2)
-        policies = [pl1, pl2]
-        tech_df = DataFrame(pd.read_csv("lcf/template.csv"))
-        res = update_tech_with_policies(tech_df,policies)
-        npt.assert_almost_equal(res.loc[('OFW', 2020), 'min_levelised_cost'], 71.335391 * 0.9 * 0.9, decimal=4)
-        npt.assert_almost_equal(res.loc[('OFW', 2020), 'max_deployment_cap'], 1.9, decimal=4)
-
-    def test_update_tech_with_one_policy_su(self):
-        effects = DataFrame(pd.read_csv("lcf/policy_template_subtract.csv")).to_json()
-        pl = Policy.objects.create(name="test", effects=effects, method='SU')
-        policies = [pl]
-        tech_df = DataFrame(pd.read_csv("lcf/template.csv"))
-        res = update_tech_with_policies(tech_df,policies)
-        npt.assert_almost_equal(res.loc[('OFW', 2020), 'min_levelised_cost'], 71.335391 - 5, decimal=4)
-        npt.assert_almost_equal(res.loc[('OFW', 2020), 'max_deployment_cap'], 1.9, decimal=4)
-
-    def test_update_tech_with_multiple_policies_su(self):
-        effects1 = DataFrame(pd.read_csv("lcf/policy_template_subtract.csv")).to_json()
-        effects2 = DataFrame(pd.read_csv("lcf/policy_template_subtract.csv")).to_json()
-        pl1 = Policy.objects.create(name="test", effects=effects1, method="SU")
-        pl2 = Policy.objects.create(name="test", effects=effects2, method="SU")
-        policies = [pl1, pl2]
-        tech_df = DataFrame(pd.read_csv("lcf/template.csv"))
-        res = update_tech_with_policies(tech_df,policies)
-        npt.assert_almost_equal(res.loc[('OFW', 2020), 'min_levelised_cost'], 71.335391 - 5 - 5, decimal=4)
-        npt.assert_almost_equal(res.loc[('OFW', 2020), 'max_deployment_cap'], 1.9, decimal=4)
-
-    def test_process_scenario_form_with_one_policy(self):
-        effects = DataFrame(pd.read_csv("lcf/policy_template_test1.csv")).to_json()
-        # effects = DataFrame(pd.read_csv("lcf/policy_template_test2.csv")).to_json()
-        pl = Policy.objects.create(name="test", effects=effects)
-
+    def process_scenario_form_with_policies(self,method,n,expected_accounting_cost):
+        print('calling with', method, n)
+        filename = {'MU': "lcf/policy_template_mu.csv", 'SU': "lcf/policy_template_su.csv"}
+        effects = DataFrame(pd.read_csv(filename[method])).to_json()
+        if n == 1:
+            pl = Policy.objects.create(name="test", effects=effects, method=method)
+            policies = [pl.pk]
+        elif n == 2:
+            pl1 = Policy.objects.create(name="test", effects=effects, method=method)
+            pl2 = Policy.objects.create(name="test", effects=effects, method=method)
+            policies = [pl1.pk, pl2.pk]
         post_data = {'name': 'test 1234',
                      'description': 'test description',
                      'percent_emerging': 0.6,
@@ -695,7 +666,7 @@ class TestPolicies(TestCase):
                      'end_year1': 2025,
                      'wholesale_prices': "excel",
                      'gas_prices': "excel",
-                     'policies': [pl.pk],
+                     'policies': policies,
                      }
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
@@ -704,33 +675,18 @@ class TestPolicies(TestCase):
             recent_s = Scenario.objects.order_by('-date')[0]
             results = recent_s.pivot('cum_owed_v_wp')
             self.assertEqual(recent_s.name, "test 1234")
-            self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.482)
+            self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), expected_accounting_cost)
         else:
             print(scenario_form.errors)
 
-    # def test_process_scenario_form_with_multiple_policies_mu(self):
-    #     effects1 = DataFrame(pd.read_csv("lcf/policy_template_test1.csv")).to_json()
-    #     effects2 = DataFrame(pd.read_csv("lcf/policy_template_test1.csv")).to_json()
-    #     pl1 = Policy.objects.create(name="test", effects=effects1)
-    #     pl2 = Policy.objects.create(name="test", effects=effects2)
-    #
-    #     post_data = {'name': 'test 1234',
-    #                  'description': 'test description',
-    #                  'percent_emerging': 0.6,
-    #                  'budget': 3.3,
-    #                  'excel_quirks': 'on',
-    #                  'end_year1': 2025,
-    #                  'wholesale_prices': "excel",
-    #                  'gas_prices': "excel",
-    #                  'policies': [pl1.pk, pl2.pk],
-    #                  }
-    #     file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
-    #     scenario_form = ScenarioForm(post_data, file_data)
-    #     if scenario_form.is_valid():
-    #         process_scenario_form(scenario_form)
-    #         recent_s = Scenario.objects.order_by('-date')[0]
-    #         results = recent_s.pivot('cum_owed_v_wp')
-    #         self.assertEqual(recent_s.name, "test 1234")
-    #         self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 999)
-    #     else:
-    #         print(scenario_form.errors)
+    def test_update_tech_with_policies(self):
+        self.update_tech_with_policies('MU',1, 64.20185)
+        self.update_tech_with_policies('SU',1, 66.33539)
+        self.update_tech_with_policies('MU',2, 57.78166)
+        self.update_tech_with_policies('SU',2, 61.33539)
+
+    def test_process_scenario_form_with_policies(self):
+        self.process_scenario_form_with_policies('MU',1, 2.482)
+        self.process_scenario_form_with_policies('SU',1, 2.597)
+        self.process_scenario_form_with_policies('MU',2, 2.124)
+        self.process_scenario_form_with_policies('SU',2, 2.367)

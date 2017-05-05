@@ -1,7 +1,0 @@
-tech_name,year,min_levelised_cost_change,max_levelised_cost_change,strike_price_change,load_factor_change,max_deployment_cap_change,num_new_projects_change,project_gen_change
-OFW,2020,5,5,5,,,,
-OFW,2025,5,5,5,,,,
-OFW,2030,10,10,10,,,,
-ONW,2020,3,3,3,,,,
-ONW,2025,3,3,3,,,,
-ONW,2030,4,4,4,,,,

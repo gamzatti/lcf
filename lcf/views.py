@@ -202,9 +202,9 @@ def scenario_download(request,pk):
 
 def policy_template(request):
     print("downloading policy template")
-    file = open('lcf/policy_template_with_prices.csv')
+    file = open('lcf/policy_template_mu.csv')
     response = HttpResponse(file, content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="policy_template_with_prices.csv"'
+    response['Content-Disposition'] = 'attachment; filename="policy_template_mu.csv"'
     file.close()
     return response
 
