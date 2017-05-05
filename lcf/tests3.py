@@ -9,18 +9,34 @@ from pandas import DataFrame, Series
 from pandas.util.testing import assert_frame_equal, assert_series_equal
 import numpy.testing as npt
 
-import lcf.dataframe_helpers as dhf
+import lcf.dataframe_helpers as dfh
 from .models import Scenario, AuctionYear, Pot, Technology, Policy
 from .forms import ScenarioForm, PricesForm, PolicyForm
-from .helpers import process_policy_form, get_prices, update_prices_with_policies, create_auctionyear_and_pot_objects, update_tech_with_policies, create_technology_objects
+# from .helpers import process_policy_form, get_prices, update_prices_with_policies, create_auctionyear_and_pot_objects, update_tech_with_policies, create_technology_objects
+from .helpers import process_policy_form, get_prices, create_auctionyear_and_pot_objects, update_tech_with_policies, create_technology_objects
 
 # all tests have to be run individually!
+
+# python manage.py test lcf.tests3.ExcelQuirkTests.test_excel_2020_gen_error_true
+# python manage.py test lcf.tests3.ExcelQuirkTests.test_excel_2020_gen_error_false
+# python manage.py test lcf.tests3.ExcelQuirkTests.test_all_excel_quirks_lumped
+# python manage.py test lcf.tests3.ExcelQuirkTests.test_all_excel_quirks_individual
+#
+# python manage.py test lcf.tests3.CumT.test_cum_future_techs
+#
+# python manage.py test lcf.tests3.FixedNumProjectsTests.test_create_tidal
+#
+# python manage.py test lcf.tests3.InputDisplayTests.test_techs_input
+# python manage.py test lcf.tests3.InputDisplayTests.test_prices_input
+#
+# python manage.py test lcf.tests3.StoringResults.test_scenario_db_storage
+# python manage.py test lcf.tests3.StoringResults.test_auction_cache
+#
 # python manage.py test lcf.tests3.TestCumProj.test_num_projects
 # python manage.py test lcf.tests3.TestCumProj.test_run_auction
 # python manage.py test lcf.tests3.TestCumProj.test_run_auction_budget
 # python manage.py test lcf.tests3.TestCumProj.test_accounting_cost
 # python manage.py test lcf.tests3.TestCumProj.test_budget_period_2
-#
 # python manage.py test lcf.tests3.TestCumProj.test_fit_cost_individual_quirks
 # python manage.py test lcf.tests3.TestCumProj.test_fit_cost_lumped_quirks
 #
@@ -42,8 +58,215 @@ from .helpers import process_policy_form, get_prices, update_prices_with_policie
 # python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_normal
 # python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_low
 # python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_lower
-
+#
 # python manage.py test lcf.tests3.TestIP.test_nw_v_gas
+
+# python manage.py test lcf.tests3.ViewsTests.test_policy_new_view
+# python manage.py test lcf.tests3.ViewsTests.test_scenario_new_view
+
+# python manage.py test lcf.tests3.TestPolicies.test_update_tech_with_policies_mu
+# python manage.py test lcf.tests3.TestPolicies.test_update_tech_with_policies_su
+# python manage.py test lcf.tests3.TestPolicies.test_process_scenario_form
+
+
+class ExcelQuirkTests(TestCase):
+    fixtures = ['tests/new/data2.json']
+
+    def test_excel_2020_gen_error_true(self):
+        s = Scenario.objects.get(pk=281)
+        s.excel_quirks = False
+        s.excel_2020_gen_error = True
+        s.save()
+        #period1
+        s.get_results()
+
+        expected_cum_awarded_gen_2022 = 0
+        a0 = s.auctionyear_dict[2020]
+        for p in a0.pot_dict.values():
+            expected_cum_awarded_gen_2022 += p.awarded_gen_result
+
+        a1 = s.auctionyear_dict[2021]
+        for p in a1.pot_dict.values():
+            expected_cum_awarded_gen_2022 += p.awarded_gen_result
+
+        a2 = s.auctionyear_dict[2022]
+        for p in a2.pot_dict.values():
+            expected_cum_awarded_gen_2022 += p.awarded_gen_result
+
+        expected_cum_awarded_gen_2022 -= a0.pot_dict["FIT"].awarded_gen_result
+        scenario_awarded_gen_2022 = s.pivot('cum_awarded_gen').loc[('Total', 'Total'), ('Cumulative new generation (TWh)', 2022)]
+        npt.assert_almost_equal(scenario_awarded_gen_2022, expected_cum_awarded_gen_2022)
+
+        #period2
+        expected_cum_awarded_gen_2026 = s.pivot('cum_awarded_gen').loc[('Total', 'Total'), ('Cumulative new generation (TWh)', 2025)]
+        a6 = s.auctionyear_dict[2026]
+        for p in a6.pot_dict.values():
+            expected_cum_awarded_gen_2026 += p.awarded_gen_result
+
+        scenario_awarded_gen_2026 = s.pivot('cum_awarded_gen').loc[('Total', 'Total'), ('Cumulative new generation (TWh)', 2026)]
+        npt.assert_almost_equal(scenario_awarded_gen_2026, expected_cum_awarded_gen_2026)
+
+
+    def test_excel_2020_gen_error_false(self):
+        s = Scenario.objects.get(pk=281)
+        s.excel_quirks = False
+        s.excel_2020_gen_error = False
+        s.save()
+        s.get_results()
+        expected_cum_awarded_gen_2022 = 0
+
+        a1 = s.auctionyear_dict[2021]
+        for p in a1.pot_dict.values():
+            expected_cum_awarded_gen_2022 += p.awarded_gen_result
+
+        a2 = s.auctionyear_dict[2022]
+        for p in a2.pot_dict.values():
+            expected_cum_awarded_gen_2022 += p.awarded_gen_result
+
+        scenario_awarded_gen_2022 = s.pivot('cum_awarded_gen').loc[('Total', 'Total'), ('Cumulative new generation (TWh)', 2022)]
+        npt.assert_almost_equal(scenario_awarded_gen_2022, expected_cum_awarded_gen_2022)
+
+        #period2
+        expected_cum_awarded_gen_2026 = s.pivot('cum_awarded_gen').loc[('Total', 'Total'), ('Cumulative new generation (TWh)', 2025)]
+        a6 = s.auctionyear_dict[2026]
+        for p in a6.pot_dict.values():
+            expected_cum_awarded_gen_2026 += p.awarded_gen_result
+        scenario_awarded_gen_2026 = s.pivot('cum_awarded_gen').loc[('Total', 'Total'), ('Cumulative new generation (TWh)', 2026)]
+        npt.assert_almost_equal(scenario_awarded_gen_2026, expected_cum_awarded_gen_2026)
+
+    def test_all_excel_quirks_lumped(self):
+        s = Scenario.objects.get(pk=281)
+        s.excel_sp_error = False
+        s.excel_nw_carry_error = False
+        s.excel_2020_gen_error = False
+        s.excel_include_previous_unsuccessful_nuclear = False
+        s.excel_include_previous_unsuccessful_all = False
+        s.excel_quirks = True
+        s.save()
+        results = s.pivot('cum_owed_v_wp')
+        self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
+
+    def test_all_excel_quirks_individual(self):
+        s = Scenario.objects.get(pk=281)
+        s.excel_sp_error = True
+        s.excel_nw_carry_error = True
+        s.excel_2020_gen_error = True
+        s.excel_include_previous_unsuccessful_nuclear = True
+        s.excel_include_previous_unsuccessful_all = True
+        s.excel_quirks = False
+        s.save()
+        results = s.pivot('cum_owed_v_wp')
+        self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
+
+class CumT(TestCase):
+    fixtures = ['tests/new/data2.json']
+
+    def test_cum_future_techs(self):
+        s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
+        s.get_results()
+        techs = s.flat_tech_dict
+        t = techs["OFW2028"]
+        self.assertQuerysetEqual(t.cum_future_techs(), ["<Technology: (<AuctionYear: 2028>, 'E', 'OFW')>",
+                                                          "<Technology: (<AuctionYear: 2029>, 'E', 'OFW')>",
+                                                          "<Technology: (<AuctionYear: 2030>, 'E', 'OFW')>"])
+
+        t = techs["OFW2022"]
+
+        self.assertQuerysetEqual(t.cum_future_techs(), ["<Technology: (<AuctionYear: 2022>, 'E', 'OFW')>",
+                                                          "<Technology: (<AuctionYear: 2023>, 'E', 'OFW')>",
+                                                          "<Technology: (<AuctionYear: 2024>, 'E', 'OFW')>",
+                                                          "<Technology: (<AuctionYear: 2025>, 'E', 'OFW')>"])
+
+
+class FixedNumProjectsTests(TestCase):
+    fixtures = ['tests/new/data2.json']
+
+    def test_create_tidal(self):
+        s = Scenario.objects.get(pk=281)
+        s.excel_quirks = True
+        s.save()
+        p = Pot.objects.get(auctionyear__scenario = s, name = "E", auctionyear__year=2022)
+
+        #if num projects not specified, must be calculated
+        t = Technology.objects.create(pot=p, name= "TL", max_deployment_cap = 1.14155251141553, load_factor = 0.22, project_gen=2200)
+        self.assertEqual(round(t.this_year_gen()), 2200)
+        self.assertEqual(t.previous_year().num_projects(),1)
+        self.assertEqual(t.num_projects(),2)
+
+        #using different LF/cap:
+        t = Technology.objects.create(pot=p, name= "TL", max_deployment_cap = 1.00456621004566, load_factor = 0.25, project_gen=2200)
+        self.assertEqual(round(t.this_year_gen()), 2200)
+        self.assertEqual(t.previous_year().num_projects(),1)
+        self.assertEqual(t.num_projects(),2)
+
+        #if num_new_projects is specified, this number should be used instead and max_deployment_cap should be backfilled
+        t = Technology.objects.create(pot=p, name= "TL", num_new_projects = 1, load_factor = 0.22, project_gen=2200)
+        self.assertEqual(round(t._max_deployment_cap,5),round(1.14155251141553,5))
+        self.assertEqual(round(t.this_year_gen()),2200)
+        self.assertEqual(t.previous_year().num_projects(),1)
+        self.assertEqual(t.num_projects(),2)
+
+        #if both are specified, use num projects
+        t = Technology.objects.create(pot=p, name= "TL", num_new_projects = 1, max_deployment_cap = 9999999999, load_factor = 0.22, project_gen=2200)
+        self.assertEqual(round(t._max_deployment_cap,5),round(1.14155251141553,5))
+        self.assertEqual(round(t.this_year_gen()),2200)
+        self.assertEqual(t.previous_year().num_projects(),1)
+        self.assertEqual(t.num_projects(),2)
+
+        #if not tidal:
+        t = Technology.objects.create(pot=p, name= "OFW", num_new_projects = 5, load_factor = 0.448, project_gen=832)
+        self.assertEqual(round(t.this_year_gen()),4160) #= 5 * 832
+        self.assertEqual(round(t._max_deployment_cap,2),round(t.project_gen / t.load_factor / 8760 * 5,2))
+        self.assertEqual(t.previous_year()._max_deployment_cap,1.9)
+        self.assertEqual(t.previous_year().load_factor,0.434)
+        self.assertEqual(round(t.previous_year().new_generation_available(),2),round(14213.975999999999,2))
+        self.assertEqual(t.previous_year().num_new_projects,None)
+        self.assertEqual(t.previous_year().project_gen,832)
+        self.assertEqual(t.previous_year().num_projects(),17) # sketchy because I was getting 25 doing the same thing in the shell
+        self.assertEqual(t.num_projects(),22)
+
+
+
+class InputDisplayTests(TestCase):
+    fixtures = ['tests/new/data2.json']
+
+    def test_techs_input(self):
+        s = Scenario.objects.get(pk=245)
+        inp = s.techs_input().set_index(dfh.tech_inputs_index['titles'])
+        val = inp.loc[('E','OFW',2025),'Min LCOE']
+        self.assertEqual(val, 70.21)
+        val = inp.loc[('SN','NU',2024),'Max new capacity']
+        self.assertEqual(val, 2.9)
+
+    def test_prices_input(self):
+        s = Scenario.objects.get(pk=245)
+        df = s.prices_input()
+        df.index = dfh.prices_columns
+        val = df.loc['Wholesale electricity price', 2022]
+        self.assertEqual(val, 58.47)
+
+class StoringResults(TestCase):
+    fixtures = ['tests/new/data2.json']
+
+    def test_scenario_db_storage(self):
+        s = Scenario.objects.all().get(pk=281)
+        s.get_results()
+        t = Scenario.objects.all().get(pk=281)
+        t.get_results()
+        assert_frame_equal(s.get_results(),t.get_results())
+
+    def test_auction_cache(self):
+        s = Scenario.objects.get(pk=281)
+        auctionyears = AuctionYear.objects.filter(scenario=s,year__range=[2020,2030]).order_by('-year')
+        pots = Pot.objects.filter(auctionyear__in = auctionyears)
+        p1 = pots.get(auctionyear__year=2021,name="E")
+        df = p1.run_relevant_auction()
+        p1.run_relevant_auction.cache_clear()
+        p1_again = pots.get(auctionyear__year=2021,name="E")
+        df_again = p1_again.run_relevant_auction()
+        df.dtypes
+        df_again.dtypes
+        assert_frame_equal(df, df_again)
 
 
 class TestCumProj(TestCase):
@@ -337,7 +560,52 @@ class TestIP(TestCase):
         self.assertEqual(t.cum_owed_v_gas, (t.awarded_gen * t.strike_price) - (t.awarded_gen * p.auctionyear.gas_price))
         self.assertEqual(t.cum_owed_v_gas, (t.awarded_gen * (t.strike_price - p.auctionyear.gas_price)))
         pivot = s.pivot('cum_owed_v_gas',1)
-        print(pivot)
+        # print(pivot)
+
+class ViewsTests(TestCase):
+
+    fixtures = ['tests/new/data2.json']
+
+    def test_policy_new_view(self):
+        initial_policy_count = Policy.objects.count()
+        resp = self.client.get(reverse('policy_new'))
+        self.assertEqual(resp.status_code, 200)
+        post_data = {'name': 'test name',
+                     'description': 'test description',
+                     'method': 'SU',
+                     'file': open('lcf/template.csv'),
+                     }
+        post_resp = self.client.post(reverse('policy_new'),post_data)
+
+        self.assertEqual(post_resp.status_code,302)
+        new_policy_count = Policy.objects.count()
+        self.assertEqual(new_policy_count,initial_policy_count+1)
+
+    def test_scenario_new_view(self):
+        initial_scenario_count = Scenario.objects.count()
+        initial_technology_count = Technology.objects.count()
+        # print(initial_technology_count)
+        resp = self.client.get(reverse('scenario_new'))
+        post_data = {'name': 'test name',
+                     'description': 'test description',
+                     'percent_emerging': 0.6,
+                     'budget': 3.3,
+                     'excel_quirks': 'on',
+                     'end_year1': 2025,
+                     'wholesale_prices': "excel",
+                     'gas_prices': "excel",
+                     'file': open('lcf/template.csv'),
+                     }
+        post_resp = self.client.post(reverse('scenario_new'),post_data)
+
+        self.assertEqual(post_resp.status_code,302)
+        new_scenario_count = Scenario.objects.count()
+        self.assertEqual(new_scenario_count,initial_scenario_count+1)
+        s = Scenario.objects.order_by('-date')[0]
+        results = s.pivot('cum_owed_v_wp',1)
+        self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
+        self.assertEqual(Technology.objects.count(), initial_technology_count + 88)
+
 
 class TestPolicies(TestCase):
     fixtures = ['prod/data.json']
@@ -359,3 +627,6 @@ class TestPolicies(TestCase):
         res = update_tech_with_policies(tech_df,policies)
         npt.assert_almost_equal(res.loc[('OFW', 2020), 'min_levelised_cost'], 66.335391, decimal=4)
         npt.assert_almost_equal(res.loc[('OFW', 2020), 'max_deployment_cap'], 1.9, decimal=4)
+
+    def test_process_scenario_form(self):
+        scenario_form = ScenarioForm()

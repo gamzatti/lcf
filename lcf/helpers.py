@@ -128,20 +128,20 @@ def get_prices(s, scenario_form):
     #print(prices_df)
     return prices_df
 
-def update_prices_with_policies(prices_df,policy_dfs):
-    if len(policy_dfs) == 0:
-        return prices_df
-    dfs = []
-    for policy_df in policy_dfs:
-        policy_df = policy_df[policy_df.tech_name.isin(dfh.prices_keys) ]
-        policy_df = policy_df.reindex(columns=dfh.prices_policy_keys)
-        policy_df = policy_df.set_index(dfh.prices_policy_index).unstack(0)
-        policy_df = policy_df.reindex(index=prices_df.index)
-        interpolated = policy_df.interpolate()
-        interpolated.columns = interpolated.columns.get_level_values(1)
-        dfs.append(interpolated)
-    updated_prices_df = reduce((lambda x, y : x * y), dfs) * prices_df
-    return updated_prices_df
+# def update_prices_with_policies(prices_df,policy_dfs):
+#     if len(policy_dfs) == 0:
+#         return prices_df
+#     dfs = []
+#     for policy_df in policy_dfs:
+#         policy_df = policy_df[policy_df.tech_name.isin(dfh.prices_keys) ]
+#         policy_df = policy_df.reindex(columns=dfh.prices_policy_keys)
+#         policy_df = policy_df.set_index(dfh.prices_policy_index).unstack(0)
+#         policy_df = policy_df.reindex(index=prices_df.index)
+#         interpolated = policy_df.interpolate()
+#         interpolated.columns = interpolated.columns.get_level_values(1)
+#         dfs.append(interpolated)
+#     updated_prices_df = reduce((lambda x, y : x * y), dfs) * prices_df
+#     return updated_prices_df
 
 def create_auctionyear_and_pot_objects(updated_prices_df,s):
     gas_prices = updated_prices_df.gas_prices
@@ -155,15 +155,8 @@ def create_auctionyear_and_pot_objects(updated_prices_df,s):
 def process_scenario_form(scenario_form):
     s = scenario_form.save()
     prices_df = get_prices(s, scenario_form)
-
     policies = s.policies.all()
-    policy_dfs = [ pl.df() for pl in s.policies.all() ]
-
-    updated_prices_df = update_prices_with_policies(prices_df, policy_dfs)
-    create_auctionyear_and_pot_objects(updated_prices_df,s)
+    create_auctionyear_and_pot_objects(prices_df,s)
     tech_df = pd.read_csv(scenario_form.cleaned_data['file'])
-
-    # updated_tech_df = update_tech_with_policies(tech_df,policy_dfs)
     updated_tech_df = update_tech_with_policies(tech_df,policies)
-
     create_technology_objects(updated_tech_df,s)

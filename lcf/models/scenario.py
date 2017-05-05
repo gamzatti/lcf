@@ -65,6 +65,7 @@ class Scenario(models.Model):
     def get_results(self,column=None):
         column_names = dfh.tech_results_keys
         if self.results == None:
+            print('calculating')
             self.run_auctions()
             results = DataFrame([ [t.pot.auctionyear.year,
                         t.pot.get_name_display(),
@@ -83,7 +84,7 @@ class Scenario(models.Model):
             self.results = results.to_json()
             self.save()
         else:
-            # print('retrieving from db')
+            print('retrieving from db')
             results = pd.read_json(self.results).reindex(columns=column_names).sort_index()
         if column:
             results = results[dfh.tech_results_index['keys']+[column]]
