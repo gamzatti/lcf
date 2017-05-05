@@ -27,11 +27,14 @@ def scenario_new(request):
     if request.method == "POST":
         print("posting")
         scenario_form = ScenarioForm(request.POST, request.FILES)
-        print(request.FILES)
+        # print(request.FILES)
         if scenario_form.is_valid():
-            process_scenario_form(scenario_form)
-            recent_pk = Scenario.objects.all().order_by("-date")[0].pk
-            return redirect('scenario_detail', pk=recent_pk)
+            if process_scenario_form(scenario_form) == 'error':
+                # context['error'] = 'Policies of diffo types'
+                return redirect('scenario_new')
+            else:
+                recent_pk = Scenario.objects.all().order_by("-date")[0].pk
+                return redirect('scenario_detail', pk=recent_pk)
         else:
             print(scenario_form.errors)
     else:
@@ -202,9 +205,9 @@ def scenario_download(request,pk):
 
 def policy_template(request):
     print("downloading policy template")
-    file = open('lcf/policy_template_mu.csv')
+    file = open('lcf/policy_template_su.csv')
     response = HttpResponse(file, content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="policy_template_mu.csv"'
+    response['Content-Disposition'] = 'attachment; filename="policy_template_su.csv"'
     file.close()
     return response
 

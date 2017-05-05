@@ -2,7 +2,9 @@
 {% block content %}
 
 <h1 class="page-header">New scenario from CSV</h1>
-
+{% if error %}
+    {{ error }}
+{% endif %}
 <form method="POST" class="form-horizontal" enctype="multipart/form-data">{% csrf_token %}
     <h3>Scenario details</h3>
     {% for field in scenario_form %}

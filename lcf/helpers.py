@@ -8,7 +8,7 @@ from pandas import DataFrame, Series
 import csv
 import io
 from django.conf import settings
-from functools import reduce
+from functools import reduce, lru_cache
 import lcf.dataframe_helpers as dfh
 
 def process_policy_form(policy_form):
@@ -57,8 +57,10 @@ def update_tech_with_policies(tech_df,policies):
         tech_df = tech_df.drop('pot_name',axis=1)
         dfs = []
         for policy in policies:
+            if policy.method != policies[0].method:
+                raise TypeError
+        for policy in policies:
             policy_df = policy.df().copy()
-            # method = policy.method
             policy_df = policy_df.set_index(dfh.tech_policy_index['keys'])
             policy_techs = list(policy_df.index.levels[0])
             index = [(t, y) for t in policy_techs for y in range(2020,2031) ]
@@ -71,7 +73,6 @@ def update_tech_with_policies(tech_df,policies):
             updated_tech_df = tech_df * reduce((lambda x, y : x * y), dfs)
         elif policies[0].method == 'SU':
             updated_tech_df = tech_df - reduce((lambda x, y : x + y), dfs)
-        #raise exception if policies have different methods
         updated_tech_df['pot_name'] = pots
         updated_tech_df['included'] = included
         return updated_tech_df
@@ -96,11 +97,18 @@ def create_technology_objects(df,s):
             project_gen = row.project_gen
         )
 
+# @lru_cache(maxsize=1024)
 def process_scenario_form(scenario_form):
     s = scenario_form.save()
     prices_df = get_prices(s, scenario_form)
     create_auctionyear_and_pot_objects(prices_df,s)
     policies = s.policies.all()
     tech_df = pd.read_csv(scenario_form.cleaned_data['file'])
-    updated_tech_df = update_tech_with_policies(tech_df,policies)
-    create_technology_objects(updated_tech_df,s)
+    try:
+        updated_tech_df = update_tech_with_policies(tech_df,policies)
+        create_technology_objects(updated_tech_df,s)
+        return 'success'
+    except TypeError:
+        print("policies must have same method")
+        s.delete()
+        return 'error'

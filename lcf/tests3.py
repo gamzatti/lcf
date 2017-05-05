@@ -648,7 +648,6 @@ class TestPolicies(TestCase):
         npt.assert_almost_equal(res.loc[('OFW', 2020), 'max_deployment_cap'], 1.9, decimal=4)
 
     def process_scenario_form_with_policies(self,method,n,expected_accounting_cost):
-        print('calling with', method, n)
         filename = {'MU': "lcf/policy_template_mu.csv", 'SU': "lcf/policy_template_su.csv"}
         effects = DataFrame(pd.read_csv(filename[method])).to_json()
         if n == 1:
@@ -690,3 +689,35 @@ class TestPolicies(TestCase):
         self.process_scenario_form_with_policies('SU',1, 2.597)
         self.process_scenario_form_with_policies('MU',2, 2.124)
         self.process_scenario_form_with_policies('SU',2, 2.367)
+
+
+    def test_update_tech_with_policies_with_different_methods(self):
+        effects1 = DataFrame(pd.read_csv("lcf/policy_template_mu.csv")).to_json()
+        effects2 = DataFrame(pd.read_csv("lcf/policy_template_su.csv")).to_json()
+        pl1 = Policy.objects.create(name="test", effects=effects1, method='MU')
+        pl2 = Policy.objects.create(name="test", effects=effects2, method='SU')
+        policies = [pl1, pl2]
+        tech_df = DataFrame(pd.read_csv("lcf/template.csv"))
+        self.assertRaises(TypeError, update_tech_with_policies, tech_df, policies)
+
+
+    def test_process_scenario_form_with_policies_with_different_methods(self):
+        effects1 = DataFrame(pd.read_csv("lcf/policy_template_mu.csv")).to_json()
+        effects2 = DataFrame(pd.read_csv("lcf/policy_template_su.csv")).to_json()
+        pl1 = Policy.objects.create(name="test", effects=effects1, method='MU')
+        pl2 = Policy.objects.create(name="test", effects=effects2, method='SU')
+        policies = [pl1.pk, pl2.pk]
+        post_data = {'name': 'test 1234',
+                     'description': 'test description',
+                     'percent_emerging': 0.6,
+                     'budget': 3.3,
+                     'excel_quirks': 'on',
+                     'end_year1': 2025,
+                     'wholesale_prices': "excel",
+                     'gas_prices': "excel",
+                     'policies': policies,
+                     }
+        file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        if scenario_form.is_valid():
+            self.assertEqual(process_scenario_form(scenario_form),'error')
