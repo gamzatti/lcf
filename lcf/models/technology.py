@@ -36,6 +36,7 @@ class Technology(models.Model):
     def __init__(self, *args, **kwargs):
         super(Technology, self).__init__(*args, **kwargs)
         #print('new tech!, name:',self.name)
+        self.awarded_cap = 0
         self.awarded_gen = 0
         self.awarded_cost = 0
         self.cum_owed_v_wp = 0
