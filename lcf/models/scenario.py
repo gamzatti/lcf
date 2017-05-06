@@ -99,7 +99,8 @@ class Scenario(models.Model):
         df.index = df.index.get_level_values(1)
         df = df.reset_index()
         df.loc['years_row'] = df.columns.astype('str')
-        df = df.sort_values('name') # annoying?
+        # df = df.sort_values('name') # annoying?
+        df = df.sort_values('tech_name') # annoying?
         df = df.reindex(index = ['years_row']+list(df.index)[:-1])
         chart_data = df.T.values.tolist()
         unit = dfh.abbrev[column]['unit']
@@ -117,18 +118,22 @@ class Scenario(models.Model):
         df = df.loc[df.year.isin(auctionyear_years)]
 
         dfsum = df.groupby(['year','pot_name'],as_index=False).sum()
-        dfsum['name']='_Subtotal'
+        # dfsum['name']='_Subtotal'
+        dfsum['tech_name']='_Subtotal'
         dfsum_outer = df.groupby(['year'],as_index=False).sum()
-        dfsum_outer['name']='Total'
+        # dfsum_outer['name']='Total'
+        dfsum_outer['tech_name']='Total'
         dfsum_outer['pot_name']='Total'
         result = dfsum.append(df)
         result = dfsum_outer.append(result)
         if column == "cum_owed_v_gas":
-            dfsum_outer['name']='Total'
+            # dfsum_outer['name']='Total'
+            dfsum_outer['tech_name']='Total'
             dfsum_outer['pot_name']='Total'
             ip_df = df[df.pot_name != 'Feed-in-tariff']
             ip_df_sum_outer = ip_df.groupby(['year'],as_index=False).sum()
-            ip_df_sum_outer['name'] = '__Innovation premium (ignores negawatts)'
+            # ip_df_sum_outer['name'] = '__Innovation premium (ignores negawatts)'
+            ip_df_sum_outer['tech_name'] = '__Innovation premium (ignores negawatts)'
             ip_df_sum_outer['pot_name'] = '__Innovation premium (ignores negawatts)'
             result = ip_df_sum_outer.append(result)
         result = result.set_index(dfh.tech_results_index['keys']).sort_index()
@@ -145,7 +150,8 @@ class Scenario(models.Model):
     def techs_input(self):
         techs = pd.concat([t.fields_df() for t in self.flat_tech_dict.values() ])
         techs = techs.set_index('id')
-        df = techs.sort_values(dfh.tech_inputs_index['keys']).drop('pot', axis=1)
+        # df = techs.sort_values(dfh.tech_inputs_index['keys']).drop('pot', axis=1)
+        df = techs.sort_values(dfh.tech_inputs_index['keys']).drop(['pot','name'], axis=1)
         df = df.reindex(columns =dfh.tech_inputs_keys)
         df.columns = dfh.tech_inputs_columns
         df = round(df,2)

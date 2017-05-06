@@ -18,7 +18,7 @@ technology_choices = {"OFW": "Offshore wind",
 
 
 abbrev = DataFrame([["Pot",
-                 "Technology",
+                #  "Technology",
                  "Technology",
                  "Year",
                  "Included?",
@@ -55,7 +55,9 @@ abbrev = DataFrame([["Pot",
                   "change in number of new projects",
                   "change in project size"
                  ],
-                ["","","","","","£/MWh", "£/MWh", "£/MWh", "%", "GW/year", "projects/year", "GWh", "£/MWh", "£/MWh", "GW", "TWh", "£bn","£bn", "£bn", "£bn", "TWh", "%", "%", "%", "%", "%", "%", "%", "%", "%",
+                ["",
+                # "",
+                "","","","£/MWh", "£/MWh", "£/MWh", "%", "GW/year", "projects/year", "GWh", "£/MWh", "£/MWh", "GW", "TWh", "£bn","£bn", "£bn", "£bn", "TWh", "%", "%", "%", "%", "%", "%", "%", "%", "%",
                     "£/MWh",
                     "£/MWh",
                     "£/MWh",
@@ -65,7 +67,7 @@ abbrev = DataFrame([["Pot",
                     "GWh",
                 ],
                 ["Pot",
-                "Technology",
+                # "Technology",
                  "Technology",
                  "Year",
                  "Included?",
@@ -104,7 +106,7 @@ abbrev = DataFrame([["Pot",
                  ]
                 ],
                 columns = ["pot_name",
-                           "name",
+                        #    "name",
                            "tech_name",
                            "year",
                            "included",
@@ -135,7 +137,7 @@ abbrev = DataFrame([["Pot",
 
 tech_results_keys = ["year",
                         "pot_name",
-                        "name",
+                        "tech_name",#"name",
                         "awarded_gen",
                         "awarded_cap",
                         "awarded_cost",
@@ -145,7 +147,7 @@ tech_results_keys = ["year",
                         "cum_owed_v_absolute"]
 tech_inputs_keys = [
                        "pot_name",
-                       "name",
+                       "tech_name",#"name",
                        "year",
                        "included",
                        "min_levelised_cost",
@@ -161,8 +163,18 @@ tech_results_columns = [abbrev[column]["title"] for column in tech_results_keys]
 tech_inputs_columns = [abbrev[column]["title"] for column in tech_inputs_keys]
 prices_columns = [abbrev[column]["title"] for column in prices_keys]
 
-tech_inputs_index = {"titles": ["Pot", "Technology","Year"], "keys": ["pot_name", "name", "year"]}
-tech_results_index = {"titles": ["Year", "Pot", "Technology"], "keys": ["year", "pot_name", "name"]}
+tech_inputs_index = {"titles": ["Pot", "Technology","Year"], "keys": ["pot_name",
+"tech_name",#"name",
+ "year"]}
+tech_results_index = {"titles": ["Year", "Pot", "Technology"], "keys": ["year", "pot_name",
+"tech_name"#"name"
+]}
+to_interpolate =      ["min_levelised_cost",
+                       "max_levelised_cost",
+                       "strike_price",
+                       "load_factor",
+                       "max_deployment_cap",
+                       "project_gen"]
 
 tech_policy_index = {'titles': ['Technology', 'Year'], 'keys': ["tech_name","year"]}
 tech_policy_keys_mu = ["tech_name", "year", "min_levelised_cost_change", "max_levelised_cost_change", "strike_price_change", "load_factor_change", "max_deployment_cap_change", "num_new_projects_change", "project_gen_change"]

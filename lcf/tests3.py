@@ -13,7 +13,7 @@ import numpy.testing as npt
 import lcf.dataframe_helpers as dfh
 from .models import Scenario, AuctionYear, Pot, Technology, Policy
 from .forms import ScenarioForm, PricesForm, PolicyForm
-from .helpers import process_policy_form, process_scenario_form, get_prices, create_auctionyear_and_pot_objects, update_tech_with_policies, create_technology_objects
+from .helpers import process_policy_form, process_scenario_form, get_prices, create_auctionyear_and_pot_objects, update_tech_with_policies, create_technology_objects, interpolate_tech_df
 
 # all tests have to be run individually!
 
@@ -64,11 +64,13 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.ViewsTests.test_policy_new_view
 # python manage.py test lcf.tests3.ViewsTests.test_scenario_new_view
 #
-# python manage.py test lcf.tests3.TestHelpers.test_process_scenario_form
-#
 # python manage.py test lcf.tests3.TestPolicies.test_update_tech_with_policies
 # python manage.py test lcf.tests3.TestPolicies.test_process_scenario_form_with_policies
 #
+# python manage.py test lcf.tests3.TestHelpers.test_process_scenario_form
+#
+# python manage.py test lcf.tests3.Interpolate.test_interpolate_tech_df
+# python manage.py test lcf.tests3.Interpolate.test_process_scenario_form_with_interpolation
 
 class ExcelQuirkTests(TestCase):
     fixtures = ['tests/new/data2.json']
@@ -607,33 +609,6 @@ class ViewsTests(TestCase):
         self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
         self.assertEqual(Technology.objects.count(), initial_technology_count + 88)
 
-class TestHelpers(TestCase):
-    fixtures = ['prod/data.json']
-
-    def test_process_scenario_form(self):
-        recent_s = Scenario.objects.order_by('-date')[0]
-        print(recent_s.name)
-
-        post_data = {'name': 'test 1234',
-                     'description': 'test description',
-                     'percent_emerging': 0.6,
-                     'budget': 3.3,
-                     'excel_quirks': 'on',
-                     'end_year1': 2025,
-                     'wholesale_prices': "excel",
-                     'gas_prices': "excel",
-                     }
-        file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
-        scenario_form = ScenarioForm(post_data, file_data)
-        if scenario_form.is_valid():
-            process_scenario_form(scenario_form)
-            recent_s = Scenario.objects.order_by('-date')[0]
-            results = recent_s.pivot('cum_owed_v_wp')
-            self.assertEqual(recent_s.name, "test 1234")
-            self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
-        else:
-            print(scenario_form.errors)
-
 class TestPolicies(TestCase):
     fixtures = ['prod/data.json']
 
@@ -644,8 +619,10 @@ class TestPolicies(TestCase):
         policies = [pl] if n == 1 else [pl, pl]
         tech_df = DataFrame(pd.read_csv("lcf/template.csv"))
         res = update_tech_with_policies(tech_df,policies)
-        npt.assert_almost_equal(res.loc[('OFW', 2020), 'min_levelised_cost'], expected_min_levelised_cost, decimal=4)
-        npt.assert_almost_equal(res.loc[('OFW', 2020), 'max_deployment_cap'], 1.9, decimal=4)
+        # npt.assert_almost_equal(res.loc[('OFW', 2020), 'min_levelised_cost'], expected_min_levelised_cost, decimal=4)
+        npt.assert_almost_equal(res[(res.tech_name == 'OFW') & (res.year == 2020)].min_levelised_cost[0], expected_min_levelised_cost, decimal=4)
+        # npt.assert_almost_equal(res.loc[('OFW', 2020), 'max_deployment_cap'], 1.9, decimal=4)
+        npt.assert_almost_equal(res[(res.tech_name == 'OFW') & (res.year == 2020)].max_deployment_cap[0], 1.9, decimal=4)
 
     def process_scenario_form_with_policies(self,method,n,expected_accounting_cost):
         filename = {'MU': "lcf/policy_template_mu.csv", 'SU': "lcf/policy_template_su.csv"}
@@ -721,3 +698,80 @@ class TestPolicies(TestCase):
         scenario_form = ScenarioForm(post_data, file_data)
         if scenario_form.is_valid():
             self.assertEqual(process_scenario_form(scenario_form),'error')
+
+
+class TestHelpers(TestCase):
+    fixtures = ['prod/data.json']
+
+    def test_process_scenario_form(self):
+        recent_s = Scenario.objects.order_by('-date')[0]
+        print(recent_s.name)
+
+        post_data = {'name': 'test 1234',
+                     'description': 'test description',
+                     'percent_emerging': 0.6,
+                     'budget': 3.3,
+                     'excel_quirks': 'on',
+                     'end_year1': 2025,
+                     'wholesale_prices': "excel",
+                     'gas_prices': "excel",
+                     }
+        file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        if scenario_form.is_valid():
+            process_scenario_form(scenario_form)
+            recent_s = Scenario.objects.order_by('-date')[0]
+            results = recent_s.pivot('cum_owed_v_wp')
+            self.assertEqual(recent_s.name, "test 1234")
+            self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
+        else:
+            print(scenario_form.errors)
+
+class Interpolate(TestCase):
+    fixtures = ['prod/data.json']
+
+    def test_interpolate_tech_df(self):
+        post_data = {'name': 'test without interpolation',
+                     'percent_emerging': 0.6,
+                     'budget': 3.3,
+                     'excel_quirks': 'on',
+                     'end_year1': 2025,
+                     'wholesale_prices': "excel",
+                     'gas_prices': "excel",
+                     }
+        file_data_without = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
+        file_data_with = {'file': SimpleUploadedFile('template_interpolate.csv', open('lcf/template_interpolate.csv', 'rb').read())}
+        scenario_form_without = ScenarioForm(post_data, file_data_without)
+        scenario_form_with = ScenarioForm(post_data, file_data_with)
+        s_without = scenario_form_without.save()
+        s_with = scenario_form_with.save()
+        prices_df = get_prices(s_without, scenario_form_without)
+        create_auctionyear_and_pot_objects(prices_df,s_without)
+        create_auctionyear_and_pot_objects(prices_df,s_with)
+        tech_df_without = pd.read_csv(scenario_form_without.cleaned_data['file'])
+        tech_df_with = pd.read_csv(scenario_form_with.cleaned_data['file'])
+        tech_df_with = interpolate_tech_df(tech_df_with)
+        ofw_with = tech_df_with[(tech_df_with.tech_name == 'OFW') & (tech_df_with.year == 2024)].min_levelised_cost.values[0]
+        ofw_without = tech_df_without[(tech_df_without.tech_name == 'OFW') & (tech_df_without.year == 2024)].min_levelised_cost.values[0]
+        npt.assert_almost_equal(ofw_with, ofw_without, decimal=4)
+        tech_df_without_interpolated_anyway = interpolate_tech_df(tech_df_without)
+        ofw_without_interpolated_anyway = tech_df_without_interpolated_anyway[(tech_df_without_interpolated_anyway.tech_name == 'OFW') & (tech_df_without_interpolated_anyway.year == 2024)].min_levelised_cost.values[0]
+        npt.assert_almost_equal(ofw_without, ofw_without_interpolated_anyway, decimal=4)
+
+
+    def test_process_scenario_form_with_interpolation(self):
+        post_data = {'name': 'test 1234',
+                     'percent_emerging': 0.6,
+                     'budget': 3.3,
+                     'excel_quirks': 'on',
+                     'end_year1': 2025,
+                     'wholesale_prices': "excel",
+                     'gas_prices': "excel",
+                     }
+        file_data = {'file': SimpleUploadedFile('template_interpolate.csv', open('lcf/template_interpolate.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        if scenario_form.is_valid():
+            process_scenario_form(scenario_form)
+            recent_s = Scenario.objects.order_by('-date')[0]
+            results = recent_s.pivot('cum_owed_v_wp')
+            self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)

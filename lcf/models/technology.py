@@ -64,14 +64,17 @@ class Technology(models.Model):
         df = DataFrame([self.get_field_values()])
         df['year'] = self.pot.auctionyear.year
         df['pot_name'] = self.pot.name
+        df['tech_name'] = df.name #new
         return df
 
     #@lru_cache(maxsize=128)
     def fields_df_html(self):
-        df = self.fields_df().sort_values(["pot_name", "name", "listed_year"]).drop('pot', axis=1)
-        #df = df.reindex(columns =["pot_name", "name", "listed_year", 'included', 'load_factor', 'min_levelised_cost', 'max_levelised_cost', 'max_deployment_cap', 'strike_price', 'project_gen'])
+        # df = self.fields_df().sort_values(["pot_name", "name", "listed_year"]).drop('pot', axis=1)
+        df = self.fields_df().sort_values(["pot_name", "tech_name", "year"]).drop(['pot', 'name'], axis=1)
         df = round(df,2)
-        df.set_index(["pot_name", 'name','listed_year'],inplace=True)
+        # df.set_index(["pot_name", 'name','listed_year'],inplace=True)
+        df.set_index(["pot_name", 'tech_name','year'],inplace=True)
+
         return df.to_html(classes="table table-striped table-condensed")
 
 
@@ -182,7 +185,8 @@ class Technology(models.Model):
             #projects['clearing_price'] = np.nan
             projects['affordable'] = projects.levelised_cost <= projects.strike_price
             projects['pot'] = self.pot.name
-            projects['listed_year'] = self.pot.auctionyear.year
+            # projects['listed_year'] = self.pot.auctionyear.year
+            projects['year'] = self.pot.auctionyear.year
             return projects
 
     def non_cum_projects(self):
@@ -203,7 +207,8 @@ class Technology(models.Model):
             #projects['clearing_price'] = np.nan
             projects['affordable'] = projects.levelised_cost <= projects.strike_price
             projects['pot'] = self.pot.name
-            projects['listed_year'] = self.pot.auctionyear.year
+            # projects['listed_year'] = self.pot.auctionyear.year
+            projects['year'] = self.pot.auctionyear.year
             return projects
 
     #

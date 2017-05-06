@@ -45,8 +45,19 @@ def create_auctionyear_and_pot_objects(prices_df,s):
             Pot.objects.create(auctionyear=a,name=p)
 
 
+def interpolate_tech_df(tech_df):
+    tech_df = tech_df.set_index(dfh.tech_policy_index['keys'])
+    techs = list(tech_df.index.levels[0])
+    index = [(t, y) for t in techs for y in range(2020,2031) ]
+    tech_df = tech_df.reindex(index=index)
+    tech_df[dfh.to_interpolate] = tech_df[dfh.to_interpolate].interpolate()
+    tech_df[['pot_name', 'included']] = tech_df[['pot_name', 'included']].fillna(method="ffill")
+    tech_df = tech_df.reset_index()
+    return tech_df
+
 def update_tech_with_policies(tech_df,policies):
     if len(policies) == 0:
+        print('returning original frame, no policies applied')
         return tech_df
     else:
         tech_df.set_index(dfh.tech_policy_index['keys'], inplace=True)
@@ -75,12 +86,12 @@ def update_tech_with_policies(tech_df,policies):
             updated_tech_df = tech_df - reduce((lambda x, y : x + y), dfs)
         updated_tech_df['pot_name'] = pots
         updated_tech_df['included'] = included
+        updated_tech_df = updated_tech_df.reset_index()
         return updated_tech_df
 
 def create_technology_objects(df,s):
-    t0 = time.time()
     print("creating technology objects")
-    df = df.reset_index()
+    # df = df.reset_index()
     for index, row in df.iterrows():
         a = AuctionYear.objects.get(year = row.year, scenario = s)
         p = Pot.objects.get(name=row.pot_name, auctionyear = a)
@@ -104,8 +115,10 @@ def process_scenario_form(scenario_form):
     create_auctionyear_and_pot_objects(prices_df,s)
     policies = s.policies.all()
     tech_df = pd.read_csv(scenario_form.cleaned_data['file'])
+    tech_df = interpolate_tech_df(tech_df)
     try:
         updated_tech_df = update_tech_with_policies(tech_df,policies)
+        # print(updated_tech_df)
         create_technology_objects(updated_tech_df,s)
         return 'success'
     except TypeError:
