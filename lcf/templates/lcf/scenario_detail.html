@@ -99,9 +99,16 @@
         {{ awarded_cap_chart.as_html }}
     </div>
 
-<h3 class="sub-header">Inputs <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button6"></span></a></h3>
+<div id="inputs" class="anchor"></div>
+<h3 class="sub-header">Inputs and sources <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button6"></span></a></h3>
     <div class="to-hide6">
-        {{ techs_input_html | safe }}
+        {{ scenario.orignal_data_inc_sources_html | safe }}
         {{ prices_input_html | safe }}
+        {% if scenario.notes_html %}
+            <div id="refs" class="anchor"></div>
+            <h3 class="sub-header">Sources</h3>
+            <a href="#inputs"><span class="btn glyphicon glyphicon-chevron-up"></span>Jump up to input table</a>
+            {{ scenario.notes_html | safe }}
+        {% endif %}
     </div>
 {% endblock %}

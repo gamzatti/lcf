@@ -1133,3 +1133,103 @@ form playing:
 </form>
 https://getbootstrap.com/css/#forms
 https://docs.djangoproject.com/en/1.10/topics/forms/#form-rendering-options
+
+
+### Some methods that match notes to note dictionary that might not be necessary:
+def get_notes(df):
+    # or start_of_notes = df.index[df.pot_name.isnull()][-1]+1
+    start_of_notes = df.index[df.pot_name.isin(["Notes", "notes"])][0]+1
+    notes = df.copy()[start_of_notes:-1]
+    notes.columns = pd.Index(notes.iloc[0].values,name = None)
+    for col in ['source', 'notes', 'link', 'secondary_link']:
+        notes[col] = notes[col].astype(str)
+    notes = notes.iloc[1:]
+    notes = notes.dropna(how="all",axis=1)
+    notes.index = np.arange(0,len(notes))
+    return notes
+
+def match_notes_to_note_columns(tech_df_with_note_columns, notes):
+    f = lambda x: str(x.to_dict())
+    note_dict = notes.apply(f, axis=1).values
+    notes = notes.set_index('num')
+    note_stump = notes.index.values
+    for i, val in enumerate(note_stump):
+        try:
+            note_stump[i] = str(float(note_stump[i]))
+        except ValueError:
+            note_stump[i] = note_stump[i]
+    tech_df_with_note_columns[dfh.note_columns] = tech_df_with_note_columns[dfh.note_columns].replace(note_stump,note_dict)
+    return tech_df_with_note_columns
+
+def parse_file(file):
+    df = pd.read_csv(file)
+    try:
+
+        end_of_techs = df.index[df.pot_name.isnull()][0]
+        tech_df_with_note_columns = df.copy()[0:end_of_techs]
+        tech_df_with_note_columns.year, tech_df_with_note_columns.included = tech_df_with_note_columns.year.astype(int), tech_df_with_note_columns.included.astype(bool)
+        for col in dfh.note_columns:
+            tech_df_with_note_columns[col] = tech_df_with_note_columns[col].astype(str)
+        # print(tech_df_with_note_columns.dtypes)
+        notes = get_notes(df)
+        matched_notes_df = match_notes_to_note_columns(tech_df_with_note_columns, notes)
+        tech_df_with_note_columns.min_levelised_cost = tech_df_with_note_columns.min_levelised_cost.astype(float)
+        tech_df = tech_df_with_note_columns[dfh.tech_inputs_keys]
+        print('notes')
+    except IndexError:
+        tech_df = df
+        matched_notes_df = None
+        notes = None
+        print('no notes')
+    finally:
+
+        tech_df = interpolate_tech_df(tech_df)
+        # print(tech_df)
+    return tech_df, matched_notes_df, notes
+
+# @lru_cache(maxsize=1024)
+def process_scenario_form(scenario_form):
+    s = scenario_form.save()
+    prices_df = get_prices(s, scenario_form)
+    create_auctionyear_and_pot_objects(prices_df,s)
+    policies = s.policies.all()
+    file = scenario_form.cleaned_data['file']
+    tech_df, matched_notes_df, notes = parse_file(file)
+    s.csv_inc_notes = matched_notes_df.to_json()
+    s.notes = notes.to_json()
+    s.save()
+    try:
+        updated_tech_df = update_tech_with_policies(tech_df,policies)
+        create_technology_objects(updated_tech_df,s)
+        return 'success'
+    except TypeError:
+        print("policies must have same method")
+        s.delete()
+        return 'error'
+
+##unnecessary tests:
+    # python manage.py test lcf.tests3.Notes.test_match_notes_to_columns
+    def test_match_notes_to_columns(self):
+        file = open('lcf/template_with_sources.csv')
+        df = pd.read_csv(file)
+        end_of_techs = df.index[df.pot_name.isnull()][0]
+        original_tech_df_with_note_columns = df.copy()[0:end_of_techs]
+        original_tech_df_with_note_columns.year, original_tech_df_with_note_columns.included = original_tech_df_with_note_columns.year.astype(int), original_tech_df_with_note_columns.included.astype(bool)
+        for col in dfh.note_columns:
+            original_tech_df_with_note_columns[col] = original_tech_df_with_note_columns[col].astype(str)
+        notes = get_notes(df)
+        matched_notes_df = match_notes_to_note_columns(original_tech_df_with_note_columns, notes)
+        di = ast.literal_eval(matched_notes_df.min_levelised_cost_note[0])
+        self.assertEqual(di['link'], 'https://www.gov.uk/government/collections/energy-generation-cost-projections')
+
+    def test_parse_file_with_notes(self):
+        file = open('lcf/template_with_sources.csv')
+        tech_df, original_tech_df_with_note_columns, notes = parse_file(file)
+        self.assertEqual(len(tech_df), 88)
+        self.assertEqual(len(tech_df.columns), 11)
+        self.assertEqual(len(notes), 16)
+        self.assertEqual(len(notes.columns), 5)
+        self.assertEqual(len(original_tech_df_with_note_columns), 88)
+        self.assertEqual(len(original_tech_df_with_note_columns.columns), 18)
+        # di = ast.literal_eval(matched_notes_df.min_levelised_cost_note[0])
+        # self.assertEqual(di['link'], 'https://www.gov.uk/government/collections/energy-generation-cost-projections')

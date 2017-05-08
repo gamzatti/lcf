@@ -181,3 +181,42 @@ tech_policy_keys_mu = ["tech_name", "year", "min_levelised_cost_change", "max_le
 tech_policy_keys_su = ["tech_name", "year", "min_levelised_cost_change_su", "max_levelised_cost_change_su", "strike_price_change_su", "load_factor_change_su", "max_deployment_cap_change_su", "num_new_projects_change_su", "project_gen_change_su"]
 
 tech_policy_columns = {'MU': [abbrev[column]['title'] for column in tech_policy_keys_mu ], 'SU': [abbrev[column]['title+unit'] for column in tech_policy_keys_su ] }
+
+test_post_data = {'name': 'test 1234',
+             'percent_emerging': 0.6,
+             'budget': 3.3,
+             'excel_quirks': 'on',
+             'end_year1': 2025,
+             'wholesale_prices': "excel",
+             'gas_prices': "excel",
+             }
+note_pair_columns = [  "min_levelised_cost",
+  "max_levelised_cost",
+  "strike_price",
+  "load_factor",
+  "max_deployment_cap",
+  "num_new_projects",
+  "project_gen"]
+note_columns = ['min_levelised_cost_note', 'max_levelised_cost_note', 'strike_price_note', 'load_factor_note', 'max_deployment_cap_note', 'num_new_projects_note', 'project_gen_note']
+note_and_tech_keys = [
+                       "pot_name",
+                       "tech_name",#"name",
+                       "year",
+                       "included",
+                       "min_levelised_cost",
+                       'min_levelised_cost_note',
+                       "max_levelised_cost",
+                       'max_levelised_cost_note',
+                       "strike_price",
+                       'strike_price_note',
+                       "load_factor",
+                       'load_factor_note',
+                       "max_deployment_cap",
+                       'max_deployment_cap_note',
+                       "num_new_projects",
+                       'num_new_projects_note',
+                       "project_gen",
+                       'project_gen_note']
+
+note_cols = ['source', 'notes', 'link', 'local_link']
+note_cols_inc_index = ['num', 'source', 'notes', 'link', 'local_link']

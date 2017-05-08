@@ -48,8 +48,8 @@ def create_auctionyear_and_pot_objects(prices_df,s):
 def interpolate_tech_df(tech_df):
     tech_df = tech_df.set_index(dfh.tech_policy_index['keys'])
     techs = list(tech_df.index.levels[0])
-    index = [(t, y) for t in techs for y in range(2020,2031) ]
-    tech_df = tech_df.reindex(index=index)
+    new_index = [(t, y) for t in techs for y in range(2020,2031) ]
+    tech_df = tech_df.reindex(index=new_index)
     tech_df[dfh.to_interpolate] = tech_df[dfh.to_interpolate].interpolate()
     tech_df[['pot_name', 'included']] = tech_df[['pot_name', 'included']].fillna(method="ffill")
     tech_df = tech_df.reset_index()
@@ -108,17 +108,53 @@ def create_technology_objects(df,s):
             project_gen = row.project_gen
         )
 
+
+def get_notes(df):
+    # or start_of_notes = df.index[df.pot_name.isnull()][-1]+1
+    start_of_notes = df.index[df.pot_name.isin(["Notes", "notes"])][0]+1
+    notes = df.copy()[start_of_notes:]
+    notes.columns = pd.Index(notes.iloc[0].values,name = None)
+    for col in dfh.note_cols:
+        notes[col] = notes[col].astype(str)
+    notes = notes.iloc[1:]
+    notes = notes.dropna(how="all",axis=1)
+    notes.index = np.arange(0,len(notes))
+    return notes
+
+def parse_file(file):
+    df = pd.read_csv(file)
+    try:
+        end_of_techs = df.index[df.pot_name.isnull()][0]
+        original_tech_df_with_note_columns = df.copy()[0:end_of_techs]
+        original_tech_df_with_note_columns.year, original_tech_df_with_note_columns.included = original_tech_df_with_note_columns.year.astype(int), original_tech_df_with_note_columns.included.astype(bool)
+        for col in dfh.note_columns:
+            original_tech_df_with_note_columns[col] = original_tech_df_with_note_columns[col].astype(str)
+        notes = get_notes(df)
+        original_tech_df_with_note_columns.min_levelised_cost = original_tech_df_with_note_columns.min_levelised_cost.astype(float)
+        tech_df = original_tech_df_with_note_columns[dfh.tech_inputs_keys]
+        print('notes')
+    except IndexError:
+        tech_df = df
+        original_tech_df_with_note_columns = tech_df.reindex(columns = dfh.note_and_tech_keys)
+        notes = DataFrame(columns = dfh.note_cols_inc_index)
+        print('no notes')
+    finally:
+        tech_df = interpolate_tech_df(tech_df)
+    return tech_df, original_tech_df_with_note_columns, notes # new
+
 # @lru_cache(maxsize=1024)
 def process_scenario_form(scenario_form):
     s = scenario_form.save()
     prices_df = get_prices(s, scenario_form)
     create_auctionyear_and_pot_objects(prices_df,s)
     policies = s.policies.all()
-    tech_df = pd.read_csv(scenario_form.cleaned_data['file'])
-    tech_df = interpolate_tech_df(tech_df)
+    file = scenario_form.cleaned_data['file']
+    tech_df, original_tech_df_with_note_columns, notes = parse_file(file) #new
+    s.csv_inc_notes = original_tech_df_with_note_columns.to_json()
+    s.notes = notes.to_json()
+    s.save()
     try:
         updated_tech_df = update_tech_with_policies(tech_df,policies)
-        # print(updated_tech_df)
         create_technology_objects(updated_tech_df,s)
         return 'success'
     except TypeError:

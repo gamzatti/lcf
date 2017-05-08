@@ -213,8 +213,8 @@ def policy_template(request):
 
 def template(request):
     print("downloading template")
-    file = open('lcf/template.csv')
+    file = open('lcf/template_with_sources.csv')
     response = HttpResponse(file, content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="template.csv"'
+    response['Content-Disposition'] = 'attachment; filename="template_with_sources.csv"'
     file.close()
     return response

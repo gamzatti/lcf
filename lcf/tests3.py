@@ -1,5 +1,6 @@
 from django.test import TestCase
 import time
+import ast
 from django.core.urlresolvers import reverse
 from django.forms import modelformset_factory, formset_factory
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -13,7 +14,7 @@ import numpy.testing as npt
 import lcf.dataframe_helpers as dfh
 from .models import Scenario, AuctionYear, Pot, Technology, Policy
 from .forms import ScenarioForm, PricesForm, PolicyForm
-from .helpers import process_policy_form, process_scenario_form, get_prices, create_auctionyear_and_pot_objects, update_tech_with_policies, create_technology_objects, interpolate_tech_df
+from .helpers import process_policy_form, process_scenario_form, get_prices, create_auctionyear_and_pot_objects, update_tech_with_policies, create_technology_objects, interpolate_tech_df, parse_file, get_notes
 
 # all tests have to be run individually!
 
@@ -60,7 +61,7 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_lower
 #
 # python manage.py test lcf.tests3.TestIP.test_nw_v_gas
-
+#
 # python manage.py test lcf.tests3.ViewsTests.test_policy_new_view
 # python manage.py test lcf.tests3.ViewsTests.test_scenario_new_view
 #
@@ -71,6 +72,11 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 #
 # python manage.py test lcf.tests3.Interpolate.test_interpolate_tech_df
 # python manage.py test lcf.tests3.Interpolate.test_process_scenario_form_with_interpolation
+#
+# python manage.py test lcf.tests3.Notes.test_parse_file_with_notes
+# python manage.py test lcf.tests3.Notes.test_parse_file_with_or_without_notes_and_get_same_tech_data
+# python manage.py test lcf.tests3.Notes.test_process_scenario_form_with_notes_without_notes
+# python manage.py test lcf.tests3.Notes.test_retrieve_sources
 
 class ExcelQuirkTests(TestCase):
     fixtures = ['tests/new/data2.json']
@@ -584,21 +590,15 @@ class ViewsTests(TestCase):
         new_policy_count = Policy.objects.count()
         self.assertEqual(new_policy_count,initial_policy_count+1)
 
+    # python manage.py test lcf.tests3.ViewsTests.test_scenario_new_view
     def test_scenario_new_view(self):
         initial_scenario_count = Scenario.objects.count()
         initial_technology_count = Technology.objects.count()
         # print(initial_technology_count)
         resp = self.client.get(reverse('scenario_new'))
-        post_data = {'name': 'test name',
-                     'description': 'test description',
-                     'percent_emerging': 0.6,
-                     'budget': 3.3,
-                     'excel_quirks': 'on',
-                     'end_year1': 2025,
-                     'wholesale_prices': "excel",
-                     'gas_prices': "excel",
-                     'file': open('lcf/template.csv'),
-                     }
+        post_data = dfh.test_post_data
+        post_data['file'] = open('lcf/template.csv')
+
         post_resp = self.client.post(reverse('scenario_new'),post_data)
 
         self.assertEqual(post_resp.status_code,302)
@@ -634,16 +634,8 @@ class TestPolicies(TestCase):
             pl1 = Policy.objects.create(name="test", effects=effects, method=method)
             pl2 = Policy.objects.create(name="test", effects=effects, method=method)
             policies = [pl1.pk, pl2.pk]
-        post_data = {'name': 'test 1234',
-                     'description': 'test description',
-                     'percent_emerging': 0.6,
-                     'budget': 3.3,
-                     'excel_quirks': 'on',
-                     'end_year1': 2025,
-                     'wholesale_prices': "excel",
-                     'gas_prices': "excel",
-                     'policies': policies,
-                     }
+        post_data = dfh.test_post_data
+        post_data['policies'] = policies
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         if scenario_form.is_valid():
@@ -684,16 +676,8 @@ class TestPolicies(TestCase):
         pl1 = Policy.objects.create(name="test", effects=effects1, method='MU')
         pl2 = Policy.objects.create(name="test", effects=effects2, method='SU')
         policies = [pl1.pk, pl2.pk]
-        post_data = {'name': 'test 1234',
-                     'description': 'test description',
-                     'percent_emerging': 0.6,
-                     'budget': 3.3,
-                     'excel_quirks': 'on',
-                     'end_year1': 2025,
-                     'wholesale_prices': "excel",
-                     'gas_prices': "excel",
-                     'policies': policies,
-                     }
+        post_data = dfh.test_post_data
+        post_data['policies'] = policies
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         if scenario_form.is_valid():
@@ -707,15 +691,7 @@ class TestHelpers(TestCase):
         recent_s = Scenario.objects.order_by('-date')[0]
         print(recent_s.name)
 
-        post_data = {'name': 'test 1234',
-                     'description': 'test description',
-                     'percent_emerging': 0.6,
-                     'budget': 3.3,
-                     'excel_quirks': 'on',
-                     'end_year1': 2025,
-                     'wholesale_prices': "excel",
-                     'gas_prices': "excel",
-                     }
+        post_data = dfh.test_post_data
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         if scenario_form.is_valid():
@@ -730,15 +706,9 @@ class TestHelpers(TestCase):
 class Interpolate(TestCase):
     fixtures = ['prod/data.json']
 
+    # python manage.py test lcf.tests3.Interpolate.test_interpolate_tech_df
     def test_interpolate_tech_df(self):
-        post_data = {'name': 'test without interpolation',
-                     'percent_emerging': 0.6,
-                     'budget': 3.3,
-                     'excel_quirks': 'on',
-                     'end_year1': 2025,
-                     'wholesale_prices': "excel",
-                     'gas_prices': "excel",
-                     }
+        post_data = dfh.test_post_data
         file_data_without = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         file_data_with = {'file': SimpleUploadedFile('template_interpolate.csv', open('lcf/template_interpolate.csv', 'rb').read())}
         scenario_form_without = ScenarioForm(post_data, file_data_without)
@@ -758,16 +728,9 @@ class Interpolate(TestCase):
         ofw_without_interpolated_anyway = tech_df_without_interpolated_anyway[(tech_df_without_interpolated_anyway.tech_name == 'OFW') & (tech_df_without_interpolated_anyway.year == 2024)].min_levelised_cost.values[0]
         npt.assert_almost_equal(ofw_without, ofw_without_interpolated_anyway, decimal=4)
 
-
+    # python manage.py test lcf.tests3.Interpolate.test_process_scenario_form_with_interpolation
     def test_process_scenario_form_with_interpolation(self):
-        post_data = {'name': 'test 1234',
-                     'percent_emerging': 0.6,
-                     'budget': 3.3,
-                     'excel_quirks': 'on',
-                     'end_year1': 2025,
-                     'wholesale_prices': "excel",
-                     'gas_prices': "excel",
-                     }
+        post_data = dfh.test_post_data
         file_data = {'file': SimpleUploadedFile('template_interpolate.csv', open('lcf/template_interpolate.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         if scenario_form.is_valid():
@@ -775,3 +738,87 @@ class Interpolate(TestCase):
             recent_s = Scenario.objects.order_by('-date')[0]
             results = recent_s.pivot('cum_owed_v_wp')
             self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
+
+
+class Notes(TestCase):
+    fixtures = ['prod/data.json']
+
+
+    # python manage.py test lcf.tests3.Notes.test_parse_file_with_notes
+    def test_parse_file_with_notes(self):
+        file = open('lcf/template_with_sources.csv')
+        tech_df, original_tech_df_with_note_columns, notes = parse_file(file)
+        self.assertEqual(len(tech_df), 88)
+        self.assertEqual(len(tech_df.columns), 11)
+        self.assertEqual(len(notes), 17)
+        self.assertEqual(len(notes.columns), 5)
+        self.assertEqual(len(original_tech_df_with_note_columns), 88)
+        self.assertEqual(len(original_tech_df_with_note_columns.columns), 18)
+
+    # python manage.py test lcf.tests3.Notes.test_parse_file_with_or_without_notes_and_get_same_tech_data
+    def test_parse_file_with_or_without_notes_and_get_same_tech_data(self):
+        """Test that a file with sources at the bottom returns same tech df as one without"""
+        file = open('lcf/template_with_sources.csv')
+        tech_df_with_notes, original_tech_df_with_note_columns, notes = parse_file(file)
+        self.assertEqual(len(notes), 17)
+        self.assertEqual(len(notes.columns), 5)
+        self.assertEqual(len(original_tech_df_with_note_columns), 88)
+        self.assertEqual(len(original_tech_df_with_note_columns.columns), 18)
+        self.assertFalse((original_tech_df_with_note_columns.min_levelised_cost_note == 'nan').all())
+
+        file = open('lcf/template.csv')
+        tech_df_without_notes, original_tech_df_with_note_columns, notes = parse_file(file)
+        self.assertEqual(len(notes), 0)
+        self.assertEqual(len(notes.columns), 5)
+        self.assertEqual(len(original_tech_df_with_note_columns), 88)
+        self.assertEqual(len(original_tech_df_with_note_columns.columns), 18)
+        original_tech_df_with_note_columns.min_levelised_cost_note = original_tech_df_with_note_columns.min_levelised_cost_note.astype(str)
+        self.assertTrue((original_tech_df_with_note_columns.min_levelised_cost_note == 'nan').all())
+
+        assert_frame_equal(tech_df_with_notes,tech_df_without_notes)
+
+    # python manage.py test lcf.tests3.Notes.test_process_scenario_form_with_notes_without_notes
+    def test_process_scenario_form_with_notes_without_notes(self):
+        post_data = dfh.test_post_data
+        file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        if scenario_form.is_valid():
+            process_scenario_form(scenario_form)
+            recent_s = Scenario.objects.order_by('-date')[0]
+            results = recent_s.pivot('cum_owed_v_wp')
+            self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
+            # print(recent_s.csv_inc_notes)
+
+        file_data = {'file': SimpleUploadedFile('template_with_sources.csv', open('lcf/template_with_sources.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        if scenario_form.is_valid():
+            process_scenario_form(scenario_form)
+            recent_s = Scenario.objects.order_by('-date')[0]
+            results = recent_s.pivot('cum_owed_v_wp')
+            self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
+            # print(recent_s.csv_inc_notes)
+
+    # python manage.py test lcf.tests3.Notes.test_retrieve_sources
+    def test_retrieve_sources(self):
+        post_data = dfh.test_post_data
+        file_data = {'file': SimpleUploadedFile('template_with_sources.csv', open('lcf/template_with_sources.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        process_scenario_form(scenario_form)
+        s = Scenario.objects.order_by('-date')[0]
+        notes = s.get_notes()
+        self.assertEqual(notes.link[0], 'http://www.theccc.org.uk/wp-content/uploads/2014/07/CCC-Progress-Report-2014_web_2.pdf')
+        sources = s.get_orignal_data_inc_sources()
+        sources = sources.set_index(dfh.tech_inputs_index['keys'])
+        self.assertEqual(sources.loc[('E','OFW', 2020), 'min_levelised_cost_note'], 2)
+        self.assertFalse(sources[dfh.note_columns].isnull().all().all())
+
+        file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        process_scenario_form(scenario_form)
+        s = Scenario.objects.order_by('-date')[0]
+        notes = s.get_notes()
+        self.assertEqual(len(notes), 0)
+        self.assertEqual(len(notes.columns), 5)
+        sources = s.get_orignal_data_inc_sources()
+        self.assertEqual(len(sources.columns), 18)
+        self.assertTrue(sources[dfh.note_columns].isnull().all().all())

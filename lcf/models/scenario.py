@@ -37,6 +37,9 @@ class Scenario(models.Model):
     results = models.TextField(null=True,blank=True)
     policies = models.ManyToManyField(Policy, blank=True)
 
+    csv_inc_notes = models.TextField(null=True,blank=True)
+    notes = models.TextField(null=True, blank=True)
+
 
     def __str__(self):
         return self.name
@@ -99,7 +102,6 @@ class Scenario(models.Model):
         df.index = df.index.get_level_values(1)
         df = df.reset_index()
         df.loc['years_row'] = df.columns.astype('str')
-        # df = df.sort_values('name') # annoying?
         df = df.sort_values('tech_name') # annoying?
         df = df.reindex(index = ['years_row']+list(df.index)[:-1])
         chart_data = df.T.values.tolist()
@@ -109,30 +111,24 @@ class Scenario(models.Model):
 
     # @lru_cache(maxsize=128)
     def pivot(self,column,period_num=None):
-        # print('building pivot table')
         df = self.get_results(column)
         df[column] = df[column]/1000 if dfh.abbrev.loc['unit',column] == '£bn' else df[column]
         title = dfh.abbrev.loc['title+unit',column]
         df.columns = dfh.tech_results_index['keys'] + [title]
         auctionyear_years = [auctionyear.year for auctionyear in self.period(period_num)]
         df = df.loc[df.year.isin(auctionyear_years)]
-
         dfsum = df.groupby(['year','pot_name'],as_index=False).sum()
-        # dfsum['name']='_Subtotal'
         dfsum['tech_name']='_Subtotal'
         dfsum_outer = df.groupby(['year'],as_index=False).sum()
-        # dfsum_outer['name']='Total'
         dfsum_outer['tech_name']='Total'
         dfsum_outer['pot_name']='Total'
         result = dfsum.append(df)
         result = dfsum_outer.append(result)
         if column == "cum_owed_v_gas":
-            # dfsum_outer['name']='Total'
             dfsum_outer['tech_name']='Total'
             dfsum_outer['pot_name']='Total'
             ip_df = df[df.pot_name != 'Feed-in-tariff']
             ip_df_sum_outer = ip_df.groupby(['year'],as_index=False).sum()
-            # ip_df_sum_outer['name'] = '__Innovation premium (ignores negawatts)'
             ip_df_sum_outer['tech_name'] = '__Innovation premium (ignores negawatts)'
             ip_df_sum_outer['pot_name'] = '__Innovation premium (ignores negawatts)'
             result = ip_df_sum_outer.append(result)
@@ -150,7 +146,6 @@ class Scenario(models.Model):
     def techs_input(self):
         techs = pd.concat([t.fields_df() for t in self.flat_tech_dict.values() ])
         techs = techs.set_index('id')
-        # df = techs.sort_values(dfh.tech_inputs_index['keys']).drop('pot', axis=1)
         df = techs.sort_values(dfh.tech_inputs_index['keys']).drop(['pot','name'], axis=1)
         df = df.reindex(columns =dfh.tech_inputs_keys)
         df.columns = dfh.tech_inputs_columns
@@ -194,6 +189,7 @@ class Scenario(models.Model):
     def techs_input_html(self):
         df = self.techs_input()
         df.set_index(dfh.tech_inputs_index['titles'],inplace=True)
+        print('techs input returned')
         return self.df_to_html(df)
 
 
@@ -202,3 +198,48 @@ class Scenario(models.Model):
         df = self.prices_input()
         df.index = dfh.prices_columns
         return self.df_to_html(df)
+
+    def get_orignal_data_inc_sources(self):
+        sources = pd.read_json(self.csv_inc_notes)
+        sources = sources.reindex(columns = dfh.note_and_tech_keys).sort_index()
+        return sources
+
+    def orignal_data_inc_sources_html(self):
+        try:
+            sources = self.get_orignal_data_inc_sources()
+            sources[dfh.note_columns] = sources[dfh.note_columns].replace('nan', 0)
+            sources[dfh.note_columns] = sources[dfh.note_columns].astype(int)
+            sources[dfh.note_pair_columns] = sources[dfh.note_pair_columns].round(2).astype(str)
+            sources[dfh.note_columns] = np.where(sources[dfh.note_columns] != 0, " [" + sources[dfh.note_columns].astype(str) + "]", "")
+            col_pairs = list(zip(dfh.note_pair_columns, dfh.note_columns))
+            for pair in col_pairs:
+                col, note = pair
+                sources[col] = sources[col] + "<a href='#refs'><span class='note'>" + sources[note] + "</span></a>"
+            sources = sources.drop(dfh.note_columns,axis=1)
+            sources.columns = dfh.tech_inputs_columns
+            sources = sources.set_index(dfh.tech_inputs_index['titles'])
+            return self.df_to_html(sources)
+        except:
+            print('no csv_inc_notes field found')
+            return self.techs_input_html()
+
+    def get_notes(self):
+        notes = pd.read_json(self.notes)
+        notes = notes.reindex(columns = dfh.note_cols_inc_index).sort_index()
+        notes = notes.replace('nan', '')
+        return notes
+
+    def notes_html(self):
+        try:
+            notes = self.get_notes()
+            notes = notes.set_index('num')
+            notes.link = "<a href=" + notes.link + ">" + notes.link + "</a>"
+            # local_path = "\\\\victoria\public\Themes\Climate and Energy Futures\DR0145 Decarbonisation - 2015-17 Consortium\LCF future\LCF analysis\Modelling\\"
+            # local_path = "file:///victoria/public/Themes/Climate and Energy Futures/DR0145 Decarbonisation - 2015-17 Consortium/LCF future/LCF analysis/Modelling/"
+            local_path = "file:///P:/Themes/Climate and Energy Futures/DR0145 Decarbonisation - 2015-17 Consortium/LCF future/LCF analysis/Modelling/"
+            notes.local_link = "<a href=\"" + local_path + notes.local_link + "\">" + notes.local_link + "</a>"
+
+            return self.df_to_html(notes)
+        except:
+            print('no notes found')
+            return None

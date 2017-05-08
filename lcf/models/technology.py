@@ -28,9 +28,17 @@ class Technology(models.Model):
     load_factor = models.FloatField(default=0.5)
     project_gen = models.FloatField(default=100, verbose_name="Average project generation") #"Average project pa (GWh)"
     max_deployment_cap = models.FloatField(null=True, blank=True)
-    included = models.BooleanField(default=True)
     num_new_projects = models.FloatField(null=True,blank=True)
 
+    min_levelised_cost_note = models.TextField(blank=True, null=True)
+    max_levelised_cost_note = models.TextField(blank=True, null=True)
+    strike_price_note = models.TextField(blank=True, null=True)
+    load_factor_note = models.TextField(blank=True, null=True)
+    project_gen_note = models.TextField(blank=True, null=True)
+    max_deployment_cap_note = models.TextField(blank=True, null=True)
+    num_new_projects_note = models.TextField(blank=True, null=True)
+
+    included = models.BooleanField(default=True)
     # objects = TechnologyManager()
 
     def __init__(self, *args, **kwargs):

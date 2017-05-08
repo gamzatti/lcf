@@ -252,3 +252,19 @@ tr th.level1.sub {
 tr th.level1.tot {
     font-weight: bold;
 }
+
+.note {
+  color: green;
+  font-variant-position: super;
+}
+
+/*h3.sub-header#refs {
+  padding-top: 60px;
+}*/
+
+.anchor {
+    display: block;
+    position: relative;
+    top: -60px;
+    visibility: hidden;
+}
