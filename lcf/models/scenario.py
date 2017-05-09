@@ -92,7 +92,11 @@ class Scenario(models.Model):
                 self.save()
         else:
             print('retrieving from db')
-            results = pd.read_json(self.results).reindex(columns=column_names).sort_index()
+            results = pd.read_json(self.results)
+            if 'tech_name' not in results.columns:
+                results = results.rename(columns={'name':'tech_name'})
+            results = results.reindex(columns=column_names).sort_index()
+
             if len(results) == 0:
                 print('scenario not created correctly')
                 raise ScenarioError('scenario not created correctly')
