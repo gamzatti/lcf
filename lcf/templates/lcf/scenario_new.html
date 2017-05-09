@@ -2,19 +2,40 @@
 {% block content %}
 
 <h1 class="page-header">New scenario from CSV</h1>
-{% if error %}
-    {{ error }}
-{% endif %}
+
+
 <form method="POST" class="form-horizontal" enctype="multipart/form-data">{% csrf_token %}
     <h3>Scenario details</h3>
     {% for field in scenario_form %}
     <div class="form-group">
         <label for="{{ field.id_for_label }}" class="col-sm-3 control-label" >{{ field.label }}</label>
-        <div class="col-sm-9" >{{ field }}</div>
+        <div class="col-sm-9" >{{ field }}
+            {% if scenario_form.errors %}
+                {% if field.errors %}
+                    {% for error in field.errors %}
+                        <div class="alert alert-danger col-sm-4 field-error-message">
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
+        </div>
+
     </div>
     {% endfor %}
-
-    <button type="submit" class="save btn btn-primary">Submit</button>
+    {% for error in scenario_form.non_field_errors %}
+        <div class="alert alert-danger col-sm-4 col-sm-offset-3 error-message">
+            <strong>{{ error|escape }}</strong>
+        </div>
+    {% endfor %}
+    {% if file_error %}
+        <div class="alert alert-danger col-sm-4 col-sm-offset-3 error-message">
+            <strong>{{ file_error }}</strong>
+        </div>
+    {% endif %}
+    <!-- <div class="col-sm-offset-3"> -->
+        <button type="submit" class="save btn btn-primary">Submit</button>
+  <!-- </div> -->
 </form>
 <a href="{% url 'template' %}"><div class="btn btn-info">Download template?</div></a>
 <h2>Notes</h2>

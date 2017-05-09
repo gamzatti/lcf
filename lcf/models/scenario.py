@@ -8,11 +8,11 @@ import datetime
 import time
 from django_pandas.io import read_frame
 import lcf.dataframe_helpers as dfh
-
 from .auctionyear import AuctionYear
 from .pot import Pot
 from .technology import Technology
 from .policy import Policy
+from lcf.exceptions import ScenarioError
 
 class Scenario(models.Model):
     name = models.CharField(max_length=200)
@@ -84,11 +84,18 @@ class Scenario(models.Model):
                         columns = column_names)
             results = results.sort_values(dfh.tech_results_index['keys'])
             results.index = range(0,len(results.index))
-            self.results = results.to_json()
-            self.save()
+            if len(results) == 0:
+                print('scenario not created correctly')
+                raise ScenarioError('scenario not created correctly')
+            else:
+                self.results = results.to_json()
+                self.save()
         else:
             print('retrieving from db')
             results = pd.read_json(self.results).reindex(columns=column_names).sort_index()
+            if len(results) == 0:
+                print('scenario not created correctly')
+                raise ScenarioError('scenario not created correctly')
         if column:
             results = results[dfh.tech_results_index['keys']+[column]]
         return results

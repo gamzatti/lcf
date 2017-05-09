@@ -7,6 +7,8 @@ import time
 
 from .helpers import process_policy_form, process_scenario_form
 import lcf.dataframe_helpers as dfh
+from lcf.exceptions import ScenarioError
+
 from django_pandas.io import read_frame
 
 from django.http import HttpResponse
@@ -19,24 +21,48 @@ from graphos.sources.simple import SimpleDataSource
 from graphos.renderers.gchart import LineChart, ColumnChart
 from django.db import connection
 
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+
+
+# def handler404(request):
+#     response = render_to_response('404.html', {},
+#                                   context_instance=RequestContext(request))
+#     response.status_code = 404
+#     return response
+
+def error404(request):
+    scenarios = Scenario.objects.all()
+    recent_pk = Scenario.objects.all().order_by("-date")[0].pk
+    scenario = Scenario.objects.all().order_by("-date")[0]
+    context = {'scenario': scenario,
+               'policies': Policy.objects.all(),
+               'scenarios': scenarios,
+               'recent_pk': recent_pk,
+               }
+    template = loader.get_template('404.html')
+    return HttpResponse(content=template.render(context), content_type='text/html; charset=utf-8', status=404)
 
 def scenario_new(request):
+    file_error = None
     scenarios = Scenario.objects.all()
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     scenario = Scenario.objects.all().order_by("-date")[0]
     if request.method == "POST":
         print("posting")
         scenario_form = ScenarioForm(request.POST, request.FILES)
-        # print(request.FILES)
         if scenario_form.is_valid():
-            if process_scenario_form(scenario_form) == 'error':
-                # context['error'] = 'Policies of diffo types'
-                return redirect('scenario_new')
+            # process_scenario_form(scenario_form)
+            # recent_pk = Scenario.objects.all().order_by("-date")[0].pk
+            # return redirect('scenario_detail', pk=recent_pk)
+            try:
+                process_scenario_form(scenario_form)
+            except Exception as e:
+                file_error = e
+                # print(e)
             else:
                 recent_pk = Scenario.objects.all().order_by("-date")[0].pk
                 return redirect('scenario_detail', pk=recent_pk)
-        else:
-            print(scenario_form.errors)
     else:
         print("GETTING ")
         scenario_form = ScenarioForm()
@@ -45,6 +71,7 @@ def scenario_new(request):
                'scenarios': scenarios,
                'scenario_form': scenario_form,
                'recent_pk': recent_pk,
+               'file_error': file_error
                }
     return render(request, 'lcf/scenario_new.html', context)
 
@@ -93,60 +120,73 @@ def policy_detail(request,pk):
                }
     return render(request, 'lcf/policy_detail.html', context)
 
+def scenario_detail(request, pk=None):
+    recent_pk = Scenario.objects.all().order_by("-date")[0].pk
+    scenarios = Scenario.objects.all()
+    if pk == None:
+        pk = Scenario.objects.all().order_by("-date")[0].pk
+    scenario = get_object_or_404(Scenario.objects.prefetch_related('auctionyear_set__pot_set__technology_set', 'policies'), pk=pk)
+    print('instantiating a scenario object with prefetched attributes')
+    print(scenario.name)
+    print("[lease sss don't c a che me!")
+    try:
+        scenario.get_results()
+    except ScenarioError:
+        context = {'scenario': scenario,
+                   'policies': Policy.objects.all(),
+                   'scenarios': scenarios,
+                   'recent_pk': recent_pk
+                   }
+        return render(request, 'lcf/scenario_error.html', context = context)
+    else:
+        chart = {}
+        df = {}
+        context = {'scenario': scenario,
+                   'policies': Policy.objects.all(),
+                   'scenarios': scenarios,
+                   'recent_pk': recent_pk
+                   }
+        context['techs_input_html'] = scenario.techs_input_html()
+        context['prices_input_html'] = scenario.prices_input_html()
+        context['tech_cap_pivot'] = scenario.pivot_to_html(scenario.pivot('awarded_cap',1))
+        context['tech_cap_pivot2'] = scenario.pivot_to_html(scenario.pivot('awarded_cap',2))
+        context['tech_gen_pivot'] = scenario.pivot_to_html(scenario.pivot('awarded_gen',1))
+        context['tech_gen_pivot2'] = scenario.pivot_to_html(scenario.pivot('awarded_gen',2))
+        context['tech_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_wp',1))
+        context['tech_cum_owed_v_wp_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_wp',2))
+        context['tech_cum_owed_v_gas_pivot'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_gas',1))
+        context['tech_cum_owed_v_gas_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_gas',2))
+        context['tech_cum_owed_v_absolute_pivot'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_absolute',1))
+        context['tech_cum_owed_v_absolute_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_absolute',2))
+        context['tech_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.pivot('cum_awarded_gen',1))
+        context['tech_cum_awarded_gen_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_awarded_gen',2))
+
+
+        for column in ["awarded_cap", "cum_awarded_gen"]:
+            chart_data, options = scenario.df_to_chart_data(column)['chart_data'], scenario.df_to_chart_data(column)['options']
+            data_source = SimpleDataSource(data=chart_data)
+            context["".join([column,"_chart"])] = ColumnChart(data_source, options=options)
+
+
+        print('rendering request')
+        return render(request, 'lcf/scenario_detail.html', context)
+
 def scenario_delete(request, pk):
     scenario = get_object_or_404(Scenario, pk=pk)
     scenario.delete()
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     return redirect('scenario_detail', pk=recent_pk)
 
+def scenario_delete_and_create_new(request, pk):
+    scenario = get_object_or_404(Scenario, pk=pk)
+    scenario.delete()
+    return redirect('scenario_new')
+
 def policy_delete(request, pk):
     policy = get_object_or_404(Policy, pk=pk)
     policy.delete()
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     return redirect('scenario_detail', pk=recent_pk)
-
-def scenario_detail(request, pk=None):
-    if pk == None:
-        pk = Scenario.objects.all().order_by("-date")[0].pk
-    scenario = Scenario.objects.prefetch_related('auctionyear_set__pot_set__technology_set', 'policies').get(id=pk)
-    print('instantiating a scenario object with prefetched attributes')
-    print(scenario.name)
-    print("[lease sss don't c a che me!")
-    scenario.get_results()
-
-    recent_pk = Scenario.objects.all().order_by("-date")[0].pk
-    scenarios = Scenario.objects.all()
-    chart = {}
-    df = {}
-    context = {'scenario': scenario,
-               'policies': Policy.objects.all(),
-               'scenarios': scenarios,
-               'recent_pk': recent_pk
-               }
-    context['techs_input_html'] = scenario.techs_input_html()
-    context['prices_input_html'] = scenario.prices_input_html()
-    context['tech_cap_pivot'] = scenario.pivot_to_html(scenario.pivot('awarded_cap',1))
-    context['tech_cap_pivot2'] = scenario.pivot_to_html(scenario.pivot('awarded_cap',2))
-    context['tech_gen_pivot'] = scenario.pivot_to_html(scenario.pivot('awarded_gen',1))
-    context['tech_gen_pivot2'] = scenario.pivot_to_html(scenario.pivot('awarded_gen',2))
-    context['tech_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_wp',1))
-    context['tech_cum_owed_v_wp_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_wp',2))
-    context['tech_cum_owed_v_gas_pivot'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_gas',1))
-    context['tech_cum_owed_v_gas_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_gas',2))
-    context['tech_cum_owed_v_absolute_pivot'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_absolute',1))
-    context['tech_cum_owed_v_absolute_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_absolute',2))
-    context['tech_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.pivot('cum_awarded_gen',1))
-    context['tech_cum_awarded_gen_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_awarded_gen',2))
-
-
-    for column in ["awarded_cap", "cum_awarded_gen"]:
-        chart_data, options = scenario.df_to_chart_data(column)['chart_data'], scenario.df_to_chart_data(column)['options']
-        data_source = SimpleDataSource(data=chart_data)
-        context["".join([column,"_chart"])] = ColumnChart(data_source, options=options)
-
-
-    print('rendering request')
-    return render(request, 'lcf/scenario_detail.html', context)
 
 def scenario_download(request,pk):
     print("downloading")

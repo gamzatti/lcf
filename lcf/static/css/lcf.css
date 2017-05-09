@@ -268,3 +268,12 @@ tr th.level1.tot {
     top: -60px;
     visibility: hidden;
 }
+
+.alert.field-error-message {
+    padding: 5px 15px;
+    margin: 0px 10px;
+}
+
+.error-message {
+  position: absolute;
+}

@@ -11,6 +11,10 @@ from django.conf import settings
 from functools import reduce, lru_cache
 import lcf.dataframe_helpers as dfh
 
+
+class PolicyMethodError(Exception):
+    pass
+
 def process_policy_form(policy_form):
     pl = policy_form.save()
     file = policy_form.cleaned_data['file']
@@ -21,8 +25,8 @@ def process_policy_form(policy_form):
     return pl
 
 def get_prices(s, scenario_form):
-    new_wp = [38.5, 41.8, 44.2, 49.8, 54.6, 56.2, 53.5, 57.0, 54.5, 52.2, 55.8]
-    excel_wp = [48.5400340402009, 54.285722954952, 58.4749297906221, 60.1487865144807, 64.9687482891174, 67.2664653151834, 68.6947628422952, 69.2053146319398, 66.3856598431318, 65.5255963446292, 65.5781764014488]
+    new_wp = dfh.new_wp
+    excel_wp = dfh.excel_wp
     wp_dict = {"new": new_wp, "excel": excel_wp, "other": None}
     wholesale_prices = wp_dict[scenario_form.cleaned_data['wholesale_prices']]
     if wholesale_prices == None:
@@ -50,14 +54,17 @@ def interpolate_tech_df(tech_df):
     techs = list(tech_df.index.levels[0])
     new_index = [(t, y) for t in techs for y in range(2020,2031) ]
     tech_df = tech_df.reindex(index=new_index)
-    tech_df[dfh.to_interpolate] = tech_df[dfh.to_interpolate].interpolate()
-    tech_df[['pot_name', 'included']] = tech_df[['pot_name', 'included']].fillna(method="ffill")
-    tech_df = tech_df.reset_index()
-    return tech_df
+    try:
+        tech_df[dfh.to_interpolate] = tech_df[dfh.to_interpolate].interpolate()
+    except KeyError:
+        raise
+    else:
+        tech_df[['pot_name', 'included']] = tech_df[['pot_name', 'included']].fillna(method="ffill")
+        tech_df = tech_df.reset_index()
+        return tech_df
 
 def update_tech_with_policies(tech_df,policies):
     if len(policies) == 0:
-        print('returning original frame, no policies applied')
         return tech_df
     else:
         tech_df.set_index(dfh.tech_policy_index['keys'], inplace=True)
@@ -69,7 +76,7 @@ def update_tech_with_policies(tech_df,policies):
         dfs = []
         for policy in policies:
             if policy.method != policies[0].method:
-                raise TypeError
+                raise PolicyMethodError("Unable to combine multiplication and subtraction policies in same scenario")
         for policy in policies:
             policy_df = policy.df().copy()
             policy_df = policy_df.set_index(dfh.tech_policy_index['keys'])
@@ -125,22 +132,25 @@ def parse_file(file):
     df = pd.read_csv(file)
     try:
         end_of_techs = df.index[df.pot_name.isnull()][0]
-        original_tech_df_with_note_columns = df.copy()[0:end_of_techs]
-        original_tech_df_with_note_columns.year, original_tech_df_with_note_columns.included = original_tech_df_with_note_columns.year.astype(int), original_tech_df_with_note_columns.included.astype(bool)
-        for col in dfh.note_columns:
-            original_tech_df_with_note_columns[col] = original_tech_df_with_note_columns[col].astype(str)
-        notes = get_notes(df)
-        original_tech_df_with_note_columns.min_levelised_cost = original_tech_df_with_note_columns.min_levelised_cost.astype(float)
-        tech_df = original_tech_df_with_note_columns[dfh.tech_inputs_keys]
-        print('notes')
     except IndexError:
         tech_df = df
         original_tech_df_with_note_columns = tech_df.reindex(columns = dfh.note_and_tech_keys)
         notes = DataFrame(columns = dfh.note_cols_inc_index)
-        print('no notes')
-    finally:
         tech_df = interpolate_tech_df(tech_df)
-    return tech_df, original_tech_df_with_note_columns, notes # new
+        return tech_df, original_tech_df_with_note_columns, notes
+    else:
+        original_tech_df_with_note_columns = df.copy()[0:end_of_techs]
+        original_tech_df_with_note_columns.year, original_tech_df_with_note_columns.included = original_tech_df_with_note_columns.year.astype(int), original_tech_df_with_note_columns.included.astype(bool)
+        for col in dfh.note_columns:
+            original_tech_df_with_note_columns[col] = original_tech_df_with_note_columns[col].astype(str)
+        else:
+            notes = get_notes(df)
+            original_tech_df_with_note_columns.min_levelised_cost = original_tech_df_with_note_columns.min_levelised_cost.astype(float)
+            tech_df = original_tech_df_with_note_columns[dfh.tech_inputs_keys]
+            tech_df = interpolate_tech_df(tech_df)
+            return tech_df, original_tech_df_with_note_columns, notes
+
+
 
 # @lru_cache(maxsize=1024)
 def process_scenario_form(scenario_form):
@@ -149,15 +159,18 @@ def process_scenario_form(scenario_form):
     create_auctionyear_and_pot_objects(prices_df,s)
     policies = s.policies.all()
     file = scenario_form.cleaned_data['file']
-    tech_df, original_tech_df_with_note_columns, notes = parse_file(file) #new
-    s.csv_inc_notes = original_tech_df_with_note_columns.to_json()
-    s.notes = notes.to_json()
-    s.save()
     try:
-        updated_tech_df = update_tech_with_policies(tech_df,policies)
-        create_technology_objects(updated_tech_df,s)
-        return 'success'
-    except TypeError:
-        print("policies must have same method")
-        s.delete()
-        return 'error'
+        tech_df, original_tech_df_with_note_columns, notes = parse_file(file)
+    except (KeyError, AttributeError):
+        # s.delete()
+        raise
+    else:
+        s.csv_inc_notes = original_tech_df_with_note_columns.to_json()
+        s.notes = notes.to_json()
+        s.save()
+        try:
+            updated_tech_df = update_tech_with_policies(tech_df,policies)
+            create_technology_objects(updated_tech_df,s)
+        except PolicyMethodError:
+            # s.delete()
+            raise

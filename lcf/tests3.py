@@ -667,7 +667,7 @@ class TestPolicies(TestCase):
         pl2 = Policy.objects.create(name="test", effects=effects2, method='SU')
         policies = [pl1, pl2]
         tech_df = DataFrame(pd.read_csv("lcf/template.csv"))
-        self.assertRaises(TypeError, update_tech_with_policies, tech_df, policies)
+        self.assertRaises(PolicyMethodErrorTypeError, update_tech_with_policies, tech_df, policies)
 
 
     def test_process_scenario_form_with_policies_with_different_methods(self):
@@ -822,3 +822,108 @@ class Notes(TestCase):
         sources = s.get_orignal_data_inc_sources()
         self.assertEqual(len(sources.columns), 18)
         self.assertTrue(sources[dfh.note_columns].isnull().all().all())
+
+class Exceptions(TestCase):
+    fixtures = ['prod/data.json']
+
+    # python manage.py test lcf.tests3.Exceptions.test_upload_non_csv
+    def test_upload_non_csv(self):
+        post_data = dfh.test_post_data
+        file_data = {'file': SimpleUploadedFile('admin.py', open('lcf/admin.py', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        self.assertFalse(scenario_form.is_valid())
+
+
+    # python manage.py test lcf.tests3.Exceptions.test_enter_incorrect_prices
+    def test_enter_incorrect_prices(self):
+        post_data = dfh.test_post_data
+        post_data['wholesale_prices'] = "other"
+        post_data['wholesale_prices_other'] = "1 2 3 4 5 6 5"
+        file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        self.assertFalse(scenario_form.is_valid())
+        self.assertEqual(scenario_form.errors, {
+            'wholesale_prices_other': ['Must have 11 values, separated by commas, spaces or tabs.'],
+        })
+
+        post_data['wholesale_prices_other'] = "a b c d e f g h a d j"
+        file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        self.assertFalse(scenario_form.is_valid())
+        self.assertEqual(scenario_form.errors, {
+            'wholesale_prices_other': ['a is not a valid number'],
+        })
+
+        post_data = dfh.test_post_data
+        post_data['wholesale_prices'] = "excel"
+        post_data['wholesale_prices_other'] = "1 2 3 4 5 6 7 8 9 10 11"
+        file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        self.assertFalse(scenario_form.is_valid())
+        self.assertEqual(scenario_form.non_field_errors(), ["To specify new wholesale prices, first set the option to 'Other' above."])
+
+
+    # python manage.py test lcf.tests3.Exceptions.test_blank_scenario
+    def test_blank_scenario(self):
+        post_data = {'name': '',
+                     'percent_emerging': 0.6,
+                     'budget': 3.3,
+                     'excel_quirks': 'on',
+                     'end_year1': 2025,
+                     'wholesale_prices': "excel",
+                     'gas_prices': "excel",
+                     }
+        scenario_form = ScenarioForm(post_data)
+        self.assertFalse(scenario_form.is_valid())
+        self.assertEqual(scenario_form.errors, {
+            'name': ['This field is required.'],
+            'file': ['This field is required.'],
+        })
+
+    # python manage.py test lcf.tests3.Exceptions.test_process_scenario_form_with_file_with_invalid_columns
+    def test_process_scenario_form_with_file_with_invalid_columns(self):
+        scenario_count = Scenario.objects.count()
+        post_data = dfh.test_post_data
+        file_data = {'file': SimpleUploadedFile('template_error.csv', open('lcf/template_error.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        self.assertTrue(scenario_form.is_valid())
+        self.assertRaises(KeyError, process_scenario_form, scenario_form)
+        new_scenario_count = Scenario.objects.count()
+        self.assertEqual(scenario_count, new_scenario_count)
+
+        scenario_count = Scenario.objects.count()
+        file_data = {'file': SimpleUploadedFile('template_with_sources_error.csv', open('lcf/template_with_sources_error.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        self.assertTrue(scenario_form.is_valid())
+        self.assertRaises(KeyError, process_scenario_form, scenario_form)
+        new_scenario_count = Scenario.objects.count()
+        self.assertEqual(scenario_count, new_scenario_count)
+
+        scenario_count = Scenario.objects.count()
+        file_data = {'file': SimpleUploadedFile('template_with_sources_error2.csv', open('lcf/template_with_sources_error2.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        self.assertTrue(scenario_form.is_valid())
+        self.assertRaises(KeyError, process_scenario_form, scenario_form)
+        new_scenario_count = Scenario.objects.count()
+        self.assertEqual(scenario_count, new_scenario_count)
+
+    # python manage.py test lcf.tests3.Exceptions.test_view_with_invalid_file
+    def test_view_with_invalid_file(self):
+        post_data = dfh.test_post_data
+        post_data['file'] = open('lcf/template_with_sources_error.csv')
+        post_resp = self.client.post(reverse('scenario_new'), post_data)
+        self.assertEqual(post_resp.status_code,200)
+        self.assertEqual(post_resp.context['file_error'].args[0], "['load_factor'] not in index")
+
+        post_data = dfh.test_post_data
+        post_data['file'] = open('lcf/template_with_sources_error2.csv')
+        post_resp = self.client.post(reverse('scenario_new'), post_data)
+        self.assertEqual(post_resp.status_code,200)
+        self.assertEqual(post_resp.context['file_error'].args[0], "load_factor_note")
+
+        post_data = dfh.test_post_data
+        post_data['file'] = open('lcf/template_with_sources_error3.csv')
+        post_resp = self.client.post(reverse('scenario_new'), post_data)
+        self.assertEqual(post_resp.status_code,200)
+        self.assertEqual(post_resp.context['file_error'].args[0], "'DataFrame' object has no attribute 'year'")
+        self.assertEqual(post_resp.context['file_error'].args[0], "min_levelised_cost_note")

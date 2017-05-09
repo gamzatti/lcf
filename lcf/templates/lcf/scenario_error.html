@@ -1,0 +1,11 @@
+
+{% extends 'lcf/base.html' %}
+
+{% block title %}
+    {{ scenario.name }} -
+{% endblock %}
+
+{% block content %}
+<h1 class="page-header">No results to display</h1>
+<p>Scenario {{ scenario.name }} ({{ scenario.pk }}) was not created correctly. Please <a href="{% url 'scenario_delete_and_create_new' pk=scenario.pk  %}">delete and try again</a>, using correct file format upload.</p>
+{% endblock %}

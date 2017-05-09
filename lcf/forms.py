@@ -1,6 +1,38 @@
 from django import forms
 from .models import Scenario, AuctionYear, Pot, Technology, Policy
 from django.forms import Textarea
+import re
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
+from .validators import validate_file_extension
+
+class MultiPriceField(forms.CharField):
+    def to_python(self, value):
+        """Normalize data to a list of strings."""
+        # Return an empty list if no input was given.
+        if not value:
+            return []
+        delimters = "[, \-!?:\t]+"
+        return list(filter(None, re.split(delimters,value)))
+
+    def validate(self, value):
+        """Check if value consists only of valid emails."""
+        super(MultiPriceField, self).validate(value)
+        if len(value) > 0 and len(value) != 11:
+            raise ValidationError(
+                # _('%(value)s does not have 11 values'),
+                # params={'value': value},
+                'Must have 11 values, separated by commas, spaces or tabs.'
+                )
+        for price in value:
+            try:
+                float(price)
+            except ValueError:
+                raise ValidationError(
+                    _('%(price)s is not a valid number'),
+                    params={'price': price},
+                    )
+
 
 
 class ScenarioForm(forms.ModelForm):
@@ -13,10 +45,13 @@ class ScenarioForm(forms.ModelForm):
                   ("other", "Other"),
                   )
     wholesale_prices = forms.ChoiceField(widget=forms.Select(attrs={'class': "col-sm-5"}), choices=WP_CHOICES)
-    wholesale_prices_other = forms.CharField(widget=forms.TextInput(attrs={'class': "col-sm-5"}), max_length=400, label="If other, please list", required=False)
+    # wholesale_prices_other = forms.CharField(widget=forms.TextInput(attrs={'class': "col-sm-5"}), max_length=400, label="If other, please list", required=False)
+    wholesale_prices_other = MultiPriceField(widget=forms.TextInput(attrs={'class': "col-sm-5"}), max_length=400, label="If other, please list", required=False)
+
     gas_prices = forms.ChoiceField(widget=forms.Select(attrs={'class': "col-sm-5"}), choices=GAS_CHOICES)
-    gas_prices_other = forms.CharField(widget=forms.TextInput(attrs={'class': "col-sm-5"}), max_length=400, label="If other, please list", required=False)
-    file = forms.FileField(label="Technology data")
+    # gas_prices_other = forms.CharField(widget=forms.TextInput(attrs={'class': "col-sm-5"}), max_length=400, label="If other, please list", required=False)
+    gas_prices_other = MultiPriceField(widget=forms.TextInput(attrs={'class': "col-sm-5"}), max_length=400, label="If other, please list", required=False)
+    file = forms.FileField(label="Technology data", validators=[validate_file_extension])
 
     class Meta:
         model = Scenario
@@ -38,13 +73,38 @@ class ScenarioForm(forms.ModelForm):
           'policies': forms.CheckboxSelectMultiple()
         }
 
+    def clean(self):
+        cleaned_data = super(ScenarioForm, self).clean()
+        wholesale_prices = cleaned_data.get('wholesale_prices')
+        wholesale_prices_other = cleaned_data.get('wholesale_prices_other')
+        gas_prices = cleaned_data.get('gas_prices')
+        gas_prices_other = cleaned_data.get('gas_prices_other')
+        if wholesale_prices != 'other' and wholesale_prices_other:
+            raise forms.ValidationError(
+                    "To specify new wholesale prices, first set the option to 'Other' above."
+                )
+        if wholesale_prices == 'other' and wholesale_prices_other == []:
+            raise forms.ValidationError(
+                    "If specifying 'Other' for wholesale prices, please input 11 valid numbers, separated by commas, spaces or tabs."
+                )
+        if gas_prices != 'other' and gas_prices_other:
+            raise forms.ValidationError(
+                    "To specify new gas prices, first set the option to 'Other' above."
+                )
+        if gas_prices == 'other' and gas_prices_other == []:
+            raise forms.ValidationError(
+                    "If specifying 'Other' for gas prices, please input 11 valid numbers, separated by commas, spaces or tabs."
+                )
+
+
+
 class PricesForm(forms.Form):
     wholesale_prices = forms.CharField(max_length=400)
     gas_prices = forms.CharField(max_length=400)
 
 
 class PolicyForm(forms.ModelForm):
-    file = forms.FileField(label="Cost changes")
+    file = forms.FileField(label="Cost changes", validators=[validate_file_extension])
 
     class Meta:
         model = Policy
