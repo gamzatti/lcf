@@ -162,7 +162,7 @@ def process_scenario_form(scenario_form):
     try:
         tech_df, original_tech_df_with_note_columns, notes = parse_file(file)
     except (KeyError, AttributeError):
-        # s.delete()
+        s.delete()
         raise
     else:
         s.csv_inc_notes = original_tech_df_with_note_columns.to_json()
@@ -172,5 +172,5 @@ def process_scenario_form(scenario_form):
             updated_tech_df = update_tech_with_policies(tech_df,policies)
             create_technology_objects(updated_tech_df,s)
         except PolicyMethodError:
-            # s.delete()
+            s.delete()
             raise
