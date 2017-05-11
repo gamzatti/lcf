@@ -132,6 +132,8 @@ def get_notes(df):
 
 def parse_file(file):
     df = pd.read_csv(file)
+    if 'name' in df.columns:
+        df.rename(columns={'name':'tech_name'}, inplace=True)
     try:
         # end_of_techs = df.index[df.pot_name.isnull()][0]
         end_of_techs = df.index[df.isnull().all(axis=1)][0]
