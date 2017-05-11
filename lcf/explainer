@@ -1,0 +1,13 @@
+Hi folks,
+
+I've made a number of changes to the model:
+
+1. Innovation premium and Cost v gas:
+    Innovation premium ignores Negawatts, while the cost v gas includes them, and because they're so cheap this figure then comes out negative.
+    In our discussion we thought innovation premium was the more useful figure.
+    nb I get £219m in my scenario that matches Excel sc3 most closely, rather than £150m. This is to do with a couple of Excel quirks altering the actual amount of generation which I'm happy to explain on skype if you like.
+
+
+2. Notes/sources:
+    The model now accepts technology data with notes/sources as well as without.
+    I've sort of followed the Excel layout, so there is a column with a number next to each data point, and then a description below of what the number corresponds to in terms of notes, source, link, local link.

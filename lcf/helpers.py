@@ -118,7 +118,9 @@ def create_technology_objects(df,s):
 
 def get_notes(df):
     # or start_of_notes = df.index[df.pot_name.isnull()][-1]+1
-    start_of_notes = df.index[df.pot_name.isin(["Notes", "notes"])][0]+1
+    # start_of_notes = df.index[df.pot_name.isin(["Notes", "notes"])][0]+1
+    start_of_notes = df.index[df.isin(["Notes", "notes"]).any(axis=1)][0]+1
+
     notes = df.copy()[start_of_notes:]
     notes.columns = pd.Index(notes.iloc[0].values,name = None)
     for col in dfh.note_cols:
@@ -131,7 +133,9 @@ def get_notes(df):
 def parse_file(file):
     df = pd.read_csv(file)
     try:
-        end_of_techs = df.index[df.pot_name.isnull()][0]
+        # end_of_techs = df.index[df.pot_name.isnull()][0]
+        end_of_techs = df.index[df.isnull().all(axis=1)][0]
+
     except IndexError:
         tech_df = df
         original_tech_df_with_note_columns = tech_df.reindex(columns = dfh.note_and_tech_keys)

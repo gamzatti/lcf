@@ -777,9 +777,19 @@ class Notes(TestCase):
 
         assert_frame_equal(tech_df_with_notes,tech_df_without_notes)
 
+
+    # python manage.py test lcf.tests3.Notes.test_parse_file_with_different_column_order
+    def test_parse_file_with_different_column_order(self):
+        file = open('lcf/template_with_sources2.csv')
+        tech_df, original_tech_df_with_note_columns, notes = parse_file(file)
+        self.assertEqual(len(notes), 17)
+        self.assertEqual(len(notes.columns), 5)
+        self.assertEqual(len(original_tech_df_with_note_columns), 88)
+
     # python manage.py test lcf.tests3.Notes.test_process_scenario_form_with_notes_without_notes
     def test_process_scenario_form_with_notes_without_notes(self):
         post_data = dfh.test_post_data
+
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         if scenario_form.is_valid():
@@ -797,6 +807,17 @@ class Notes(TestCase):
             results = recent_s.pivot('cum_owed_v_wp')
             self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
             # print(recent_s.csv_inc_notes)
+
+    # python manage.py test lcf.tests3.Notes.test_process_scenario_form_with_different_column_order
+    def test_process_scenario_form_with_different_column_order(self):
+        post_data = dfh.test_post_data
+        file_data = {'file': SimpleUploadedFile('template_with_sources2.csv', open('lcf/template_with_sources2.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        if scenario_form.is_valid():
+            process_scenario_form(scenario_form)
+            recent_s = Scenario.objects.order_by('-date')[0]
+            results = recent_s.pivot('cum_owed_v_wp')
+            self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
 
     # python manage.py test lcf.tests3.Notes.test_retrieve_sources
     def test_retrieve_sources(self):
@@ -927,3 +948,15 @@ class Exceptions(TestCase):
         self.assertEqual(post_resp.status_code,200)
         self.assertEqual(post_resp.context['file_error'].args[0], "'DataFrame' object has no attribute 'year'")
         self.assertEqual(post_resp.context['file_error'].args[0], "min_levelised_cost_note")
+
+    # python manage.py test lcf.tests3.Exceptions.test_view_with_invalid_scenario
+    def test_view_with_invalid_scenario(self):
+        s = Scenario.objects.create(name="foo")
+        resp = self.client.get(reverse('scenario_detail', kwargs={'pk':s.pk}))
+        self.assertEqual(resp.status_code,200)
+
+    # python manage.py test lcf.tests3.Exceptions.test_view_with_non_existant_scenario
+
+    def test_view_with_non_existant_scenario(self):
+        resp = self.client.get(reverse('scenario_detail', kwargs={'pk':999}))
+        self.assertEqual(resp.status_code,404)
