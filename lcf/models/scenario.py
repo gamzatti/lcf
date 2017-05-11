@@ -29,10 +29,10 @@ class Scenario(models.Model):
     subsidy_free_p2 = models.BooleanField(default=False, verbose_name="Only subsidy-free CFDs for period 2")
     tidal_levelised_cost_distribution = models.BooleanField(default=True)
     excel_sp_error = models.BooleanField(default=False, verbose_name="Excel quirk: use future strike price rather than year contract agreed")
-    excel_2020_gen_error = models.BooleanField(default=False, verbose_name="Excel quirk: count cumulative generation from 2020 for auction and negotiations (but not FIT)")
-    excel_nw_carry_error = models.BooleanField(default=False, verbose_name="Excel quirk: carry NWFIT into next year, even though it's been spent")
-    excel_include_previous_unsuccessful_nuclear = models.BooleanField(default=True, verbose_name="Excel quirk: allow previously unsuccessful nuclear projects to be considered in future years")
-    excel_include_previous_unsuccessful_all = models.BooleanField(default=False, verbose_name="Excel quirk: allow previously unsuccessful projects for all technologies to be considered in future years (overrides maximum deployment limit)")
+    excel_2020_gen_error = models.BooleanField(default=False, verbose_name="Excel quirk: count cumulative generation from 2020 for auction and negotiations")
+    excel_nw_carry_error = models.BooleanField(default=False, verbose_name="Excel quirk: carry NWFIT budget into next year, even though it's been spent")
+    excel_include_previous_unsuccessful_nuclear = models.BooleanField(default=True, verbose_name="Excel quirk: allow previously unsuccessful projects in separate negotiations to be considered in future years")
+    excel_include_previous_unsuccessful_all = models.BooleanField(default=False, verbose_name="Excel quirk: allow previously unsuccessful projects for all technologies to be considered in future years (overrides maximum deployment limit). Incompatible with switching technologies on/off for individual years.")
     excel_quirks = models.BooleanField(default=False, verbose_name="Include all Excel quirks (if selected, overrides individual quirk settings)")
     results = models.TextField(null=True,blank=True)
     policies = models.ManyToManyField(Policy, blank=True)
@@ -69,7 +69,10 @@ class Scenario(models.Model):
         column_names = dfh.tech_results_keys
         if self.results == None:
             print('calculating')
-            self.run_auctions()
+            try:
+                self.run_auctions()
+            except ValueError:
+                raise ScenarioError("Possible problem: your template included/excluded technologies in individual years, yet you didn't switch OFF the 'allow previously unsuccessful projects for all technologies' quirk.")
             results = DataFrame([ [t.pot.auctionyear.year,
                         t.pot.get_name_display(),
                         t.get_name_display(),
@@ -85,8 +88,7 @@ class Scenario(models.Model):
             results = results.sort_values(dfh.tech_results_index['keys'])
             results.index = range(0,len(results.index))
             if len(results) == 0:
-                print('scenario not created correctly')
-                raise ScenarioError('scenario not created correctly')
+                raise ScenarioError('Problem unknown, sorry!')
             else:
                 self.results = results.to_json()
                 self.save()

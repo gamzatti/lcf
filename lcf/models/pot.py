@@ -11,6 +11,7 @@ import timeit
 import lcf.dataframe_helpers as dfh
 from .technology import Technology
 #from django_pandas.managers import DataFrameManager
+from lcf.exceptions import ScenarioError
 
 class Pot(models.Model):
     POT_CHOICES = [ (k, v) for k, v in dfh.pot_choices.items() ]
@@ -221,8 +222,12 @@ class Pot(models.Model):
         return projects
 
     def concat_projects(self):
-        res = pd.concat([t.projects() for t in self.active_technology_dict.values() ])
-        return res
+        try:
+            res = pd.concat([t.projects() for t in self.active_technology_dict.values() ])
+        except ValueError:
+            raise
+        else:
+            return res
 
     def non_cum_concat_projects(self):
         res = pd.concat([t.non_cum_projects() for t in self.active_technology_dict.values() ])
@@ -275,4 +280,6 @@ class Pot(models.Model):
         else:
             self.run_relevant_auction()
             res = self.awarded_cost_result
+            if res == None:
+                raise ScenarioError('{} {} auction not running correctly'.format(self.name, self.auctionyear.year))
         return res

@@ -131,11 +131,13 @@ def scenario_detail(request, pk=None):
     print("[lease sss don't c a che me!")
     try:
         scenario.get_results()
-    except ScenarioError:
+        e = None
+    except ScenarioError as e:
         context = {'scenario': scenario,
                    'policies': Policy.objects.all(),
                    'scenarios': scenarios,
-                   'recent_pk': recent_pk
+                   'recent_pk': recent_pk,
+                   'error_message': e,
                    }
         return render(request, 'lcf/scenario_error.html', context = context)
     else:
