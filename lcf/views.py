@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory, formset_factory
 from .forms import ScenarioForm, PricesForm, PolicyForm
-
+from django.core.exceptions import ObjectDoesNotExist
 from .models import Scenario, AuctionYear, Pot, Technology, Policy
 import time
 
@@ -31,17 +31,17 @@ from django.template import RequestContext
 #     response.status_code = 404
 #     return response
 
-def error404(request):
-    scenarios = Scenario.objects.all()
-    recent_pk = Scenario.objects.all().order_by("-date")[0].pk
-    scenario = Scenario.objects.all().order_by("-date")[0]
-    context = {'scenario': scenario,
-               'policies': Policy.objects.all(),
-               'scenarios': scenarios,
-               'recent_pk': recent_pk,
-               }
-    template = loader.get_template('404.html')
-    return HttpResponse(content=template.render(context), content_type='text/html; charset=utf-8', status=404)
+# def error404(request):
+#     scenarios = Scenario.objects.all()
+#     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
+#     scenario = Scenario.objects.all().order_by("-date")[0]
+#     context = {'scenario': scenario,
+#                'policies': Policy.objects.all(),
+#                'scenarios': scenarios,
+#                'recent_pk': recent_pk,
+#                }
+#     template = loader.get_template('404.html')
+#     return HttpResponse(content=template.render(context), content_type='text/html; charset=utf-8', status=404)
 
 def scenario_new(request):
     file_error = None
@@ -105,7 +105,18 @@ def policy_detail(request,pk):
     scenarios = Scenario.objects.all()
     recent_pk = Scenario.objects.all().order_by("-date")[0].pk
     scenario = Scenario.objects.all().order_by("-date")[0]
-    policy = Policy.objects.get(pk=pk)
+    try:
+        policy = Policy.objects.get(pk=pk)
+    except ObjectDoesNotExist:
+        context = {'pk': pk,
+                   'type': 'policy',
+                   'policies': Policy.objects.all(),
+                   'scenarios': scenarios,
+                   'recent_pk': recent_pk,
+                   }
+        return render(request, '404.html', context)
+
+
     # price_effects = policy.df_for_display('prices')
     # techs_effects = policy.df_for_display('techs')
     techs_effects = policy.df_for_display()
@@ -125,10 +136,20 @@ def scenario_detail(request, pk=None):
     scenarios = Scenario.objects.all()
     if pk == None:
         pk = Scenario.objects.all().order_by("-date")[0].pk
-    scenario = get_object_or_404(Scenario.objects.prefetch_related('auctionyear_set__pot_set__technology_set', 'policies'), pk=pk)
-    print('instantiating a scenario object with prefetched attributes')
-    print(scenario.name)
-    print("[lease sss don't c a che me!")
+    # scenario = get_object_or_404(Scenario.objects.prefetch_related('auctionyear_set__pot_set__technology_set', 'policies'), pk=pk)
+    try:
+        scenario = Scenario.objects.prefetch_related('auctionyear_set__pot_set__technology_set', 'policies').get(pk=pk) #new
+    except ObjectDoesNotExist:
+        context = {'pk': pk,
+                   'type': 'scenario',
+                   'policies': Policy.objects.all(),
+                   'scenarios': scenarios,
+                   'recent_pk': recent_pk,
+                   }
+        return render(request, '404.html', context)
+    # print('instantiating a scenario object with prefetched attributes')
+    # print(scenario.name)
+    # print("[lease sss don't c a che me!")
     try:
         scenario.get_results()
         e = None
