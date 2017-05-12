@@ -218,27 +218,25 @@ def scenario_download(request,pk):
     writer.writerow(['Percent in emerging pot', scenario.percent_emerging])
     writer.writerow([""])
     writer.writerow([""])
-    writer.writerow(["............Inputs to model, after policies have been applied..........."])
-    inputs = [
-               ('Prices (£/MWh)', scenario.prices_input()),
-               ('Technology data', scenario.techs_input()),
-               ]
-    for df_pair in inputs:
-        title = [df_pair[0]]
-        writer.writerow(title)
-        if df_pair[0] == 'Prices (£/MWh)':
-            headers = ['']
-        else:
-            headers = []
-        headers.extend(df_pair[1].columns)
-        writer.writerow(headers)
-        for i in range(len(df_pair[1].index)):
-            row = [df_pair[1].index[i]]
-            row.extend(df_pair[1].iloc[i])
-            if df_pair[0] == 'Technology data':
-                row = row[1:]
-            writer.writerow(row)
-        writer.writerow([])
+
+    writer.writerow(["............Inputs to model, before policies have been applied..........."])
+
+    tech, prices, notes = scenario.inputs_download()
+    writer.writerow(["Prices (£/MWh)"])
+    writer.writerows(prices)
+    writer.writerow([""])
+    writer.writerow([""])
+    writer.writerow(["Technology data"])
+    writer.writerows(tech)
+    writer.writerow([""])
+    writer.writerow([""])
+    writer.writerow(["Notes"])
+    writer.writerows(notes)
+
+
+
+    writer.writerow([""])
+    writer.writerow([""])
     writer.writerow(["............Policies............"])
     for pl in scenario.policies.all():
         writer.writerow([pl.name])

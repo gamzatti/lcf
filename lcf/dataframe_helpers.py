@@ -56,7 +56,16 @@ abbrev = DataFrame([["Pot",
                   "change in load factor",
                   "change in max new capacity",
                   "change in number of new projects",
-                  "change in project size"
+                  "change in project size",
+                  "Wholesale electricity price - note",
+                  "LCOE CCGT plus carbon price - note",
+                   "Min LCOE - note",
+                   "Max LCOE - note",
+                   "Strike price - note",
+                   "Load factor - note",
+                   "Max new capacity - note",
+                   "Number of new projects - note",
+                   "Project size - note",
                  ],
                 ["",
                 # "",
@@ -68,6 +77,16 @@ abbrev = DataFrame([["Pot",
                     "GW/year",
                     "projects/year",
                     "GWh",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+
                 ],
                 ["Pot",
                 # "Technology",
@@ -105,7 +124,17 @@ abbrev = DataFrame([["Pot",
                   "change in load factor (%)",
                   "change in max new capacity (GW/year)",
                   "change in number of new projects (projects/year)",
-                  "change in project size (GWh)"
+                  "change in project size (GWh)",
+                  "Wholesale electricity price (£/MWh) - note",
+                  "LCOE CCGT plus carbon price (£/MWh) - note",
+                 "Min LCOE (£/MWh) - note",
+                 "Max LCOE (£/MWh) - note",
+                 "Strike price (£/MWh) - note",
+                 "Load factor (%) - note",
+                 "Max new capacity (GW/year) - note",
+                 "Number of new projects (projects/year) - note",
+                 "Project size (GWh) - note",
+
                  ]
                 ],
                 columns = ["pot_name",
@@ -133,7 +162,9 @@ abbrev = DataFrame([["Pot",
                             "wholesale_prices_change",
                             "min_levelised_cost_change", "max_levelised_cost_change", "strike_price_change", "load_factor_change", "max_deployment_cap_change", "num_new_projects_change", "project_gen_change",
                             "min_levelised_cost_change_su", "max_levelised_cost_change_su", "strike_price_change_su", "load_factor_change_su", "max_deployment_cap_change_su", "num_new_projects_change_su", "project_gen_change_su",
-
+                            "wholesale_prices_note",
+                            "gas_prices_note",
+                            'min_levelised_cost_note', 'max_levelised_cost_note', 'strike_price_note', 'load_factor_note', 'max_deployment_cap_note', 'num_new_projects_note', 'project_gen_note',
                             ],
                 index=["title","unit", "title+unit"])
 
@@ -223,6 +254,8 @@ note_and_tech_keys = [
 
 note_cols = ['source', 'notes', 'link', 'local_link']
 note_cols_inc_index = ['num', 'source', 'notes', 'link', 'local_link']
+note_titles = ['Source', 'Notes', 'Link', 'Link on drive']
+note_titles_inc_index = ['Ref num', 'Source', 'Notes', 'Link', 'Link on drive']
 
 note_and_prices_keys = ['year',
                         'wholesale_prices',
@@ -230,7 +263,10 @@ note_and_prices_keys = ['year',
                         'gas_prices',
                         'gas_prices_note']
 
-
 prices_notes = ['wholesale_prices_note',
                 'gas_prices_note'
                 ]
+
+prices_and_notes_columns = [abbrev[column]["title"] for column in note_and_prices_keys]
+
+note_and_tech_columns = [abbrev[column]["title"] for column in note_and_tech_keys]

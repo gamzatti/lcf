@@ -223,6 +223,51 @@ class Scenario(models.Model):
         prices = prices.reindex(columns = dfh.note_and_prices_keys).sort_index()
         return prices
 
+    def inputs_download(self):
+        try:
+            tech = self.get_original_data_inc_sources()
+            tech.columns = dfh.note_and_tech_columns
+        except TypeError:
+            tech = self.techs_input()
+            tech.columns = dfh.tech_inputs_columns
+        headers = DataFrame(tech.columns).T
+        headers.columns = tech.columns
+        tech = pd.concat([headers,tech])
+        tech = tech.replace(np.nan,"")
+
+        tech = tech.values
+
+        try:
+            prices = self.get_original_prices_inc_sources()
+        except TypeError:
+            prices = self.prices_input().T
+            prices.columns = dfh.prices_columns
+            prices['Year'] = prices.index
+            prices = prices.reindex(columns=['Year'] +  dfh.prices_columns)
+        else:
+            prices.columns = dfh.prices_and_notes_columns
+
+        headers = DataFrame(prices.columns).T
+        headers.columns = prices.columns
+        prices = pd.concat([headers,prices]).T
+        prices = prices.replace(np.nan,"")
+        prices = prices.values
+
+        try:
+            notes = self.get_notes()
+
+        except TypeError:
+            notes = DataFrame()
+        else:
+            notes.columns = dfh.note_titles_inc_index
+            headers = DataFrame(notes.columns).T
+            headers.columns = notes.columns
+            notes = pd.concat([headers,notes])
+            notes = notes.values
+            # notes = notes.replace(np.nan,"")
+
+        return tech, prices, notes
+
     def original_html(self,data_type):
         if data_type == 'prices':
             cols = dfh.prices_keys
@@ -288,7 +333,8 @@ class Scenario(models.Model):
             # local_path = "file:///victoria/public/Themes/Climate and Energy Futures/DR0145 Decarbonisation - 2015-17 Consortium/LCF future/LCF analysis/Modelling/"
             local_path = "file:///P:/Themes/Climate and Energy Futures/DR0145 Decarbonisation - 2015-17 Consortium/LCF future/LCF analysis/Modelling/"
             notes.local_link = "<a href=\"" + local_path + notes.local_link + "\">" + notes.local_link + "</a>"
-
+            notes.columns = dfh.note_titles
+            notes.index.name = 'Ref num'
             return self.df_to_html(notes)
         except:
             print('no notes found')

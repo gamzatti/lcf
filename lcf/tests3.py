@@ -81,7 +81,8 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.Notes.test_process_scenario_form_with_notes_without_notes
 # python manage.py test lcf.tests3.Notes.test_process_scenario_form_with_different_column_order
 # python manage.py test lcf.tests3.Notes.test_retrieve_sources
-#
+# python manage.py test lcf.tests3.Notes.test_inputs_download
+
 #
 # python manage.py test lcf.tests3.Exceptions.test_upload_non_csv
 # python manage.py test lcf.tests3.Exceptions.test_enter_incorrect_prices
@@ -916,18 +917,52 @@ class Notes(TestCase):
     #     s = Scenario.objects.order_by('-date')[0]
     #     s.original_data_inc_prices_html()
 
-    # python manage.py test lcf.tests3.Notes.test_get_prices
-    def test_get_prices(self):
+    # # python manage.py test lcf.tests3.Notes.test_get_prices
+    # def test_get_prices(self):
+    #     post_data = dfh.test_post_data
+    #     file_data = {'file': SimpleUploadedFile('template_with_sources_and_prices.csv', open('lcf/template_with_sources_and_prices.csv', 'rb').read())}
+    #     scenario_form = ScenarioForm(post_data, file_data)
+    #     process_scenario_form(scenario_form,new_wp=False)
+    #     s = Scenario.objects.order_by('-date')[0]
+    #     prices = s.get_original_prices_inc_sources()
+    #     prices_html = s.original_prices_inc_sources_html()
+    #     # print(prices_html)
+
+
+    # python manage.py test lcf.tests3.Notes.test_inputs_download
+    def test_inputs_download(self):
         post_data = dfh.test_post_data
         file_data = {'file': SimpleUploadedFile('template_with_sources_and_prices.csv', open('lcf/template_with_sources_and_prices.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         process_scenario_form(scenario_form,new_wp=False)
         s = Scenario.objects.order_by('-date')[0]
-        prices = s.get_original_prices_inc_sources()
-        prices_html = s.original_prices_inc_sources_html()
-        print(prices_html)
-        sources = s.get_original_data_inc_sources()
-        # print(sources)
+        tech, prices, notes = s.inputs_download()
+        self.assertEqual(len(prices),5)
+        self.assertEqual(prices[0][1], 2020)
+        self.assertEqual(len(tech[0]),18)
+        self.assertEqual(tech[1][2], 2020)
+        # print(prices)
+        # print(tech)
+        print(notes)
+
+        post_data = dfh.test_post_data
+        file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        process_scenario_form(scenario_form,new_wp=False)
+        s = Scenario.objects.order_by('-date')[0]
+        tech, prices, notes = s.inputs_download()
+        self.assertEqual(len(prices),5)
+        self.assertEqual(prices[0][1], 2020)
+        self.assertEqual(len(tech[0]),18)
+        self.assertEqual(tech[1][2], 2020)
+
+
+        s = Scenario.objects.get(pk=453)
+        tech, prices, notes = s.inputs_download()
+        self.assertEqual(len(prices),3)
+        self.assertEqual(prices[0][1], 2020)
+        self.assertEqual(len(tech[0]),11)
+        self.assertEqual(tech[1][2], 2020)
 
 class Exceptions(TestCase):
     fixtures = ['prod/data.json']

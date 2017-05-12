@@ -1410,3 +1410,26 @@ def process_scenario_form(scenario_form):
         # context['tech_cum_owed_v_absolute_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_absolute',2))
         # context['tech_cum_awarded_gen_pivot1'] = scenario.pivot_to_html(scenario.pivot('cum_awarded_gen',1))
         # context['tech_cum_awarded_gen_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_awarded_gen',2))
+
+    # writer.writerow(["............Inputs to model, after policies have been applied..........."])
+    # inputs = [
+    #            ('Prices (£/MWh)', scenario.prices_input()),
+    #            ('Technology data', scenario.techs_input()),
+    #            ]
+    # for df_pair in inputs:
+    #     title = [df_pair[0]]
+    #     writer.writerow(title)
+    #     if df_pair[0] == 'Prices (£/MWh)':
+    #         headers = ['']
+    #     else:
+    #         headers = []
+    #     headers.extend(df_pair[1].columns)
+    #     writer.writerow(headers)
+    #     for i in range(len(df_pair[1].index)):
+    #         row = [df_pair[1].index[i]]
+    #         row.extend(df_pair[1].iloc[i])
+    #         if df_pair[0] == 'Technology data':
+    #             row = row[1:]
+    #         writer.writerow(row)
+    #     writer.writerow([])
+    #
