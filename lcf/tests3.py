@@ -14,7 +14,7 @@ import numpy.testing as npt
 import lcf.dataframe_helpers as dfh
 from .models import Scenario, AuctionYear, Pot, Technology, Policy
 from .forms import ScenarioForm, PricesForm, PolicyForm
-from .helpers import process_policy_form, process_scenario_form, get_prices, create_auctionyear_and_pot_objects, update_tech_with_policies, create_technology_objects, interpolate_tech_df, parse_file, get_notes
+from .helpers import process_policy_form, process_scenario_form, get_prices, create_auctionyear_and_pot_objects, update_tech_with_policies, create_technology_objects, interpolate_tech_df, parse_file, get_notes, get_default_prices
 
 # all tests have to be run individually!
 
@@ -74,9 +74,23 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.Interpolate.test_process_scenario_form_with_interpolation
 #
 # python manage.py test lcf.tests3.Notes.test_parse_file_with_notes
+# python manage.py test lcf.tests3.Notes.test_parse_file_with_prices_and_prices_notes
+# python manage.py test lcf.tests3.Notes.test_parse_file_with_and_without_prices
 # python manage.py test lcf.tests3.Notes.test_parse_file_with_or_without_notes_and_get_same_tech_data
+# python manage.py test lcf.tests3.Notes.test_parse_file_with_different_column_order
 # python manage.py test lcf.tests3.Notes.test_process_scenario_form_with_notes_without_notes
+# python manage.py test lcf.tests3.Notes.test_process_scenario_form_with_different_column_order
 # python manage.py test lcf.tests3.Notes.test_retrieve_sources
+#
+#
+# python manage.py test lcf.tests3.Exceptions.test_upload_non_csv
+# python manage.py test lcf.tests3.Exceptions.test_enter_incorrect_prices
+# python manage.py test lcf.tests3.Exceptions.test_blank_scenario
+# python manage.py test lcf.tests3.Exceptions.test_process_scenario_form_with_file_with_invalid_columns
+# python manage.py test lcf.tests3.Exceptions.test_view_with_invalid_file
+# python manage.py test lcf.tests3.Exceptions.test_view_with_invalid_scenario
+# python manage.py test lcf.tests3.Exceptions.test_view_with_non_existant_scenario
+#
 
 class ExcelQuirkTests(TestCase):
     fixtures = ['tests/new/data2.json']
@@ -606,7 +620,7 @@ class ViewsTests(TestCase):
         self.assertEqual(new_scenario_count,initial_scenario_count+1)
         s = Scenario.objects.order_by('-date')[0]
         results = s.pivot('cum_owed_v_wp',1)
-        self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
+        self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 3.123)
         self.assertEqual(Technology.objects.count(), initial_technology_count + 88)
 
 class TestPolicies(TestCase):
@@ -639,7 +653,7 @@ class TestPolicies(TestCase):
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         if scenario_form.is_valid():
-            process_scenario_form(scenario_form)
+            process_scenario_form(scenario_form,new_wp=False)
             recent_s = Scenario.objects.order_by('-date')[0]
             results = recent_s.pivot('cum_owed_v_wp')
             self.assertEqual(recent_s.name, "test 1234")
@@ -681,7 +695,7 @@ class TestPolicies(TestCase):
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         if scenario_form.is_valid():
-            self.assertEqual(process_scenario_form(scenario_form),'error')
+            self.assertEqual(process_scenario_form(scenario_form,new_wp=False),'error')
 
 
 class TestHelpers(TestCase):
@@ -695,7 +709,7 @@ class TestHelpers(TestCase):
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         if scenario_form.is_valid():
-            process_scenario_form(scenario_form)
+            process_scenario_form(scenario_form,new_wp=False)
             recent_s = Scenario.objects.order_by('-date')[0]
             results = recent_s.pivot('cum_owed_v_wp')
             self.assertEqual(recent_s.name, "test 1234")
@@ -715,7 +729,8 @@ class Interpolate(TestCase):
         scenario_form_with = ScenarioForm(post_data, file_data_with)
         s_without = scenario_form_without.save()
         s_with = scenario_form_with.save()
-        prices_df = get_prices(s_without, scenario_form_without)
+        # prices_df = get_prices(s_without, scenario_form_without)
+        prices_df = get_default_prices(new_wp=False)[0]
         create_auctionyear_and_pot_objects(prices_df,s_without)
         create_auctionyear_and_pot_objects(prices_df,s_with)
         tech_df_without = pd.read_csv(scenario_form_without.cleaned_data['file'])
@@ -734,7 +749,7 @@ class Interpolate(TestCase):
         file_data = {'file': SimpleUploadedFile('template_interpolate.csv', open('lcf/template_interpolate.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         if scenario_form.is_valid():
-            process_scenario_form(scenario_form)
+            process_scenario_form(scenario_form,new_wp=False)
             recent_s = Scenario.objects.order_by('-date')[0]
             results = recent_s.pivot('cum_owed_v_wp')
             self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
@@ -747,7 +762,7 @@ class Notes(TestCase):
     # python manage.py test lcf.tests3.Notes.test_parse_file_with_notes
     def test_parse_file_with_notes(self):
         file = open('lcf/template_with_sources.csv')
-        tech_df, original_tech_df_with_note_columns, notes = parse_file(file)
+        tech_df, original_tech_df_with_note_columns, prices_df, original_prices_df_with_note_columns, notes = parse_file(file)
         self.assertEqual(len(tech_df), 88)
         self.assertEqual(len(tech_df.columns), 11)
         self.assertEqual(len(notes), 17)
@@ -755,11 +770,47 @@ class Notes(TestCase):
         self.assertEqual(len(original_tech_df_with_note_columns), 88)
         self.assertEqual(len(original_tech_df_with_note_columns.columns), 18)
 
+
+    # python manage.py test lcf.tests3.Notes.test_parse_file_with_prices_and_prices_notes
+    def test_parse_file_with_prices_and_prices_notes(self):
+        file = open('lcf/template_with_sources_and_prices.csv')
+        tech_df, original_tech_df_with_note_columns, prices_df, original_prices_df_with_note_columns, notes = parse_file(file)
+        self.assertEqual(len(notes), 19)
+        self.assertEqual(len(notes.columns), 5)
+        self.assertEqual(len(original_tech_df_with_note_columns), 88)
+        self.assertEqual(len(original_tech_df_with_note_columns.columns), 18)
+        self.assertFalse((original_tech_df_with_note_columns.min_levelised_cost_note == 'nan').all())
+
+    # python manage.py test lcf.tests3.Notes.test_parse_file_with_and_without_prices
+    def test_parse_file_with_and_without_prices(self):
+        file = open('lcf/template_with_prices.csv')
+        tech_df_with_prices, original_tech_df_with_note_columns, prices_df_from_upload, original_prices_df_with_note_columns_from_upload, notes = parse_file(file)
+        self.assertEqual(len(notes), 0)
+        self.assertEqual(len(notes.columns), 5)
+        self.assertEqual(len(original_tech_df_with_note_columns), 88)
+        self.assertEqual(len(original_tech_df_with_note_columns.columns), 18)
+        # print(prices_df)
+        file = open('lcf/template.csv')
+        tech_df_without_prices, original_tech_df_with_note_columns, prices_df_from_default, original_prices_df_with_note_columns_from_default, notes = parse_file(file)
+        self.assertEqual(len(notes), 0)
+        self.assertEqual(len(notes.columns), 5)
+        self.assertEqual(len(original_tech_df_with_note_columns), 88)
+        self.assertEqual(len(original_tech_df_with_note_columns.columns), 18)
+
+        assert_frame_equal(tech_df_with_prices,tech_df_without_prices)
+        assert_frame_equal(prices_df_from_upload, prices_df_from_default)
+        assert_frame_equal(original_prices_df_with_note_columns_from_upload, original_prices_df_with_note_columns_from_default)
+
+        # different prices in upload should override default
+        file = open('lcf/template_with_new_prices.csv')
+        tech_df_with_prices, original_tech_df_with_note_columns, prices_df, original_prices_df_with_note_columns, notes = parse_file(file)
+        self.assertNotEqual(prices_df.wholesale_prices[2021],prices_df_from_default.wholesale_prices[2021])
+
     # python manage.py test lcf.tests3.Notes.test_parse_file_with_or_without_notes_and_get_same_tech_data
     def test_parse_file_with_or_without_notes_and_get_same_tech_data(self):
         """Test that a file with sources at the bottom returns same tech df as one without"""
         file = open('lcf/template_with_sources.csv')
-        tech_df_with_notes, original_tech_df_with_note_columns, notes = parse_file(file)
+        tech_df_with_notes, original_tech_df_with_note_columns, prices_df, original_prices_df_with_note_columns, notes = parse_file(file)
         self.assertEqual(len(notes), 17)
         self.assertEqual(len(notes.columns), 5)
         self.assertEqual(len(original_tech_df_with_note_columns), 88)
@@ -767,7 +818,7 @@ class Notes(TestCase):
         self.assertFalse((original_tech_df_with_note_columns.min_levelised_cost_note == 'nan').all())
 
         file = open('lcf/template.csv')
-        tech_df_without_notes, original_tech_df_with_note_columns, notes = parse_file(file)
+        tech_df_without_notes, original_tech_df_with_note_columns, prices_df, original_prices_df_with_note_columns, notes = parse_file(file)
         self.assertEqual(len(notes), 0)
         self.assertEqual(len(notes.columns), 5)
         self.assertEqual(len(original_tech_df_with_note_columns), 88)
@@ -777,14 +828,14 @@ class Notes(TestCase):
 
         assert_frame_equal(tech_df_with_notes,tech_df_without_notes)
 
-
     # python manage.py test lcf.tests3.Notes.test_parse_file_with_different_column_order
     def test_parse_file_with_different_column_order(self):
         file = open('lcf/template_with_sources2.csv')
-        tech_df, original_tech_df_with_note_columns, notes = parse_file(file)
+        tech_df, original_tech_df_with_note_columns, prices_df, original_prices_df_with_note_columns, notes = parse_file(file)
         self.assertEqual(len(notes), 17)
         self.assertEqual(len(notes.columns), 5)
         self.assertEqual(len(original_tech_df_with_note_columns), 88)
+
 
     # python manage.py test lcf.tests3.Notes.test_process_scenario_form_with_notes_without_notes
     def test_process_scenario_form_with_notes_without_notes(self):
@@ -793,7 +844,7 @@ class Notes(TestCase):
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         if scenario_form.is_valid():
-            process_scenario_form(scenario_form)
+            process_scenario_form(scenario_form,new_wp=False)
             recent_s = Scenario.objects.order_by('-date')[0]
             results = recent_s.pivot('cum_owed_v_wp')
             self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
@@ -802,7 +853,7 @@ class Notes(TestCase):
         file_data = {'file': SimpleUploadedFile('template_with_sources.csv', open('lcf/template_with_sources.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         if scenario_form.is_valid():
-            process_scenario_form(scenario_form)
+            process_scenario_form(scenario_form,new_wp=False)
             recent_s = Scenario.objects.order_by('-date')[0]
             results = recent_s.pivot('cum_owed_v_wp')
             self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
@@ -814,7 +865,7 @@ class Notes(TestCase):
         file_data = {'file': SimpleUploadedFile('template_with_sources2.csv', open('lcf/template_with_sources2.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         if scenario_form.is_valid():
-            process_scenario_form(scenario_form)
+            process_scenario_form(scenario_form,new_wp=False)
             recent_s = Scenario.objects.order_by('-date')[0]
             results = recent_s.pivot('cum_owed_v_wp')
             self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
@@ -824,25 +875,59 @@ class Notes(TestCase):
         post_data = dfh.test_post_data
         file_data = {'file': SimpleUploadedFile('template_with_sources.csv', open('lcf/template_with_sources.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
-        process_scenario_form(scenario_form)
+        process_scenario_form(scenario_form,new_wp=False)
         s = Scenario.objects.order_by('-date')[0]
         notes = s.get_notes()
         self.assertEqual(notes.link[0], 'http://www.theccc.org.uk/wp-content/uploads/2014/07/CCC-Progress-Report-2014_web_2.pdf')
-        sources = s.get_orignal_data_inc_sources()
+        sources = s.get_original_data_inc_sources()
         sources = sources.set_index(dfh.tech_inputs_index['keys'])
         self.assertEqual(sources.loc[('E','OFW', 2020), 'min_levelised_cost_note'], 2)
         self.assertFalse(sources[dfh.note_columns].isnull().all().all())
 
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
-        process_scenario_form(scenario_form)
+        process_scenario_form(scenario_form,new_wp=False)
         s = Scenario.objects.order_by('-date')[0]
         notes = s.get_notes()
         self.assertEqual(len(notes), 0)
         self.assertEqual(len(notes.columns), 5)
-        sources = s.get_orignal_data_inc_sources()
+        sources = s.get_original_data_inc_sources()
         self.assertEqual(len(sources.columns), 18)
         self.assertTrue(sources[dfh.note_columns].isnull().all().all())
+
+        post_data = dfh.test_post_data
+        file_data = {'file': SimpleUploadedFile('template_with_sources_and_prices.csv', open('lcf/template_with_sources_and_prices.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        process_scenario_form(scenario_form,new_wp=False)
+        s = Scenario.objects.order_by('-date')[0]
+        notes = s.get_notes()
+        self.assertEqual(notes.link[0], 'http://www.theccc.org.uk/wp-content/uploads/2014/07/CCC-Progress-Report-2014_web_2.pdf')
+        sources = s.get_original_data_inc_sources()
+        sources = sources.set_index(dfh.tech_inputs_index['keys'])
+        self.assertEqual(sources.loc[('E','OFW', 2020), 'min_levelised_cost_note'], 2)
+        self.assertFalse(sources[dfh.note_columns].isnull().all().all())
+
+    # # python manage.py test lcf.tests3.Notes.test_sources_html
+    # def test_sources_html(self):
+    #     post_data = dfh.test_post_data
+    #     file_data = {'file': SimpleUploadedFile('template_with_sources_and_prices.csv', open('lcf/template_with_sources_and_prices.csv', 'rb').read())}
+    #     scenario_form = ScenarioForm(post_data, file_data)
+    #     process_scenario_form(scenario_form)
+    #     s = Scenario.objects.order_by('-date')[0]
+    #     s.original_data_inc_prices_html()
+
+    # python manage.py test lcf.tests3.Notes.test_get_prices
+    def test_get_prices(self):
+        post_data = dfh.test_post_data
+        file_data = {'file': SimpleUploadedFile('template_with_sources_and_prices.csv', open('lcf/template_with_sources_and_prices.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        process_scenario_form(scenario_form,new_wp=False)
+        s = Scenario.objects.order_by('-date')[0]
+        prices = s.get_original_prices_inc_sources()
+        prices_html = s.original_prices_inc_sources_html()
+        print(prices_html)
+        sources = s.get_original_data_inc_sources()
+        # print(sources)
 
 class Exceptions(TestCase):
     fixtures = ['prod/data.json']
@@ -906,6 +991,7 @@ class Exceptions(TestCase):
         scenario_count = Scenario.objects.count()
         post_data = dfh.test_post_data
         file_data = {'file': SimpleUploadedFile('template_error.csv', open('lcf/template_error.csv', 'rb').read())}
+        # print(pd.read_csv(file_data['file']))
         scenario_form = ScenarioForm(post_data, file_data)
         self.assertTrue(scenario_form.is_valid())
         self.assertRaises(KeyError, process_scenario_form, scenario_form)
@@ -916,6 +1002,7 @@ class Exceptions(TestCase):
         file_data = {'file': SimpleUploadedFile('template_with_sources_error.csv', open('lcf/template_with_sources_error.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         self.assertTrue(scenario_form.is_valid())
+
         self.assertRaises(KeyError, process_scenario_form, scenario_form)
         new_scenario_count = Scenario.objects.count()
         self.assertEqual(scenario_count, new_scenario_count)
@@ -934,20 +1021,20 @@ class Exceptions(TestCase):
         post_data['file'] = open('lcf/template_with_sources_error.csv')
         post_resp = self.client.post(reverse('scenario_new'), post_data)
         self.assertEqual(post_resp.status_code,200)
-        self.assertEqual(post_resp.context['file_error'].args[0], "['load_factor'] not in index")
+        self.assertEqual(post_resp.context['file_error'].args[0], "load_factor6 shouldn't be in column headers")
+        # self.assertEqual(post_resp.context['file_error'].args[0], "['load_factor'] not in index")
 
         post_data = dfh.test_post_data
         post_data['file'] = open('lcf/template_with_sources_error2.csv')
         post_resp = self.client.post(reverse('scenario_new'), post_data)
         self.assertEqual(post_resp.status_code,200)
-        self.assertEqual(post_resp.context['file_error'].args[0], "load_factor_note")
+        self.assertEqual(post_resp.context['file_error'].args[0], "load_factor_note6 shouldn't be in column headers")
 
         post_data = dfh.test_post_data
         post_data['file'] = open('lcf/template_with_sources_error3.csv')
         post_resp = self.client.post(reverse('scenario_new'), post_data)
         self.assertEqual(post_resp.status_code,200)
-        self.assertEqual(post_resp.context['file_error'].args[0], "'DataFrame' object has no attribute 'year'")
-        self.assertEqual(post_resp.context['file_error'].args[0], "min_levelised_cost_note")
+        self.assertEqual(post_resp.context['file_error'].args[0], "year2 shouldn't be in column headers")
 
     # python manage.py test lcf.tests3.Exceptions.test_view_with_invalid_scenario
     def test_view_with_invalid_scenario(self):
@@ -956,7 +1043,6 @@ class Exceptions(TestCase):
         self.assertEqual(resp.status_code,200)
 
     # python manage.py test lcf.tests3.Exceptions.test_view_with_non_existant_scenario
-
     def test_view_with_non_existant_scenario(self):
         resp = self.client.get(reverse('scenario_detail', kwargs={'pk':999}))
-        self.assertEqual(resp.status_code,404)
+        self.assertEqual(resp.status_code,200)

@@ -18,6 +18,7 @@ technology_choices = {"OFW": "Offshore wind",
 
 new_wp = [38.5, 41.8, 44.2, 49.8, 54.6, 56.2, 53.5, 57.0, 54.5, 52.2, 55.8]
 excel_wp = [48.5400340402009, 54.285722954952, 58.4749297906221, 60.1487865144807, 64.9687482891174, 67.2664653151834, 68.6947628422952, 69.2053146319398, 66.3856598431318, 65.5255963446292, 65.5781764014488]
+excel_gas = [85.0, 87.0, 89.0, 91.0, 93.0, 95.0, 95.0, 95.0, 95.0, 95.0, 95.0]
 
 abbrev = DataFrame([["Pot",
                 #  "Technology",
@@ -222,3 +223,14 @@ note_and_tech_keys = [
 
 note_cols = ['source', 'notes', 'link', 'local_link']
 note_cols_inc_index = ['num', 'source', 'notes', 'link', 'local_link']
+
+note_and_prices_keys = ['year',
+                        'wholesale_prices',
+                        'wholesale_prices_note',
+                        'gas_prices',
+                        'gas_prices_note']
+
+
+prices_notes = ['wholesale_prices_note',
+                'gas_prices_note'
+                ]

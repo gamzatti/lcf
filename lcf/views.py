@@ -169,21 +169,10 @@ def scenario_detail(request, pk=None):
                    'scenarios': scenarios,
                    'recent_pk': recent_pk
                    }
-        context['techs_input_html'] = scenario.techs_input_html()
-        context['prices_input_html'] = scenario.prices_input_html()
-        context['tech_cap_pivot'] = scenario.pivot_to_html(scenario.pivot('awarded_cap',1))
-        context['tech_cap_pivot2'] = scenario.pivot_to_html(scenario.pivot('awarded_cap',2))
-        context['tech_gen_pivot'] = scenario.pivot_to_html(scenario.pivot('awarded_gen',1))
-        context['tech_gen_pivot2'] = scenario.pivot_to_html(scenario.pivot('awarded_gen',2))
-        context['tech_cum_owed_v_wp_pivot'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_wp',1))
-        context['tech_cum_owed_v_wp_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_wp',2))
-        context['tech_cum_owed_v_gas_pivot'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_gas',1))
-        context['tech_cum_owed_v_gas_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_gas',2))
-        context['tech_cum_owed_v_absolute_pivot'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_absolute',1))
-        context['tech_cum_owed_v_absolute_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_owed_v_absolute',2))
-        context['tech_cum_awarded_gen_pivot'] = scenario.pivot_to_html(scenario.pivot('cum_awarded_gen',1))
-        context['tech_cum_awarded_gen_pivot2'] = scenario.pivot_to_html(scenario.pivot('cum_awarded_gen',2))
-
+        for column in ['awarded_cap', 'awarded_gen', 'cum_owed_v_wp', 'cum_owed_v_gas', 'cum_owed_v_absolute', 'cum_awarded_gen']:
+            for num in [1,2]:
+                pivot_table = getattr(scenario, 'pivot')(column, num)
+                context["".join([column,str(num)])] = getattr(scenario, 'pivot_to_html')(pivot_table)
 
         for column in ["awarded_cap", "cum_awarded_gen"]:
             chart_data, options = scenario.df_to_chart_data(column)['chart_data'], scenario.df_to_chart_data(column)['options']

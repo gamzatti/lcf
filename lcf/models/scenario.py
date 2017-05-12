@@ -38,6 +38,7 @@ class Scenario(models.Model):
     policies = models.ManyToManyField(Policy, blank=True)
 
     csv_inc_notes = models.TextField(null=True,blank=True)
+    prices_inc_notes = models.TextField(null=True,blank=True)
     notes = models.TextField(null=True, blank=True)
 
 
@@ -212,29 +213,65 @@ class Scenario(models.Model):
         df.index = dfh.prices_columns
         return self.df_to_html(df)
 
-    def get_orignal_data_inc_sources(self):
+    def get_original_data_inc_sources(self):
         sources = pd.read_json(self.csv_inc_notes)
         sources = sources.reindex(columns = dfh.note_and_tech_keys).sort_index()
         return sources
 
-    def orignal_data_inc_sources_html(self):
-        try:
-            sources = self.get_orignal_data_inc_sources()
-            sources[dfh.note_columns] = sources[dfh.note_columns].replace('nan', 0)
-            sources[dfh.note_columns] = sources[dfh.note_columns].astype(int)
-            sources[dfh.note_pair_columns] = sources[dfh.note_pair_columns].round(2).astype(str)
-            sources[dfh.note_columns] = np.where(sources[dfh.note_columns] != 0, " [" + sources[dfh.note_columns].astype(str) + "]", "")
-            col_pairs = list(zip(dfh.note_pair_columns, dfh.note_columns))
-            for pair in col_pairs:
-                col, note = pair
-                sources[col] = sources[col] + "<a href='#refs'><span class='note'>" + sources[note] + "</span></a>"
-            sources = sources.drop(dfh.note_columns,axis=1)
+    def get_original_prices_inc_sources(self):
+        prices = pd.read_json(self.prices_inc_notes)
+        prices = prices.reindex(columns = dfh.note_and_prices_keys).sort_index()
+        return prices
+
+    def original_html(self,data_type):
+        if data_type == 'prices':
+            cols = dfh.prices_keys
+            notes = dfh.prices_notes
+            try:
+                sources = self.get_original_prices_inc_sources()
+            except TypeError:
+                print('no csv_inc_notes field found')
+                return self.prices_input_html()
+
+        elif data_type == 'techs':
+            cols = dfh.note_pair_columns
+            notes = dfh.note_columns
+            try:
+                sources = self.get_original_data_inc_sources()
+                # print(sources)
+            except TypeError:
+                print('no csv_inc_notes field found')
+                return self.techs_input_html()
+
+        sources[notes] = sources[notes].replace('nan', 0)
+        sources[notes] = sources[notes].astype(int)
+        sources[cols] = sources[cols].round(2).astype(str)
+        sources[notes] = np.where(sources[notes] != 0, " [" + sources[notes].astype(str) + "]", "")
+        col_pairs = list(zip(cols,notes))
+        for pair in col_pairs:
+            col, note = pair
+            sources[col] = sources[col] + "<a href='#refs'><span class='note'>" + sources[note] + "</span></a>"
+        sources = sources.drop(notes,axis=1)
+        if data_type == 'techs':
             sources.columns = dfh.tech_inputs_columns
             sources = sources.set_index(dfh.tech_inputs_index['titles'])
             return self.df_to_html(sources)
-        except:
-            print('no csv_inc_notes field found')
-            return self.techs_input_html()
+        elif data_type == 'prices':
+            sources.columns = ['Year'] + dfh.prices_columns
+            sources = sources.set_index('Year')
+            # print(sources)
+            sources = sources.T
+            return self.df_to_html(sources)
+
+
+
+    def original_data_inc_sources_html(self):
+        return self.original_html('techs')
+
+
+    def original_prices_inc_sources_html(self):
+        return self.original_html('prices')
+
 
     def get_notes(self):
         notes = pd.read_json(self.notes)

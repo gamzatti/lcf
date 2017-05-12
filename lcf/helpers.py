@@ -24,20 +24,21 @@ def process_policy_form(policy_form):
     pl.save()
     return pl
 
-def get_prices(s, scenario_form):
+def get_prices_from_form(s, scenario_form):
     new_wp = dfh.new_wp
     excel_wp = dfh.excel_wp
     wp_dict = {"new": new_wp, "excel": excel_wp, "other": None}
     wholesale_prices = wp_dict[scenario_form.cleaned_data['wholesale_prices']]
     if wholesale_prices == None:
         wholesale_prices = [float(w) for w in list(filter(None, re.split("[, \-!?:\t]+",scenario_form.cleaned_data['wholesale_prices_other'])))]
-    excel_gas = [85.0, 87.0, 89.0, 91.0, 93.0, 95.0, 95.0, 95.0, 95.0, 95.0, 95.0]
+    excel_gas = dfh.excel_gas
     gas_dict = {"excel": excel_gas, "other": None}
     gas_prices = gas_dict[scenario_form.cleaned_data['gas_prices']]
     if gas_prices == None:
         gas_prices = [float(g) for g in list(filter(None, re.split("[, \-!?:\t]+",scenario_form.cleaned_data['gas_prices_other'])))]
     prices_df = DataFrame({'gas_prices': gas_prices, 'wholesale_prices': wholesale_prices},index=range(2020,2031))
     return prices_df
+
 
 
 def create_auctionyear_and_pot_objects(prices_df,s):
@@ -117,61 +118,124 @@ def create_technology_objects(df,s):
 
 
 def get_notes(df):
-    # or start_of_notes = df.index[df.pot_name.isnull()][-1]+1
-    # start_of_notes = df.index[df.pot_name.isin(["Notes", "notes"])][0]+1
-    start_of_notes = df.index[df.isin(["Notes", "notes"]).any(axis=1)][0]+1
-
-    notes = df.copy()[start_of_notes:]
+    notes = df.copy()[1:]
     notes.columns = pd.Index(notes.iloc[0].values,name = None)
+    notes = notes.dropna(how="all",axis=0)
+    notes = notes.dropna(how="all",axis=1)
+    notes = notes.iloc[1:]
     for col in dfh.note_cols:
         notes[col] = notes[col].astype(str)
-    notes = notes.iloc[1:]
-    notes = notes.dropna(how="all",axis=1)
     notes.index = np.arange(0,len(notes))
     return notes
 
-def parse_file(file):
+def get_prices(df):
+    df = df.copy()[1:13]
+    df.columns = pd.Index(df.iloc[0].values,name = None)
+    df = df.iloc[1:]
+    df = df.dropna(how="all",axis=1)
+    df = df.dropna(how="all",axis=0)
+    df = df.copy().reindex(columns=dfh.note_and_prices_keys)
+    for col in dfh.prices_keys:
+        df[col] = df[col].astype(float)
+    for col in dfh.prices_notes:
+        df[col] = df[col].astype(str)
+    df['year'] = df['year'].astype(int)
+    df.index = np.arange(2020,2031)
+    prices_df = df.copy().reindex(columns=[dfh.prices_keys])
+    # print(prices_df.dtypes)
+    return prices_df, df
+
+def get_default_prices(new_wp=True):
+    wp = dfh.new_wp if new_wp == True else dfh.excel_wp
+    df = DataFrame({'year': np.arange(2020,2031), 'wholesale_prices': wp, 'gas_prices': dfh.excel_gas},index=range(2020,2031))
+    # reindex(columns=dfh.prices_keys)
+    df = df.copy().reindex(columns = dfh.note_and_prices_keys)
+
+    for col in dfh.prices_keys:
+        df[col] = df[col].astype(float)
+    for col in dfh.prices_notes:
+        df[col] = df[col].astype(str)
+    # print(df)
+    df['year'] = df['year'].astype(int)
+    prices_df = df.copy().reindex(columns=[dfh.prices_keys])
+
+    return prices_df, df
+
+
+def get_techs(df):
+    df = df.copy().dropna(how='all')
+    for error in df.columns[-df.columns.isin(dfh.note_and_tech_keys)]:
+        if not error.startswith('Unnamed'):
+            raise KeyError("{} shouldn't be in column headers".format(error))
+    df = df.reindex(columns = dfh.note_and_tech_keys)
+    df.year, df.included, df.min_levelised_cost = df.year.astype(int), df.included.astype(bool), df.min_levelised_cost.astype(float)
+    for col in dfh.note_columns:
+        df[col] = df[col].astype(str)
+    tech_df = df[dfh.tech_inputs_keys]
+    tech_df = interpolate_tech_df(tech_df)
+    # print(df)
+    return tech_df, df
+
+
+def parse_file(file,new_wp=True):
     df = pd.read_csv(file)
+
     if 'name' in df.columns:
         df.rename(columns={'name':'tech_name'}, inplace=True)
     try:
-        # end_of_techs = df.index[df.pot_name.isnull()][0]
-        end_of_techs = df.index[df.isnull().all(axis=1)][0]
-
+        end_of_techs = df.index[df.isin(['Prices','prices']).any(axis=1)][0]-1
     except IndexError:
-        tech_df = df
-        original_tech_df_with_note_columns = tech_df.reindex(columns = dfh.note_and_tech_keys)
-        notes = DataFrame(columns = dfh.note_cols_inc_index)
-        tech_df = interpolate_tech_df(tech_df)
-        return tech_df, original_tech_df_with_note_columns, notes
+        try:
+            end_of_techs = df.index[df.isin(['Notes','notes']).any(axis=1)][0]-1
+        except IndexError:
+            # end_of_techs = df.index[df.isnull().all(axis=1)][0]
+            end_of_techs = len(df)
+    tech_df, original_tech_df_with_note_columns = get_techs(df[0:end_of_techs])
+    try:
+        start_of_prices = df.index[df.isin(['Prices','prices']).any(axis=1)][0]
+    except IndexError:
+        prices_df, original_prices_df_with_note_columns = get_default_prices(new_wp)
     else:
-        original_tech_df_with_note_columns = df.copy()[0:end_of_techs]
-        original_tech_df_with_note_columns.year, original_tech_df_with_note_columns.included = original_tech_df_with_note_columns.year.astype(int), original_tech_df_with_note_columns.included.astype(bool)
-        for col in dfh.note_columns:
-            original_tech_df_with_note_columns[col] = original_tech_df_with_note_columns[col].astype(str)
-        else:
-            notes = get_notes(df)
-            original_tech_df_with_note_columns.min_levelised_cost = original_tech_df_with_note_columns.min_levelised_cost.astype(float)
-            tech_df = original_tech_df_with_note_columns[dfh.tech_inputs_keys]
-            tech_df = interpolate_tech_df(tech_df)
-            return tech_df, original_tech_df_with_note_columns, notes
+        prices_df, original_prices_df_with_note_columns = get_prices(df[start_of_prices:])
+
+    try:
+        start_of_notes = df.index[df.isin(['Notes', 'notes']).any(axis=1)][0]
+    except IndexError:
+        notes = DataFrame(columns = dfh.note_cols_inc_index) #blank dataframe
+    else:
+        notes = get_notes(df.loc[start_of_notes:])
+    return tech_df, original_tech_df_with_note_columns, prices_df, original_prices_df_with_note_columns, notes
+    # else:
+    #
+    #     original_tech_df_with_note_columns = df.copy()[0:end_of_techs]
+    #     original_tech_df_with_note_columns.year, original_tech_df_with_note_columns.included = original_tech_df_with_note_columns.year.astype(int), original_tech_df_with_note_columns.included.astype(bool)
+    #     for col in dfh.note_columns:
+    #         original_tech_df_with_note_columns[col] = original_tech_df_with_note_columns[col].astype(str)
+    #     else:
+    #         notes = get_notes(df)
+    #         original_tech_df_with_note_columns.min_levelised_cost = original_tech_df_with_note_columns.min_levelised_cost.astype(float)
+    #         tech_df = original_tech_df_with_note_columns[dfh.tech_inputs_keys]
+    #         tech_df = interpolate_tech_df(tech_df)
+    #         return tech_df, original_tech_df_with_note_columns, prices_df, original_prices_df_with_note_columns, notes
 
 
 
 # @lru_cache(maxsize=1024)
-def process_scenario_form(scenario_form):
+def process_scenario_form(scenario_form, new_wp=True):
     s = scenario_form.save()
-    prices_df = get_prices(s, scenario_form)
-    create_auctionyear_and_pot_objects(prices_df,s)
+    # prices_df = get_prices(s, scenario_form)
     policies = s.policies.all()
     file = scenario_form.cleaned_data['file']
+    # print(pd.read_csv(file))
     try:
-        tech_df, original_tech_df_with_note_columns, notes = parse_file(file)
+        tech_df, original_tech_df_with_note_columns, prices_df, original_prices_df_with_note_columns, notes = parse_file(file, new_wp)
     except (KeyError, AttributeError):
         s.delete()
         raise
     else:
+        create_auctionyear_and_pot_objects(prices_df,s)
         s.csv_inc_notes = original_tech_df_with_note_columns.to_json()
+        s.prices_inc_notes = original_prices_df_with_note_columns.to_json()
         s.notes = notes.to_json()
         s.save()
         try:

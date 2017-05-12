@@ -37,21 +37,21 @@ class MultiPriceField(forms.CharField):
 
 class ScenarioForm(forms.ModelForm):
     #all_excel_quirks = forms.BooleanField(required=False, label="Include/exclude all Excel quirks")
-    WP_CHOICES = (("excel", "Excel version"),
-                  ("new", "2017 Emissions data"),
-                  ("other", "Other"),
-                  )
-    GAS_CHOICES = (("excel", "Excel version"),
-                  ("other", "Other"),
-                  )
-    wholesale_prices = forms.ChoiceField(widget=forms.Select(attrs={'class': "col-sm-5"}), choices=WP_CHOICES)
-    # wholesale_prices_other = forms.CharField(widget=forms.TextInput(attrs={'class': "col-sm-5"}), max_length=400, label="If other, please list", required=False)
-    wholesale_prices_other = MultiPriceField(widget=forms.TextInput(attrs={'class': "col-sm-5"}), max_length=400, label="If other, please list", required=False)
-
-    gas_prices = forms.ChoiceField(widget=forms.Select(attrs={'class': "col-sm-5"}), choices=GAS_CHOICES)
-    # gas_prices_other = forms.CharField(widget=forms.TextInput(attrs={'class': "col-sm-5"}), max_length=400, label="If other, please list", required=False)
-    gas_prices_other = MultiPriceField(widget=forms.TextInput(attrs={'class': "col-sm-5"}), max_length=400, label="If other, please list", required=False)
-    file = forms.FileField(label="Technology data", validators=[validate_file_extension])
+    # WP_CHOICES = (("excel", "Excel version"),
+    #               ("new", "2017 Emissions data"),
+    #               ("other", "Other"),
+    #               )
+    # GAS_CHOICES = (("excel", "Excel version"),
+    #               ("other", "Other"),
+    #               )
+    # wholesale_prices = forms.ChoiceField(widget=forms.Select(attrs={'class': "col-sm-5"}), choices=WP_CHOICES)
+    # # wholesale_prices_other = forms.CharField(widget=forms.TextInput(attrs={'class': "col-sm-5"}), max_length=400, label="If other, please list", required=False)
+    # wholesale_prices_other = MultiPriceField(widget=forms.TextInput(attrs={'class': "col-sm-5"}), max_length=400, label="If other, please list", required=False)
+    #
+    # gas_prices = forms.ChoiceField(widget=forms.Select(attrs={'class': "col-sm-5"}), choices=GAS_CHOICES)
+    # # gas_prices_other = forms.CharField(widget=forms.TextInput(attrs={'class': "col-sm-5"}), max_length=400, label="If other, please list", required=False)
+    # gas_prices_other = MultiPriceField(widget=forms.TextInput(attrs={'class': "col-sm-5"}), max_length=400, label="If other, please list", required=False)
+    file = forms.FileField(label="Technology and prices data", validators=[validate_file_extension])
 
     class Meta:
         model = Scenario
