@@ -29,10 +29,9 @@
                 <a class="navbar-brand"  href="{% url 'scenario_detail' pk=recent_pk %}">LCF scenario generator</a>
               </div>
               <div id="navbar" class="navbar-collapse collapse">
-              <!--  <ul class="nav navbar-nav navbar-right">
-                  <li><a href="#">1</a></li>
-                  <li><a href="#">2</a></li>
-                </ul>-->
+               <ul class="nav navbar-nav navbar-right">
+                  <li><a href="{% url 'glossary' %}">Glossary</a></li>
+                </ul>
               </div>
             </div>
           </nav>
@@ -67,8 +66,8 @@
                   <ul class="nav nav-sidebar">
                     <li><a href="{% url 'policy_new' %}"><div class="btn btn-primary">New policy</div></a></li>
                     <!--<li class="active"><a href="#">Nav item 1 <span class="sr-only">(current)</span></a></li>-->
-                </ul>
-
+                  </ul>
+                  
               </div>
 
               <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">

@@ -1,0 +1,76 @@
+
+{% extends 'lcf/base.html' %}
+
+{% block title %}
+    Glossary -
+{% endblock %}
+
+{% block content %}
+<h1 class=page-header>Glossary</h1>
+<div class="bs-docs-container">
+    <div class="bs-callout bs-callout-primary">
+        <h3 class="sub-header">New scenario options:</h3>
+
+            <p><strong>Period:</strong> default is period 1: 2021-2025 and period 2: 2026-2030 but these can be altered.</p>
+            <p><strong>Budget:</strong> The amount that can be spent by the end of the period. This doesn't literally cap spending at that amount but rather divides the amount by years in the period and allocates that much each year to new projects starting that year. If roughly same number are allocated each year, and prices don't change too much, then by the last year, it should be cumulatively paying out approximately what the budget was.</p>
+            <p><strong>Emerging/mature split:</strong> After separate negotiations and feed-in-tariff are subtracted, the remaining money is split according to this ratio.</p>
+            <p><strong>End of period 1:</strong> Used for aggregation purposes. Default is 2025, after which the cost accumulation is reset. Also used for defining when the subsidy-free only period will begin.</p>
+            <p><strong>Only subsidy-free CFDs for period 2?</strong> If this is selected, projects going to auction (in either pot) will only be considered if they have a strike price cheaper than gas+carbon.</p>
+    </div>
+    <div class="bs-callout bs-callout-primary">
+
+        <h3 class="sub-header">CSV inputs:</h3>
+            <p><strong>min_levelised_cost: </strong> Lower limit for the levelised cost of a project of that technology.</p>
+            <p><strong>max_levelised_cost: </strong> Upper limit for the levelised cost of a project of that technology. Projects are distributed evenly between these points and then discounted if they are above the strike price.</p>
+            <p><strong>strike_price: </strong> Amount that technologies get paid if they are successful in bidding in the auction. Also known as clearing price. Our model takes it as exogenous.</p>
+            <p><strong>load_factor: </strong>Average load factor of that technology that year.</p>
+            <p><strong>max_deployment_cap: </strong>Limit for how much capacity can be installed of a given technology in a given year. nb. this only works if the excel quirk "llow previously unsuccessful projects for ALL technologies to be considered in future years" is switched OFF.</p>
+            <p><strong>num_new_projects: </strong> For things like tidal where it's easier to specify numbers of new projects in a year. Provide either this or the max deployment cap. If both are provided, num_new_projects overrides.</p>
+            <p><strong>project_gen: </strong>Average size of a project, in GWh.</p>
+        <!-- <h3>Excel quirks:</strong></h3>
+
+            <p><strong>Use future strike price rather than year contract agreed
+            <p><strong>Count cumulative generation from 2020 but cumulative costs from 2021
+            <p><strong>Add an extra £89m to the budget each year, forgetting it's been spent on the previous year's negawatts FIT
+            <p><strong>Allow previously unsuccessful projects in separate negotiations to be considered in future years
+            <p><strong>Allow previously unsuccessful projects for all technologies to be considered in future years. Overrides maximum deployment limit. Incompatible with switching technologies on/off for individual years.',
+         -->
+    </div>
+    <div class="bs-callout bs-callout-primary">
+        <h3 class="sub-header">New policy options:</h3>
+            <p><strong>Multiply/subtract:</strong> Method for which new csv numbers will be applied to existing tech data. values like .9 would go in a csv with multiply selected, values like -5 would go in one with subtract.
+    </div>
+    <div class="bs-callout bs-callout-primary">
+        <h3 class="sub-header">Results:</h3>
+
+            <p><strong>Accounting cost:</strong> the difference between the strike price from the year the contract was awarded and the wholesale price of the current year, all multiplied by amount generated in the current year. Do this for each year from the beginning of the period up to the current year, and add them all together.
+            <p><strong>Innovation premium:</strong> Ignores negawatts, only looks at generation. The difference between strike price of year awarded and the gas+carbon price in year awarded, all multiplied by amount generated in the current year. Again, added up for each year in the period.
+            <p><strong>Comparison to gas:</strong> As above but this time also including the amount saved by using negawatts instead of gas. Often a negative number. Adds cumulatively over the period.
+            <p><strong>Absolute cost:</strong> all the money paid out in strike prices * MWh, without subtracting gas or wholesale prices. How much energy actually costs! Again, cumulative over the period.
+            <p><strong>Cumulative new generation:</strong> Unlike costs, this is for the entire 10 years.
+    </div>
+    <div class="bs-callout bs-callout-primary">
+        <h3 class="sub-header">General:</h3>
+            <p><strong>Wholesale prices:</strong> Wholesale electricity price</p>
+            <p><strong>Gas prices:</strong> Levelised cost of new CCGT plus carbon price</p>
+            <p><strong>Old WP:</strong> 'old' wholesale electricity prices, used in Excel model</p>
+            <p><strong>New WP:</strong> 'new' Wholesale electricity prices, from BEIS 2017. (See <a href="{% url 'scenario_detail' pk=recent_pk %}#refs">sources</a>)</p>
+
+            <p><strong>Pot: </strong>I use the term loosely, to refer to any of: 'emerging', 'mature', 'separate negotiations', 'feed-in-tariff'</p>
+            <p><strong>SN:</strong> Separate negotiations
+            <p><strong>FIT:</strong> Feed-in-tariff
+            <p><strong>E:</strong> Auction for emerging technologies
+            <p><strong>M:</strong> Auction for mature technologies
+
+
+            <p><strong>OFW:</strong> Offshore wind
+            <p><strong>ONW:</strong> Onshore wind
+            <p><strong>NU:</strong> Nuclear
+            <p><strong>TL:</strong> Tidal lagoon
+            <p><strong>TS:</strong> Tidal stream
+            <p><strong>WA:</strong> Wave
+            <p><strong>PVLS:</strong> Solar PV
+            <p><strong>NW:</strong> Negawatts
+    </div>
+</div>
+{% endblock %}

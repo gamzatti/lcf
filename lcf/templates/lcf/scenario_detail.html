@@ -1,5 +1,5 @@
-
 {% extends 'lcf/base.html' %}
+
 
 {% block title %}
     {{ scenario.name }} -
@@ -11,10 +11,32 @@
     google.load("visualization", "1", {packages:["corechart"]});
 </script>
 
-<h1 class="page-header">{{ scenario.name }}</h1>
-<!--
+<h1 class="page-header">Scenario: {{ scenario.name }}</h1>
+
 <div class="row placeholders">
-  <div class="col-xs-6 col-sm-3 placeholder">
+  <div class="col-xs-6 col-sm-6">
+    <!-- <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="400" height="400" class="img-responsive" alt="Generic placeholder thumbnail"> -->
+      <h3>Cumulative generation (TWh)</h3>
+      {{ cum_awarded_gen_chart_small.as_html }}
+    <!-- <span class="text-muted">Something else</span> -->
+  </div>
+
+
+  <!-- <div class="col-xs-6 col-sm-6 placeholder">
+    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="400" height="400" class="img-responsive" alt="Generic placeholder thumbnail">
+    <h4>Capacity per year(GW)</h4>
+    {{ awarded_cap_chart_small.as_html }}
+    <span class="text-muted">Something else</span>
+  </div> -->
+
+  <div class="col-xs-6 col-sm-6">
+    <!-- <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="400" height="400" class="img-responsive" alt="Generic placeholder thumbnail"> -->
+    <h3>Accounting cost (£bn)</h3>
+    {{ cum_owed_v_wp_chart_small.as_html }}
+    <!-- <span class="text-muted">Something else</span> -->
+  </div>
+
+  <!-- <div class="col-xs-6 col-sm-3 placeholder">
     <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
     <h4>Label</h4>
     <span class="text-muted">Something else</span>
@@ -23,51 +45,54 @@
     <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
     <h4>Label</h4>
     <span class="text-muted">Something else</span>
-  </div>
-  <div class="col-xs-6 col-sm-3 placeholder">
-    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
-    <h4>Label</h4>
-    <span class="text-muted">Something else</span>
-  </div>
-  <div class="col-xs-6 col-sm-3 placeholder">
-    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
-    <h4>Label</h4>
-    <span class="text-muted">Something else</span>
-  </div>
+  </div> -->
 </div>
--->
+
 
 {% if scenario.description %}
     <p>{{ scenario.description }}</p>
 {% endif %}
-<p>created {{ scenario.date }}</p>
+<!-- <p><strong>created</strong> {{ scenario.date }}</p> -->
 <!--<p>period: <strong>{{ scenario.start_year1 }} to {{ scenario.end_year1 }}</strong></p>-->
-<p>budget period 1: <strong>£{{ scenario.budget }}bn</strong></p>
-<p>budget period 2: <strong>£{% if scenario.budget2 != None %}{{ scenario.budget2 }}{% else %}{{ scenario.budget }}{% endif %}bn</strong></p>
-<p>Excel quirks? <strong> {% if scenario.excel_quirks == True %} True {% else %} False {% endif %}</strong>
-<p>Subsidy-free CFDs in period 2? <strong> {% if scenario.subsidy_free_p2 == True %} True {% else %} False {% endif %}</strong>
+<p><strong>Budget {{scenario.start_year1}}-{{scenario.end_year1}}:</strong> £{{ scenario.budget }}bn</p>
+<p><strong>Budget {{scenario.start_year2}}-{{scenario.end_year2}}: </strong>£{% if scenario.budget2 != None %}{{ scenario.budget2 }}{% else %}{{ scenario.budget }}{% endif %}bn</p>
+<p><strong>Emerging/mature split: </strong>{{ scenario.emerging }}/{{ scenario.mature }}%</p>
+<p><strong>Only subsidy-free CFDs from {{scenario.start_year2}}? </strong> {% if scenario.subsidy_free_p2 == True %} True {% else %} False {% endif %}
+<br>
+<p><strong>Excel quirks:</strong>
+{% if scenario.quirks %}
+    <ul>
+    {% for quirk in scenario.quirks %}
+        <li>{{ quirk }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    None
+{% endif %}
+
 <!-- <p>Excel gen? <strong> {% if scenario.excel_quirks == True %} True {% else %} False {% endif %}
 <p>Excel quirks? <strong> {% if scenario.excel_quirks == True %} True {% else %} False {% endif %} -->
-<p>percent in emerging pot: <strong>{{ scenario.percent_emerging }}</strong></p>
 <h3>Policies:</h3>
 <ul>
     {% for pl in scenario.policies.all %}
         <li><a href="{% url 'policy_detail' pk=pl.pk %}">{{pl}}</a></li>
     {% endfor %}
 </ul>
-
+    {% if not scenario.policies.exists %}
+    No policies
+    {% endif %}
 <hr>
 <a href="{% url 'scenario_download' pk=scenario.pk %}"><div class="btn btn-primary">Download CSV</div></a>
 <hr>
 
 
-<h3 class="sub-header">Accounting cost <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-up hide-button0"></span></a></h3>
+<h3 class="sub-header">Accounting cost <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button0"></span></a></h3>
     <div class="to-hide0">
         {{ cum_owed_v_wp1 | safe }}
         {{ cum_owed_v_wp2 | safe }}
     </div>
 
-<h3 class="sub-header">Comparison to gas <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button1"></span></a></h3>
+<h3 class="sub-header">Innovation premium/comparison to gas <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button1"></span></a></h3>
     <div class="to-hide1">
         {{ cum_owed_v_gas1 | safe }}
         {{ cum_owed_v_gas2 | safe }}
@@ -80,33 +105,32 @@
     </div>
 <h3 class="sub-header">Cumulative new generation <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button3"></span></a></h3>
     <div class="to-hide3">
-
         {{ cum_awarded_gen1 | safe }}
         {{ cum_awarded_gen2 | safe }}
         {{ cum_awarded_gen_chart.as_html }}
     </div>
 
-<h3 class="sub-header">Generation by technology <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button4"></span></a></h3>
+<h3 class="sub-header">Annual new generation <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button4"></span></a></h3>
     <div class="to-hide4">
-        {{ gen1 | safe }}
-        {{ gen2 | safe }}
+        {{ awarded_gen1 | safe }}
+        {{ awarded_gen2 | safe }}
     </div>
 
-<h3 class="sub-header">Capacity by technology <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button5"></span></a></h3>
+<h3 class="sub-header">Annual new capacity <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button5"></span></a></h3>
     <div class="to-hide5">
-        {{ cap1 | safe }}
-        {{ cap2 | safe }}
+        {{ awarded_cap1 | safe }}
+        {{ awarded_cap2 | safe }}
         {{ awarded_cap_chart.as_html }}
     </div>
 
 <div id="inputs" class="anchor"></div>
-<h3 class="sub-header">Inputs and sources <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button6"></span></a></h3>
+<h3 class="sub-header input">Inputs and sources <a><span title="show/hide" class="btn glyphicon glyphicon-chevron-down hide-button6"></span></a></h3>
     <div class="to-hide6">
         {{ scenario.original_data_inc_sources_html | safe }}
         <!-- {{ prices_input_html | safe }} -->
         {{ scenario.original_prices_inc_sources_html | safe }}
         {% if scenario.notes_html %}
-            <div id="refs" class="anchor"></div>
+            <div id="refs" name="refs" class="anchor"></div>
             <h3 class="sub-header">Sources</h3>
             <a href="#inputs"><span class="btn glyphicon glyphicon-chevron-up"></span>Jump up to input table</a>
             {{ scenario.notes_html | safe }}

@@ -22,6 +22,7 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.ExcelQuirkTests.test_excel_2020_gen_error_false
 # python manage.py test lcf.tests3.ExcelQuirkTests.test_all_excel_quirks_lumped
 # python manage.py test lcf.tests3.ExcelQuirkTests.test_all_excel_quirks_individual
+# python manage.py test lcf.tests3.ExcelQuirkTests.test_quirks
 #
 # python manage.py test lcf.tests3.CumT.test_cum_future_techs
 #
@@ -181,6 +182,11 @@ class ExcelQuirkTests(TestCase):
         s.save()
         results = s.pivot('cum_owed_v_wp')
         self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
+
+    # python manage.py test lcf.tests3.ExcelQuirkTests.test_quirks
+    def test_quirks(self):
+        s = Scenario.objects.get(pk=281)
+        self.assertEqual(len(s.quirks()),4)
 
 class CumT(TestCase):
     fixtures = ['tests/new/data2.json']
@@ -1081,3 +1087,13 @@ class Exceptions(TestCase):
     def test_view_with_non_existant_scenario(self):
         resp = self.client.get(reverse('scenario_detail', kwargs={'pk':999}))
         self.assertEqual(resp.status_code,200)
+
+class Display(TestCase):
+    fixtures = ['prod/data.json']
+
+    # python manage.py test lcf.tests3.Display.test_summary_chart
+    def test_summary_chart(self):
+        column = 'cum_owed_v_wp'
+        s = Scenario.objects.get(pk=453)
+        chart_data, options, options_small = s.df_to_chart_data(column,summary=True)['chart_data'], s.df_to_chart_data(column,summary=True)['options'], s.df_to_chart_data(column,summary=True)['options_small']
+        # print(chart_data)

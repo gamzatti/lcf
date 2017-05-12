@@ -247,7 +247,8 @@ class Pot(models.Model):
             #     t.cum_owed_v_absolute = 0
             #     t.cum_awarded_gen = 0
             for future_t in t.cum_future_techs():
-                gas = future_t.pot.auctionyear.gas_price
+                # gas = future_t.pot.auctionyear.gas_price
+                gas = self.auctionyear.gas_price
                 if (self.auctionyear.scenario.excel_sp_error == True or self.auctionyear.scenario.excel_quirks == True) and (self.name == "E" or self.name == "SN" or self.name == "M"):
                     strike_price = future_t.strike_price
                 else:

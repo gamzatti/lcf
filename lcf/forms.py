@@ -72,6 +72,12 @@ class ScenarioForm(forms.ModelForm):
           'subsidy_free_p2': forms.CheckboxInput(attrs={'class': "col-sm-5"}),
           'policies': forms.CheckboxSelectMultiple()
         }
+        help_texts = {
+            'end_year1': 'Used for aggregation purposes. Default is 2025, after which the cost accumulation is reset.',
+             'excel_include_previous_unsuccessful_all': 'Overrides maximum deployment limit. Incompatible with switching technologies on/off for individual years.',
+             'excel_quirks': 'If selected, overrides individual quirk settings.',
+             'subsidy_free_p2': 'Only projects cheaper than gas+carbon price are considered.'
+        }
 
     def clean(self):
         cleaned_data = super(ScenarioForm, self).clean()
@@ -116,4 +122,7 @@ class PolicyForm(forms.ModelForm):
           'name': forms.TextInput(attrs={'class': "col-sm-5"}),
           'description': Textarea(attrs={'rows':2, 'cols':40, 'class': "col-sm-5"}),
           'method': forms.RadioSelect(attrs={'class': "col-sm-5"}),
+        }
+        help_texts = {
+        'method': 'Multiply means values in csv will be multiplied by existing tech data, subtract means they will be subtracted from it.'
         }

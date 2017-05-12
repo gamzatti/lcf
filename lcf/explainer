@@ -5,18 +5,15 @@ I've made a number of changes to the model:
 1. Innovation premium and cost v gas:
     Innovation premium ignores Negawatts, while the cost v gas includes them, and because they're so cheap this figure then comes out negative.
     In our discussion we thought innovation premium was the more useful figure.
-    nb I get £219m in my scenario that matches Excel sc3 most closely, rather than £150m. This is to do with a couple of Excel quirks altering the actual amount of generation which I'm happy to explain on skype if you like.
 
 2. Footnotes/sources:
     The model now accepts technology data with or without footnotes.
-    I've tried to follow the Excel layout, so there is a column with a reference number next to each data point, and then a description below of what the number corresponds to in terms of notes, source, link, local link.
-    It's still possible to upload using the old template though if you don't want to add notes. Once you have one notes column though, you need all of them or it will complain.
     You can make the list of notes as long as you want and can include general notes that don't correspond to specific data points.
     Notes are displayed on the Inputs and Sources section on a scenario results page.
 
 3. Prices in CSV upload:
     I've removed the field for prices (wholesale and gas) so they can also be added in the CSV file.
-    Or if you don't add this in the CSV upload it will default to the new wholesale prices (2017) and the gas prices calculated in the Excel model.
+    Or if you don't add this in the CSV upload it will default to the new wholesale prices (BEIS 2017) and the gas prices calculated in the Excel model.
 
 4. Ironing out another excel quirk:
     The Excel model was calculating the number of projects available in a way that misconstrued the price distribution of projects and also meant that all unsuccessful projects could continually bid into future rounds.
@@ -69,24 +66,6 @@ I've made a number of changes to the model:
 
     It doesn't make a difference to the model whether years with no values still listed in the csv file or not.
 
-    eg
-    E	OFW	2020	True	71.3353908668731	103.034791021672	114.074615384615	0.42	1.9		832
-    E	OFW	2025	True	70.2083010835913	97.4463041795666	104.382307692308	0.49
-    E	OFW	2030	True	65.1448298261547	91.847304242529	94.69	0.49	1.9		832
-
-    will be treated the same as:
-    E	OFW	2020	True	71.3353908668731	103.034791021672	114.074615384615	0.42	1.9		832
-    E	OFW	2021	True
-    E	OFW	2022	True
-    E	OFW	2023	True
-    E	OFW	2024	True
-    E	OFW	2025	True	70.2083010835913	97.4463041795666	104.382307692308	0.49	1.9		832
-    E	OFW	2026	True
-    E	OFW	2027	True
-    E	OFW	2028	True
-    E	OFW	2029	True
-    E	OFW	2030	True	65.1448298261547	91.847304242529	94.69	0.49	1.90000000000001		832
-
 7. Policies:
     Based on our discussion, I've created the option to allow polices to subtract costs off technologies rather than multiply a discount.
     I've also removed the ability of a policy to have any effect on exogenous things like wholesale and gas prices.
@@ -112,7 +91,7 @@ Things I haven't done that may be useful:
     Code wise this isn't too difficult, but calculation wise it probably is,
 6. Created the ability to compare two or three scenarios side by side (overlaying graphs etc.)
     Probably unnecessary as you could just open in separate tabs.
-    One thing I could do easily is make the graphs all have the same max on their vertical axis so they can at least be compared side by side.
+    One thing I could do is make the graphs all have the same max on their vertical axis so they can at least be compared side by side. I tried to do this already and couldn't get it to work, but I could persevere.
 7. Put pivot table summaries in the CSV download
 
 

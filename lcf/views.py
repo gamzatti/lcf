@@ -162,8 +162,8 @@ def scenario_detail(request, pk=None):
                    }
         return render(request, 'lcf/scenario_error.html', context = context)
     else:
-        chart = {}
-        df = {}
+        # chart = {}
+        # df = {}
         context = {'scenario': scenario,
                    'policies': Policy.objects.all(),
                    'scenarios': scenarios,
@@ -175,9 +175,20 @@ def scenario_detail(request, pk=None):
                 context["".join([column,str(num)])] = getattr(scenario, 'pivot_to_html')(pivot_table)
 
         for column in ["awarded_cap", "cum_awarded_gen"]:
-            chart_data, options = scenario.df_to_chart_data(column)['chart_data'], scenario.df_to_chart_data(column)['options']
+            chart_data, options, options_small = scenario.df_to_chart_data(column)['chart_data'], scenario.df_to_chart_data(column)['options'], scenario.df_to_chart_data(column)['options_small']
             data_source = SimpleDataSource(data=chart_data)
             context["".join([column,"_chart"])] = ColumnChart(data_source, options=options)
+            # context["".join([column,"_chart_small"])] = ColumnChart(data_source, options=options_small)
+
+        for column in ["cum_owed_v_wp", "cum_awarded_gen"]:
+            chart_data, options, options_small = scenario.df_to_chart_data(column,summary=True)['chart_data'], scenario.df_to_chart_data(column,summary=True)['options'], scenario.df_to_chart_data(column,summary=True)['options_small']
+            data_source = SimpleDataSource(data=chart_data)
+            # if column == "cum_owed_v_wp":
+                # options_small['vAxis']['viewWindowMode'] = 'explicit'
+                # options_small['vAxis']['viewWindow'] = {'max': 3.2}
+                # options_small['vAxis']['viewWindow']['min'] = 0
+                # options_small['vAxis']['viewWindow']['max'] = 3.2
+            context["".join([column,"_chart_small"])] = ColumnChart(data_source, options=options_small)
 
 
         print('rendering request')
@@ -205,7 +216,7 @@ def scenario_download(request,pk):
     scenario = get_object_or_404(Scenario,pk=pk)
     scenarios = Scenario.objects.all()
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="data.csv"'
+    response['Content-Disposition'] = 'attachment; filename="results.csv"'
     writer = csv.writer(response)
     auctionyears = scenario.period(1)
     df_techs = scenario.get_results()
@@ -220,7 +231,6 @@ def scenario_download(request,pk):
     writer.writerow([""])
 
     writer.writerow(["............Inputs to model, before policies have been applied..........."])
-
     tech, prices, notes = scenario.inputs_download()
     writer.writerow(["Prices (£/MWh)"])
     writer.writerows(prices)
@@ -229,23 +239,25 @@ def scenario_download(request,pk):
     writer.writerow(["Technology data"])
     writer.writerows(tech)
     writer.writerow([""])
-    writer.writerow([""])
-    writer.writerow(["Notes"])
-    writer.writerows(notes)
 
+    if len(notes)>0:
+        writer.writerow([""])
+        writer.writerow(["Notes"])
+        writer.writerows(notes)
+        writer.writerow([""])
 
+    if scenario.policies.exists():
+        writer.writerow([""])
+        writer.writerow(["............Policies............"])
+        for pl in scenario.policies.all():
+            writer.writerow([pl.name])
+            writer.writerow([pl.description])
+            df = pl.df_for_download()
+            policy_column_names = list(df.columns)
+            writer.writerow(policy_column_names)
+            writer.writerows(df.values.tolist())
+            writer.writerow([''])
 
-    writer.writerow([""])
-    writer.writerow([""])
-    writer.writerow(["............Policies............"])
-    for pl in scenario.policies.all():
-        writer.writerow([pl.name])
-        writer.writerow([pl.description])
-        df = pl.df_for_download()
-        policy_column_names = list(df.columns)
-        writer.writerow(policy_column_names)
-        writer.writerows(df.values.tolist())
-        writer.writerow([''])
     writer.writerow([''])
     writer.writerow(['............Raw output............'])
     writer.writerow(['Technology'])
@@ -263,8 +275,18 @@ def policy_template(request):
 
 def template(request):
     print("downloading template")
-    file = open('lcf/template_with_sources.csv')
+    file = open('lcf/template_with_sources_and_prices.csv')
     response = HttpResponse(file, content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="template_with_sources.csv"'
+    response['Content-Disposition'] = 'attachment; filename="template_with_sources_and_prices.csv"'
     file.close()
     return response
+
+def glossary(request):
+    context = {
+                # 'scenario': scenario,
+               'scenarios': Scenario.objects.all(),
+               'policies': Policy.objects.all(),
+               'recent_pk': Scenario.objects.all().order_by("-date")[0].pk,
+               }
+
+    return render(request, 'lcf/glossary.html', context)

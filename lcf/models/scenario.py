@@ -20,7 +20,7 @@ class Scenario(models.Model):
     date = models.DateTimeField(default=timezone.now)
     budget = models.FloatField(default=3.3, verbose_name="Budget period 1 (£bn)")
     budget2 = models.FloatField(blank=True, null=True, verbose_name="Budget period 2 (£bn) - leave blank to use same as period 1")
-    percent_emerging = models.FloatField(default=0.6, verbose_name="Percentage in emerging pot")
+    percent_emerging = models.FloatField(default=0.6, verbose_name="Proportion in emerging pot")
     set_strike_price =  models.BooleanField(default=False, verbose_name="Generate strike price ourselves?")
     start_year1 = models.IntegerField(default=2021)
     end_year1 = models.IntegerField(default=2025, verbose_name="End of period 1")
@@ -29,11 +29,11 @@ class Scenario(models.Model):
     subsidy_free_p2 = models.BooleanField(default=False, verbose_name="Only subsidy-free CFDs for period 2")
     tidal_levelised_cost_distribution = models.BooleanField(default=True)
     excel_sp_error = models.BooleanField(default=False, verbose_name="Excel quirk: use future strike price rather than year contract agreed")
-    excel_2020_gen_error = models.BooleanField(default=False, verbose_name="Excel quirk: count cumulative generation from 2020 for auction and negotiations")
-    excel_nw_carry_error = models.BooleanField(default=False, verbose_name="Excel quirk: carry NWFIT budget into next year, even though it's been spent")
+    excel_2020_gen_error = models.BooleanField(default=False, verbose_name="Excel quirk: count cumulative generation from 2020 but cumulative costs from 2021")
+    excel_nw_carry_error = models.BooleanField(default=False, verbose_name="Excel quirk: add an extra £89m to the budget each year, forgetting it's been spent on the previous year's negawatts FIT")
     excel_include_previous_unsuccessful_nuclear = models.BooleanField(default=True, verbose_name="Excel quirk: allow previously unsuccessful projects in separate negotiations to be considered in future years")
-    excel_include_previous_unsuccessful_all = models.BooleanField(default=False, verbose_name="Excel quirk: allow previously unsuccessful projects for all technologies to be considered in future years (overrides maximum deployment limit). Incompatible with switching technologies on/off for individual years.")
-    excel_quirks = models.BooleanField(default=False, verbose_name="Include all Excel quirks (if selected, overrides individual quirk settings)")
+    excel_include_previous_unsuccessful_all = models.BooleanField(default=False, verbose_name="Excel quirk: allow previously unsuccessful projects for ALL technologies to be considered in future years")
+    excel_quirks = models.BooleanField(default=False, verbose_name="Include all Excel quirks")
     results = models.TextField(null=True,blank=True)
     policies = models.ManyToManyField(Policy, blank=True)
 
@@ -108,20 +108,31 @@ class Scenario(models.Model):
         return results
 
 
-    def df_to_chart_data(self,column):
+    def df_to_chart_data(self,column,summary=False):
         df = self.get_results(column)
         df = df.set_index(dfh.tech_results_index['keys']).sort_index()
         df = df.unstack(0)
         df.columns = df.columns.get_level_values(1)
         df.index = df.index.get_level_values(1)
         df = df.reset_index()
+        if summary==True:
+            df.loc['summary'] = df.sum()
+            df.tech_name['summary'] = "Total"
+            df = df['summary':'summary']
+        #     df = DataFrame(df.loc['summary']).T
         df.loc['years_row'] = df.columns.astype('str')
         df = df.sort_values('tech_name') # annoying?
         df = df.reindex(index = ['years_row']+list(df.index)[:-1])
+        # print(df)
         chart_data = df.T.values.tolist()
         unit = dfh.abbrev[column]['unit']
         options = {'title': None, 'vAxis': {'title': unit}, 'width':1000, 'height':400}
-        return {'chart_data': chart_data, 'options': options}
+        options_small = {'title': None, 'vAxis': {'title': unit}, 'width':800, 'height':400, 'legend': 'bottom'}
+        if summary==True:
+            options_small['legend'] = {'position': 'none'}
+
+        return {'chart_data': chart_data, 'options': options, 'options_small': options_small}
+
 
     # @lru_cache(maxsize=128)
     def pivot(self,column,period_num=None):
@@ -274,7 +285,7 @@ class Scenario(models.Model):
             notes = dfh.prices_notes
             try:
                 sources = self.get_original_prices_inc_sources()
-            except TypeError:
+            except (TypeError, ValueError):
                 print('no csv_inc_notes field found')
                 return self.prices_input_html()
 
@@ -339,3 +350,22 @@ class Scenario(models.Model):
         except:
             print('no notes found')
             return None
+
+    def quirks(self):
+        quirks = ['excel_sp_error', 'excel_2020_gen_error', 'excel_nw_carry_error', 'excel_include_previous_unsuccessful_nuclear', 'excel_include_previous_unsuccessful_all']
+        verbose_quirks = [Scenario._meta.get_field(quirk).verbose_name.replace('Excel quirk: ', '') for quirk in quirks ]
+        quirk_dict = dict(zip(quirks, verbose_quirks))
+        if self.excel_quirks == True:
+            return verbose_quirks
+        else:
+            quirks = [ quirk_dict[quirk] for quirk in quirks if getattr(self, quirk)]
+            if len(quirks) == 0:
+                return None
+            else:
+                return quirks
+
+    def emerging(self):
+        return int(self.percent_emerging * 100)
+
+    def mature(self):
+        return int((1 - self.percent_emerging) * 100)

@@ -25,6 +25,8 @@ urlpatterns = [
     url(r'^scenario/(?P<pk>\d+)/delete/new$', views.scenario_delete_and_create_new, name='scenario_delete_and_create_new'),
     url(r'^scenario/(?P<pk>\d+)/download/$', views.scenario_download, name='scenario_download'),
     url(r'^scenario/(?P<pk>\d+)/download$', views.scenario_download, name='scenario_download'),
+    url('glossary/', views.glossary, name='glossary'),
+    url('glossary', views.glossary, name='glossary'),
     url(r'', views.scenario_detail, name='scenario_detail'),
 ]
 # handler404 = 'views.error404'
