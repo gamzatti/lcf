@@ -76,7 +76,6 @@ I've made a number of changes to the model:
 9. Glossary:
     I've added a glossary of helpful terms and updated the instructions.
 
-python manage.py dumpdata lcf.scenario lcf.auctionyear lcf.pot lcf.technology lcf.policy --indent=4 > lcf/fixtures/prod/data_new.json
 Things I haven't done that may be useful:
 1. Added notes/sources to policies.
     You can add notes in the description of the policy but not for each data point like you can in the technology csv upload.

@@ -369,3 +369,39 @@ class Scenario(models.Model):
 
     def mature(self):
         return int((1 - self.percent_emerging) * 100)
+
+
+    def intermediate_results(self):
+        years = []
+        pots = []
+        pot_budgets = []
+        technologies = []
+        t_objects = []
+
+        for t in self.flat_tech_dict.values():
+
+            years.append(t.pot.auctionyear.year)
+            pots.append(t.pot.name)
+            pot_budgets.append(round(t.pot.budget(),2))
+            technologies.append(t.name)
+            t_objects.append(t)
+        frame = DataFrame({'Year': years, 'Pot': pots, 'Pot budget': pot_budgets, 'Technology': technologies, 't_object': t_objects}).reindex(columns = ['Year', 'Pot', 'Pot budget', 'Technology', 't_object'])
+        frame = frame.replace('nan', 'N/A')
+        available = frame.copy()
+        available['Stage'] = 'available'
+
+        eligible = frame.copy()
+        eligible['Stage'] = 'eligible'
+
+        successful = frame.copy()
+        successful['Stage'] = 'successful'
+
+        frame = pd.concat([available, eligible, successful])
+        frame['Stage'] = frame['Stage'].astype('category', categories = ['available', 'eligible', 'successful'], ordered=True)
+        frame['Number of projects'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'num'), axis=1 )
+        frame['Equivalent generation (GWh)'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'gen'), axis=1 )
+        frame['Equivalent cost (£m)'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'cost'), axis=1 )
+        frame = frame.set_index(['Year', 'Pot', 'Pot budget', 'Technology', 'Stage'])
+        frame = frame.sort_index()
+        frame = frame.drop('t_object', axis=1)
+        return self.df_to_html(frame)

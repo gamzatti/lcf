@@ -83,7 +83,7 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.Notes.test_process_scenario_form_with_different_column_order
 # python manage.py test lcf.tests3.Notes.test_retrieve_sources
 # python manage.py test lcf.tests3.Notes.test_inputs_download
-
+#
 #
 # python manage.py test lcf.tests3.Exceptions.test_upload_non_csv
 # python manage.py test lcf.tests3.Exceptions.test_enter_incorrect_prices
@@ -93,6 +93,9 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.Exceptions.test_view_with_invalid_scenario
 # python manage.py test lcf.tests3.Exceptions.test_view_with_non_existant_scenario
 #
+# python manage.py test lcf.tests3.Intermediate.test_cum_project_summary
+# python manage.py test lcf.tests3.Intermediate.test_non_cum_project_summary
+# python manage.py test lcf.tests3.Intermediate.test_scenario_intermediate_results
 
 class ExcelQuirkTests(TestCase):
     fixtures = ['tests/new/data2.json']
@@ -1097,3 +1100,47 @@ class Display(TestCase):
         s = Scenario.objects.get(pk=453)
         chart_data, options, options_small = s.df_to_chart_data(column,summary=True)['chart_data'], s.df_to_chart_data(column,summary=True)['options'], s.df_to_chart_data(column,summary=True)['options_small']
         # print(chart_data)
+
+class Intermediate(TestCase):
+    fixtures = ['prod/data.json']
+
+    # python manage.py test lcf.tests3.Intermediate.test_cum_project_summary
+    def test_cum_project_summary(self):
+        s = Scenario.objects.get(pk=453)
+        p = s.auctionyear_dict[2021].pot_dict['E']
+        t = s.flat_tech_dict['OFW2021']
+        # print(p.project_summary('available', t))
+        self.assertEqual(t.project_summary('available', 'num'), 13)
+        self.assertEqual(t.project_summary('eligible', 'num'), 13)
+        self.assertEqual(t.project_summary('successful', 'num'), 7)
+        self.assertEqual(t.project_summary('available', 'gen'), 13*832)
+        self.assertEqual(t.project_summary('eligible', 'gen'), 13*832)
+        self.assertEqual(t.project_summary('successful', 'gen'), 7*832)
+        self.assertEqual(t.project_summary('available', 'cost'), 13*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
+        self.assertEqual(t.project_summary('eligible', 'cost'), 13*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
+        self.assertEqual(t.project_summary('successful', 'cost'), 7*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
+
+    # python manage.py test lcf.tests3.Intermediate.test_non_cum_project_summary
+
+    def test_non_cum_project_summary(self):
+        post_data = dfh.test_post_data_no_quirks
+        file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
+        scenario_form = ScenarioForm(post_data, file_data)
+        process_scenario_form(scenario_form,new_wp=False)
+        s = Scenario.objects.order_by('-date')[0]
+        p = s.auctionyear_dict[2021].pot_dict['E']
+        t = s.flat_tech_dict['OFW2021']
+        self.assertEqual(t.project_summary('available', 'num'), 8)
+        self.assertEqual(t.project_summary('eligible', 'num'), 8)
+        self.assertEqual(t.project_summary('successful', 'num'), 7)
+        self.assertEqual(t.project_summary('available', 'gen'), 8*832)
+        self.assertEqual(t.project_summary('eligible', 'gen'), 8*832)
+        self.assertEqual(t.project_summary('successful', 'gen'), 7*832)
+        self.assertEqual(t.project_summary('available', 'cost'), 8*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
+        self.assertEqual(t.project_summary('eligible', 'cost'), 8*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
+        self.assertEqual(t.project_summary('successful', 'cost'), 7*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
+
+    # python manage.py test lcf.tests3.Intermediate.test_scenario_intermediate_results
+    def test_scenario_intermediate_results(self):
+        s = Scenario.objects.get(pk=453)
+        s.intermediate_results()

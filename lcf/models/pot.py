@@ -164,7 +164,7 @@ class Pot(models.Model):
 
         else:
             if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_include_previous_unsuccessful_all == True or (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
-                # print('running auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
+                # print('running cum auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
                 return self.cum_run_auction()
             else:
                 # print('running non_cum auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
@@ -182,6 +182,7 @@ class Pot(models.Model):
         projects['eligible'] = (projects.previously_funded == False) & projects.affordable
         projects['difference'] = projects.strike_price if self.name == "FIT" else projects.strike_price - self.auctionyear.wholesale_price
         projects['cost'] = np.where(projects.eligible == True, projects.gen/1000 * projects.difference, 0)
+        projects['cost_all'] = projects.gen/1000 * projects.difference
         projects['attempted_cum_cost'] = np.cumsum(projects.cost)
         if self.name == "SN" or self.name == "FIT":
             projects['funded_this_year'] = (projects.eligible)
@@ -207,6 +208,7 @@ class Pot(models.Model):
         projects['eligible'] = projects.affordable
         projects['difference'] = projects.strike_price if self.name == "FIT" else projects.strike_price - self.auctionyear.wholesale_price
         projects['cost'] = np.where(projects.eligible == True, projects.gen/1000 * projects.difference, 0)
+        projects['cost_all'] = projects.gen/1000 * projects.difference
         projects['attempted_cum_cost'] = np.cumsum(projects.cost)
         if self.name == "SN" or self.name == "FIT":
             projects['funded_this_year'] = (projects.eligible)
@@ -220,6 +222,26 @@ class Pot(models.Model):
         projects['attempted_cum_gen'] = np.cumsum(projects.attempted_project_gen)
         self.update_variables(projects)
         return projects
+
+    def project_summary(self, stage, technology):
+        if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_include_previous_unsuccessful_all == True or (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
+            projects = self.cum_run_auction()
+
+            projects = projects[(projects.technology == technology.name) & (projects.previously_funded == False)]
+        else:
+            projects = self.non_cum_run_auction()
+            projects = projects[projects.technology == technology.name]
+        available = projects
+        eligible = projects[projects.affordable == True]
+        successful = projects[projects.funded_this_year == True]
+        cost = {'available': available.cost_all.sum(), 'eligible': eligible.cost.sum(), 'successful': successful.cost.sum() }
+        cost = {'available': available.cost_all.sum(), 'eligible': eligible.cost.sum(), 'successful': successful.cost.sum() }
+
+        gen =  {'available': available.gen.sum(), 'eligible': eligible.gen.sum(), 'successful': successful.gen.sum() }
+        num =  {'available': len(available), 'eligible': len(eligible), 'successful': len(successful) }
+
+        return {'cost': cost[stage], 'gen': gen[stage], 'num': num[stage]}
+
 
     def concat_projects(self):
         try:

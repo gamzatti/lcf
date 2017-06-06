@@ -231,3 +231,7 @@ class Technology(models.Model):
             return [self]
         else:
             return [ p.technology_dict[self.name] for p in self.pot.cum_future_pots() ]
+
+
+    def project_summary(self, stage, output):
+        return self.pot.project_summary(stage, self)[output]

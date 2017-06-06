@@ -225,6 +225,14 @@ test_post_data = {'name': 'test 1234',
              'wholesale_prices': "excel",
              'gas_prices': "excel",
              }
+test_post_data_no_quirks = {'name': 'test 1234',
+             'percent_emerging': 0.6,
+             'budget': 3.3,
+             'end_year1': 2025,
+             'wholesale_prices': "excel",
+             'gas_prices': "excel",
+             }
+
 note_pair_columns = [  "min_levelised_cost",
   "max_levelised_cost",
   "strike_price",
