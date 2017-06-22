@@ -6,7 +6,10 @@ import lcf.dataframe_helpers as dfh
 
 
 from lcf.models import Scenario, AuctionYear, Pot, Technology, Policy
-s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=453)
+s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=700)
+
+
+s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=707)
 
 from django.test.utils import setup_test_environment
 setup_test_environment()

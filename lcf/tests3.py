@@ -59,7 +59,7 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_high
 # python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_normal
 # python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_low
-# python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_lower
+python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_lower
 #
 # python manage.py test lcf.tests3.TestIP.test_nw_v_gas
 #
@@ -75,7 +75,7 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.Interpolate.test_process_scenario_form_with_interpolation
 #
 # python manage.py test lcf.tests3.Notes.test_parse_file_with_notes
-# python manage.py test lcf.tests3.Notes.test_parse_file_with_prices_and_prices_notes
+python manage.py test lcf.tests3.Notes.test_parse_file_with_prices_and_prices_notes
 # python manage.py test lcf.tests3.Notes.test_parse_file_with_and_without_prices
 # python manage.py test lcf.tests3.Notes.test_parse_file_with_or_without_notes_and_get_same_tech_data
 # python manage.py test lcf.tests3.Notes.test_parse_file_with_different_column_order
@@ -86,7 +86,7 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 #
 #
 # python manage.py test lcf.tests3.Exceptions.test_upload_non_csv
-# python manage.py test lcf.tests3.Exceptions.test_enter_incorrect_prices
+python manage.py test lcf.tests3.Exceptions.test_enter_incorrect_prices
 # python manage.py test lcf.tests3.Exceptions.test_blank_scenario
 # python manage.py test lcf.tests3.Exceptions.test_process_scenario_form_with_file_with_invalid_columns
 # python manage.py test lcf.tests3.Exceptions.test_view_with_invalid_file
@@ -94,8 +94,13 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.Exceptions.test_view_with_non_existant_scenario
 #
 # python manage.py test lcf.tests3.Intermediate.test_cum_project_summary
-# python manage.py test lcf.tests3.Intermediate.test_non_cum_project_summary
+python manage.py test lcf.tests3.Intermediate.test_non_cum_project_summary
 # python manage.py test lcf.tests3.Intermediate.test_scenario_intermediate_results
+
+# python manage.py test lcf.tests3.Clearing.test_excel_option
+
+
+
 
 class ExcelQuirkTests(TestCase):
     fixtures = ['tests/new/data2.json']
@@ -169,6 +174,7 @@ class ExcelQuirkTests(TestCase):
         s.excel_2020_gen_error = False
         s.excel_include_previous_unsuccessful_nuclear = False
         s.excel_include_previous_unsuccessful_all = False
+        s.excel_exongenous_clearing_price = False
         s.excel_quirks = True
         s.save()
         results = s.pivot('cum_owed_v_wp')
@@ -181,6 +187,7 @@ class ExcelQuirkTests(TestCase):
         s.excel_2020_gen_error = True
         s.excel_include_previous_unsuccessful_nuclear = True
         s.excel_include_previous_unsuccessful_all = True
+        s.excel_exongenous_clearing_price = True
         s.excel_quirks = False
         s.save()
         results = s.pivot('cum_owed_v_wp')
@@ -190,6 +197,12 @@ class ExcelQuirkTests(TestCase):
     def test_quirks(self):
         s = Scenario.objects.get(pk=281)
         self.assertEqual(len(s.quirks()),4)
+        s, results = create_scenario_from_form()
+        self.assertEqual(len(s.quirks()),6)
+        s, results = create_scenario_from_form(dfh.test_post_data_no_quirks)
+        self.assertIsNone(s.quirks())
+
+
 
 class CumT(TestCase):
     fixtures = ['tests/new/data2.json']
@@ -620,7 +633,7 @@ class ViewsTests(TestCase):
         initial_technology_count = Technology.objects.count()
         # print(initial_technology_count)
         resp = self.client.get(reverse('scenario_new'))
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         post_data['file'] = open('lcf/template.csv')
 
         post_resp = self.client.post(reverse('scenario_new'),post_data)
@@ -658,7 +671,7 @@ class TestPolicies(TestCase):
             pl1 = Policy.objects.create(name="test", effects=effects, method=method)
             pl2 = Policy.objects.create(name="test", effects=effects, method=method)
             policies = [pl1.pk, pl2.pk]
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         post_data['policies'] = policies
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
@@ -700,7 +713,7 @@ class TestPolicies(TestCase):
         pl1 = Policy.objects.create(name="test", effects=effects1, method='MU')
         pl2 = Policy.objects.create(name="test", effects=effects2, method='SU')
         policies = [pl1.pk, pl2.pk]
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         post_data['policies'] = policies
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
@@ -715,7 +728,7 @@ class TestHelpers(TestCase):
         recent_s = Scenario.objects.order_by('-date')[0]
         print(recent_s.name)
 
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         if scenario_form.is_valid():
@@ -732,7 +745,7 @@ class Interpolate(TestCase):
 
     # python manage.py test lcf.tests3.Interpolate.test_interpolate_tech_df
     def test_interpolate_tech_df(self):
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         file_data_without = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         file_data_with = {'file': SimpleUploadedFile('template_interpolate.csv', open('lcf/template_interpolate.csv', 'rb').read())}
         scenario_form_without = ScenarioForm(post_data, file_data_without)
@@ -755,7 +768,7 @@ class Interpolate(TestCase):
 
     # python manage.py test lcf.tests3.Interpolate.test_process_scenario_form_with_interpolation
     def test_process_scenario_form_with_interpolation(self):
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         file_data = {'file': SimpleUploadedFile('template_interpolate.csv', open('lcf/template_interpolate.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         if scenario_form.is_valid():
@@ -849,7 +862,7 @@ class Notes(TestCase):
 
     # python manage.py test lcf.tests3.Notes.test_process_scenario_form_with_notes_without_notes
     def test_process_scenario_form_with_notes_without_notes(self):
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
 
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
@@ -871,7 +884,7 @@ class Notes(TestCase):
 
     # python manage.py test lcf.tests3.Notes.test_process_scenario_form_with_different_column_order
     def test_process_scenario_form_with_different_column_order(self):
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         file_data = {'file': SimpleUploadedFile('template_with_sources2.csv', open('lcf/template_with_sources2.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         if scenario_form.is_valid():
@@ -882,7 +895,7 @@ class Notes(TestCase):
 
     # python manage.py test lcf.tests3.Notes.test_retrieve_sources
     def test_retrieve_sources(self):
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         file_data = {'file': SimpleUploadedFile('template_with_sources.csv', open('lcf/template_with_sources.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         process_scenario_form(scenario_form,new_wp=False)
@@ -905,7 +918,7 @@ class Notes(TestCase):
         self.assertEqual(len(sources.columns), 18)
         self.assertTrue(sources[dfh.note_columns].isnull().all().all())
 
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         file_data = {'file': SimpleUploadedFile('template_with_sources_and_prices.csv', open('lcf/template_with_sources_and_prices.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         process_scenario_form(scenario_form,new_wp=False)
@@ -919,7 +932,7 @@ class Notes(TestCase):
 
     # # python manage.py test lcf.tests3.Notes.test_sources_html
     # def test_sources_html(self):
-    #     post_data = dfh.test_post_data
+    #     post_data = dfh.test_post_data_quirks
     #     file_data = {'file': SimpleUploadedFile('template_with_sources_and_prices.csv', open('lcf/template_with_sources_and_prices.csv', 'rb').read())}
     #     scenario_form = ScenarioForm(post_data, file_data)
     #     process_scenario_form(scenario_form)
@@ -928,7 +941,7 @@ class Notes(TestCase):
 
     # # python manage.py test lcf.tests3.Notes.test_get_prices
     # def test_get_prices(self):
-    #     post_data = dfh.test_post_data
+    #     post_data = dfh.test_post_data_quirks
     #     file_data = {'file': SimpleUploadedFile('template_with_sources_and_prices.csv', open('lcf/template_with_sources_and_prices.csv', 'rb').read())}
     #     scenario_form = ScenarioForm(post_data, file_data)
     #     process_scenario_form(scenario_form,new_wp=False)
@@ -940,7 +953,7 @@ class Notes(TestCase):
 
     # python manage.py test lcf.tests3.Notes.test_inputs_download
     def test_inputs_download(self):
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         file_data = {'file': SimpleUploadedFile('template_with_sources_and_prices.csv', open('lcf/template_with_sources_and_prices.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         process_scenario_form(scenario_form,new_wp=False)
@@ -954,7 +967,7 @@ class Notes(TestCase):
         # print(tech)
         print(notes)
 
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         process_scenario_form(scenario_form,new_wp=False)
@@ -978,7 +991,7 @@ class Exceptions(TestCase):
 
     # python manage.py test lcf.tests3.Exceptions.test_upload_non_csv
     def test_upload_non_csv(self):
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         file_data = {'file': SimpleUploadedFile('admin.py', open('lcf/admin.py', 'rb').read())}
         scenario_form = ScenarioForm(post_data, file_data)
         self.assertFalse(scenario_form.is_valid())
@@ -986,7 +999,7 @@ class Exceptions(TestCase):
 
     # python manage.py test lcf.tests3.Exceptions.test_enter_incorrect_prices
     def test_enter_incorrect_prices(self):
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         post_data['wholesale_prices'] = "other"
         post_data['wholesale_prices_other'] = "1 2 3 4 5 6 5"
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
@@ -1004,7 +1017,7 @@ class Exceptions(TestCase):
             'wholesale_prices_other': ['a is not a valid number'],
         })
 
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         post_data['wholesale_prices'] = "excel"
         post_data['wholesale_prices_other'] = "1 2 3 4 5 6 7 8 9 10 11"
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
@@ -1033,7 +1046,7 @@ class Exceptions(TestCase):
     # python manage.py test lcf.tests3.Exceptions.test_process_scenario_form_with_file_with_invalid_columns
     def test_process_scenario_form_with_file_with_invalid_columns(self):
         scenario_count = Scenario.objects.count()
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         file_data = {'file': SimpleUploadedFile('template_error.csv', open('lcf/template_error.csv', 'rb').read())}
         # print(pd.read_csv(file_data['file']))
         scenario_form = ScenarioForm(post_data, file_data)
@@ -1061,20 +1074,20 @@ class Exceptions(TestCase):
 
     # python manage.py test lcf.tests3.Exceptions.test_view_with_invalid_file
     def test_view_with_invalid_file(self):
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         post_data['file'] = open('lcf/template_with_sources_error.csv')
         post_resp = self.client.post(reverse('scenario_new'), post_data)
         self.assertEqual(post_resp.status_code,200)
         self.assertEqual(post_resp.context['file_error'].args[0], "load_factor6 shouldn't be in column headers")
         # self.assertEqual(post_resp.context['file_error'].args[0], "['load_factor'] not in index")
 
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         post_data['file'] = open('lcf/template_with_sources_error2.csv')
         post_resp = self.client.post(reverse('scenario_new'), post_data)
         self.assertEqual(post_resp.status_code,200)
         self.assertEqual(post_resp.context['file_error'].args[0], "load_factor_note6 shouldn't be in column headers")
 
-        post_data = dfh.test_post_data
+        post_data = dfh.test_post_data_quirks
         post_data['file'] = open('lcf/template_with_sources_error3.csv')
         post_resp = self.client.post(reverse('scenario_new'), post_data)
         self.assertEqual(post_resp.status_code,200)
@@ -1130,6 +1143,8 @@ class Intermediate(TestCase):
         s = Scenario.objects.order_by('-date')[0]
         p = s.auctionyear_dict[2021].pot_dict['E']
         t = s.flat_tech_dict['OFW2021']
+        results = s.pivot('cum_owed_v_wp')
+        print(results)
         self.assertEqual(t.project_summary('available', 'num'), 8)
         self.assertEqual(t.project_summary('eligible', 'num'), 8)
         self.assertEqual(t.project_summary('successful', 'num'), 7)
@@ -1144,3 +1159,50 @@ class Intermediate(TestCase):
     def test_scenario_intermediate_results(self):
         s = Scenario.objects.get(pk=453)
         s.intermediate_results()
+
+
+def create_scenario_from_form(post_data=dfh.test_post_data_quirks):
+    file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
+    scenario_form = ScenarioForm(post_data, file_data)
+    if scenario_form.is_valid():
+        process_scenario_form(scenario_form,new_wp=False)
+        recent_s = Scenario.objects.order_by('-date')[0]
+        results = recent_s.pivot('cum_owed_v_wp')
+        return recent_s, results
+        # self.assertEqual(recent_s.name, "test 1234")
+        # self.assertEqual(round(results.loc[('Total', 'Total'),('Accounting cost (£bn)', 2025)],3), 2.805)
+
+
+class Clearing(TestCase):
+    fixtures = ['prod/data.json']
+
+    # python manage.py test lcf.tests3.Clearing.test_excel_option
+    def test_excel_option(self):
+        # post_data = {'name': 'test 1234',
+        #              'percent_emerging': 0.6,
+        #              'budget': 3.3,
+        #              'end_year1': 2025,
+        #              'wholesale_prices': "excel",
+        #              'gas_prices': "excel",
+        #              'excel_exongenous_clearing_price': 'on',
+        #              }
+        # s, results = create_scenario_from_form(post_data)
+        # p = s.auctionyear_dict[2021].pot_dict['E']
+        # print(p.non_cum_run_auction())
+        # print(results)
+
+        s_quirks, results_quirks = create_scenario_from_form(dfh.test_post_data_quirks)
+        p_quirks = s_quirks.auctionyear_dict[2021].pot_dict['E']
+        # print(p_quirks.non_cum_run_auction())
+        print(results_quirks)
+
+        s_no_quirks, results_no_quirks = create_scenario_from_form(dfh.test_post_data_no_quirks)
+        p_no_quirks = s_no_quirks.auctionyear_dict[2021].pot_dict['E']
+        # print(p_no_quirks.non_cum_run_auction())
+        print(results_no_quirks)
+        assert_frame_equal(results_no_quirks, results_quirks)
+
+
+    # def test_excel_exogenous_clearing_price_true:
+    #
+    # def test_excel_exogenous_clearing_price_false:
