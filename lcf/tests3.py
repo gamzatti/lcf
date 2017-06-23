@@ -18,87 +18,90 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 
 # all tests have to be run individually!
 #
-# # python manage.py test lcf.tests3.ExcelQuirkTests.test_excel_2020_gen_error_true
-# # python manage.py test lcf.tests3.ExcelQuirkTests.test_excel_2020_gen_error_false
-# # python manage.py test lcf.tests3.ExcelQuirkTests.test_all_excel_quirks_lumped
-# # python manage.py test lcf.tests3.ExcelQuirkTests.test_all_excel_quirks_individual
-# # python manage.py test lcf.tests3.ExcelQuirkTests.test_quirks
-# #
-# # python manage.py test lcf.tests3.CumT.test_cum_future_techs
-# #
-# # python manage.py test lcf.tests3.FixedNumProjectsTests.test_create_tidal
-# #
-# # python manage.py test lcf.tests3.InputDisplayTests.test_techs_input
-# # python manage.py test lcf.tests3.InputDisplayTests.test_prices_input
-# #
-# # python manage.py test lcf.tests3.StoringResults.test_scenario_db_storage
-# # python manage.py test lcf.tests3.StoringResults.test_auction_cache
-# #
-# # python manage.py test lcf.tests3.TestCumProj.test_num_projects
-# # python manage.py test lcf.tests3.TestCumProj.test_run_auction
-# # python manage.py test lcf.tests3.TestCumProj.test_run_auction_budget
-# # python manage.py test lcf.tests3.TestCumProj.test_accounting_cost
-# # python manage.py test lcf.tests3.TestCumProj.test_budget_period_2
-# # python manage.py test lcf.tests3.TestCumProj.test_fit_cost_individual_quirks
-# # python manage.py test lcf.tests3.TestCumProj.test_fit_cost_lumped_quirks
-# #
-# # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_num_projects
-# # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_levelised_cost_distribution
-# # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_projects_index
-# # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_projects
-# # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_concat_projects
-# # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_run_auction_max_deployment_cap
-# # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_run_auction_budget
-# # python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_budget_period_2
-# #
-# # python manage.py test lcf.tests3.TestCumProjSimple.test_unspent_high
-# # python manage.py test lcf.tests3.TestCumProjSimple.test_unspent_normal
-# # python manage.py test lcf.tests3.TestCumProjSimple.test_unspent_low
-# # python manage.py test lcf.tests3.TestCumProjSimple.test_unspent_lower
-# #
-# # python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_high
-# # python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_normal
-# # python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_low
+# python manage.py test lcf.tests3.ExcelQuirkTests.test_excel_2020_gen_error_true
+# python manage.py test lcf.tests3.ExcelQuirkTests.test_excel_2020_gen_error_false
+# python manage.py test lcf.tests3.ExcelQuirkTests.test_all_excel_quirks_lumped
+# python manage.py test lcf.tests3.ExcelQuirkTests.test_all_excel_quirks_individual
+# python manage.py test lcf.tests3.ExcelQuirkTests.test_quirks
+#
+# python manage.py test lcf.tests3.CumT.test_cum_future_techs
+#
+# python manage.py test lcf.tests3.FixedNumProjectsTests.test_create_tidal
+#
+# python manage.py test lcf.tests3.InputDisplayTests.test_techs_input
+# python manage.py test lcf.tests3.InputDisplayTests.test_prices_input
+#
+# python manage.py test lcf.tests3.StoringResults.test_scenario_db_storage
+# python manage.py test lcf.tests3.StoringResults.test_auction_cache
+#
+# python manage.py test lcf.tests3.TestCumProj.test_num_projects
+# python manage.py test lcf.tests3.TestCumProj.test_run_auction
+# python manage.py test lcf.tests3.TestCumProj.test_run_auction_budget
+# python manage.py test lcf.tests3.TestCumProj.test_accounting_cost
+# python manage.py test lcf.tests3.TestCumProj.test_budget_period_2
+# python manage.py test lcf.tests3.TestCumProj.test_fit_cost_individual_quirks
+# python manage.py test lcf.tests3.TestCumProj.test_fit_cost_lumped_quirks
+#
+# python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_num_projects
+# python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_levelised_cost_distribution
+# python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_projects_index
+# python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_projects
+# python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_concat_projects
+# python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_run_auction_max_deployment_cap
+# python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_run_auction_budget
+# python manage.py test lcf.tests3.TestNonCumProj.test_non_cum_budget_period_2
+#
+# python manage.py test lcf.tests3.TestCumProjSimple.test_unspent_high
+# python manage.py test lcf.tests3.TestCumProjSimple.test_unspent_normal
+# python manage.py test lcf.tests3.TestCumProjSimple.test_unspent_low
+# python manage.py test lcf.tests3.TestCumProjSimple.test_unspent_lower
+#
+# python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_high
+# python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_normal
+# python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_low
 # python manage.py test lcf.tests3.TestNonCumProjSimple.test_non_cum_unspent_lower
-# #
-# # python manage.py test lcf.tests3.TestIP.test_nw_v_gas
-# #
-# # python manage.py test lcf.tests3.ViewsTests.test_policy_new_view
-# # python manage.py test lcf.tests3.ViewsTests.test_scenario_new_view
-# #
-# # python manage.py test lcf.tests3.TestPolicies.test_update_tech_with_policies
-# # python manage.py test lcf.tests3.TestPolicies.test_process_scenario_form_with_policies
-# #
-# # python manage.py test lcf.tests3.TestHelpers.test_process_scenario_form
-# #
-# # python manage.py test lcf.tests3.Interpolate.test_interpolate_tech_df
-# # python manage.py test lcf.tests3.Interpolate.test_process_scenario_form_with_interpolation
-# #
-# # python manage.py test lcf.tests3.Notes.test_parse_file_with_notes
+#
+# python manage.py test lcf.tests3.TestIP.test_nw_v_gas
+#
+# python manage.py test lcf.tests3.ViewsTests.test_policy_new_view
+# python manage.py test lcf.tests3.ViewsTests.test_scenario_new_view
+#
+# python manage.py test lcf.tests3.TestPolicies.test_update_tech_with_policies
+# python manage.py test lcf.tests3.TestPolicies.test_process_scenario_form_with_policies
+#
+# python manage.py test lcf.tests3.TestHelpers.test_process_scenario_form
+#
+# python manage.py test lcf.tests3.Interpolate.test_interpolate_tech_df
+# python manage.py test lcf.tests3.Interpolate.test_process_scenario_form_with_interpolation
+#
+# python manage.py test lcf.tests3.Notes.test_parse_file_with_notes
 # python manage.py test lcf.tests3.Notes.test_parse_file_with_prices_and_prices_notes
-# # python manage.py test lcf.tests3.Notes.test_parse_file_with_and_without_prices
-# # python manage.py test lcf.tests3.Notes.test_parse_file_with_or_without_notes_and_get_same_tech_data
-# # python manage.py test lcf.tests3.Notes.test_parse_file_with_different_column_order
-# # python manage.py test lcf.tests3.Notes.test_process_scenario_form_with_notes_without_notes
-# # python manage.py test lcf.tests3.Notes.test_process_scenario_form_with_different_column_order
-# # python manage.py test lcf.tests3.Notes.test_retrieve_sources
-# # python manage.py test lcf.tests3.Notes.test_inputs_download
-# #
-# #
-# # python manage.py test lcf.tests3.Exceptions.test_upload_non_csv
-# # python manage.py test lcf.tests3.Exceptions.test_blank_scenario
-# # python manage.py test lcf.tests3.Exceptions.test_process_scenario_form_with_file_with_invalid_columns
-# # python manage.py test lcf.tests3.Exceptions.test_view_with_invalid_file
-# # python manage.py test lcf.tests3.Exceptions.test_view_with_invalid_scenario
-# # python manage.py test lcf.tests3.Exceptions.test_view_with_non_existant_scenario
-# #
-# # python manage.py test lcf.tests3.Intermediate.test_cum_project_summary
+# python manage.py test lcf.tests3.Notes.test_parse_file_with_and_without_prices
+# python manage.py test lcf.tests3.Notes.test_parse_file_with_or_without_notes_and_get_same_tech_data
+# python manage.py test lcf.tests3.Notes.test_parse_file_with_different_column_order
+# python manage.py test lcf.tests3.Notes.test_process_scenario_form_with_notes_without_notes
+# python manage.py test lcf.tests3.Notes.test_process_scenario_form_with_different_column_order
+# python manage.py test lcf.tests3.Notes.test_retrieve_sources
+# python manage.py test lcf.tests3.Notes.test_inputs_download
+#
+#
+# python manage.py test lcf.tests3.Exceptions.test_upload_non_csv
+# python manage.py test lcf.tests3.Exceptions.test_blank_scenario
+# python manage.py test lcf.tests3.Exceptions.test_process_scenario_form_with_file_with_invalid_columns
+# python manage.py test lcf.tests3.Exceptions.test_view_with_invalid_file
+# python manage.py test lcf.tests3.Exceptions.test_view_with_invalid_scenario
+# python manage.py test lcf.tests3.Exceptions.test_view_with_non_existant_scenario
+#
+# python manage.py test lcf.tests3.Intermediate.test_cum_project_summary
 # python manage.py test lcf.tests3.Intermediate.test_non_cum_project_summary
-# # python manage.py test lcf.tests3.Intermediate.test_scenario_intermediate_results
+# python manage.py test lcf.tests3.Intermediate.test_scenario_intermediate_results
 #
-# # python manage.py test lcf.tests3.Clearing.test_excel_option
-#
-#
+# python manage.py test lcf.tests3.Clearing.test_form_option
+# python manage.py test lcf.tests3.Clearing.test_exogenous
+# python manage.py test lcf.tests3.Clearing.test_clearing_price_non_cum
+# python manage.py test lcf.tests3.Clearing.test_clearing_price_cum
+# python manage.py test lcf.tests3.Clearing.test_intermediate_with_clearing_price_exogenous
+# python manage.py test lcf.tests3.Clearing.test_intermediate_with_clearing_price_not_exogenous
 
 
 class ExcelQuirkTests(TestCase):
@@ -338,6 +341,7 @@ class TestCumProj(TestCase):
     def test_run_auction_budget(self):
         s = Scenario.objects.all().get(pk=281)
         s.excel_include_previous_unsuccessful_all = True
+        s.excel_exongenous_clearing_price = True
         s.save()
         e_list = [ s.auctionyear_dict[y].pot_dict['E'] for y in range(2020,2031)]
         # p = s.auctionyear_dict[2027].pot_dict['E']
@@ -364,6 +368,7 @@ class TestCumProj(TestCase):
     def test_accounting_cost(self):
         s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
         s.excel_include_previous_unsuccessful_all = True
+        s.excel_exongenous_clearing_price = True
         s.save()
         results = s.pivot('cum_owed_v_wp',1)
         # print(results)
@@ -376,6 +381,7 @@ class TestCumProj(TestCase):
         s.excel_nw_carry_error = True
         s.excel_sp_error = True
         s.excel_2020_gen_error = True
+        s.excel_exongenous_clearing_price = True
         s.excel_quirks = False
         s.save()
         s.get_results()
@@ -515,6 +521,7 @@ class TestCumProjSimple(TestCase):
 
     def test_unspent(self,budget,expected_cost_2025):
         s = Scenario.objects.all().get(pk=586)
+        s.excel_exongenous_clearing_price = True
         s.excel_include_previous_unsuccessful_all = True
         s.budget = budget
         s.save()
@@ -559,6 +566,7 @@ class TestNonCumProjSimple(TestCase):
         s.excel_nw_carry_error = True
         s.excel_sp_error = True
         s.excel_2020_gen_error = True
+        s.excel_exongenous_clearing_price = True
         s.budget = budget
         s.save()
         e_list = [ s.auctionyear_dict[y].pot_dict['E'] for y in range(2020,2026)]
@@ -1107,13 +1115,14 @@ class Intermediate(TestCase):
     def test_non_cum_project_summary(self):
         post_data = dfh.test_post_data_no_quirks
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
+        # just because this test was written before I had made the below option to switch off exogenous clearing price, so the answers it expects are with it on
+        post_data['excel_exongenous_clearing_price'] = 'on'
         scenario_form = ScenarioForm(post_data, file_data)
         process_scenario_form(scenario_form,new_wp=False)
         s = Scenario.objects.order_by('-date')[0]
         p = s.auctionyear_dict[2021].pot_dict['E']
         t = s.flat_tech_dict['OFW2021']
         results = s.pivot('cum_owed_v_wp')
-        print(results)
         self.assertEqual(t.project_summary('available', 'num'), 8)
         self.assertEqual(t.project_summary('eligible', 'num'), 8)
         self.assertEqual(t.project_summary('successful', 'num'), 7)
@@ -1130,8 +1139,10 @@ class Intermediate(TestCase):
         s.intermediate_results()
 
 
-def create_scenario_from_form(post_data=dfh.test_post_data_quirks):
-    file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
+
+def create_scenario_from_form(post_data=dfh.test_post_data_quirks, file_data=None):
+    if file_data is None:
+        file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
     scenario_form = ScenarioForm(post_data, file_data)
     if scenario_form.is_valid():
         process_scenario_form(scenario_form,new_wp=False)
@@ -1145,33 +1156,105 @@ def create_scenario_from_form(post_data=dfh.test_post_data_quirks):
 class Clearing(TestCase):
     fixtures = ['prod/data.json']
 
-    # python manage.py test lcf.tests3.Clearing.test_excel_option
-    def test_excel_option(self):
-        # post_data = {'name': 'test 1234',
-        #              'percent_emerging': 0.6,
-        #              'budget': 3.3,
-        #              'end_year1': 2025,
-        #              'wholesale_prices': "excel",
-        #              'gas_prices': "excel",
-        #              'excel_exongenous_clearing_price': 'on',
-        #              }
-        # s, results = create_scenario_from_form(post_data)
-        # p = s.auctionyear_dict[2021].pot_dict['E']
-        # print(p.non_cum_run_auction())
-        # print(results)
+    # python manage.py test lcf.tests3.Clearing.test_form_option
+    def test_form_option(self):
+        post_data = {'name': 'test 1234',
+                     'percent_emerging': 0.6,
+                     'budget': 3.3,
+                     'end_year1': 2025,
+                     'wholesale_prices': "excel",
+                     'gas_prices': "excel",
+                     'excel_sp_error': 'on',
+                     'excel_2020_gen_error': 'on',
+                     'excel_nw_carry_error': 'on',
+                     'excel_include_previous_unsuccessful_nuclear': 'on',
+                     'excel_include_previous_unsuccessful_all': 'on',
+                     'excel_exongenous_clearing_price': 'on',
+                     }
+        s, results = create_scenario_from_form(post_data)
+        p = s.auctionyear_dict[2021].pot_dict['E']
 
         s_quirks, results_quirks = create_scenario_from_form(dfh.test_post_data_quirks)
         p_quirks = s_quirks.auctionyear_dict[2021].pot_dict['E']
-        # print(p_quirks.non_cum_run_auction())
-        print(results_quirks)
+        assert_frame_equal(results, results_quirks)
 
-        s_no_quirks, results_no_quirks = create_scenario_from_form(dfh.test_post_data_no_quirks)
-        p_no_quirks = s_no_quirks.auctionyear_dict[2021].pot_dict['E']
-        # print(p_no_quirks.non_cum_run_auction())
-        print(results_no_quirks)
-        assert_frame_equal(results_no_quirks, results_quirks)
+    # python manage.py test lcf.tests3.Clearing.test_exogenous
+
+    def test_exogenous(self):
+        """check the right part of the auction code is being run"""
+        post_data = {'name': 'test 1234',
+                     'percent_emerging': 0.6,
+                     'budget': 3.3,
+                     'end_year1': 2025,
+                     'wholesale_prices': "excel",
+                     'gas_prices': "excel",
+                     'excel_include_previous_unsuccessful_nuclear': 'on',
+                     'excel_exongenous_clearing_price': 'on',
+                     }
+        s, results = create_scenario_from_form(post_data)
+        p = s.auctionyear_dict[2021].pot_dict['E']
+        self.assertFalse('attempted_clearing_price' in p.non_cum_run_auction().columns)
 
 
-    # def test_excel_exogenous_clearing_price_true:
-    #
-    # def test_excel_exogenous_clearing_price_false:
+        post_data = dfh.test_post_data_just_prev_nuc
+        s, results = create_scenario_from_form(post_data)
+        p = s.auctionyear_dict[2021].pot_dict['E']
+        self.assertTrue('attempted_clearing_price' in p.non_cum_run_auction().columns)
+
+    # python manage.py test lcf.tests3.Clearing.test_clearing_price_non_cum
+    def test_clearing_price_non_cum(self):
+        post_data = dfh.test_post_data_just_prev_nuc
+        s, results = create_scenario_from_form(post_data)
+        for i in range(2021,2031):
+        # for i in range(2021,2022):
+            a = s.auctionyear_dict[i]
+            for j in ['E', 'M', 'SN', 'FIT']:
+            # for j in ['E']:
+                p = a.pot_dict[j]
+                projects = p.non_cum_run_auction()
+                print(projects)
+                if len(projects.index) > 0:
+                    self.assertEqual(projects.levelised_cost[projects.funded_this_year == True].max(),projects.clearing_price.max())
+                    if j != 'FIT':
+                        self.assertTrue((projects.difference != projects.strike_price-a.wholesale_price).any())
+                    npt.assert_almost_equal(p.awarded_cost(), projects.attempted_cum_cost[projects.funded_this_year == True].max())
+                    if j not in ['SN','FIT']:
+                        self.assertTrue(p.awarded_cost() < p.budget())
+
+
+    # python manage.py test lcf.tests3.Clearing.test_clearing_price_cum
+    def test_clearing_price_cum(self):
+        post_data = dfh.test_post_data_just_prev_all
+        s, results = create_scenario_from_form(post_data)
+        for i in range(2021,2031):
+        # for i in range(2021,2022):
+            a = s.auctionyear_dict[i]
+            for j in ['E', 'M', 'SN', 'FIT']:
+            # for j in ['E']:
+                p = a.pot_dict[j]
+                projects = p.non_cum_run_auction()
+                print(projects)
+                if len(projects.index) > 0:
+                    self.assertEqual(projects.levelised_cost[projects.funded_this_year == True].max(),projects.clearing_price.max())
+                    if j != 'FIT':
+                        self.assertTrue((projects.difference != projects.strike_price-a.wholesale_price).any())
+                    npt.assert_almost_equal(p.awarded_cost(), projects.attempted_cum_cost[projects.funded_this_year == True].max())
+                    if j not in ['SN','FIT']:
+                        self.assertTrue(p.awarded_cost() < p.budget())
+
+
+    # python manage.py test lcf.tests3.Clearing.test_intermediate_with_clearing_price_exogenous
+
+    def test_intermediate_with_clearing_price_exogenous(self):
+        post_data = dfh.test_post_data_just_prev_nuc
+        post_data['excel_exongenous_clearing_price'] = 'on'
+        s, results = create_scenario_from_form(post_data)
+        s.intermediate_results()
+
+    # python manage.py test lcf.tests3.Clearing.test_intermediate_with_clearing_price_not_exogenous
+    def test_intermediate_with_clearing_price_not_exogenous(self):
+        post_data = dfh.test_post_data_just_prev_nuc
+        s, results = create_scenario_from_form(post_data)
+        s.intermediate_results()
+        # p = s.auctionyear_dict[2021].pot_dict['E']
+        # print(p.non_cum_run_auction())
