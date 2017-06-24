@@ -11,6 +11,10 @@ from pandas import DataFrame, Series
 from pandas.util.testing import assert_frame_equal, assert_series_equal
 import numpy.testing as npt
 
+from graphos.sources.simple import SimpleDataSource
+from graphos.renderers.gchart import LineChart, ColumnChart
+
+
 import lcf.dataframe_helpers as dfh
 from .models import Scenario, AuctionYear, Pot, Technology, Policy
 from .forms import ScenarioForm, PricesForm, PolicyForm
@@ -102,7 +106,7 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.Clearing.test_clearing_price_cum
 # python manage.py test lcf.tests3.Clearing.test_intermediate_with_clearing_price_exogenous
 # python manage.py test lcf.tests3.Clearing.test_intermediate_with_clearing_price_not_exogenous
-
+#
 
 class ExcelQuirkTests(TestCase):
     fixtures = ['tests/new/data2.json']
@@ -1205,8 +1209,8 @@ class Clearing(TestCase):
     def test_clearing_price_non_cum(self):
         post_data = dfh.test_post_data_just_prev_nuc
         s, results = create_scenario_from_form(post_data)
-        for i in range(2021,2031):
-        # for i in range(2021,2022):
+        # for i in range(2021,2031):
+        for i in range(2021,2022):
             a = s.auctionyear_dict[i]
             for j in ['E', 'M', 'SN', 'FIT']:
             # for j in ['E']:
@@ -1232,29 +1236,47 @@ class Clearing(TestCase):
             for j in ['E', 'M', 'SN', 'FIT']:
             # for j in ['E']:
                 p = a.pot_dict[j]
-                projects = p.non_cum_run_auction()
+                projects = p.cum_run_auction()
                 print(projects)
                 if len(projects.index) > 0:
-                    self.assertEqual(projects.levelised_cost[projects.funded_this_year == True].max(),projects.clearing_price.max())
-                    if j != 'FIT':
-                        self.assertTrue((projects.difference != projects.strike_price-a.wholesale_price).any())
-                    npt.assert_almost_equal(p.awarded_cost(), projects.attempted_cum_cost[projects.funded_this_year == True].max())
-                    if j not in ['SN','FIT']:
-                        self.assertTrue(p.awarded_cost() < p.budget())
+                    if pd.notnull(projects.clearing_price.max()):
+                        self.assertEqual(projects.levelised_cost[projects.funded_this_year == True].max(),projects.clearing_price.max())
+                        if j != 'FIT':
+                            self.assertTrue((projects.difference != projects.strike_price-a.wholesale_price).any())
+                        npt.assert_almost_equal(p.awarded_cost(), projects.attempted_cum_cost[projects.funded_this_year == True].max())
+                        if j not in ['SN','FIT']:
+                            self.assertTrue(p.awarded_cost() < p.budget())
+
+    # python manage.py test lcf.tests3.Clearing.test_accounting_cost
+    def test_accounting_cost(self):
+        post_data = dfh.test_post_data_just_prev_nuc
+        s, results = create_scenario_from_form(post_data)
+        self.assertTrue(results.notnull().values.all())
+
 
 
     # python manage.py test lcf.tests3.Clearing.test_intermediate_with_clearing_price_exogenous
-
     def test_intermediate_with_clearing_price_exogenous(self):
         post_data = dfh.test_post_data_just_prev_nuc
         post_data['excel_exongenous_clearing_price'] = 'on'
         s, results = create_scenario_from_form(post_data)
-        s.intermediate_results()
+
+        pk = Scenario.objects.all().order_by("-date")[0].pk
+        scenario = Scenario.objects.prefetch_related('auctionyear_set__pot_set__technology_set', 'policies').get(pk=pk) #new
+
+        scenario.get_results()
+        scenario.intermediate_frame()
+
+
+
+
 
     # python manage.py test lcf.tests3.Clearing.test_intermediate_with_clearing_price_not_exogenous
     def test_intermediate_with_clearing_price_not_exogenous(self):
         post_data = dfh.test_post_data_just_prev_nuc
         s, results = create_scenario_from_form(post_data)
-        s.intermediate_results()
-        # p = s.auctionyear_dict[2021].pot_dict['E']
-        # print(p.non_cum_run_auction())
+        print(s.intermediate_frame())
+
+
+        # resp = self.client.get(reverse('scenario_detail', kwargs={'pk':s.pk}))
+        # self.assertEqual(resp.status_code,200)

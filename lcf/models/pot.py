@@ -89,8 +89,10 @@ class Pot(models.Model):
             return self.budget_result
         else:
             if self.name == "M" or self.name == "E":
+                # print('budgetstillfineA')
                 result = self.auction_budget() * self.percent()
             elif self.name == "SN" or self.name == "FIT":
+                # print('budgetstillfineA')
                 result = np.nan
             self.budget_result = result
             return result
@@ -98,16 +100,18 @@ class Pot(models.Model):
     #@lru_cache(maxsize=128)
     def auction_budget(self):
         if self.auction_budget_result:
+            print('budgetstillfineA')
             return self.auction_budget_result
         else:
+            print('budgetstillfineB')
             self.auction_budget_result = self.auctionyear.budget()
-            if self.name == "E":
-                #sister_pot = Pot.objects.get(auctionyear=self.auctionyear,name="M")
-                sister_pot = self.auctionyear.pot_dict["M"]
-            elif self.name == "M":
-                #sister_pot = Pot.objects.get(auctionyear=self.auctionyear,name="M")
-                sister_pot = self.auctionyear.pot_dict["M"] # should be E surely?
-            sister_pot.auction_budget_result = self.auctionyear.budget()
+            # if self.name == "E":
+            #     #sister_pot = Pot.objects.get(auctionyear=self.auctionyear,name="M")
+            #     sister_pot = self.auctionyear.pot_dict["M"]
+            # elif self.name == "M":
+            #     #sister_pot = Pot.objects.get(auctionyear=self.auctionyear,name="M")
+            #     sister_pot = self.auctionyear.pot_dict["M"] # should be E surely?
+            # sister_pot.auction_budget_result = self.auctionyear.budget()
             return self.auction_budget_result
 
 
@@ -142,37 +146,44 @@ class Pot(models.Model):
 
     @lru_cache(maxsize=128)
     def run_relevant_auction(self):
-        # print(self.name, self.auctionyear.year)
+        print(self.name, self.auctionyear.year)
         if len(self.active_technology_dict) == 0:
+            print('no techs')
             self.awarded_cost_result = 0
             self.awarded_gen_result = 0
             self.auction_has_run = "n/a"
             # self.auction_results = DataFrame().to_json()
 
         elif self.auction_has_run == True:
-            # print('decoding json')
+            print('decoding json')
             # non_cum_column_order = ['levelised_cost', 'gen', 'technology', 'strike_price', 'affordable', 'pot', 'listed_year', 'eligible', 'difference', 'cost', 'attempted_cum_cost', 'funded_this_year', 'attempted_project_gen', 'attempted_cum_gen']
             non_cum_column_order = ['levelised_cost', 'gen', 'technology', 'strike_price', 'affordable', 'pot', 'year', 'eligible', 'difference', 'cost', 'attempted_cum_cost', 'funded_this_year', 'attempted_project_gen', 'attempted_cum_gen']
             # cum_column_order = ['levelised_cost', 'gen', 'technology', 'strike_price', 'affordable', 'pot', 'listed_year', 'previously_funded', 'eligible', 'difference', 'cost', 'attempted_cum_cost', 'funded_this_year', 'attempted_project_gen', 'attempted_cum_gen']
             cum_column_order = ['levelised_cost', 'gen', 'technology', 'strike_price', 'affordable', 'pot', 'year', 'previously_funded', 'eligible', 'difference', 'cost', 'attempted_cum_cost', 'funded_this_year', 'attempted_project_gen', 'attempted_cum_gen']
+            non_cum_clearing_column_order = ['levelised_cost', 'gen', 'technology', 'strike_price', 'affordable', 'pot', 'year', 'eligible', 'attempted_clearing_price', 'attempted_project_gen', 'attempted_cum_gen', 'difference', 'attempted_cum_cost', 'funded_this_year', 'clearing_price', 'cost', 'cost_all']
+            cum_clearing_column_order = ['levelised_cost', 'gen', 'technology', 'strike_price', 'affordable', 'pot', 'year', 'previously_funded', 'eligible', 'attempted_clearing_price', 'attempted_project_gen', 'attempted_cum_gen', 'difference', 'attempted_cum_cost', 'funded_this_year', 'clearing_price', 'cost', 'cost_all']
             if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_include_previous_unsuccessful_all == True or (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
                 column_order = cum_column_order
+                if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_exongenous_clearing_price == True:
+                    column_order = cum_clearing_column_order
             else:
                 column_order = non_cum_column_order
+                if self.auctionyear.scenario.excel_exongenous_clearing_price == True:
+                    column_order = non_cum_clearing_column_order
             df = pd.read_json(self.auction_results).sort_values(['strike_price', 'levelised_cost']).reindex(columns=column_order)
             df.gen, df.attempted_project_gen, df.attempted_cum_gen = df.gen.astype(float), df.attempted_project_gen.astype(float), df.attempted_cum_gen.astype(float)
             return df
 
         else:
             if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_include_previous_unsuccessful_all == True or (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
-                # print('running cum auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
+                print('running cum auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
                 return self.cum_run_auction()
             else:
-                # print('running non_cum auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
+                print('running non_cum auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
                 return self.non_cum_run_auction()
 
     @lru_cache(maxsize=128)
-    def cum_run_auction(self):
+    def cum_run_auction(self, update_variables=True):
         print('cum auction')
         gen = 0
         cost = 0
@@ -197,22 +208,25 @@ class Pot(models.Model):
                     projects['funded_this_year'] = (projects.eligible) & (projects.attempted_cum_cost < budget)
             projects['attempted_project_gen'] = np.where(projects.eligible == True, projects.gen, 0)
             projects['attempted_cum_gen'] = np.cumsum(projects.attempted_project_gen)
+            projects['clearing_price'] = projects.strike_price
         else:
-            self.clearing_price_run_auction(projects)
-        self.update_variables(projects)
+            projects = self.clearing_price_run_auction(projects)
+        # print(projects.clearing_price)
+        if update_variables == True:
+            self.update_variables(projects)
         return projects
 
 
     @lru_cache(maxsize=128)
-    def non_cum_run_auction(self):
+    def non_cum_run_auction(self, update_variables=True):
         print('non cum auction')
         gen = 0
         cost = 0
         budget = self.budget()
         projects = self.non_cum_concat_projects()
+        projects['eligible'] = projects.affordable
         if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_exongenous_clearing_price == True:
             projects.sort_values(['strike_price', 'levelised_cost'],inplace=True)
-            projects['eligible'] = projects.affordable
             projects['difference'] = projects.strike_price if self.name == "FIT" else projects.strike_price - self.auctionyear.wholesale_price
             print('using strike_price as clearing price')
             projects['cost'] = np.where(projects.eligible == True, projects.gen/1000 * projects.difference, 0)
@@ -228,16 +242,18 @@ class Pot(models.Model):
                     projects['funded_this_year'] = (projects.eligible) & (projects.attempted_cum_cost < budget)
             projects['attempted_project_gen'] = np.where(projects.eligible == True, projects.gen, 0)
             projects['attempted_cum_gen'] = np.cumsum(projects.attempted_project_gen)
+            projects['clearing_price'] = projects.strike_price
         else:
-            self.clearing_price_run_auction(projects)
-        self.update_variables(projects)
+            projects = self.clearing_price_run_auction(projects)
+        # print(projects.clearing_price)
+        if update_variables == True:
+            self.update_variables(projects)
         return projects
 
     def clearing_price_run_auction(self, projects):
         print('calculating clearing price')
         projects.sort_values(['levelised_cost'],inplace=True)
         projects['attempted_clearing_price'] = projects.levelised_cost # change to multiply by 1.1
-        projects['eligible'] = projects.affordable
         if self.period_num() == 2 and self.auctionyear.scenario.subsidy_free_p2 == True:
             print('applying subsidy free restriction')
             projects['eligible'] = projects.affordable & (projects.attempted_clearing_price < self.auctionyear.gas_price)
@@ -260,25 +276,22 @@ class Pot(models.Model):
             projects['clearing_price'] = projects.attempted_clearing_price[projects.funded_this_year == True].max()
             projects['cost'] = np.where(projects.eligible == True, projects.gen/1000 * (projects.clearing_price - self.auctionyear.wholesale_price), 0)
             projects['cost_all'] = projects.gen/1000 * (projects.clearing_price - self.auctionyear.wholesale_price)
-
+        return projects
         # print(projects)
 
 
 
     def project_summary(self, stage, technology):
         if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_include_previous_unsuccessful_all == True or (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
-            projects = self.cum_run_auction()
-
+            projects = self.cum_run_auction(update_variables = False).copy()
             projects = projects[(projects.technology == technology.name) & (projects.previously_funded == False)]
         else:
-            projects = self.non_cum_run_auction()
+            projects = self.non_cum_run_auction(update_variables = False).copy()
             projects = projects[projects.technology == technology.name]
         available = projects
         eligible = projects[projects.affordable == True]
         successful = projects[projects.funded_this_year == True]
         cost = {'available': available.cost_all.sum(), 'eligible': eligible.cost.sum(), 'successful': successful.cost.sum() }
-        cost = {'available': available.cost_all.sum(), 'eligible': eligible.cost.sum(), 'successful': successful.cost.sum() }
-
         gen =  {'available': available.gen.sum(), 'eligible': eligible.gen.sum(), 'successful': successful.gen.sum() }
         num =  {'available': len(available), 'eligible': len(eligible), 'successful': len(successful) }
         max_bid = {'available': available.levelised_cost.max(), 'eligible': eligible.levelised_cost.max(), 'successful': successful.levelised_cost.max() }
@@ -302,13 +315,15 @@ class Pot(models.Model):
         return res
 
     def update_variables(self,projects):
+        print('updating variables')
         successful_projects = projects[(projects.funded_this_year == True)]
         for t in self.technology_dict.values():
             t_projects = successful_projects[successful_projects.technology == t.name]
+            # print(t_projects)
             t.awarded_gen = t_projects.attempted_project_gen.sum()/1000 if pd.notnull(t_projects.attempted_project_gen.sum()) else 0
             t.awarded_cap = t.awarded_gen/8.760/t.load_factor
             t.awarded_cost = sum(t_projects.cost)
-
+            t.clearing_price = t_projects.clearing_price.max() if pd.notnull(t_projects.clearing_price.max()) else 0
             # if self.auctionyear.year == self.auctionyear.scenario.end_year1 + 1: #is this even doing anything?
             #     t.cum_owed_v_wp = 0
             #     t.cum_owed_v_gas = 0
@@ -318,9 +333,9 @@ class Pot(models.Model):
                 # gas = future_t.pot.auctionyear.gas_price
                 gas = self.auctionyear.gas_price
                 if (self.auctionyear.scenario.excel_sp_error == True or self.auctionyear.scenario.excel_quirks == True) and (self.name == "E" or self.name == "SN" or self.name == "M"):
-                    strike_price = future_t.strike_price
+                    clearing_price = future_t.strike_price
                 else:
-                    strike_price = t.strike_price
+                    clearing_price = t.clearing_price
                 if t.name == "NW":
                     wp = 0
                     # gas = 0
@@ -329,9 +344,9 @@ class Pot(models.Model):
                 if self.auctionyear.year == self.auctionyear.scenario.start_year2:
                     tmid = self.auctionyear.scenario.auctionyear_dict[self.auctionyear.scenario.end_year1].pot_dict[t.pot.name].technology_dict[t.name]
                     future_t.cum_awarded_gen = tmid.cum_awarded_gen
-                future_t.cum_owed_v_wp += t.awarded_gen * (strike_price - wp)
-                future_t.cum_owed_v_gas += t.awarded_gen * (strike_price - gas)
-                future_t.cum_owed_v_absolute += t.awarded_gen * strike_price
+                future_t.cum_owed_v_wp += t.awarded_gen * (clearing_price - wp)
+                future_t.cum_owed_v_gas += t.awarded_gen * (clearing_price - gas)
+                future_t.cum_owed_v_absolute += t.awarded_gen * clearing_price
                 future_t.cum_awarded_gen += t.awarded_gen ## need to deal with excel_2020_gen_error
                 if (self.auctionyear.scenario.excel_2020_gen_error == True or self.auctionyear.scenario.excel_quirks == True) and self.auctionyear.year == self.auctionyear.scenario.start_year1 and t.pot.name != "FIT":
                     t2020 = self.auctionyear.scenario.auctionyear_dict[2020].pot_dict[t.pot.name].technology_dict[t.name]

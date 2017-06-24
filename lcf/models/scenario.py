@@ -384,21 +384,28 @@ class Scenario(models.Model):
         return int((1 - self.percent_emerging) * 100)
 
 
-    def intermediate_results(self):
+    def intermediate_frame(self):
         years = []
         pots = []
         pot_budgets = []
         technologies = []
         t_objects = []
-        for t in self.flat_tech_dict.values():
-
-            years.append(t.pot.auctionyear.year)
-            pots.append(t.pot.name)
-            pot_budgets.append(round(t.pot.budget(),2))
-            technologies.append(t.name)
-            t_objects.append(t)
+        print('still fine1')
+        # for t in self.flat_tech_dict.values():
+        for a in self.auctionyear_dict.values():
+            for p in a.pot_dict.values():
+                for t in p.technology_dict.values():
+                    years.append(t.pot.auctionyear.year)
+                    print(t, t.pot.auctionyear.year, 'still fine2')
+                    pots.append(t.pot.name)
+                    print(t, t.pot.auctionyear.year, 'still fine3')
+                    pot_budgets.append(round(t.pot.budget(),2))
+                    print(t, t.pot.auctionyear.year, 'still fine4')
+                    technologies.append(t.name)
+                    print(t, t.pot.auctionyear.year, 'still fine5')
+                    t_objects.append(t)
+                    print(t, t.pot.auctionyear.year, 'still fine6')
         frame = DataFrame({'Year': years, 'Pot': pots, 'Pot budget': pot_budgets, 'Technology': technologies, 't_object': t_objects}).reindex(columns = ['Year', 'Pot', 'Pot budget', 'Technology', 't_object'])
-        frame = frame.replace('nan', 'N/A')
         available = frame.copy()
         available['Stage'] = 'available'
 
@@ -418,5 +425,9 @@ class Scenario(models.Model):
         frame = frame.set_index(['Year', 'Pot', 'Pot budget', 'Technology', 'Stage'])
         frame = frame.sort_index()
         frame = frame.drop('t_object', axis=1)
-        # return frame
+        frame = frame.replace('nan', 'N/A')
+        return frame
+
+    def intermediate_results(self):
+        frame = self.intermediate_frame()
         return self.df_to_html(frame)

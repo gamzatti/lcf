@@ -152,6 +152,7 @@ def scenario_detail(request, pk=None):
     # print("[lease sss don't c a che me!")
     try:
         scenario.get_results()
+        # intermediate_results = scenario.intermediate_results()
         e = None
     except ScenarioError as e:
         context = {'scenario': scenario,
@@ -167,7 +168,8 @@ def scenario_detail(request, pk=None):
         context = {'scenario': scenario,
                    'policies': Policy.objects.all(),
                    'scenarios': scenarios,
-                   'recent_pk': recent_pk
+                   'recent_pk': recent_pk,
+                #    'intermediate_results': intermediate_results
                    }
         for column in ['awarded_cap', 'awarded_gen', 'cum_owed_v_wp', 'cum_owed_v_gas', 'cum_owed_v_absolute', 'cum_awarded_gen']:
             for num in [1,2]:
