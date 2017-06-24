@@ -33,6 +33,9 @@ class Scenario(models.Model):
     excel_nw_carry_error = models.BooleanField(default=False, verbose_name="Excel quirk: add an extra £89m to the budget each year, forgetting it's been spent on the previous year's negawatts FIT")
     excel_include_previous_unsuccessful_nuclear = models.BooleanField(default=True, verbose_name="Excel quirk: allow previously unsuccessful projects in separate negotiations to be considered in future years")
     excel_include_previous_unsuccessful_all = models.BooleanField(default=False, verbose_name="Excel quirk: allow previously unsuccessful projects for ALL technologies to be considered in future years")
+
+    excel_exongenous_clearing_price = models.BooleanField(default=False, verbose_name="Excel quirk: take clearing price as exogenous input rather than calculating as a result of auction")
+
     excel_quirks = models.BooleanField(default=False, verbose_name="Include all Excel quirks")
     results = models.TextField(null=True,blank=True)
     policies = models.ManyToManyField(Policy, blank=True)
@@ -49,6 +52,16 @@ class Scenario(models.Model):
         super(Scenario, self).__init__(*args, **kwargs)
         self.auctionyear_dict = { auctionyear.year : auctionyear for auctionyear in self.auctionyear_set.all() }
         self.flat_tech_dict = { t.name + str(t.pot.auctionyear.year) : t for a in self.auctionyear_dict.values() for p in a.pot_dict.values() for t in p.technology_dict.values() }
+        # if self.excel_quirks == True:
+            # self.excel_sp_error = True
+            # self.excel_2020_gen_error = True
+            # self.excel_nw_carry_error = True
+            # self.excel_include_previous_unsuccessful_nuclear = True
+            # self.excel_include_previous_unsuccessful_all = True
+            # self.excel_exongenous_clearing_price = True
+            # self.save()
+
+
 
     def period(self, num=None):
         if num == 1:
@@ -352,7 +365,7 @@ class Scenario(models.Model):
             return None
 
     def quirks(self):
-        quirks = ['excel_sp_error', 'excel_2020_gen_error', 'excel_nw_carry_error', 'excel_include_previous_unsuccessful_nuclear', 'excel_include_previous_unsuccessful_all']
+        quirks = ['excel_sp_error', 'excel_2020_gen_error', 'excel_nw_carry_error', 'excel_include_previous_unsuccessful_nuclear', 'excel_include_previous_unsuccessful_all', 'excel_exongenous_clearing_price']
         verbose_quirks = [Scenario._meta.get_field(quirk).verbose_name.replace('Excel quirk: ', '') for quirk in quirks ]
         quirk_dict = dict(zip(quirks, verbose_quirks))
         if self.excel_quirks == True:
@@ -371,22 +384,28 @@ class Scenario(models.Model):
         return int((1 - self.percent_emerging) * 100)
 
 
-    def intermediate_results(self):
+    def intermediate_frame(self):
         years = []
         pots = []
         pot_budgets = []
         technologies = []
         t_objects = []
-
-        for t in self.flat_tech_dict.values():
-
-            years.append(t.pot.auctionyear.year)
-            pots.append(t.pot.name)
-            pot_budgets.append(round(t.pot.budget(),2))
-            technologies.append(t.name)
-            t_objects.append(t)
+        print('still fine1')
+        # for t in self.flat_tech_dict.values():
+        for a in self.auctionyear_dict.values():
+            for p in a.pot_dict.values():
+                for t in p.technology_dict.values():
+                    years.append(t.pot.auctionyear.year)
+                    print(t, t.pot.auctionyear.year, 'still fine2')
+                    pots.append(t.pot.name)
+                    print(t, t.pot.auctionyear.year, 'still fine3')
+                    pot_budgets.append(round(t.pot.budget(),2))
+                    print(t, t.pot.auctionyear.year, 'still fine4')
+                    technologies.append(t.name)
+                    print(t, t.pot.auctionyear.year, 'still fine5')
+                    t_objects.append(t)
+                    print(t, t.pot.auctionyear.year, 'still fine6')
         frame = DataFrame({'Year': years, 'Pot': pots, 'Pot budget': pot_budgets, 'Technology': technologies, 't_object': t_objects}).reindex(columns = ['Year', 'Pot', 'Pot budget', 'Technology', 't_object'])
-        frame = frame.replace('nan', 'N/A')
         available = frame.copy()
         available['Stage'] = 'available'
 
@@ -401,7 +420,14 @@ class Scenario(models.Model):
         frame['Number of projects'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'num'), axis=1 )
         frame['Equivalent generation (GWh)'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'gen'), axis=1 )
         frame['Equivalent cost (£m)'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'cost'), axis=1 )
+        frame['Max bid (£/MWh)'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'max_bid'), axis=1 )
+        frame['Clearing price (£/MWh)'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'clearing_price'), axis=1 )
         frame = frame.set_index(['Year', 'Pot', 'Pot budget', 'Technology', 'Stage'])
         frame = frame.sort_index()
         frame = frame.drop('t_object', axis=1)
+        frame = frame.replace('nan', 'N/A')
+        return frame
+
+    def intermediate_results(self):
+        frame = self.intermediate_frame()
         return self.df_to_html(frame)

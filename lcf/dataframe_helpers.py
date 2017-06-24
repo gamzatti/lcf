@@ -217,7 +217,7 @@ tech_policy_keys_su = ["tech_name", "year", "min_levelised_cost_change_su", "max
 
 tech_policy_columns = {'MU': [abbrev[column]['title'] for column in tech_policy_keys_mu ], 'SU': [abbrev[column]['title+unit'] for column in tech_policy_keys_su ] }
 
-test_post_data = {'name': 'test 1234',
+test_post_data_quirks = {'name': 'test 1234',
              'percent_emerging': 0.6,
              'budget': 3.3,
              'excel_quirks': 'on',
@@ -231,6 +231,23 @@ test_post_data_no_quirks = {'name': 'test 1234',
              'end_year1': 2025,
              'wholesale_prices': "excel",
              'gas_prices': "excel",
+             }
+test_post_data_just_prev_nuc = {'name': 'test 1234',
+             'percent_emerging': 0.6,
+             'budget': 3.3,
+             'end_year1': 2025,
+             'wholesale_prices': "excel",
+             'gas_prices': "excel",
+             'excel_include_previous_unsuccessful_nuclear': 'on',
+             }
+
+test_post_data_just_prev_all = {'name': 'test 1234',
+             'percent_emerging': 0.6,
+             'budget': 3.3,
+             'end_year1': 2025,
+             'wholesale_prices': "excel",
+             'gas_prices': "excel",
+             'excel_include_previous_unsuccessful_all': 'on',
              }
 
 note_pair_columns = [  "min_levelised_cost",
