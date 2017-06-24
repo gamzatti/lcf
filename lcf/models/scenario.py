@@ -33,9 +33,6 @@ class Scenario(models.Model):
     excel_nw_carry_error = models.BooleanField(default=False, verbose_name="Excel quirk: add an extra £89m to the budget each year, forgetting it's been spent on the previous year's negawatts FIT")
     excel_include_previous_unsuccessful_nuclear = models.BooleanField(default=True, verbose_name="Excel quirk: allow previously unsuccessful projects in separate negotiations to be considered in future years")
     excel_include_previous_unsuccessful_all = models.BooleanField(default=False, verbose_name="Excel quirk: allow previously unsuccessful projects for ALL technologies to be considered in future years")
-
-    excel_exongenous_clearing_price = models.BooleanField(default=False, verbose_name="Excel quirk: take clearing price as exogenous input rather than calculating as a result of auction")
-
     excel_quirks = models.BooleanField(default=False, verbose_name="Include all Excel quirks")
     results = models.TextField(null=True,blank=True)
     policies = models.ManyToManyField(Policy, blank=True)
@@ -52,16 +49,6 @@ class Scenario(models.Model):
         super(Scenario, self).__init__(*args, **kwargs)
         self.auctionyear_dict = { auctionyear.year : auctionyear for auctionyear in self.auctionyear_set.all() }
         self.flat_tech_dict = { t.name + str(t.pot.auctionyear.year) : t for a in self.auctionyear_dict.values() for p in a.pot_dict.values() for t in p.technology_dict.values() }
-        # if self.excel_quirks == True:
-            # self.excel_sp_error = True
-            # self.excel_2020_gen_error = True
-            # self.excel_nw_carry_error = True
-            # self.excel_include_previous_unsuccessful_nuclear = True
-            # self.excel_include_previous_unsuccessful_all = True
-            # self.excel_exongenous_clearing_price = True
-            # self.save()
-
-
 
     def period(self, num=None):
         if num == 1:
@@ -365,7 +352,7 @@ class Scenario(models.Model):
             return None
 
     def quirks(self):
-        quirks = ['excel_sp_error', 'excel_2020_gen_error', 'excel_nw_carry_error', 'excel_include_previous_unsuccessful_nuclear', 'excel_include_previous_unsuccessful_all', 'excel_exongenous_clearing_price']
+        quirks = ['excel_sp_error', 'excel_2020_gen_error', 'excel_nw_carry_error', 'excel_include_previous_unsuccessful_nuclear', 'excel_include_previous_unsuccessful_all']
         verbose_quirks = [Scenario._meta.get_field(quirk).verbose_name.replace('Excel quirk: ', '') for quirk in quirks ]
         quirk_dict = dict(zip(quirks, verbose_quirks))
         if self.excel_quirks == True:

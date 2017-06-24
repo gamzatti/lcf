@@ -204,16 +204,9 @@ class Pot(models.Model):
         cost = 0
         budget = self.budget()
         projects = self.non_cum_concat_projects()
-        if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_exongenous_clearing_price == True:
-            projects.sort_values(['strike_price', 'levelised_cost'],inplace=True)
-            projects['eligible'] = projects.affordable
-            projects['difference'] = projects.strike_price if self.name == "FIT" else projects.strike_price - self.auctionyear.wholesale_price
-        else:
-            projects.sort_values(['levelised_cost'],inplace=True)
-            projects['eligible'] = projects.affordable
-            projects['attempted_clearing_price'] = projects.levelised_cost.cummax()
-            projects['difference'] = projects.attempted_clearing_price if self.name == "FIT" else projects.attempted_clearing_price - self.auctionyear.wholesale_price
-
+        projects.sort_values(['strike_price', 'levelised_cost'],inplace=True)
+        projects['eligible'] = projects.affordable
+        projects['difference'] = projects.strike_price if self.name == "FIT" else projects.strike_price - self.auctionyear.wholesale_price
         projects['cost'] = np.where(projects.eligible == True, projects.gen/1000 * projects.difference, 0)
         projects['cost_all'] = projects.gen/1000 * projects.difference
         projects['attempted_cum_cost'] = np.cumsum(projects.cost)
