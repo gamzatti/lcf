@@ -53,14 +53,20 @@ class Technology(models.Model):
         self.cum_awarded_gen = 0
         self._max_deployment_cap = self.max_deployment_cap if self.num_new_projects == None else self.num_new_projects * self.project_gen / self.load_factor / 8760
 
+        self.awarded_num_projects = 0
+        self.awarded_max_bid = 0
         self.clearing_price = np.nan
-        self.available_cost = 0
+
         self.eligible_cost = 0
         self.eligible_gen = 0
         self.eligible_num_projects = 0
         self.eligible_max_bid = 0
-        self.awarded_num_projects = 0
-        self.awarded_max_bid = 0
+
+        self.available_gen = 0
+        self.available_cost = 0
+        self.available_max_bid = 0
+        self.available_num_projects = 0
+
 
     def __str__(self):
         return str((self.pot.auctionyear,self.pot.name,self.name))
