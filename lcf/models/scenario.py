@@ -34,7 +34,7 @@ class Scenario(models.Model):
     excel_include_previous_unsuccessful_nuclear = models.BooleanField(default=True, verbose_name="Excel quirk: allow previously unsuccessful projects in separate negotiations to be considered in future years")
     excel_include_previous_unsuccessful_all = models.BooleanField(default=False, verbose_name="Excel quirk: allow previously unsuccessful projects for ALL technologies to be considered in future years")
 
-    excel_exongenous_clearing_price = models.BooleanField(default=False, verbose_name="Excel quirk: take clearing price as exogenous input rather than calculating as a result of auction")
+    excel_exongenous_clearing_price = models.BooleanField(default=False, verbose_name="Excel quirk: take clearing price as external input rather than calculating ourselves")
 
     excel_quirks = models.BooleanField(default=False, verbose_name="Include all Excel quirks")
     results = models.TextField(null=True,blank=True)
@@ -439,3 +439,10 @@ class Scenario(models.Model):
     def intermediate_results_html(self):
         frame = self.get_intermediate_results()
         return self.df_to_html(frame)
+
+    def clear(self):
+        self.results = None
+        self.intermediate_results = None
+        self.save()
+        self.get_results()
+        self.get_intermediate_results()

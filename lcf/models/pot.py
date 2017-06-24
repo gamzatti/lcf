@@ -250,7 +250,7 @@ class Pot(models.Model):
         return projects
 
     def clearing_price_run_auction(self, projects):
-        print('calculating clearing price')
+        # print('calculating clearing price')
         projects.sort_values(['levelised_cost'],inplace=True)
         projects['attempted_clearing_price'] = projects.levelised_cost # change to multiply by 1.1
         if self.period_num() == 2 and self.auctionyear.scenario.subsidy_free_p2 == True:
@@ -277,34 +277,6 @@ class Pot(models.Model):
             projects['cost_all'] = projects.gen/1000 * (projects.clearing_price - self.auctionyear.wholesale_price)
         return projects
         # print(projects)
-
-
-    #
-    # def project_summary(self, stage, technology):
-    #     if self.project_summary_result:
-    #         return self.project_summary_result
-    #     else:
-    #         if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_include_previous_unsuccessful_all == True or (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
-    #             projects = self.cum_run_auction(update_variables = False).copy()
-    #             projects = projects[(projects.technology == technology.name) & (projects.previously_funded == False)]
-    #         else:
-    #             projects = self.non_cum_run_auction(update_variables = False).copy()
-    #             projects = projects[projects.technology == technology.name]
-    #         available = projects
-    #         eligible = projects[projects.affordable == True]
-    #         successful = projects[projects.funded_this_year == True]
-    #         cost = {'available': available.cost_all.sum(), 'eligible': eligible.cost.sum(), 'successful': successful.cost.sum() }
-    #         gen =  {'available': available.gen.sum(), 'eligible': eligible.gen.sum(), 'successful': successful.gen.sum() }
-    #         num =  {'available': len(available), 'eligible': len(eligible), 'successful': len(successful) }
-    #         max_bid = {'available': available.levelised_cost.max(), 'eligible': eligible.levelised_cost.max(), 'successful': successful.levelised_cost.max() }
-    #         clearing_price = {'available': np.nan, 'eligible': np.nan, 'successful': successful.strike_price.max() }
-    #         if self.auctionyear.scenario.excel_quirks == False and self.auctionyear.scenario.excel_exongenous_clearing_price == False and not (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
-    #             max_bid = {'available': available.attempted_clearing_price.max(), 'eligible': eligible.attempted_clearing_price.max(), 'successful': successful.attempted_clearing_price.max() }
-    #             clearing_price['successful'] = successful.clearing_price.max()
-    #         project_summary = {'cost': cost[stage], 'gen': gen[stage], 'num': num[stage], 'max_bid': max_bid[stage], 'clearing_price': clearing_price[stage]}
-    #         self.project_summary_result = project_summary
-    #     return self.project_summary_result
-
 
     def concat_projects(self):
         try:
@@ -340,8 +312,6 @@ class Pot(models.Model):
             t.awarded_cost = sum(t_successful_projects.cost)
             t.awarded_num_projects = len(t_successful_projects.index)
             t.awarded_max_bid = t_successful_projects.levelised_cost.max() if pd.notnull(t_successful_projects.levelised_cost.max()) else 0
-            if t.awarded_num_projects == 0:
-                t.clearing_price = np.nan
             t.eligible_cost = sum(t_eligible_projects.cost)
             t.eligible_gen = t_eligible_projects.attempted_project_gen.sum()/1000 if pd.notnull(t_eligible_projects.attempted_project_gen.sum()) else 0
             t.eligible_num_projects = len(t_eligible_projects)

@@ -191,10 +191,6 @@ class Technology(models.Model):
 
     #@lru_cache(maxsize=128)
     def projects(self):
-        # if self.num_new_projects != None:
-        #     self.fill_in_max_deployment_cap()
-        # elif self.max_deployment_cap == None:
-        #     print("You must specify either num_new_projects or max_deployment_cap")
         if self.num_projects == 0:
             return DataFrame()
         else:
@@ -233,12 +229,6 @@ class Technology(models.Model):
             # projects['listed_year'] = self.pot.auctionyear.year
             projects['year'] = self.pot.auctionyear.year
             return projects
-
-    #
-    # def fill_in_max_deployment_cap(self):
-    #     project_cap = self.project_gen / self.load_factor / 8760 # for tidal = 2200 / 0.22 / 8760 = 1.14155251141553
-    #     self._max_deployment_cap = self.num_new_projects * project_cap # need to check that it's right to put num_new_projects rather than num_projects
-
 
     def cum_future_techs(self):
         if self.pot.auctionyear.year == 2020:

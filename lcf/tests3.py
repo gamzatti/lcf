@@ -96,8 +96,7 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.Exceptions.test_view_with_invalid_scenario
 # python manage.py test lcf.tests3.Exceptions.test_view_with_non_existant_scenario
 #
-
-# *******
+#
 # python manage.py test lcf.tests3.Intermediate.test_cum_project_summary
 # python manage.py test lcf.tests3.Intermediate.test_non_cum_project_summary
 # python manage.py test lcf.tests3.Intermediate.test_scenario_intermediate_results
@@ -979,7 +978,7 @@ class Notes(TestCase):
         self.assertEqual(tech[1][2], 2020)
         # print(prices)
         # print(tech)
-        print(notes)
+        # print(notes)
 
         post_data = dfh.test_post_data_quirks
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
@@ -1147,9 +1146,10 @@ class Intermediate(TestCase):
     def test_scenario_intermediate_results(self):
         s = Scenario.objects.get(pk=453)
         s.results = None
+        s.intermediate_results = None
         s.save()
         s.get_results()
-        s.intermediate_results()
+        s.get_intermediate_results()
 
 
 
@@ -1224,7 +1224,7 @@ class Clearing(TestCase):
             # for j in ['E']:
                 p = a.pot_dict[j]
                 projects = p.run_relevant_auction()
-                print(projects)
+                # print(projects)
                 if len(projects.index) > 0:
                     self.assertEqual(projects.levelised_cost[projects.funded_this_year == True].max(),projects.clearing_price.max())
                     if j != 'FIT':
@@ -1245,7 +1245,7 @@ class Clearing(TestCase):
             # for j in ['E']:
                 p = a.pot_dict[j]
                 projects = p.cum_run_auction()
-                print(projects)
+                # print(projects)
                 if len(projects.index) > 0:
                     if pd.notnull(projects.clearing_price.max()):
                         self.assertEqual(projects.levelised_cost[projects.funded_this_year == True].max(),projects.clearing_price.max())
@@ -1259,6 +1259,13 @@ class Clearing(TestCase):
     def test_accounting_cost(self):
         post_data = dfh.test_post_data_just_prev_nuc
         s, results = create_scenario_from_form(post_data)
+        a = s.auctionyear_dict[2021]
+        p = a.pot_dict['M']
+        t = p.technology_dict['PVLS']
+        print(t.clearing_price)
+        # print(p.run_relevant_auction())
+#
+
         self.assertTrue(results.notnull().values.all())
 
 
@@ -1305,7 +1312,7 @@ class Clearing(TestCase):
 
         scenario.get_results()
         scenario.get_intermediate_results()
-
+        # just checking it doesn't raise an error
 
 
 
