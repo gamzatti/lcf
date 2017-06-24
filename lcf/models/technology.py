@@ -53,6 +53,14 @@ class Technology(models.Model):
         self.cum_awarded_gen = 0
         self._max_deployment_cap = self.max_deployment_cap if self.num_new_projects == None else self.num_new_projects * self.project_gen / self.load_factor / 8760
 
+        self.clearing_price = np.nan
+        self.available_cost = 0
+        self.eligible_cost = 0
+        self.eligible_gen = 0
+        self.eligible_num_projects = 0
+        self.eligible_max_bid = 0
+        self.awarded_num_projects = 0
+        self.awarded_max_bid = 0
 
     def __str__(self):
         return str((self.pot.auctionyear,self.pot.name,self.name))
@@ -234,4 +242,24 @@ class Technology(models.Model):
 
 
     def project_summary(self, stage, output):
-        return self.pot.project_summary(stage, self)[output]
+        summary = {}
+        summary['available'] = {'cost': self.available_cost,
+                                'gen': self.available_gen,
+                                'num': self.available_num_projects,
+                                'max_bid': self.available_max_bid,
+                                'clearing_price': np.nan
+                                }
+        summary['eligible'] = {'cost': self.eligible_cost,
+                                'gen': self.eligible_gen,
+                                'num': self.eligible_num_projects,
+                                'max_bid': self.eligible_max_bid,
+                                'clearing_price': np.nan
+                                }
+        summary['successful'] = {'cost': self.awarded_cost,
+                                'gen': self.awarded_gen,
+                                'num': self.awarded_num_projects,
+                                'max_bid': self.awarded_max_bid,
+                                'clearing_price': self.clearing_price
+                                }
+
+        return summary[stage][output]

@@ -38,6 +38,8 @@ class Scenario(models.Model):
 
     excel_quirks = models.BooleanField(default=False, verbose_name="Include all Excel quirks")
     results = models.TextField(null=True,blank=True)
+    intermediate_results = models.TextField(null=True, blank=True)
+
     policies = models.ManyToManyField(Policy, blank=True)
 
     csv_inc_notes = models.TextField(null=True,blank=True)
@@ -384,50 +386,56 @@ class Scenario(models.Model):
         return int((1 - self.percent_emerging) * 100)
 
 
-    def intermediate_frame(self):
-        years = []
-        pots = []
-        pot_budgets = []
-        technologies = []
-        t_objects = []
-        print('still fine1')
-        # for t in self.flat_tech_dict.values():
-        for a in self.auctionyear_dict.values():
-            for p in a.pot_dict.values():
-                for t in p.technology_dict.values():
-                    years.append(t.pot.auctionyear.year)
-                    print(t, t.pot.auctionyear.year, 'still fine2')
-                    pots.append(t.pot.name)
-                    print(t, t.pot.auctionyear.year, 'still fine3')
-                    pot_budgets.append(round(t.pot.budget(),2))
-                    print(t, t.pot.auctionyear.year, 'still fine4')
-                    technologies.append(t.name)
-                    print(t, t.pot.auctionyear.year, 'still fine5')
-                    t_objects.append(t)
-                    print(t, t.pot.auctionyear.year, 'still fine6')
-        frame = DataFrame({'Year': years, 'Pot': pots, 'Pot budget': pot_budgets, 'Technology': technologies, 't_object': t_objects}).reindex(columns = ['Year', 'Pot', 'Pot budget', 'Technology', 't_object'])
-        available = frame.copy()
-        available['Stage'] = 'available'
+    def get_intermediate_results(self):
+        column_names = dfh.tech_results_keys
+        if self.intermediate_results == None:
+            print('calculating intermediate results')
+            # try:
+            years, pots, pot_budgets, technologies, t_objects = [], [], [], [], []
+            # for t in self.flat_tech_dict.values():
+            for a in self.auctionyear_dict.values():
+                for p in a.pot_dict.values():
+                    for t in p.technology_dict.values():
+                        years.append(t.pot.auctionyear.year)
+                        pots.append(t.pot.name)
+                        pot_budgets.append(round(t.pot.budget(),2))
+                        technologies.append(t.name)
+                        t_objects.append(t)
 
-        eligible = frame.copy()
-        eligible['Stage'] = 'eligible'
+            frame = DataFrame({'Year': years, 'Pot': pots, 'Pot budget': pot_budgets, 'Technology': technologies, 't_object': t_objects})
+            frame = frame.reindex(columns = ['Year', 'Pot', 'Pot budget', 'Technology', 't_object'])
+            available = frame.copy()
+            available['Stage'] = 'available'
 
-        successful = frame.copy()
-        successful['Stage'] = 'successful'
+            eligible = frame.copy()
+            eligible['Stage'] = 'eligible'
 
-        frame = pd.concat([available, eligible, successful])
-        frame['Stage'] = frame['Stage'].astype('category', categories = ['available', 'eligible', 'successful'], ordered=True)
-        frame['Number of projects'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'num'), axis=1 )
-        frame['Equivalent generation (GWh)'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'gen'), axis=1 )
-        frame['Equivalent cost (£m)'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'cost'), axis=1 )
-        frame['Max bid (£/MWh)'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'max_bid'), axis=1 )
-        frame['Clearing price (£/MWh)'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'clearing_price'), axis=1 )
-        frame = frame.set_index(['Year', 'Pot', 'Pot budget', 'Technology', 'Stage'])
-        frame = frame.sort_index()
-        frame = frame.drop('t_object', axis=1)
-        frame = frame.replace('nan', 'N/A')
-        return frame
+            successful = frame.copy()
+            successful['Stage'] = 'successful'
 
-    def intermediate_results(self):
-        frame = self.intermediate_frame()
+            frame = pd.concat([available, eligible, successful])
+            frame['Stage'] = frame['Stage'].astype('category', categories = ['available', 'eligible', 'successful'], ordered=True)
+            frame['Number of projects'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'num'), axis=1 )
+            frame['Equivalent generation (GWh)'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'gen'), axis=1 )
+            frame['Equivalent cost (£m)'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'cost'), axis=1 )
+            frame['Max bid (£/MWh)'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'max_bid'), axis=1 )
+            frame['Clearing price (£/MWh)'] = frame.apply( lambda t : t.t_object.project_summary(t.Stage, 'clearing_price'), axis=1 )
+            frame = frame.drop('t_object', axis=1)
+            frame = frame.replace('nan', 'N/A')
+            intermediate_results = frame
+            intermediate_results.index = range(0,len(intermediate_results.index))
+
+            self.intermediate_results = frame.to_json()
+            self.save()
+        else:
+            print('retrieving intermediate_results from db')
+            intermediate_results = pd.read_json(self.intermediate_results)
+        intermediate_results = intermediate_results.set_index(['Year', 'Pot', 'Pot budget', 'Technology', 'Stage'])
+        intermediate_results = intermediate_results.sort_index()
+        intermediate_results = intermediate_results.reindex(columns = ['Number of projects' ,'Equivalent generation (GWh)', 'Equivalent cost (£m)', 'Max bid (£/MWh)', 'Clearing price (£/MWh)'])
+
+        return intermediate_results
+
+    def intermediate_results_html(self):
+        frame = self.get_intermediate_results()
         return self.df_to_html(frame)

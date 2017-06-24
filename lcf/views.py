@@ -169,7 +169,7 @@ def scenario_detail(request, pk=None):
                    'policies': Policy.objects.all(),
                    'scenarios': scenarios,
                    'recent_pk': recent_pk,
-                #    'intermediate_results': intermediate_results
+                   'intermediate_results': scenario.intermediate_results_html()
                    }
         for column in ['awarded_cap', 'awarded_gen', 'cum_owed_v_wp', 'cum_owed_v_gas', 'cum_owed_v_absolute', 'cum_awarded_gen']:
             for num in [1,2]:

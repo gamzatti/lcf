@@ -39,6 +39,7 @@ class Pot(models.Model):
         self.cum_awarded_gen_result = None
         self.technology_dict = { t.name : t for t in self.technology_set.all() }
         self.active_technology_dict = { t.name : t for t in self.technology_dict.values() if t.included == True }
+        self.project_summary_result = None
 
     #helper methods
     def tech_set(self):
@@ -100,10 +101,10 @@ class Pot(models.Model):
     #@lru_cache(maxsize=128)
     def auction_budget(self):
         if self.auction_budget_result:
-            print('budgetstillfineA')
+            # print('budgetstillfineA')
             return self.auction_budget_result
         else:
-            print('budgetstillfineB')
+            # print('budgetstillfineB')
             self.auction_budget_result = self.auctionyear.budget()
             # if self.name == "E":
             #     #sister_pot = Pot.objects.get(auctionyear=self.auctionyear,name="M")
@@ -146,7 +147,7 @@ class Pot(models.Model):
 
     @lru_cache(maxsize=128)
     def run_relevant_auction(self):
-        print(self.name, self.auctionyear.year)
+        # print(self.name, self.auctionyear.year)
         if len(self.active_technology_dict) == 0:
             print('no techs')
             self.awarded_cost_result = 0
@@ -176,15 +177,15 @@ class Pot(models.Model):
 
         else:
             if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_include_previous_unsuccessful_all == True or (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
-                print('running cum auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
+                # print('running cum auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
                 return self.cum_run_auction()
             else:
-                print('running non_cum auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
+                # print('running non_cum auction', self.name, self.auctionyear.year,'caller name:', inspect.stack()[1][3])
                 return self.non_cum_run_auction()
 
     @lru_cache(maxsize=128)
-    def cum_run_auction(self, update_variables=True):
-        print('cum auction')
+    def cum_run_auction(self):
+        # print('cum auction')
         gen = 0
         cost = 0
         budget = self.budget()
@@ -212,14 +213,13 @@ class Pot(models.Model):
         else:
             projects = self.clearing_price_run_auction(projects)
         # print(projects.clearing_price)
-        if update_variables == True:
-            self.update_variables(projects)
+        self.update_variables(projects)
         return projects
 
 
     @lru_cache(maxsize=128)
-    def non_cum_run_auction(self, update_variables=True):
-        print('non cum auction')
+    def non_cum_run_auction(self):
+        # print('non cum auction')
         gen = 0
         cost = 0
         budget = self.budget()
@@ -246,8 +246,7 @@ class Pot(models.Model):
         else:
             projects = self.clearing_price_run_auction(projects)
         # print(projects.clearing_price)
-        if update_variables == True:
-            self.update_variables(projects)
+        self.update_variables(projects)
         return projects
 
     def clearing_price_run_auction(self, projects):
@@ -280,26 +279,31 @@ class Pot(models.Model):
         # print(projects)
 
 
-
-    def project_summary(self, stage, technology):
-        if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_include_previous_unsuccessful_all == True or (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
-            projects = self.cum_run_auction(update_variables = False).copy()
-            projects = projects[(projects.technology == technology.name) & (projects.previously_funded == False)]
-        else:
-            projects = self.non_cum_run_auction(update_variables = False).copy()
-            projects = projects[projects.technology == technology.name]
-        available = projects
-        eligible = projects[projects.affordable == True]
-        successful = projects[projects.funded_this_year == True]
-        cost = {'available': available.cost_all.sum(), 'eligible': eligible.cost.sum(), 'successful': successful.cost.sum() }
-        gen =  {'available': available.gen.sum(), 'eligible': eligible.gen.sum(), 'successful': successful.gen.sum() }
-        num =  {'available': len(available), 'eligible': len(eligible), 'successful': len(successful) }
-        max_bid = {'available': available.levelised_cost.max(), 'eligible': eligible.levelised_cost.max(), 'successful': successful.levelised_cost.max() }
-        clearing_price = {'available': np.nan, 'eligible': np.nan, 'successful': successful.strike_price.max() }
-        if self.auctionyear.scenario.excel_quirks == False and self.auctionyear.scenario.excel_exongenous_clearing_price == False and not (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
-            max_bid = {'available': available.attempted_clearing_price.max(), 'eligible': eligible.attempted_clearing_price.max(), 'successful': successful.attempted_clearing_price.max() }
-            clearing_price['successful'] = successful.clearing_price.max()
-        return {'cost': cost[stage], 'gen': gen[stage], 'num': num[stage], 'max_bid': max_bid[stage], 'clearing_price': clearing_price[stage]}
+    #
+    # def project_summary(self, stage, technology):
+    #     if self.project_summary_result:
+    #         return self.project_summary_result
+    #     else:
+    #         if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_include_previous_unsuccessful_all == True or (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
+    #             projects = self.cum_run_auction(update_variables = False).copy()
+    #             projects = projects[(projects.technology == technology.name) & (projects.previously_funded == False)]
+    #         else:
+    #             projects = self.non_cum_run_auction(update_variables = False).copy()
+    #             projects = projects[projects.technology == technology.name]
+    #         available = projects
+    #         eligible = projects[projects.affordable == True]
+    #         successful = projects[projects.funded_this_year == True]
+    #         cost = {'available': available.cost_all.sum(), 'eligible': eligible.cost.sum(), 'successful': successful.cost.sum() }
+    #         gen =  {'available': available.gen.sum(), 'eligible': eligible.gen.sum(), 'successful': successful.gen.sum() }
+    #         num =  {'available': len(available), 'eligible': len(eligible), 'successful': len(successful) }
+    #         max_bid = {'available': available.levelised_cost.max(), 'eligible': eligible.levelised_cost.max(), 'successful': successful.levelised_cost.max() }
+    #         clearing_price = {'available': np.nan, 'eligible': np.nan, 'successful': successful.strike_price.max() }
+    #         if self.auctionyear.scenario.excel_quirks == False and self.auctionyear.scenario.excel_exongenous_clearing_price == False and not (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
+    #             max_bid = {'available': available.attempted_clearing_price.max(), 'eligible': eligible.attempted_clearing_price.max(), 'successful': successful.attempted_clearing_price.max() }
+    #             clearing_price['successful'] = successful.clearing_price.max()
+    #         project_summary = {'cost': cost[stage], 'gen': gen[stage], 'num': num[stage], 'max_bid': max_bid[stage], 'clearing_price': clearing_price[stage]}
+    #         self.project_summary_result = project_summary
+    #     return self.project_summary_result
 
 
     def concat_projects(self):
@@ -315,20 +319,36 @@ class Pot(models.Model):
         return res
 
     def update_variables(self,projects):
-        print('updating variables')
+        # print('updating variables')
         successful_projects = projects[(projects.funded_this_year == True)]
+
         for t in self.technology_dict.values():
-            t_projects = successful_projects[successful_projects.technology == t.name]
+            t_projects = projects[projects.technology == t.name]
+            if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_include_previous_unsuccessful_all == True or (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
+                t_available_projects = t_projects[t_projects.previously_funded == False]
+            else:
+                t_available_projects = t_projects
+
+            t_successful_projects = t_projects[(t_projects.funded_this_year == True)]
+            t_eligible_projects = t_projects[t_projects.eligible == True]
             # print(t_projects)
-            t.awarded_gen = t_projects.attempted_project_gen.sum()/1000 if pd.notnull(t_projects.attempted_project_gen.sum()) else 0
+            t.awarded_gen = t_successful_projects.attempted_project_gen.sum()/1000 if pd.notnull(t_successful_projects.attempted_project_gen.sum()) else 0
             t.awarded_cap = t.awarded_gen/8.760/t.load_factor
-            t.awarded_cost = sum(t_projects.cost)
-            t.clearing_price = t_projects.clearing_price.max() if pd.notnull(t_projects.clearing_price.max()) else 0
-            # if self.auctionyear.year == self.auctionyear.scenario.end_year1 + 1: #is this even doing anything?
-            #     t.cum_owed_v_wp = 0
-            #     t.cum_owed_v_gas = 0
-            #     t.cum_owed_v_absolute = 0
-            #     t.cum_awarded_gen = 0
+            t.awarded_cost = sum(t_successful_projects.cost)
+            t.awarded_num_projects = len(t_successful_projects.index)
+            t.awarded_max_bid = t_successful_projects.levelised_cost.max() if pd.notnull(t_successful_projects.levelised_cost.max()) else 0
+            t.clearing_price = t_successful_projects.clearing_price.max() if pd.notnull(t_successful_projects.clearing_price.max()) else 0
+
+            t.eligible_cost = sum(t_eligible_projects.cost)
+            t.eligible_gen = t_eligible_projects.attempted_project_gen.sum()/1000 if pd.notnull(t_eligible_projects.attempted_project_gen.sum()) else 0
+            t.eligible_num_projects = len(t_eligible_projects)
+            t.eligible_max_bid = t_eligible_projects.levelised_cost.max()
+
+            t.available_gen = t_available_projects.attempted_project_gen.sum()/1000 if pd.notnull(t_available_projects.attempted_project_gen.sum()) else 0
+            t.available_cost = sum(t_available_projects.cost_all)
+            t.available_num_projects = len(t_available_projects)
+            t.available_max_bid = t_available_projects.levelised_cost.max()
+
             for future_t in t.cum_future_techs():
                 # gas = future_t.pot.auctionyear.gas_price
                 gas = self.auctionyear.gas_price

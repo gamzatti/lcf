@@ -96,6 +96,8 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.Exceptions.test_view_with_invalid_scenario
 # python manage.py test lcf.tests3.Exceptions.test_view_with_non_existant_scenario
 #
+
+# *******
 # python manage.py test lcf.tests3.Intermediate.test_cum_project_summary
 # python manage.py test lcf.tests3.Intermediate.test_non_cum_project_summary
 # python manage.py test lcf.tests3.Intermediate.test_scenario_intermediate_results
@@ -104,9 +106,10 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.Clearing.test_exogenous
 # python manage.py test lcf.tests3.Clearing.test_clearing_price_non_cum
 # python manage.py test lcf.tests3.Clearing.test_clearing_price_cum
+# python manage.py test lcf.tests3.Clearing.test_accounting_cost
 # python manage.py test lcf.tests3.Clearing.test_intermediate_with_clearing_price_exogenous
 # python manage.py test lcf.tests3.Clearing.test_intermediate_with_clearing_price_not_exogenous
-#
+
 
 class ExcelQuirkTests(TestCase):
     fixtures = ['tests/new/data2.json']
@@ -1101,18 +1104,21 @@ class Intermediate(TestCase):
     # python manage.py test lcf.tests3.Intermediate.test_cum_project_summary
     def test_cum_project_summary(self):
         s = Scenario.objects.get(pk=453)
+        s.results = None
+        s.save()
+        s.get_results()
         p = s.auctionyear_dict[2021].pot_dict['E']
         t = s.flat_tech_dict['OFW2021']
         # print(p.project_summary('available', t))
-        self.assertEqual(t.project_summary('available', 'num'), 13)
-        self.assertEqual(t.project_summary('eligible', 'num'), 13)
-        self.assertEqual(t.project_summary('successful', 'num'), 7)
-        self.assertEqual(t.project_summary('available', 'gen'), 13*832)
-        self.assertEqual(t.project_summary('eligible', 'gen'), 13*832)
-        self.assertEqual(t.project_summary('successful', 'gen'), 7*832)
-        self.assertEqual(t.project_summary('available', 'cost'), 13*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
-        self.assertEqual(t.project_summary('eligible', 'cost'), 13*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
-        self.assertEqual(t.project_summary('successful', 'cost'), 7*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
+        npt.assert_almost_equal(t.project_summary('available', 'num'), 13)
+        npt.assert_almost_equal(t.project_summary('eligible', 'num'), 13)
+        npt.assert_almost_equal(t.project_summary('successful', 'num'), 7)
+        npt.assert_almost_equal(t.project_summary('available', 'gen'), 13*.832)
+        npt.assert_almost_equal(t.project_summary('eligible', 'gen'), 13*.832)
+        npt.assert_almost_equal(t.project_summary('successful', 'gen'), 7*.832)
+        npt.assert_almost_equal(t.project_summary('available', 'cost'), 13*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
+        npt.assert_almost_equal(t.project_summary('eligible', 'cost'), 13*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
+        npt.assert_almost_equal(t.project_summary('successful', 'cost'), 7*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
 
     # python manage.py test lcf.tests3.Intermediate.test_non_cum_project_summary
 
@@ -1127,19 +1133,22 @@ class Intermediate(TestCase):
         p = s.auctionyear_dict[2021].pot_dict['E']
         t = s.flat_tech_dict['OFW2021']
         results = s.pivot('cum_owed_v_wp')
-        self.assertEqual(t.project_summary('available', 'num'), 8)
-        self.assertEqual(t.project_summary('eligible', 'num'), 8)
-        self.assertEqual(t.project_summary('successful', 'num'), 7)
-        self.assertEqual(t.project_summary('available', 'gen'), 8*832)
-        self.assertEqual(t.project_summary('eligible', 'gen'), 8*832)
-        self.assertEqual(t.project_summary('successful', 'gen'), 7*832)
-        self.assertEqual(t.project_summary('available', 'cost'), 8*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
-        self.assertEqual(t.project_summary('eligible', 'cost'), 8*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
-        self.assertEqual(t.project_summary('successful', 'cost'), 7*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
+        npt.assert_almost_equal(t.project_summary('available', 'num'), 8)
+        npt.assert_almost_equal(t.project_summary('eligible', 'num'), 8)
+        npt.assert_almost_equal(t.project_summary('successful', 'num'), 7)
+        npt.assert_almost_equal(t.project_summary('available', 'gen'), 8*.832)
+        npt.assert_almost_equal(t.project_summary('eligible', 'gen'), 8*.832)
+        npt.assert_almost_equal(t.project_summary('successful', 'gen'), 7*.832)
+        npt.assert_almost_equal(t.project_summary('available', 'cost'), 8*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
+        npt.assert_almost_equal(t.project_summary('eligible', 'cost'), 8*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
+        npt.assert_almost_equal(t.project_summary('successful', 'cost'), 7*832*(t.strike_price-t.pot.auctionyear.wholesale_price)/1000)
 
     # python manage.py test lcf.tests3.Intermediate.test_scenario_intermediate_results
     def test_scenario_intermediate_results(self):
         s = Scenario.objects.get(pk=453)
+        s.results = None
+        s.save()
+        s.get_results()
         s.intermediate_results()
 
 
@@ -1183,7 +1192,6 @@ class Clearing(TestCase):
         assert_frame_equal(results, results_quirks)
 
     # python manage.py test lcf.tests3.Clearing.test_exogenous
-
     def test_exogenous(self):
         """check the right part of the auction code is being run"""
         post_data = {'name': 'test 1234',
@@ -1210,12 +1218,12 @@ class Clearing(TestCase):
         post_data = dfh.test_post_data_just_prev_nuc
         s, results = create_scenario_from_form(post_data)
         # for i in range(2021,2031):
-        for i in range(2021,2022):
+        for i in range(2021,2023):
             a = s.auctionyear_dict[i]
             for j in ['E', 'M', 'SN', 'FIT']:
             # for j in ['E']:
                 p = a.pot_dict[j]
-                projects = p.non_cum_run_auction()
+                projects = p.run_relevant_auction()
                 print(projects)
                 if len(projects.index) > 0:
                     self.assertEqual(projects.levelised_cost[projects.funded_this_year == True].max(),projects.clearing_price.max())
@@ -1260,12 +1268,43 @@ class Clearing(TestCase):
         post_data = dfh.test_post_data_just_prev_nuc
         post_data['excel_exongenous_clearing_price'] = 'on'
         s, results = create_scenario_from_form(post_data)
+        intermediate_results = s.get_intermediate_results()
+        available_cost = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'available'), 'Equivalent cost (£m)']
+        available_gen = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'available'), 'Equivalent generation (GWh)']
+
+        eligible_cost = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'eligible'), 'Equivalent cost (£m)']
+        eligible_gen = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'eligible'), 'Equivalent generation (GWh)']
+
+        successful_cost = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'successful'), 'Equivalent cost (£m)']
+        successful_gen = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'successful'), 'Equivalent generation (GWh)']
+
+        difference = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'successful'), 'Clearing price (£/MWh)'] - s.auctionyear_dict[2020].wholesale_price
+
+        npt.assert_almost_equal(available_cost, available_gen * difference)
+        npt.assert_almost_equal(eligible_cost, eligible_gen * difference)
+        npt.assert_almost_equal(successful_cost, successful_gen * difference)
+
+        intermediate_results = s.get_intermediate_results()
+        available_cost = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'available'), 'Equivalent cost (£m)']
+        available_gen = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'available'), 'Equivalent generation (GWh)']
+
+        eligible_cost = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'eligible'), 'Equivalent cost (£m)']
+        eligible_gen = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'eligible'), 'Equivalent generation (GWh)']
+
+        successful_cost = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'successful'), 'Equivalent cost (£m)']
+        successful_gen = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'successful'), 'Equivalent generation (GWh)']
+
+        difference = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'successful'), 'Clearing price (£/MWh)'] - s.auctionyear_dict[2020].wholesale_price
+        # print(intermediate_results)
+        npt.assert_almost_equal(available_cost, available_gen * difference)
+        npt.assert_almost_equal(eligible_cost, eligible_gen * difference)
+        npt.assert_almost_equal(successful_cost, successful_gen * difference)
 
         pk = Scenario.objects.all().order_by("-date")[0].pk
         scenario = Scenario.objects.prefetch_related('auctionyear_set__pot_set__technology_set', 'policies').get(pk=pk) #new
 
         scenario.get_results()
-        scenario.intermediate_frame()
+        scenario.get_intermediate_results()
 
 
 
@@ -1275,8 +1314,21 @@ class Clearing(TestCase):
     def test_intermediate_with_clearing_price_not_exogenous(self):
         post_data = dfh.test_post_data_just_prev_nuc
         s, results = create_scenario_from_form(post_data)
-        print(s.intermediate_frame())
+        intermediate_results = s.get_intermediate_results()
+        available_cost = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'available'), 'Equivalent cost (£m)']
+        available_gen = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'available'), 'Equivalent generation (GWh)']
 
+        eligible_cost = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'eligible'), 'Equivalent cost (£m)']
+        eligible_gen = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'eligible'), 'Equivalent generation (GWh)']
 
-        # resp = self.client.get(reverse('scenario_detail', kwargs={'pk':s.pk}))
-        # self.assertEqual(resp.status_code,200)
+        successful_cost = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'successful'), 'Equivalent cost (£m)']
+        successful_gen = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'successful'), 'Equivalent generation (GWh)']
+
+        difference = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'successful'), 'Clearing price (£/MWh)'] - s.auctionyear_dict[2020].wholesale_price
+
+        npt.assert_almost_equal(available_cost, available_gen * difference)
+        npt.assert_almost_equal(eligible_cost, eligible_gen * difference)
+        npt.assert_almost_equal(successful_cost, successful_gen * difference)
+
+        resp = self.client.get(reverse('scenario_detail', kwargs={'pk':s.pk}))
+        self.assertEqual(resp.status_code,200)
