@@ -340,7 +340,8 @@ class Pot(models.Model):
             t.awarded_cost = sum(t_successful_projects.cost)
             t.awarded_num_projects = len(t_successful_projects.index)
             t.awarded_max_bid = t_successful_projects.levelised_cost.max() if pd.notnull(t_successful_projects.levelised_cost.max()) else 0
-
+            if t.awarded_num_projects == 0:
+                t.clearing_price = np.nan
             t.eligible_cost = sum(t_eligible_projects.cost)
             t.eligible_gen = t_eligible_projects.attempted_project_gen.sum()/1000 if pd.notnull(t_eligible_projects.attempted_project_gen.sum()) else 0
             t.eligible_num_projects = len(t_eligible_projects)

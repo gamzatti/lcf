@@ -5,6 +5,14 @@ from functools import reduce
 import lcf.dataframe_helpers as dfh
 
 
+for s in Scenario.objects.all():
+    s.results = None
+    s.intermediate_results = None
+    s.save()
+    s.get_results()
+    s.get_intermediate_results()
+
+
 from lcf.models import Scenario, AuctionYear, Pot, Technology, Policy
 s1 = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=688)
 s2 = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=700)
