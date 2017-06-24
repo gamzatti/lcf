@@ -321,13 +321,16 @@ class Pot(models.Model):
     def update_variables(self,projects):
         # print('updating variables')
         successful_projects = projects[(projects.funded_this_year == True)]
-        p_clearing_price = projects.clearing_price.max() if pd.notnull(projects.clearing_price.max()) else 0
         for t in self.technology_dict.values():
             t_projects = projects[projects.technology == t.name]
             if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_include_previous_unsuccessful_all == True or (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
                 t_available_projects = t_projects[t_projects.previously_funded == False]
             else:
                 t_available_projects = t_projects
+            if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_exongenous_clearing_price == True:
+                t.clearing_price = t.strike_price
+            else:
+                t.clearing_price = successful_projects.clearing_price.max() if pd.notnull(successful_projects.clearing_price.max()) else 0
 
             t_successful_projects = t_projects[(t_projects.funded_this_year == True)]
             t_eligible_projects = t_projects[t_projects.eligible == True]
@@ -337,7 +340,6 @@ class Pot(models.Model):
             t.awarded_cost = sum(t_successful_projects.cost)
             t.awarded_num_projects = len(t_successful_projects.index)
             t.awarded_max_bid = t_successful_projects.levelised_cost.max() if pd.notnull(t_successful_projects.levelised_cost.max()) else 0
-            t.clearing_price = p_clearing_price
 
             t.eligible_cost = sum(t_eligible_projects.cost)
             t.eligible_gen = t_eligible_projects.attempted_project_gen.sum()/1000 if pd.notnull(t_eligible_projects.attempted_project_gen.sum()) else 0
