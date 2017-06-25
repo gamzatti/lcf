@@ -165,11 +165,11 @@ class Pot(models.Model):
             cum_clearing_column_order = ['levelised_cost', 'gen', 'technology', 'strike_price', 'affordable', 'pot', 'year', 'previously_funded', 'eligible', 'attempted_clearing_price', 'attempted_project_gen', 'attempted_cum_gen', 'difference', 'attempted_cum_cost', 'funded_this_year', 'clearing_price', 'cost', 'cost_all']
             if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_include_previous_unsuccessful_all == True or (self.auctionyear.scenario.excel_include_previous_unsuccessful_nuclear and self.name == "SN"):
                 column_order = cum_column_order
-                if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_exongenous_clearing_price == True:
+                if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_external_clearing_price == True:
                     column_order = cum_clearing_column_order
             else:
                 column_order = non_cum_column_order
-                if self.auctionyear.scenario.excel_exongenous_clearing_price == True:
+                if self.auctionyear.scenario.excel_external_clearing_price == True:
                     column_order = non_cum_clearing_column_order
             df = pd.read_json(self.auction_results).sort_values(['strike_price', 'levelised_cost']).reindex(columns=column_order)
             df.gen, df.attempted_project_gen, df.attempted_cum_gen = df.gen.astype(float), df.attempted_project_gen.astype(float), df.attempted_cum_gen.astype(float)
@@ -194,7 +194,7 @@ class Pot(models.Model):
         projects.sort_values(['strike_price', 'levelised_cost'],inplace=True)
         projects['previously_funded'] = np.where(projects.index.isin(previously_funded_projects.index),True,False)
         projects['eligible'] = (projects.previously_funded == False) & projects.affordable
-        if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_exongenous_clearing_price == True:
+        if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_external_clearing_price == True:
             projects['difference'] = projects.strike_price if self.name == "FIT" else projects.strike_price - self.auctionyear.wholesale_price
             projects['cost'] = np.where(projects.eligible == True, projects.gen/1000 * projects.difference, 0)
             projects['cost_all'] = projects.gen/1000 * projects.difference
@@ -225,7 +225,7 @@ class Pot(models.Model):
         budget = self.budget()
         projects = self.non_cum_concat_projects()
         projects['eligible'] = projects.affordable
-        if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_exongenous_clearing_price == True:
+        if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_external_clearing_price == True:
             projects.sort_values(['strike_price', 'levelised_cost'],inplace=True)
             projects['difference'] = projects.strike_price if self.name == "FIT" else projects.strike_price - self.auctionyear.wholesale_price
             print('using strike_price as clearing price')
@@ -299,7 +299,7 @@ class Pot(models.Model):
                 t_available_projects = t_projects[t_projects.previously_funded == False]
             else:
                 t_available_projects = t_projects
-            if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_exongenous_clearing_price == True:
+            if self.auctionyear.scenario.excel_quirks == True or self.auctionyear.scenario.excel_external_clearing_price == True:
                 t.clearing_price = t.strike_price
             else:
                 t.clearing_price = successful_projects.clearing_price.max() if pd.notnull(successful_projects.clearing_price.max()) else 0

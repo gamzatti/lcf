@@ -109,6 +109,8 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.Clearing.test_intermediate_with_clearing_price_exogenous
 # python manage.py test lcf.tests3.Clearing.test_intermediate_with_clearing_price_not_exogenous
 
+# python manage.py test lcf.tests3.IntermediateBudget.test_intermediate_budget_results
+
 
 class ExcelQuirkTests(TestCase):
     fixtures = ['tests/new/data2.json']
@@ -182,7 +184,7 @@ class ExcelQuirkTests(TestCase):
         s.excel_2020_gen_error = False
         s.excel_include_previous_unsuccessful_nuclear = False
         s.excel_include_previous_unsuccessful_all = False
-        s.excel_exongenous_clearing_price = False
+        s.excel_external_clearing_price = False
         s.excel_quirks = True
         s.save()
         results = s.pivot('cum_owed_v_wp')
@@ -195,7 +197,7 @@ class ExcelQuirkTests(TestCase):
         s.excel_2020_gen_error = True
         s.excel_include_previous_unsuccessful_nuclear = True
         s.excel_include_previous_unsuccessful_all = True
-        s.excel_exongenous_clearing_price = True
+        s.excel_external_clearing_price = True
         s.excel_quirks = False
         s.save()
         results = s.pivot('cum_owed_v_wp')
@@ -347,7 +349,7 @@ class TestCumProj(TestCase):
     def test_run_auction_budget(self):
         s = Scenario.objects.all().get(pk=281)
         s.excel_include_previous_unsuccessful_all = True
-        s.excel_exongenous_clearing_price = True
+        s.excel_external_clearing_price = True
         s.save()
         e_list = [ s.auctionyear_dict[y].pot_dict['E'] for y in range(2020,2031)]
         # p = s.auctionyear_dict[2027].pot_dict['E']
@@ -374,7 +376,7 @@ class TestCumProj(TestCase):
     def test_accounting_cost(self):
         s = Scenario.objects.all().prefetch_related('auctionyear_set__pot_set__technology_set').get(pk=281)
         s.excel_include_previous_unsuccessful_all = True
-        s.excel_exongenous_clearing_price = True
+        s.excel_external_clearing_price = True
         s.save()
         results = s.pivot('cum_owed_v_wp',1)
         # print(results)
@@ -387,7 +389,7 @@ class TestCumProj(TestCase):
         s.excel_nw_carry_error = True
         s.excel_sp_error = True
         s.excel_2020_gen_error = True
-        s.excel_exongenous_clearing_price = True
+        s.excel_external_clearing_price = True
         s.excel_quirks = False
         s.save()
         s.get_results()
@@ -527,7 +529,7 @@ class TestCumProjSimple(TestCase):
 
     def test_unspent(self,budget,expected_cost_2025):
         s = Scenario.objects.all().get(pk=586)
-        s.excel_exongenous_clearing_price = True
+        s.excel_external_clearing_price = True
         s.excel_include_previous_unsuccessful_all = True
         s.budget = budget
         s.save()
@@ -572,7 +574,7 @@ class TestNonCumProjSimple(TestCase):
         s.excel_nw_carry_error = True
         s.excel_sp_error = True
         s.excel_2020_gen_error = True
-        s.excel_exongenous_clearing_price = True
+        s.excel_external_clearing_price = True
         s.budget = budget
         s.save()
         e_list = [ s.auctionyear_dict[y].pot_dict['E'] for y in range(2020,2026)]
@@ -1125,7 +1127,7 @@ class Intermediate(TestCase):
         post_data = dfh.test_post_data_no_quirks
         file_data = {'file': SimpleUploadedFile('template.csv', open('lcf/template.csv', 'rb').read())}
         # just because this test was written before I had made the below option to switch off exogenous clearing price, so the answers it expects are with it on
-        post_data['excel_exongenous_clearing_price'] = 'on'
+        post_data['excel_external_clearing_price'] = 'on'
         scenario_form = ScenarioForm(post_data, file_data)
         process_scenario_form(scenario_form,new_wp=False)
         s = Scenario.objects.order_by('-date')[0]
@@ -1182,7 +1184,7 @@ class Clearing(TestCase):
                      'excel_nw_carry_error': 'on',
                      'excel_include_previous_unsuccessful_nuclear': 'on',
                      'excel_include_previous_unsuccessful_all': 'on',
-                     'excel_exongenous_clearing_price': 'on',
+                     'excel_external_clearing_price': 'on',
                      }
         s, results = create_scenario_from_form(post_data)
         p = s.auctionyear_dict[2021].pot_dict['E']
@@ -1201,7 +1203,7 @@ class Clearing(TestCase):
                      'wholesale_prices': "excel",
                      'gas_prices': "excel",
                      'excel_include_previous_unsuccessful_nuclear': 'on',
-                     'excel_exongenous_clearing_price': 'on',
+                     'excel_external_clearing_price': 'on',
                      }
         s, results = create_scenario_from_form(post_data)
         p = s.auctionyear_dict[2021].pot_dict['E']
@@ -1273,7 +1275,7 @@ class Clearing(TestCase):
     # python manage.py test lcf.tests3.Clearing.test_intermediate_with_clearing_price_exogenous
     def test_intermediate_with_clearing_price_exogenous(self):
         post_data = dfh.test_post_data_just_prev_nuc
-        post_data['excel_exongenous_clearing_price'] = 'on'
+        post_data['excel_external_clearing_price'] = 'on'
         s, results = create_scenario_from_form(post_data)
         intermediate_results = s.get_intermediate_results()
         available_cost = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'available'), 'Equivalent cost (£m)']
@@ -1322,6 +1324,7 @@ class Clearing(TestCase):
         post_data = dfh.test_post_data_just_prev_nuc
         s, results = create_scenario_from_form(post_data)
         intermediate_results = s.get_intermediate_results()
+        intermediate_budget_results = s.get_intermediate_budget_results()
         available_cost = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'available'), 'Equivalent cost (£m)']
         available_gen = intermediate_results.loc[(2020,'E', 235.37, 'OFW', 'available'), 'Equivalent generation (GWh)']
 
@@ -1339,3 +1342,13 @@ class Clearing(TestCase):
 
         resp = self.client.get(reverse('scenario_detail', kwargs={'pk':s.pk}))
         self.assertEqual(resp.status_code,200)
+
+class IntermediateBudget(TestCase):
+
+# python manage.py test lcf.tests3.IntermediateBudget.test_intermediate_budget_results
+
+    def test_intermediate_budget_results(self):
+        post_data = dfh.test_post_data_quirks
+        s, results = create_scenario_from_form(post_data)
+        s.get_intermediate_budget_results()
+        npt.assert_almost_equal(s.get_intermediate_budget_results().loc[2030,'total unspent'],628.775821, decimal=4)

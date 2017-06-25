@@ -87,6 +87,12 @@ $(document).ready(function(){
     });
 
 
+    $(".hide-button8").click(function(){
+      $(".to-hide8").slideToggle();
+      toggleIcon($(this));
+    });
+
+
 
 //    document.getElementById("id_all_excel_quirks").onclick = function(){toggle(this)}
     $('th:contains("Subtotal")').addClass('sub');

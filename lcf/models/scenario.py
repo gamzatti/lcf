@@ -34,11 +34,13 @@ class Scenario(models.Model):
     excel_include_previous_unsuccessful_nuclear = models.BooleanField(default=True, verbose_name="Excel quirk: allow previously unsuccessful projects in separate negotiations to be considered in future years")
     excel_include_previous_unsuccessful_all = models.BooleanField(default=False, verbose_name="Excel quirk: allow previously unsuccessful projects for ALL technologies to be considered in future years")
 
-    excel_exongenous_clearing_price = models.BooleanField(default=False, verbose_name="Excel quirk: take clearing price as external input rather than calculating ourselves")
+    excel_external_clearing_price = models.BooleanField(default=False, verbose_name="Excel quirk: take clearing price as external input rather than calculating ourselves")
 
     excel_quirks = models.BooleanField(default=False, verbose_name="Include all Excel quirks")
+
     results = models.TextField(null=True,blank=True)
     intermediate_results = models.TextField(null=True, blank=True)
+    intermediate_budget_results = models.TextField(null=True, blank=True)
 
     policies = models.ManyToManyField(Policy, blank=True)
 
@@ -60,7 +62,7 @@ class Scenario(models.Model):
             # self.excel_nw_carry_error = True
             # self.excel_include_previous_unsuccessful_nuclear = True
             # self.excel_include_previous_unsuccessful_all = True
-            # self.excel_exongenous_clearing_price = True
+            # self.excel_external_clearing_price = True
             # self.save()
 
 
@@ -367,7 +369,7 @@ class Scenario(models.Model):
             return None
 
     def quirks(self):
-        quirks = ['excel_sp_error', 'excel_2020_gen_error', 'excel_nw_carry_error', 'excel_include_previous_unsuccessful_nuclear', 'excel_include_previous_unsuccessful_all', 'excel_exongenous_clearing_price']
+        quirks = ['excel_sp_error', 'excel_2020_gen_error', 'excel_nw_carry_error', 'excel_include_previous_unsuccessful_nuclear', 'excel_include_previous_unsuccessful_all', 'excel_external_clearing_price']
         verbose_quirks = [Scenario._meta.get_field(quirk).verbose_name.replace('Excel quirk: ', '') for quirk in quirks ]
         quirk_dict = dict(zip(quirks, verbose_quirks))
         if self.excel_quirks == True:
@@ -443,6 +445,45 @@ class Scenario(models.Model):
     def clear(self):
         self.results = None
         self.intermediate_results = None
+        self.intermediate_budget_results = None
         self.save()
-        self.get_results()
-        self.get_intermediate_results()
+        # self.get_results()
+        # self.get_intermediate_results()
+        # self.get_intermediate_budget_results()
+
+    def get_intermediate_budget_results(self):
+        columns = ["year", "starting budget", "carried from previous year", "sum of starting and carried over",
+                   "spent on negotiations", "spent on FIT", "remaining for auction",
+                   "budget emerging ({}%)".format(round(self.percent_emerging * 100)), "spent on emerging", "unspent emerging", "budget for mature", "spent on mature",  "unspent mature", "total unspent"]
+        if self.intermediate_budget_results == None:
+            print('calculating intermediate budget results')
+            intermediate_budget_results = DataFrame([[a.year,
+                                          a.starting_budget(),
+                                          a.previous_year_unspent(),
+                                          a.budget_all(),
+                                          a.pot_dict['SN'].awarded_cost(),
+                                          a.pot_dict['FIT'].awarded_cost(),
+                                          a.budget(),
+                                          a.pot_dict['E'].budget(),
+                                          a.pot_dict['E'].awarded_cost(),
+                                          a.pot_dict['E'].unspent(),
+                                          a.pot_dict['M'].budget(),
+                                          a.pot_dict['M'].awarded_cost(),
+                                          a.pot_dict['M'].unspent(),
+                                          a.unspent() ]
+                                          for a in self.auctionyear_dict.values() ],
+                                          columns = columns)
+            intermediate_budget_results.index = range(0,len(intermediate_budget_results.index))
+            intermediate_budget_results = intermediate_budget_results.drop(0)
+            self.intermediate_budget_results = intermediate_budget_results.to_json()
+            self.save()
+        else:
+            print('retrieving budget results from db')
+            intermediate_budget_results = pd.read_json(self.intermediate_budget_results)
+        intermediate_budget_results = intermediate_budget_results.reindex(columns=columns).sort_index()
+        intermediate_budget_results = intermediate_budget_results.set_index("year")
+        # intermediate_budget_results = round(intermediate_budget_results,2)
+        return intermediate_budget_results
+
+    def intermediate_budget_results_html(self):
+        return self.df_to_html(self.get_intermediate_budget_results())
