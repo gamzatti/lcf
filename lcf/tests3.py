@@ -108,7 +108,7 @@ from .helpers import process_policy_form, process_scenario_form, get_prices, cre
 # python manage.py test lcf.tests3.Clearing.test_accounting_cost
 # python manage.py test lcf.tests3.Clearing.test_intermediate_with_clearing_price_exogenous
 # python manage.py test lcf.tests3.Clearing.test_intermediate_with_clearing_price_not_exogenous
-
+#
 # python manage.py test lcf.tests3.IntermediateBudget.test_intermediate_budget_results
 
 
@@ -1352,3 +1352,21 @@ class IntermediateBudget(TestCase):
         s, results = create_scenario_from_form(post_data)
         s.get_intermediate_budget_results()
         npt.assert_almost_equal(s.get_intermediate_budget_results().loc[2030,'total unspent'],628.775821, decimal=4)
+
+class GraphsTest(TestCase):
+
+# python manage.py test lcf.tests3.GraphsTest.test_graph_starts_at_2021
+    def test_graph_starts_at_2021(self):
+        post_data = dfh.test_post_data_quirks
+        s, results = create_scenario_from_form(post_data)
+        chart_data = s.df_to_chart_data('cum_owed_v_wp')['chart_data']
+        self.assertEqual(chart_data[1][0],'2021')
+
+# python manage.py test lcf.tests3.GraphsTest.test_graph_cost_in_bn
+
+    def test_graph_cost_in_bn(self):
+        post_data = dfh.test_post_data_quirks
+        s, results = create_scenario_from_form(post_data)
+        chart_data = s.df_to_chart_data('cum_owed_v_wp')['chart_data']
+        chart_data = DataFrame([ row[1:] for row in chart_data[1:] ])
+        self.assertTrue((chart_data < 2).all().all())

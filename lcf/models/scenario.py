@@ -127,6 +127,10 @@ class Scenario(models.Model):
 
     def df_to_chart_data(self,column,summary=False):
         df = self.get_results(column)
+        df = df[df.year != 2020]
+        # print(column,df)
+        if column in ['cum_owed_v_wp', 'cum_owed_v_gas', 'cum_owed_v_absolute']:
+            df[column] = df[column]/1000
         df = df.set_index(dfh.tech_results_index['keys']).sort_index()
         df = df.unstack(0)
         df.columns = df.columns.get_level_values(1)
@@ -140,10 +144,9 @@ class Scenario(models.Model):
         df.loc['years_row'] = df.columns.astype('str')
         df = df.sort_values('tech_name') # annoying?
         df = df.reindex(index = ['years_row']+list(df.index)[:-1])
-        # print(df)
         chart_data = df.T.values.tolist()
         unit = dfh.abbrev[column]['unit']
-        options = {'title': None, 'vAxis': {'title': unit}, 'width':1000, 'height':400}
+        options = {'title': None, 'vAxis': {'title': unit}, 'width':1500, 'height':400}
         options_small = {'title': None, 'vAxis': {'title': unit}, 'width':800, 'height':400, 'legend': 'bottom'}
         if summary==True:
             options_small['legend'] = {'position': 'none'}
