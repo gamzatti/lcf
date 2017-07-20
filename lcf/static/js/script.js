@@ -92,6 +92,9 @@ $(document).ready(function(){
       toggleIcon($(this));
     });
 
+    $(".confirm-delete").click(function(){
+        return confirm('Are you sure you want to delete this?');
+    })
 
 
 //    document.getElementById("id_all_excel_quirks").onclick = function(){toggle(this)}

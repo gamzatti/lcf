@@ -43,10 +43,12 @@
                 <ul class="nav nav-sidebar">
                   {% for s in scenarios %}
                       {% if scenario.pk == s.pk %}
-                          <li class="active"><a href="{% url 'scenario_detail' pk=s.pk %}">{{ s.name }}</a><a class="del" href="{% url 'scenario_delete' pk=s.pk %}"><span title="delete scenario" class="glyphicon glyphicon-remove"></span> Delete</a></li>
+                          <li class="active">
                       {% else %}
-                          <li><a href="{% url 'scenario_detail' pk=s.pk %}">{{ s.name }}</a><a class="del" href="{% url 'scenario_delete' pk=s.pk %}"><span title="delete scenario" class="glyphicon glyphicon-remove"></span> Delete</a></li>
+                          <li>
                       {% endif %}
+                          <a href="{% url 'scenario_detail' pk=s.pk %}">{{ s.name }}</a><a class="del confirm-delete" href="{% url 'scenario_delete' pk=s.pk %}"><span title="delete scenario" class="glyphicon glyphicon-remove"></span> Delete</a>
+                          </li>
                   {% endfor %}
                 </ul>
                 <ul class="nav nav-sidebar">
@@ -58,7 +60,7 @@
                     {% if policy.pk == pl.pk %}
                         <li class="active"><a href="{% url 'policy_detail' pk=pl.pk %}">{{ pl.name }}</a><a class="del" href="{% url 'policy_delete' pk=pl.pk %}"><span title="delete policy" class="glyphicon glyphicon-remove"></span> Delete</a></li>
                     {% else %}
-                        <li><a href="{% url 'policy_detail' pk=pl.pk %}">{{ pl.name }}</a><a class="del" href="{% url 'policy_delete' pk=pl.pk %}"><span title="delete policy" class="glyphicon glyphicon-remove"></span> Delete</a></li>
+                        <li><a href="{% url 'policy_detail' pk=pl.pk %}">{{ pl.name }}</a><a class="del confirm-delete" href="{% url 'policy_delete' pk=pl.pk %}"><span title="delete policy" class="glyphicon glyphicon-remove"></span> Delete</a></li>
                     {% endif %}
                 {% endfor %}
 
@@ -67,7 +69,7 @@
                     <li><a href="{% url 'policy_new' %}"><div class="btn btn-primary">New policy</div></a></li>
                     <!--<li class="active"><a href="#">Nav item 1 <span class="sr-only">(current)</span></a></li>-->
                   </ul>
-                  
+
               </div>
 
               <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
